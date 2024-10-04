@@ -31,19 +31,20 @@ object OkHttpHelper {
                 val response = chain.proceed(requestWithToken)
                 // 检查是否401 Unauthorized
                 if (response.code == 401) {
+                    synchronized(this) {
                         //刷新AccessToken
                         refreshAccessToken()
                         //重新请求
                         val retryRequest = originalRequest.newBuilder()
-                                .header("Authorization", "Bearer ${PlanetApplication.accessToken}")
-                                .build()
+                            .header("Authorization", "Bearer ${PlanetApplication.accessToken}")
+                            .build()
                         return@Interceptor chain.proceed(retryRequest)
                     }
+                }
                 response
             })
             .build()
     }
-
     /**
      * 刷新AccessToken和RefreshToken
      */
