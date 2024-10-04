@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.NetWork
+package com.example.changli_planet_app.Network
 import com.google.gson.Gson
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -7,13 +7,11 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.BufferedSink
 import okio.GzipSink
-import okio.Okio
 import okio.buffer
 import java.io.File
 import java.io.IOException
 import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
-import kotlin.jvm.Throws
 
 object OkHttpHelper {
     //懒加载OkhttpClient
