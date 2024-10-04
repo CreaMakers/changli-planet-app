@@ -36,7 +36,12 @@ android {
 }
 
 dependencies {
-
+    // OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.10.0") // 请检查最新版本
+    // EventBus
+    implementation("org.greenrobot:eventbus:3.3.1") // 请检查最新版本
+    // Gson
+    implementation("com.google.code.gson:gson:2.10.1") // 请检查最新版本
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
