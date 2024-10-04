@@ -6,6 +6,5 @@ class PlanetApplication:Application() {
     companion object{
         var accessToken:String ?= null
         var refreshToken:String ?= null
-        var isRefresh:Boolean = false
     }
 }
