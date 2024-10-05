@@ -33,7 +33,7 @@ dependencies {
 OkHttpHelper.get(
     url = "https://api.example.com/data",
     responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response ->
+    onSuccess = { response：MyResponse ->
         // 成功处理响应
         println("Response: $response")
     },
@@ -51,7 +51,7 @@ OkHttpHelper.get(
     url = "https://api.example.com/data",
     queryParams = mapOf("key1" to "value1", "key2" to "value2"),
     responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response ->
+    onSuccess = { response:MyResponse ->
         // 处理成功响应
         println("Response: $response")
     },
@@ -73,7 +73,7 @@ OkHttpHelper.post(
     url = "https://api.example.com/submit",
     requestBodyObj = requestBody,
     responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response ->
+    onSuccess = { response:MyResponse ->
         // 处理成功响应
         println("Response: $response")
     },
@@ -95,7 +95,7 @@ OkHttpHelper.put(
     url = "https://api.example.com/update",
     requestBodyObj = requestBody,
     responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response ->
+    onSuccess = { response:MyResponse ->
         // 处理成功响应
         println("Response: $response")
     },
@@ -114,7 +114,7 @@ OkHttpHelper.put(
 OkHttpHelper.delete(
     url = "https://api.example.com/delete",
     responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response ->
+    onSuccess = { response:MyResponse ->
         // 处理成功响应
         println("Response: $response")
     },
