@@ -1,4 +1,6 @@
 package com.example.changli_planet_app.Network
+import com.example.changli_planet_app.Network.Response.refreshToken
+import com.example.changli_planet_app.PlanetApplication
 import com.google.gson.Gson
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -20,7 +22,50 @@ object OkHttpHelper {
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
+            .addInterceptor(Interceptor{chain ->
+                val originalRequest = chain.request()
+                // 添加Access Token
+                val requestWithToken = originalRequest.newBuilder()
+                    .addHeader("Authorization", "Bearer ${PlanetApplication.accessToken}")
+                    .build()
+                val response = chain.proceed(requestWithToken)
+                // 检查是否401 Unauthorized
+                if (response.code == 401) {
+                    synchronized(this) {
+                        //刷新AccessToken
+                        refreshAccessToken()
+                        //重新请求
+                        val retryRequest = originalRequest.newBuilder()
+                            .header("Authorization", "Bearer ${PlanetApplication.accessToken}")
+                            .build()
+                        return@Interceptor chain.proceed(retryRequest)
+                    }
+                }
+                response
+            })
             .build()
+    }
+    /**
+     * 刷新AccessToken和RefreshToken
+     */
+    private fun refreshAccessToken(){
+        val json = gson.toJson(PlanetApplication.refreshToken)
+        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        val request = Request.Builder()
+            .url("wait")
+            .put(body)
+            .build()
+        client.newCall(request).enqueue(object : Callback{
+            override fun onFailure(call: Call, e: IOException) {
+                TODO()
+            }
+            override fun onResponse(call: Call, response: Response) {
+                PlanetApplication.accessToken = gson.fromJson(response.toString(),refreshToken::class.java)
+                    .data.access_token
+                PlanetApplication.refreshToken = gson.fromJson(response.toString(),refreshToken::class.java)
+                    .data.refresh_token
+            }
+        })
     }
     //解析返回的Json和发送的Json
     private val gson: Gson by lazy { Gson() }
@@ -81,7 +126,7 @@ object OkHttpHelper {
      */
     fun <T, R> post(url: String, requestBodyObj: T, responseType: Type, onSuccess: (R) -> Unit, onFailure: (String) -> Unit) {
         val json = gson.toJson(requestBodyObj)
-        val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
+        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val request = Request.Builder()
             .url(url)
             .post(body)
