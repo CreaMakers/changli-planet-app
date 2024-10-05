@@ -1,7 +1,10 @@
 package com.example.changli_planet_app.Network
+import android.util.Log
+import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.refreshToken
 import com.example.changli_planet_app.PlanetApplication
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -45,6 +48,7 @@ object OkHttpHelper {
             })
             .build()
     }
+
     /**
      * 刷新AccessToken和RefreshToken
      */
@@ -55,15 +59,25 @@ object OkHttpHelper {
             .url("wait")
             .put(body)
             .build()
-        client.newCall(request).enqueue(object : Callback{
+
+        // 发送请求
+        client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                TODO()
+                Log.e("API Error", "请求失败: ${e.message}")
+                // 这里可以处理失败逻辑，比如重试或用户提示
             }
+
             override fun onResponse(call: Call, response: Response) {
-                PlanetApplication.accessToken = gson.fromJson(response.toString(),refreshToken::class.java)
-                    .data.access_token
-                PlanetApplication.refreshToken = gson.fromJson(response.toString(),refreshToken::class.java)
-                    .data.refresh_token
+                if (response.isSuccessful && response.body != null) {
+                    // 使用 TypeToken 来指定泛型类型
+                    val myResponseType = object : TypeToken<MyResponse<refreshToken>>() {}.type
+                    val myResponse: MyResponse<refreshToken> = gson.fromJson(response.body!!.string(), myResponseType)
+                    PlanetApplication.accessToken = myResponse.data.access_token
+                    PlanetApplication.refreshToken = myResponse.data.refresh_token
+                } else {
+                    Log.e("API Error", "响应错误: ${response.code} - ${response.message}")
+                    // 处理响应不成功的逻辑
+                }
             }
         })
     }
