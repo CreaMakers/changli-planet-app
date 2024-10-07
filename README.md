@@ -49,6 +49,7 @@ OkHttpHelper.get(
 ```kotlin
 OkHttpHelper.get(
     url = "https://api.example.com/data",
+    pathParams = "123",
     queryParams = mapOf("key1" to "value1", "key2" to "value2"),
     responseType = object : TypeToken<MyResponseType>() {}.type,
     onSuccess = { response:MyResponse ->
