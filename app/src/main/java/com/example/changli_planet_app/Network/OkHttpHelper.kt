@@ -227,7 +227,6 @@ object OkHttpHelper {
             .url(url)
             .put(body)
             .build()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 onFailure(e.message ?: "Unknown Error")
