@@ -1,7 +1,7 @@
 package com.example.changli_planet_app.Network
 import android.util.Log
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.Network.Response.refreshToken
+import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.PlanetApplication
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -70,8 +70,8 @@ object OkHttpHelper {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful && response.body != null) {
                     // 使用 TypeToken 来指定泛型类型
-                    val myResponseType = object : TypeToken<MyResponse<refreshToken>>() {}.type
-                    val myResponse: MyResponse<refreshToken> = gson.fromJson(response.body!!.string(), myResponseType)
+                    val myResponseType = object : TypeToken<MyResponse<RefreshToken>>() {}.type
+                    val myResponse: MyResponse<RefreshToken> = gson.fromJson(response.body!!.string(), myResponseType)
                     PlanetApplication.accessToken = myResponse.data.access_token
                     PlanetApplication.refreshToken = myResponse.data.refresh_token
                 } else {
@@ -170,7 +170,8 @@ object OkHttpHelper {
      */
     fun <T> get(
         url: String,
-        queryParams: Map<String, String> = emptyMap(), // 允许传递查询参数
+        pathParams: String? = null, // 允许传递路径参数，可为 null
+        queryParams: Map<String, String>? = null, // 允许传递查询参数，可为 null
         responseType: Type,
         onSuccess: (T) -> Unit,
         onFailure: (String) -> Unit
@@ -180,9 +181,15 @@ object OkHttpHelper {
             onFailure("Invalid URL")
             return
         }
-        // 将查询参数加入到 URL 中
-        for ((key, value) in queryParams) {
-            httpUrlBuilder.addQueryParameter(key, value)
+        // 如果路径参数不为 null，则将路径参数加入到 URL 中
+        pathParams?.let {
+            httpUrlBuilder.addPathSegment(pathParams)
+        }
+        // 如果查询参数不为 null，则将查询参数加入到 URL 中
+        queryParams?.let {
+            for ((key, value) in it) {
+                httpUrlBuilder.addQueryParameter(key, value)
+            }
         }
         val request = Request.Builder()
             .url(httpUrlBuilder.build()) // 使用包含查询参数的 URL
@@ -220,7 +227,6 @@ object OkHttpHelper {
             .url(url)
             .put(body)
             .build()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 onFailure(e.message ?: "Unknown Error")
