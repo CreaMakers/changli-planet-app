@@ -17,7 +17,6 @@ class PlanetApplication:Application() {
             .https() // (Optional) Log granularity, if debug mode is enabled, pass in "Log.VERBOSE".
             .logLevel(Log.VERBOSE)
             .build()
-
         MSDKDnsResolver.getInstance().init(this, dnsConfigBuilder)
         OkHttpHelper.preRequest("My_Url")
     }
