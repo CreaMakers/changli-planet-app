@@ -18,6 +18,6 @@ class PlanetApplication:Application() {
             .logLevel(Log.VERBOSE)
             .build()
         MSDKDnsResolver.getInstance().init(this, dnsConfigBuilder)
-        OkHttpHelper.preRequest("My_Url")
+        //OkHttpHelper.preRequest("My_Url")
     }
 }
