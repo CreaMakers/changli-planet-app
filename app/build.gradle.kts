@@ -36,6 +36,8 @@ android {
 }
 
 dependencies {
+    //腾讯云HTTPDNS
+    implementation("io.github.dnspod:httpdns-sdk:4.9.1")
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.10.0") // 请检查最新版本
     // EventBus
