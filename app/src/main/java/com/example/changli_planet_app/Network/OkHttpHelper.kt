@@ -59,16 +59,12 @@ object OkHttpHelper {
             .url("wait")
             .put(body)
             .build()
-
         // 发送请求
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("API Error", "请求失败: ${e.message}")
                 // 这里可以处理失败逻辑，比如重试或用户提示
             }
-
-
-
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful && response.body != null) {
                     // 使用 TypeToken 来指定泛型类型
@@ -134,7 +130,7 @@ object OkHttpHelper {
     // 异步 POST 请求
     /**
      * @param url : 请求的Url
-     * @param requestBodyObj:请求体的类型
+     * @param requestBodyObj:请求体的类型         
      * @param responseType : 返回值的类型
      * @param onSuccess : 成功回调
      * @param onFailure : 失败回调
@@ -144,7 +140,30 @@ object OkHttpHelper {
         val json = gson.toJson(requestBodyObj)
         val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val request = Request.Builder()
-            .url(url)
+            .url(PlanetApplication.ip + url)
+            .post(body)
+            .build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                onFailure(e.message ?: "Unknown Error")
+            }
+            override fun onResponse(call: Call, response: Response) {
+                response.body?.let { responseBody ->
+                    val json = responseBody.string()
+                    //将返回的值转换成对应的类型
+                    val parsedObject: R = gson.fromJson(json, responseType)
+                    //回调
+                    onSuccess(parsedObject)
+                } ?: onFailure("Response body is null")
+            }
+        })
+    }
+    fun <T, R> postWithHeader(url: String, requestBodyObj: T, headerKey:String,headerValue:String,responseType: Type, onSuccess: (R) -> Unit, onFailure: (String) -> Unit) {
+        val json = gson.toJson(requestBodyObj)
+        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        val request = Request.Builder()
+            .url(PlanetApplication.ip + url)
+            .addHeader(headerKey,headerValue)
             .post(body)
             .build()
         client.newCall(request).enqueue(object : Callback {
@@ -179,7 +198,7 @@ object OkHttpHelper {
         onFailure: (String) -> Unit
     ) {
         // 使用 HttpUrl.Builder 动态添加查询参数
-        val httpUrlBuilder = url.toHttpUrlOrNull()?.newBuilder() ?: run {
+        val httpUrlBuilder = (PlanetApplication.ip + url).toHttpUrlOrNull()?.newBuilder() ?: run {
             onFailure("Invalid URL")
             return
         }
@@ -226,7 +245,7 @@ object OkHttpHelper {
         val json = gson.toJson(requestBodyObj)
         val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val request = Request.Builder()
-            .url(url)
+            .url(PlanetApplication.ip + url)
             .put(body)
             .build()
         client.newCall(request).enqueue(object : Callback {
@@ -255,15 +274,13 @@ object OkHttpHelper {
      onSuccess: (T) -> Unit,
      onFailure: (String) -> Unit) {
         val request = Request.Builder()
-            .url(url)
+            .url(PlanetApplication.ip + url)
             .delete()
             .build()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 onFailure(e.message ?: "Unknown Error")
             }
-
             override fun onResponse(call: Call, response: Response) {
                 response.body?.let { responseBody ->
                     val json = responseBody.string()
@@ -301,7 +318,7 @@ object OkHttpHelper {
             .build()
         // 构建 HTTP 请求，指定目标 URL 和请求体
         val request = Request.Builder()
-            .url(url) // 指定上传文件的服务器 URL
+            .url(PlanetApplication.ip + url) // 指定上传文件的服务器 URL
             .post(requestBody) // 使用 POST 方法上传数据
             .build()
         // 使用 OkHttpClient 异步发送请求，避免阻塞主线程
@@ -346,7 +363,7 @@ object OkHttpHelper {
     ) {
         // 构建 WebSocket 请求
         val request = Request.Builder()
-            .url(url)
+            .url(PlanetApplication.ip + url)
             .build()
         // 创建 WebSocket 并添加事件监听器
         client.newWebSocket(request, object : WebSocketListener() {

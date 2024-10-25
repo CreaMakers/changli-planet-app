@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.ViewBinding
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -33,17 +35,22 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    viewBinding{
+        enable = true
+    }
 }
 
 dependencies {
+    //MMKV
+    implementation("com.tencent:mmkv:2.0.0")
     //腾讯云HTTPDNS
     implementation("io.github.dnspod:httpdns-sdk:4.9.1")
     // OkHttp
-    implementation("com.squareup.okhttp3:okhttp:4.10.0") // 请检查最新版本
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
     // EventBus
-    implementation("org.greenrobot:eventbus:3.3.1") // 请检查最新版本
+    implementation("org.greenrobot:eventbus:3.3.1")
     // Gson
-    implementation("com.google.code.gson:gson:2.10.1") // 请检查最新版本
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

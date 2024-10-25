@@ -3,6 +3,9 @@
     <style name="Base.Theme.Changliplanetapp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/navigtion_blue</item>
+        <item name="android:windowBackground">@color/jiemina</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.Changliplanetapp" parent="Base.Theme.Changliplanetapp" />
