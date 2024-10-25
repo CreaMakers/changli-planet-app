@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="navigtion_blue">#0058F9</color>
+    <color name="icon_gray">#8E959F</color>
+    <color name="login_blue">#5AC6EF</color>
+    <color name="jiemina">#F5FFFF</color>
+    <color name="login_gray">#F3F2F7</color>
 </resources>
