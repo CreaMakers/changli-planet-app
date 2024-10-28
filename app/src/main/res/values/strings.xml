@@ -6,4 +6,5 @@
     <string name="function">功能</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="query_things">提示：房间号，金村不分A区，B区则直接输入门牌号即可，云塘有A区，B区之分，则要加前缀，如B306，A504。</string>
 </resources>

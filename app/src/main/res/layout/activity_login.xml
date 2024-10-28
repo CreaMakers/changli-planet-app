@@ -35,12 +35,14 @@
         android:background="@drawable/login_edit_shape"
         android:gravity="center"
         android:hint="请输入学号"
+        android:inputType="textPassword"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/account"
         app:layout_constraintWidth_percent="0.8" />
     <Button
+        android:id="@+id/login"
         android:layout_width="0dp"
         android:layout_height="40dp"
         app:layout_constraintVertical_bias="0.1"

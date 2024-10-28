@@ -7,4 +7,7 @@
     <color name="login_blue">#5AC6EF</color>
     <color name="jiemina">#F5FFFF</color>
     <color name="login_gray">#F3F2F7</color>
+    <color name="feature_white">#FAFAFA</color>
+    <color name="itractor">#DCDCDC</color>
+    <color name="primary_blue">#0099FA</color>
 </resources>
