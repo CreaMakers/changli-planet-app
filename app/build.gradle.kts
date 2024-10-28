@@ -41,6 +41,8 @@ android {
 }
 
 dependencies {
+    //Glide
+    implementation("com.github.bumptech.glide:glide:4.16.0") // 替换为最新版本
     //MMKV
     implementation("com.tencent:mmkv:2.0.0")
     //腾讯云HTTPDNS
