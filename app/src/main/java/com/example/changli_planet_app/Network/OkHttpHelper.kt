@@ -5,6 +5,7 @@ import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.PlanetApplication
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.tencent.msdk.dns.MSDKDnsResolver
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -16,12 +17,58 @@ import okio.buffer
 import java.io.File
 import java.io.IOException
 import java.lang.reflect.Type
+import java.net.InetAddress
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
 object OkHttpHelper {
     //懒加载OkhttpClient
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
+            //配置HTTPDNS解析
+            .dns(object : Dns {
+                override fun lookup(hostname: String): List<InetAddress> {
+                    require(hostname.isNotBlank()) { "hostname can not be null or blank" }
+                    return try {
+                        // 尝试使用 HTTPDNS 解析
+                        val ips = MSDKDnsResolver.getInstance().getAddrByName(hostname)
+                        val ipArr = ips.split(";")
+
+                        // 如果没有返回有效的 IP 地址，尝试降级使用 LocalDNS
+                        if (ipArr.isEmpty() || ipArr.all { it == "0" }) {
+                            fallbackToLocalDns(hostname)
+                        } else {
+                            val inetAddressList = mutableListOf<InetAddress>()
+                            for (ip in ipArr) {
+                                if (ip != "0") {
+                                    try {
+                                        inetAddressList.add(InetAddress.getByName(ip))
+                                    } catch (ignored: UnknownHostException) {
+                                        // 忽略无效的 IP
+                                    }
+                                }
+                            }
+                            // 如果 HTTPDNS 返回的 IP 列表为空，则降级使用 LocalDNS
+                            if (inetAddressList.isEmpty()) {
+                                fallbackToLocalDns(hostname)
+                            } else {
+                                inetAddressList
+                            }
+                        }
+                    } catch (e: Exception) {
+                        // 在发生异常时降级使用 LocalDNS
+                        fallbackToLocalDns(hostname)
+                    }
+                }
+                // 降级到 LocalDNS 的方法
+                private fun fallbackToLocalDns(hostname: String): List<InetAddress> {
+                    return try {
+                        InetAddress.getAllByName(hostname).toList()
+                    } catch (e: UnknownHostException) {
+                        emptyList() // 返回空列表，表示无法解析
+                    }
+                }
+            })
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
@@ -48,7 +95,43 @@ object OkHttpHelper {
             })
             .build()
     }
+    fun sendRequest(httpUrlHelper: HttpUrlHelper,callback: RequestCallback){
+        val requestBuilder = Request.Builder().url(httpUrlHelper.buildUrl())
 
+        // 添加头部信息
+        for ((key, value) in httpUrlHelper.headers) {
+            requestBuilder.addHeader(key, value)
+        }
+
+        // 创建请求
+        val request = when (httpUrlHelper.requestType) {
+            HttpUrlHelper.RequestType.GET -> requestBuilder.get().build()
+            HttpUrlHelper.RequestType.POST -> {
+                requestBuilder.post((httpUrlHelper.requestBody ?: "").toRequestBody("application/json".toMediaTypeOrNull()))
+                    .build()
+            }
+            HttpUrlHelper.RequestType.PUT ->{
+                requestBuilder.put((httpUrlHelper.requestBody ?: "").toRequestBody("application/json".toMediaTypeOrNull()))
+                    .build()
+            }
+            HttpUrlHelper.RequestType.DELETE ->{
+                requestBuilder.delete((httpUrlHelper.requestBody ?: "").toRequestBody("application/json".toMediaTypeOrNull()))
+                    .build()
+            }
+        }
+        client.newCall(request).enqueue(object :Callback{
+            override fun onFailure(call: Call, e: IOException) {
+                callback.onFailure("error")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!it.isSuccessful) throw IOException("Unexpected code $it")
+                    callback.onSuccess(it.body.toString())
+                }
+            }
+        })
+    }
     /**
      * 刷新AccessToken和RefreshToken
      */
@@ -84,7 +167,7 @@ object OkHttpHelper {
     /**
      * Gzip请求体内部类，用于构建被Gzip压缩的Body
      */
-    class GzipRequestBody(val requestBody: RequestBody) : RequestBody(){
+    class GzipRequestBody(private val requestBody: RequestBody) : RequestBody(){
         override fun contentType(): MediaType? {
             //返回原Body的MiMe
             return requestBody.contentType()
@@ -98,197 +181,6 @@ object OkHttpHelper {
             gzipSink.close()
         }
 
-    }
-    // 异步 GET 请求
-    /**
-     * @param url : 请求的Url
-     * @param responseType : 返回值的类型
-     * @param onSuccess : 成功回调
-     * @param onFailure : 失败回调
-     * 泛型在定义了responseType后可不写
-     */
-    fun <T> get(url: String, responseType: Type, onSuccess: (T) -> Unit, onFailure: (String) -> Unit) {
-        val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                // 请求失败，回调 onFailure
-                onFailure(e.message ?: "Unknown Error")
-            }
-            override fun onResponse(call: Call, response: Response) {
-                // 请求成功，处理响应
-                response.body?.let { responseBody ->
-                    val json = responseBody.string()
-                    val parsedObject: T = gson.fromJson(json, responseType)
-                    onSuccess(parsedObject)
-                } ?: onFailure("Response body is null")
-            }
-        })
-    }
-    // 异步 POST 请求
-    /**
-     * @param url : 请求的Url
-     * @param requestBodyObj:请求体的类型         
-     * @param responseType : 返回值的类型
-     * @param onSuccess : 成功回调
-     * @param onFailure : 失败回调
-     * 泛型在定义了responseType后可不写
-     */
-    fun <T, R> post(url: String, requestBodyObj: T, responseType: Type, onSuccess: (R) -> Unit, onFailure: (String) -> Unit) {
-        val json = gson.toJson(requestBodyObj)
-        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val request = Request.Builder()
-            .url(PlanetApplication.ip + url)
-            .post(body)
-            .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                onFailure(e.message ?: "Unknown Error")
-            }
-            override fun onResponse(call: Call, response: Response) {
-                response.body?.let { responseBody ->
-                    val json = responseBody.string()
-                    //将返回的值转换成对应的类型
-                    val parsedObject: R = gson.fromJson(json, responseType)
-                    //回调
-                    onSuccess(parsedObject)
-                } ?: onFailure("Response body is null")
-            }
-        })
-    }
-    fun <T, R> postWithHeader(url: String, requestBodyObj: T, headerKey:String,headerValue:String,responseType: Type, onSuccess: (R) -> Unit, onFailure: (String) -> Unit) {
-        val json = gson.toJson(requestBodyObj)
-        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val request = Request.Builder()
-            .url(PlanetApplication.ip + url)
-            .addHeader(headerKey,headerValue)
-            .post(body)
-            .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                onFailure(e.message ?: "Unknown Error")
-            }
-            override fun onResponse(call: Call, response: Response) {
-                response.body?.let { responseBody ->
-                    val json = responseBody.string()
-                    //将返回的值转换成对应的类型
-                    val parsedObject: R = gson.fromJson(json, responseType)
-                    //回调
-                    onSuccess(parsedObject)
-                } ?: onFailure("Response body is null")
-            }
-        })
-    }
-    /**
-     * @param url : 请求的Url
-     * @param responseType : 返回值的类型
-     * @param onSuccess : 成功回调
-     * @param onFailure : 失败回调
-     * @param queryParams : 携带的参数
-     * 泛型在定义了responseType后可不写
-     */
-    fun <T> get(
-        url: String,
-        pathParams: String? = null, // 允许传递路径参数，可为 null
-        queryParams: Map<String, String>? = null, // 允许传递查询参数，可为 null
-        responseType: Type,
-        onSuccess: (T) -> Unit,
-        onFailure: (String) -> Unit
-    ) {
-        // 使用 HttpUrl.Builder 动态添加查询参数
-        val httpUrlBuilder = (PlanetApplication.ip + url).toHttpUrlOrNull()?.newBuilder() ?: run {
-            onFailure("Invalid URL")
-            return
-        }
-        // 如果路径参数不为 null，则将路径参数加入到 URL 中
-        pathParams?.let {
-            httpUrlBuilder.addPathSegment(pathParams)
-        }
-        // 如果查询参数不为 null，则将查询参数加入到 URL 中
-        queryParams?.let {
-            for ((key, value) in it) {
-                httpUrlBuilder.addQueryParameter(key, value)
-            }
-        }
-        val request = Request.Builder()
-            .url(httpUrlBuilder.build()) // 使用包含查询参数的 URL
-            .get()
-            .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                onFailure(e.message ?: "Unknown Error")
-            }
-            override fun onResponse(call: Call, response: Response) {
-                response.body?.let { responseBody ->
-                    val json = responseBody.string()
-                    val parsedObject: T = gson.fromJson(json, responseType)
-                    onSuccess(parsedObject)
-                } ?: onFailure("Response body is null")
-            }
-        })
-    }
-    /**@param url : 请求的Url
-     * @param requestBodyObj : 请求体的类型
-     * @param responseType : 返回值的类型
-     * @param onSuccess : 成功回调
-     * @param onFailure : 失败回调
-    **/
-    // 异步 PUT 请求
-    fun <T, R> put
-    (url: String,
-     requestBodyObj: T,
-     responseType: Type,
-     onSuccess: (R) -> Unit,
-     onFailure: (String) -> Unit) {
-        val json = gson.toJson(requestBodyObj)
-        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val request = Request.Builder()
-            .url(PlanetApplication.ip + url)
-            .put(body)
-            .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                onFailure(e.message ?: "Unknown Error")
-            }
-            override fun onResponse(call: Call, response: Response) {
-                response.body?.let { responseBody ->
-                    val json = responseBody.string()
-                    val parsedObject: R = gson.fromJson(json, responseType)
-                    onSuccess(parsedObject)
-                } ?: onFailure("Response body is null")
-            }
-        })
-    }
-    /**
-     * @param url : 请求的Url
-     * @param responseType : 返回值的类型
-     * @param onSuccess : 成功回调
-     * @param onFailure : 失败回调
-     */
-    // 异步 DELETE 请求
-    fun <T> delete
-    (url: String,
-     responseType: Type,
-     onSuccess: (T) -> Unit,
-     onFailure: (String) -> Unit) {
-        val request = Request.Builder()
-            .url(PlanetApplication.ip + url)
-            .delete()
-            .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                onFailure(e.message ?: "Unknown Error")
-            }
-            override fun onResponse(call: Call, response: Response) {
-                response.body?.let { responseBody ->
-                    val json = responseBody.string()
-                    val parsedObject: T = gson.fromJson(json, responseType)
-                    onSuccess(parsedObject)
-                } ?: onFailure("Response body is null")
-            }
-        })
     }
     /**
      * @param description : 文件的描述
@@ -409,6 +301,7 @@ object OkHttpHelper {
      * 初步构想闪屏页面预请求首页数据
      */
     fun preRequest(url: String){
+        val startTime = System.currentTimeMillis()
         val request = Request.Builder()
             .url(url)
             .head()
@@ -421,6 +314,9 @@ object OkHttpHelper {
                 //预连接成功与否不需关心
             }
         })
+        val endTime = System.currentTimeMillis()
+        val duration = endTime - startTime
+        Log.d("MyTag","PreRequestTime:${duration}")
     }
 }
 
