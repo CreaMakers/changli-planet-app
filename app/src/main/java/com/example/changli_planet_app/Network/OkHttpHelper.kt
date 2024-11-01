@@ -42,6 +42,7 @@ object OkHttpHelper {
                             for (ip in ipArr) {
                                 if (ip != "0") {
                                     try {
+                                        Log.d("MyIp", ip)
                                         inetAddressList.add(InetAddress.getByName(ip))
                                     } catch (ignored: UnknownHostException) {
                                         // 忽略无效的 IP

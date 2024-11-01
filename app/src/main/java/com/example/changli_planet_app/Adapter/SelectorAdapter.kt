@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.Event.SelectEvent
 import com.example.changli_planet_app.Util.EventBusHelper
-
 class SelectorAdapter(private val list: List<String>):RecyclerView.Adapter<SelectorAdapter.SelectorViewHodler>() {
     class SelectorViewHodler(item:View):ViewHolder(item){
         val selec : TextView = item.findViewById(R.id.select)

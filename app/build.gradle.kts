@@ -41,6 +41,8 @@ android {
 }
 
 dependencies {
+    //PhotoImageView
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
     //Glide
     implementation("com.github.bumptech.glide:glide:4.16.0") // 替换为最新版本
     //MMKV
