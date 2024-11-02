@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 }
-0
+
 android {
     namespace = "com.example.changli_planet_app"
     compileSdk = 34
@@ -40,19 +40,16 @@ android {
         enable = true
     }
 }
+
 dependencies {
-    implementation("io.reactivex.rxjava3:rxjava:3.1.9")
-    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
-    //Lottie
-    implementation("com.airbnb.android:lottie:6.6.0")
     //Glide
     implementation("com.github.bumptech.glide:glide:4.16.0") // 替换为最新版本
     //MMKV
-    implementation("com.tencent:mmkv:1.2.13") // 请根据需要选择最新版本
+    implementation("com.tencent:mmkv:2.0.0")
     //腾讯云HTTPDNS
     implementation("io.github.dnspod:httpdns-sdk:4.9.1")
     // OkHttp
-    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
     // EventBus
     implementation("org.greenrobot:eventbus:3.3.1")
     // Gson
