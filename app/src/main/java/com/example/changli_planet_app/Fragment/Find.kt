@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.changli_planet_app.databinding.FragmentFindBinding
-
 class Find : Fragment() {
     private lateinit var binding: FragmentFindBinding
     override fun onCreateView(
