@@ -16,6 +16,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -56,6 +57,8 @@ dependencies {
     implementation("org.greenrobot:eventbus:3.3.1")
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
+    //TimetableView
+    implementation("com.github.zfman:TimetableView:2.0.7")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
