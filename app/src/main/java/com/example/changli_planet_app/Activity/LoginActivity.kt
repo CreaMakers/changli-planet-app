@@ -1,12 +1,10 @@
 package com.example.changli_planet_app.Activity
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
 import android.text.InputFilter
-import android.text.InputType
 import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
@@ -18,7 +16,7 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
-    lateinit var binding: ActivityLoginBinding
+    private lateinit var binding: ActivityLoginBinding
     val Login: Button by lazy { binding.login }
     val account: EditText by lazy { binding.account }
     val password: EditText by lazy { binding.password }
@@ -38,12 +36,7 @@ class LoginActivity : AppCompatActivity() {
         val textWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 // 如果account和password为空，则禁用按钮并设置浅色背景
-                if (account.text.isEmpty() || password.text.isEmpty()) {
-                    Login.isEnabled = false
-                } else {
-                    // 否则启用按钮并恢复正常背景颜色
-                    Login.isEnabled = true
-                }
+                Login.isEnabled = !(account.text.isEmpty() || password.text.isEmpty())
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
