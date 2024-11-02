@@ -32,6 +32,7 @@ object OkHttpHelper {
                         // 尝试使用 HTTPDNS 解析
                         val ips = MSDKDnsResolver.getInstance().getAddrByName(hostname)
                         val ipArr = ips.split(";")
+
                         // 如果没有返回有效的 IP 地址，尝试降级使用 LocalDNS
                         if (ipArr.isEmpty() || ipArr.all { it == "0" }) {
                             fallbackToLocalDns(hostname)
@@ -40,7 +41,6 @@ object OkHttpHelper {
                             for (ip in ipArr) {
                                 if (ip != "0") {
                                     try {
-                                        Log.d("MyIp", ip)
                                         inetAddressList.add(InetAddress.getByName(ip))
                                     } catch (ignored: UnknownHostException) {
                                         // 忽略无效的 IP
@@ -96,6 +96,7 @@ object OkHttpHelper {
     }
     fun sendRequest(httpUrlHelper: HttpUrlHelper,callback: RequestCallback){
         val requestBuilder = Request.Builder().url(httpUrlHelper.buildUrl())
+
         // 添加头部信息
         for ((key, value) in httpUrlHelper.headers) {
             requestBuilder.addHeader(key, value)
