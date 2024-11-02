@@ -34,26 +34,29 @@
         app:tabSelectedTextColor="@color/navigtion_blue"
         app:tabRippleColor="@android:color/transparent">
         <com.google.android.material.tabs.TabItem
+            android:id="@+id/feature"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/feature"
             android:text="@string/function" />
         <com.google.android.material.tabs.TabItem
+            android:id="@+id/look"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/search"
             android:text="@string/find" />
 
         <com.google.android.material.tabs.TabItem
+            android:id="@+id/post"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/news"
             android:text="@string/news" />
-
         <com.google.android.material.tabs.TabItem
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:icon="@drawable/chat"
-        android:text="@string/chat" />
+            android:id="@+id/im"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/chat"
+            android:text="@string/chat" />
     </com.google.android.material.tabs.TabLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
