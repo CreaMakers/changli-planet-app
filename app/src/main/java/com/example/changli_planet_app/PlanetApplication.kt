@@ -15,7 +15,7 @@ class PlanetApplication : Application() {
         // 双Token
         var accessToken: String? = null
         var refreshToken: String? = null
-        var isLogin = false
+        var isLogin = true
         var isTourist = false
         const val ip: String = "https://www.baidu.com/"
     }

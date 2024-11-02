@@ -2,6 +2,7 @@ package com.example.changli_planet_app.Activity
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -17,10 +18,11 @@ import com.google.android.material.tabs.TabLayout.Tab
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
-    private val tabLayout : TabLayout by lazy {binding.tabLayout}
+    private val tabLayout : TabLayout by lazy { binding.tabLayout }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val startTime = System.currentTimeMillis()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -29,22 +31,48 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         initFragment(Feature.newInstance())
-        binding.feature.setOnClickListener{initFragment(Feature.newInstance())}
-        binding.post.setOnClickListener{initFragment(Find.newInstance())}
-        binding.im.setOnClickListener{initFragment(IM.newInstance())}
-        //为导航栏设置动画和颜色
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener{
-            override fun onTabSelected(p0: Tab?) {
-                if (p0 != null) {
-                    animateTabSelect(p0)
+        setupTabs()
+        setupTabSelectionListener()
+        val endTime = System.currentTimeMillis()
+        Log.d("theTime","${startTime - endTime}")
+    }
+    private fun setupTabs() {
+        // 动态添加 tabs
+        val featureTab = tabLayout.newTab().setIcon(R.drawable.feature).setText(R.string.function)
+        val lookTab = tabLayout.newTab().setIcon(R.drawable.search).setText(R.string.find)
+        val postTab = tabLayout.newTab().setIcon(R.drawable.news).setText(R.string.news)
+        val imTab = tabLayout.newTab().setIcon(R.drawable.chat).setText(R.string.chat)
+
+        tabLayout.addTab(featureTab)
+        tabLayout.addTab(lookTab)
+        tabLayout.addTab(postTab)
+        tabLayout.addTab(imTab)
+    }
+    private fun setupTabSelectionListener() {
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                if (tab != null) {
+                    animateTabSelect(tab)
                 }
+                when (tab.position) {
+                    0 -> initFragment(Feature.newInstance())  // feature tab
+                    1 -> initFragment(Find.newInstance())     // look tab
+                    2 -> initFragment(Feature.newInstance())     // post tab
+                    3 -> initFragment(IM.newInstance())        // im tab
+                }
+                animateTabSelect(tab) // 动画效果
             }
-            override fun onTabUnselected(p0: Tab?) {
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+                // 可选：处理未选中事件
             }
-            override fun onTabReselected(p0: Tab?) {
+
+            override fun onTabReselected(tab: TabLayout.Tab) {
+                // 可选：处理重新选中事件
             }
         })
     }
+
     private fun initFragment(fragment: Fragment){
         val fragmentationTemp = supportFragmentManager
         val transactions = fragmentationTemp.beginTransaction()
