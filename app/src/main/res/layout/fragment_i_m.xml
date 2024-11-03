@@ -5,8 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:background="#EEF4FF"
-    android:layout_height="match_parent"
-    tools:context=".Activity.ImListActivity">
+    android:layout_height="match_parent">
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
@@ -20,8 +19,9 @@
             android:layout_width="5dp"
             android:layout_height="match_parent" />
         <com.google.android.material.imageview.ShapeableImageView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:src="@drawable/prehead"
             app:shapeAppearance="@style/RoundedStyle" />
         <TextView
@@ -30,6 +30,10 @@
             android:layout_marginStart="5dp"
             android:gravity="center_vertical"
             android:text="这是你的名字" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="7"/>
     </LinearLayout>
     <EditText
         android:id="@+id/editText"
