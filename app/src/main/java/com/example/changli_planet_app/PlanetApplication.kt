@@ -3,6 +3,7 @@ package com.example.changli_planet_app
 import android.app.Application
 import android.util.Log
 import com.example.changli_planet_app.Network.OkHttpHelper
+import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
 import com.tencent.msdk.dns.MSDKDnsResolver
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +16,7 @@ class PlanetApplication : Application() {
         // 双Token
         var accessToken: String? = null
         var refreshToken: String? = null
+        var startTime: Long = 0
         var isLogin = true
         var isTourist = false
         const val ip: String = "https://www.baidu.com/"
@@ -34,9 +36,9 @@ class PlanetApplication : Application() {
                     .build()
                 MSDKDnsResolver.getInstance().init(applicationContext, dnsConfigBuilder)
             }
-//            val mmkvDeferred = async {
-//                MMKV.initialize(this@PlanetApplication)
-//            }
+            val mmkvDeferred = async {
+                MMKV.initialize(this@PlanetApplication)
+            }
             val httpPreRequestDeferred = async {
                 // 进行HTTP预热
                 OkHttpHelper.preRequest(ip)
@@ -44,7 +46,7 @@ class PlanetApplication : Application() {
 //             等待所有任务完成
             dnsConfigDeferred.await()
             httpPreRequestDeferred.await()
-//            mmkvDeferred.await()
+            mmkvDeferred.await()
             val endTime = System.currentTimeMillis()
             val duration = endTime - startTime
             Log.d("YourTag", "onCreate 耗时: $duration ms")
