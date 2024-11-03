@@ -41,145 +41,59 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp">
-            <LinearLayout
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/ngrade"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/grade" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="成绩查询" />
-            </LinearLayout>
-
-            <LinearLayout
+                app:itemTitle="成绩查询"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/ncourse"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/course" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="课表" />
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/map"
+                app:itemTitle="课表"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/nmap"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/map" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="校园地图" />
-            </LinearLayout>
-            <LinearLayout
+                app:itemTitle="校园地图"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/ncet"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/cet" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="四六级" />
-            </LinearLayout>
+                app:itemTitle="四六级"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp">
-
-            <LinearLayout
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/ntest"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/text"
-                />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="考试安排" />
-            </LinearLayout>
-            <LinearLayout
+                app:itemTitle="考试安排"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/ncalender"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/clannder" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="校历" />
-            </LinearLayout>
-            <LinearLayout
+                app:itemTitle="校历"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/nadd"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/gpa" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="GPA计算" />
-            </LinearLayout>
-            <LinearLayout
+                app:itemTitle="GPA"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/nmande"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/mandarin" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="普通话" />
-            </LinearLayout>
+                app:itemTitle="普通话"/>
         </LinearLayout>
     </LinearLayout>
     <LinearLayout
@@ -208,116 +122,47 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp">
-            <LinearLayout
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/nlose"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"/>
-<!--                    android:src="@drawable/lose" />-->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="失物招领" />
-            </LinearLayout>
-
-            <LinearLayout
+                app:itemTitle="失物招领"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/nnotice"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/notice" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="校园公告" />
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/electonic"
+                app:itemTitle="教务公告"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/nelectronic"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/electronic" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="电费查询" />
-            </LinearLayout>
-
-            <LinearLayout
+                app:itemTitle="电费查询"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/nrank"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"/>
-<!--                    android:src="@drawable/rank" />-->
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="学习排行榜" />
-            </LinearLayout>
+                app:itemTitle="学霸排行"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp">
-
-            <LinearLayout
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/nbalance"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/balance"
-                    />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="校园卡余额" />
-            </LinearLayout>
-            <LinearLayout
+                app:itemTitle="余额查询"/>
+            <com.example.changli_planet_app.UI.FunctionItem
+                android:id="@+id/nclassroom"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/freeclassroom" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="空闲教室" />
-            </LinearLayout>
+                app:itemTitle="空闲教室"/>
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"

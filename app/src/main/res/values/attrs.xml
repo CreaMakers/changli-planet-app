@@ -1,0 +1,5 @@
+<resources>
+    <declare-styleable name="FunctionItemView">
+        <attr name="itemTitle" format="string" />
+    </declare-styleable>
+</resources>
