@@ -11,10 +11,13 @@ import androidx.fragment.app.Fragment
 import com.example.changli_planet_app.Fragment.Feature
 import com.example.changli_planet_app.Fragment.Find
 import com.example.changli_planet_app.Fragment.IM
+import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
+import java.sql.Time
+import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
@@ -22,8 +25,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val startTime = System.currentTimeMillis()
         binding = ActivityMainBinding.inflate(layoutInflater)
+        PlanetApplication.startTime = System.currentTimeMillis()
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -33,16 +36,17 @@ class MainActivity : AppCompatActivity() {
         initFragment(Feature.newInstance())
         setupTabs()
         setupTabSelectionListener()
-        val endTime = System.currentTimeMillis()
-        Log.d("theTime","${startTime - endTime}")
+    }
+    override fun onStart() {
+        super.onStart()
+        binding.trace.text =  (System.currentTimeMillis() - PlanetApplication.startTime).toString()
     }
     private fun setupTabs() {
         // 动态添加 tabs
-        val featureTab = tabLayout.newTab().setIcon(R.drawable.feature).setText(R.string.function)
-        val lookTab = tabLayout.newTab().setIcon(R.drawable.search).setText(R.string.find)
-        val postTab = tabLayout.newTab().setIcon(R.drawable.news).setText(R.string.news)
-        val imTab = tabLayout.newTab().setIcon(R.drawable.chat).setText(R.string.chat)
-
+        val featureTab = tabLayout.newTab().setIcon(R.drawable.nfeature).setText(R.string.function)
+        val lookTab = tabLayout.newTab().setIcon(R.drawable.nfind).setText(R.string.find)
+        val postTab = tabLayout.newTab().setIcon(R.drawable.nnews).setText(R.string.news)
+        val imTab = tabLayout.newTab().setIcon(R.drawable.nchat).setText(R.string.chat)
         tabLayout.addTab(featureTab)
         tabLayout.addTab(lookTab)
         tabLayout.addTab(postTab)
@@ -51,9 +55,6 @@ class MainActivity : AppCompatActivity() {
     private fun setupTabSelectionListener() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
-                if (tab != null) {
-                    animateTabSelect(tab)
-                }
                 when (tab.position) {
                     0 -> initFragment(Feature.newInstance())  // feature tab
                     1 -> initFragment(Find.newInstance())     // look tab
@@ -62,17 +63,14 @@ class MainActivity : AppCompatActivity() {
                 }
                 animateTabSelect(tab) // 动画效果
             }
-
             override fun onTabUnselected(tab: TabLayout.Tab) {
                 // 可选：处理未选中事件
             }
-
             override fun onTabReselected(tab: TabLayout.Tab) {
                 // 可选：处理重新选中事件
             }
         })
     }
-
     private fun initFragment(fragment: Fragment){
         val fragmentationTemp = supportFragmentManager
         val transactions = fragmentationTemp.beginTransaction()
@@ -80,12 +78,17 @@ class MainActivity : AppCompatActivity() {
     }
     fun animateTabSelect(tab : Tab){
         val tabView = tab.view
-        val animatorIn = ObjectAnimator.ofFloat(tabView,"scaleX",1f,0.8f,1f)
-        val animatorOn = ObjectAnimator.ofFloat(tabView,"scaleY",1f,0.8f,1f)
-        animatorIn.duration = 200
-        animatorOn.duration = 200
-        val animatorSet = AnimatorSet()
-        animatorSet.playTogether(animatorIn,animatorOn)
-        animatorSet.start()
+        tabView.animate()
+            .scaleX(0.8f)
+            .scaleY(0.8f)
+            .setDuration(200)
+            .withEndAction {
+                tabView.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .start()
+            }
+            .start()
     }
 }
