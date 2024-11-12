@@ -23,6 +23,7 @@ import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import com.tencent.mmkv.MMKV
+import okhttp3.Response
 import org.w3c.dom.Text
 
 class RegisterActivity : AppCompatActivity() {
@@ -74,7 +75,7 @@ class RegisterActivity : AppCompatActivity() {
                 .body(OkHttpHelper.gson.toJson(UserPassword(account.text.toString(),password.text.toString())))
                 .build()
             OkHttpHelper.sendRequest(builder,object : RequestCallback{
-                override fun onSuccess(response: String) {
+                override fun onSuccess(response: Response) {
 
                 }
                 override fun onFailure(error: String) {
