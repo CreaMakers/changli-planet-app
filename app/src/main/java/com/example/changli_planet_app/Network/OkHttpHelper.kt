@@ -124,12 +124,8 @@ object OkHttpHelper {
                 callback.onFailure("error")
                 e.printStackTrace()
             }
-
             override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (!it.isSuccessful) throw IOException("Unexpected code $it")
-                    it.body?.let { it1 -> callback.onSuccess(it1.string()) }
-                }
+                callback.onSuccess(response)
             }
         })
     }
