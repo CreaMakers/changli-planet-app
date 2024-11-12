@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <corners android:radius="5dp"/>
-    <solid android:color="@color/navigtion_blue"/>
+    <gradient
+        android:angle="45"
+        android:startColor="#418DEF"
+        android:centerColor="#4584ED"
+        android:endColor="#2CACF5"
+        android:type="linear"/>
 </shape>

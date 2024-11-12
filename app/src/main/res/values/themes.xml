@@ -19,4 +19,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
     </style>
+    <style name="CustomButtonStyle">
+        <item name="android:background">@drawable/login_button</item>
+    </style>
 </resources>
