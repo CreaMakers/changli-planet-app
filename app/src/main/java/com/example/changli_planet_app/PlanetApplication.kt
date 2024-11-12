@@ -16,7 +16,8 @@ class PlanetApplication : Application() {
         var refreshToken: String? = null
         var startTime: Long = 0
         var isLogin = false
-        const val UserIp: String = "http://113.44.47.220:8083/app/users/"
+        const val UserIp: String = "https://www.creamaker.cn:8083/app/users/"
+        const val ToolIp: String = "https://www.creamaker.cn:8081/app/tools/"
     }
     override fun onCreate() {
         super.onCreate()
@@ -38,7 +39,7 @@ class PlanetApplication : Application() {
             }
 //            val httpPreRequestDeferred = async {
 //                // 进行HTTP预热
-//                OkHttpHelper.preRequest(UserIp + "session")
+//                OkHttpHelper.preRequest(ToolIp + "")
 //            }
 //             等待所有任务完成
             dnsConfigDeferred.await()

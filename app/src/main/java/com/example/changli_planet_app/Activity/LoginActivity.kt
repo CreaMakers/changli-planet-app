@@ -32,6 +32,7 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import okhttp3.Response
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -82,10 +83,8 @@ class LoginActivity : AppCompatActivity() {
                 .body(OkHttpHelper.gson.toJson(UserPassword(account.text.toString(),password.text.toString())))
                 .build()
             OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback{
-                override fun onSuccess(response: String) {
-                    Log.d("response","${response}")
-                    var fromJson = OkHttpHelper.gson.fromJson(response, MyResponse::class.java)
-                    Log.d("fromJson","${fromJson.toString()}")
+                override fun onSuccess(response: Response) {
+                    var fromJson = OkHttpHelper.gson.fromJson(response.body?.string(), MyResponse::class.java)
                     when(fromJson.code){
                         "401"->{
                             runOnUiThread {
