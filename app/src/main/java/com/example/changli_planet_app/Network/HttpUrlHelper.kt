@@ -19,7 +19,7 @@ class HttpUrlHelper private constructor(
         private val pathParams: MutableMap<String, String> = mutableMapOf()
         private val queryParams: MutableMap<String, String> = mutableMapOf()
         private val headers: MutableMap<String, String> = mutableMapOf()
-        private val requestBody: String? = null
+        private var requestBody: String? = null
         private var requestType: RequestType = RequestType.GET
         fun get(baseurl: String): HttpRequest {
             url = baseurl
@@ -59,8 +59,10 @@ class HttpUrlHelper private constructor(
             queryParams[key] = value
             return this
         }
-
-
+        fun body(json:String?):HttpRequest{
+            requestBody = json
+            return this
+        }
         fun build(): HttpUrlHelper {
             return HttpUrlHelper(
                 url ?: throw IllegalArgumentException("Base URL must not be null"),

@@ -79,14 +79,14 @@ object OkHttpHelper {
                     .addHeader("Authorization", "Bearer ${PlanetApplication.accessToken}")
                     .build()
                 val response = chain.proceed(requestWithToken)
-                // 检查是否401 Unauthorized
+                 //检查是否401 Unauthorized
                 if (response.code == 401) {
                     synchronized(this) {
                         //刷新AccessToken
                         refreshAccessToken()
                         //重新请求
                         val retryRequest = originalRequest.newBuilder()
-                            .header("Authorization", "Bearer ${PlanetApplication.accessToken}")
+                            .addHeader("Authorization", "Bearer ${PlanetApplication.accessToken}")
                             .build()
                         return@Interceptor chain.proceed(retryRequest)
                     }
@@ -118,15 +118,17 @@ object OkHttpHelper {
                     .build()
             }
         }
+        Log.d("Request","${request.toString()}")
         client.newCall(request).enqueue(object :Callback{
             override fun onFailure(call: Call, e: IOException) {
                 callback.onFailure("error")
+                e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     if (!it.isSuccessful) throw IOException("Unexpected code $it")
-                    callback.onSuccess(it.body.toString())
+                    it.body?.let { it1 -> callback.onSuccess(it1.string()) }
                 }
             }
         })
@@ -162,7 +164,7 @@ object OkHttpHelper {
         })
     }
     //解析返回的Json和发送的Json
-    private val gson: Gson by lazy { Gson() }
+    val gson: Gson by lazy { Gson() }
     /**
      * Gzip请求体内部类，用于构建被Gzip压缩的Body
      */
@@ -209,7 +211,7 @@ object OkHttpHelper {
             .build()
         // 构建 HTTP 请求，指定目标 URL 和请求体
         val request = Request.Builder()
-            .url(PlanetApplication.ip + url) // 指定上传文件的服务器 URL
+            .url(PlanetApplication.UserIp + url) // 指定上传文件的服务器 URL
             .post(requestBody) // 使用 POST 方法上传数据
             .build()
         // 使用 OkHttpClient 异步发送请求，避免阻塞主线程
@@ -254,7 +256,7 @@ object OkHttpHelper {
     ) {
         // 构建 WebSocket 请求
         val request = Request.Builder()
-            .url(PlanetApplication.ip + url)
+            .url(PlanetApplication.UserIp + url)
             .build()
         // 创建 WebSocket 并添加事件监听器
         client.newWebSocket(request, object : WebSocketListener() {

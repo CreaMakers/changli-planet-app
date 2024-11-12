@@ -1,5 +1,4 @@
 package com.example.changli_planet_app
-
 import android.app.Application
 import android.util.Log
 import com.example.changli_planet_app.Network.OkHttpHelper
@@ -10,21 +9,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-
 class PlanetApplication : Application() {
     companion object {
         // 双Token
         var accessToken: String? = null
         var refreshToken: String? = null
         var startTime: Long = 0
-        var isLogin = true
-        var isTourist = false
-        const val ip: String = "https://www.baidu.com/"
+        var isLogin = false
+        const val UserIp: String = "http://113.44.47.220:8083/app/users/"
     }
     override fun onCreate() {
         super.onCreate()
         val startTime = System.currentTimeMillis()
-        // 配置HTTPDNS
+//        // 配置HTTPDNS
         CoroutineScope(Dispatchers.IO).launch {
 //             使用 async 启动并发任务
             val dnsConfigDeferred = async {
@@ -39,13 +36,13 @@ class PlanetApplication : Application() {
             val mmkvDeferred = async {
                 MMKV.initialize(this@PlanetApplication)
             }
-            val httpPreRequestDeferred = async {
-                // 进行HTTP预热
-                OkHttpHelper.preRequest(ip)
-            }
+//            val httpPreRequestDeferred = async {
+//                // 进行HTTP预热
+//                OkHttpHelper.preRequest(UserIp + "session")
+//            }
 //             等待所有任务完成
             dnsConfigDeferred.await()
-            httpPreRequestDeferred.await()
+//            httpPreRequestDeferred.await()
             mmkvDeferred.await()
             val endTime = System.currentTimeMillis()
             val duration = endTime - startTime

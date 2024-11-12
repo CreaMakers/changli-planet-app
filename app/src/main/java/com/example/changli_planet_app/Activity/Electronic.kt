@@ -50,7 +50,7 @@ class Electronic : AppCompatActivity() {
         ClickWheel(school,schoolList)
         inputFilter(dor_number)
         query_ele.setOnClickListener {
-            binding.stubTv.inflate() as TextView
+
         }
         back.setOnClickListener {
             finish()

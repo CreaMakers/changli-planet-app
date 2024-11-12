@@ -1,23 +1,42 @@
 package com.example.changli_planet_app.Activity
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
 import android.text.InputFilter
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.SpannedString
 import android.text.TextWatcher
+import android.text.style.ClickableSpan
+import android.text.style.UnderlineSpan
+import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Data.jsonbean.UserPassword
+import com.example.changli_planet_app.Network.HttpUrlHelper
+import com.example.changli_planet_app.Network.OkHttpHelper
+import com.example.changli_planet_app.Network.RequestCallback
+import com.example.changli_planet_app.Network.Response.MyResponse
+import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
-    val Login: Button by lazy { binding.login }
+    val Login: TextView by lazy { binding.login }
+    val route: TextView by lazy { binding.route }
     val account: EditText by lazy { binding.account }
     val password: EditText by lazy { binding.password }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +49,16 @@ class LoginActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        var underlinetext = SpannableString(route.text.toString())
+        underlinetext.setSpan(UnderlineSpan(),6,8,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        underlinetext.setSpan(object :ClickableSpan(){
+            override fun onClick(widget: View) {
+                val intent = Intent(this@LoginActivity,RegisterActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        },6,8,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        route.text = underlinetext
         // 设置Login Button的初始状态
         Login.isEnabled = false
         // 定义TextWatcher，用于监听account和password EditText内容变化
@@ -46,6 +75,32 @@ class LoginActivity : AppCompatActivity() {
         password.addTextChangedListener(textWatcher)
         inputFilter(account)
         inputFilter(password)
+        Login.setOnClickListener{
+            val httpUrlHelper = HttpUrlHelper.HttpRequest()
+                .post(PlanetApplication.UserIp + "session")
+                .header("deviceId",getDeviceId(this))
+                .body(OkHttpHelper.gson.toJson(UserPassword(account.text.toString(),password.text.toString())))
+                .build()
+            OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback{
+                override fun onSuccess(response: String) {
+                    Log.d("response","${response}")
+                    var fromJson = OkHttpHelper.gson.fromJson(response, MyResponse::class.java)
+                    Log.d("fromJson","${fromJson.toString()}")
+                    when(fromJson.code){
+                        "401"->{
+                            runOnUiThread {
+                                Toast.makeText(this@LoginActivity,"账号或密码错误",Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+                override fun onFailure(error: String) {
+                    runOnUiThread {
+                        Toast.makeText(this@LoginActivity,"网络请求异常",Toast.LENGTH_SHORT).show()
+                    }
+                }
+            })
+        }
     }
     private fun inputFilter(editText: EditText){
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
