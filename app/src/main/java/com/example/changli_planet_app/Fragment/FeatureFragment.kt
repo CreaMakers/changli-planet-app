@@ -8,20 +8,19 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
-import com.bumptech.glide.Glide
-import com.example.changli_planet_app.Activity.Electronic
+import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Route
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 
 // TODO: Rename parameter arguments, choose names that match
 /**
  * A simple [Fragment] subclass.
- * Use the [Feature.newInstance] factory method to
+ * Use the [FeatureFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Feature : Fragment() {
+class FeatureFragment : Fragment() {
     lateinit var  binding : FragmentFeatureBinding
     private val electronic:LinearLayout by lazy { binding.nelectronic }
     override fun onCreateView(
@@ -29,11 +28,7 @@ class Feature : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentFeatureBinding.inflate(layoutInflater)
-        electronic.setOnClickListener {
-            val intent = Intent(activity,Electronic::class.java)
-            startActivity(intent)
-        }
-
+        electronic.setOnClickListener { activity?.let { it1 -> Route.goElectronic(it1) } }
         // 将设置资源的代码放入 IdleHandler
         Handler(Looper.getMainLooper()).post {
             // 注册 IdleHandler
@@ -75,7 +70,7 @@ class Feature : Fragment() {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance() =
-            Feature().apply {
+            FeatureFragment().apply {
                 arguments = Bundle().apply {
                 }
             }

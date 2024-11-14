@@ -11,6 +11,7 @@ import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Route
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -30,12 +31,7 @@ class SplashActivity : AppCompatActivity() {
         // 使用协程来处理延迟任务
         lifecycleScope.launch {
             delay(2000) // 延迟 2 秒
-            val intent = if (PlanetApplication.isLogin) {
-                Intent(this@SplashActivity, MainActivity::class.java)
-            } else {
-                Intent(this@SplashActivity, LoginActivity::class.java)
-            }
-            startActivity(intent)
+            Route.goHome(this@SplashActivity)
             finish()
         }
     }

@@ -1,0 +1,8 @@
+<!-- res/drawable/edittext_background.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 当控件获得焦点时 -->
+    <item android:drawable="@color/icon_gray" android:state_focused="true"/>
+
+    <!-- 当控件失去焦点时 -->
+    <item android:drawable="@color/white"/>
+</selector>
