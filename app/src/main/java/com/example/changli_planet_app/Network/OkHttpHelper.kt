@@ -118,7 +118,6 @@ object OkHttpHelper {
                     .build()
             }
         }
-        Log.d("Request","${request.toString()}")
         client.newCall(request).enqueue(object :Callback{
             override fun onFailure(call: Call, e: IOException) {
                 callback.onFailure("error")

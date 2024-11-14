@@ -11,6 +11,7 @@ import android.text.style.UnderlineSpan
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -19,8 +20,10 @@ import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
+import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.UI.LoginInformationDialog
 import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
@@ -76,10 +79,24 @@ class RegisterActivity : AppCompatActivity() {
                 .build()
             OkHttpHelper.sendRequest(builder,object : RequestCallback{
                 override fun onSuccess(response: Response) {
-
+                    if(OkHttpHelper.gson.fromJson(response.body?.string(),MyResponse::class.java).msg=="用户注册成功") {
+                        PlanetApplication.accessToken = response.headers.get("token")
+                        mmkv.apply {
+                            encode("token", "${PlanetApplication.accessToken}")
+                        }
+                        val intent = Intent(this@RegisterActivity, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }else{
+                        val information = LoginInformationDialog(this@RegisterActivity,OkHttpHelper.gson.fromJson(response.body?.string(),MyResponse::class.java).msg)
+                        information.show()
+                    }
                 }
                 override fun onFailure(error: String) {
-
+                    runOnUiThread {
+                        Toast.makeText(this@RegisterActivity, "网络不给力", Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
             })
         }

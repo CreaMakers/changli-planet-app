@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/feature_white"
-    tools:context=".Fragment.Feature">
+    tools:context=".Fragment.FeatureFragment">
     <ImageView
         android:id="@+id/planet_logo"
         android:layout_width="match_parent"

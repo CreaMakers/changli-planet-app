@@ -1,23 +1,18 @@
 package com.example.changli_planet_app.Activity
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.changli_planet_app.Fragment.Feature
-import com.example.changli_planet_app.Fragment.Find
-import com.example.changli_planet_app.Fragment.IM
+import com.example.changli_planet_app.Fragment.FeatureFragment
+import com.example.changli_planet_app.Fragment.FindFragment
+import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
-import java.sql.Time
-import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
@@ -33,7 +28,7 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        initFragment(Feature.newInstance())
+        initFragment(FeatureFragment.newInstance())
         setupTabs()
         setupTabSelectionListener()
     }
@@ -56,10 +51,10 @@ class MainActivity : AppCompatActivity() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.position) {
-                    0 -> initFragment(Feature.newInstance())  // feature tab
-                    1 -> initFragment(Find.newInstance())     // look tab
-                    2 -> initFragment(Feature.newInstance())     // post tab
-                    3 -> initFragment(IM.newInstance())        // im tab
+                    0 -> initFragment(FeatureFragment.newInstance())  // feature tab
+                    1 -> initFragment(FindFragment.newInstance())     // look tab
+                    2 -> initFragment(FeatureFragment.newInstance())     // post tab
+                    3 -> initFragment(IMFragment.newInstance())        // im tab
                 }
                 animateTabSelect(tab) // 动画效果
             }

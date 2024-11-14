@@ -1,7 +1,6 @@
 package com.example.changli_planet_app.Activity
 import android.os.Bundle
 import android.text.InputFilter
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -9,15 +8,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Network.HttpUrlHelper
+import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.WheelBottomDialog
 import com.example.changli_planet_app.Util.Event.SelectEvent
 import com.example.changli_planet_app.Util.EventBusLifecycleObserver
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
-import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import org.greenrobot.eventbus.Subscribe
 
-class Electronic : AppCompatActivity() {
+class ElectronicActivity : AppCompatActivity() {
     lateinit var binding: ActivityElectronicBinding
     private val back:ImageView by lazy { binding.back }
     private val school:TextView by lazy { binding.school }
@@ -50,7 +50,10 @@ class Electronic : AppCompatActivity() {
         ClickWheel(school,schoolList)
         inputFilter(dor_number)
         query_ele.setOnClickListener {
-
+            val builder = HttpUrlHelper.HttpRequest()
+                .get(PlanetApplication.ToolIp + "dormitory-electricity")
+                .build()
+            TODO()
         }
         back.setOnClickListener {
             finish()

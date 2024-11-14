@@ -29,6 +29,8 @@ import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Route
+import com.example.changli_planet_app.UI.LoginInformationDialog
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -52,14 +54,8 @@ class LoginActivity : AppCompatActivity() {
         }
         var underlinetext = SpannableString(route.text.toString())
         underlinetext.setSpan(UnderlineSpan(),6,8,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        underlinetext.setSpan(object :ClickableSpan(){
-            override fun onClick(widget: View) {
-                val intent = Intent(this@LoginActivity,RegisterActivity::class.java)
-                startActivity(intent)
-                finish()
-            }
-        },6,8,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         route.text = underlinetext
+        route.setOnClickListener{Route.goRegister(this)}
         // 设置Login Button的初始状态
         Login.isEnabled = false
         // 定义TextWatcher，用于监听account和password EditText内容变化
@@ -85,8 +81,8 @@ class LoginActivity : AppCompatActivity() {
             OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback{
                 override fun onSuccess(response: Response) {
                     var fromJson = OkHttpHelper.gson.fromJson(response.body?.string(), MyResponse::class.java)
-                    when(fromJson.code){
-                        "401"->{
+                    when(fromJson.msg){
+                        "用户登录成功"->{
                             runOnUiThread {
                                 Toast.makeText(this@LoginActivity,"账号或密码错误",Toast.LENGTH_SHORT).show()
                             }
