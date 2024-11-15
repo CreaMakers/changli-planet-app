@@ -40,6 +40,8 @@ android {
     }
 }
 dependencies {
+    implementation("io.reactivex.rxjava3:rxjava:3.1.9")
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
     //Lottie
     implementation("com.airbnb.android:lottie:6.6.0")
     //Glide

@@ -84,7 +84,7 @@ class LoginActivity : AppCompatActivity() {
                     when(fromJson.msg){
                         "用户登录成功"->{
                             runOnUiThread {
-                                Toast.makeText(this@LoginActivity,"账号或密码错误",Toast.LENGTH_SHORT).show()
+                                Route.goHome(this@LoginActivity)
                             }
                         }
                     }

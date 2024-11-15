@@ -8,6 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Activity.Action.ElectronicAction
+import com.example.changli_planet_app.Data.jsonbean.CheckElectricity
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
@@ -15,6 +17,7 @@ import com.example.changli_planet_app.UI.WheelBottomDialog
 import com.example.changli_planet_app.Util.Event.SelectEvent
 import com.example.changli_planet_app.Util.EventBusLifecycleObserver
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
+import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class ElectronicActivity : AppCompatActivity() {
@@ -46,18 +49,13 @@ class ElectronicActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        ClickWheel(dor,dorList)
-        ClickWheel(school,schoolList)
+        dor.setOnClickListener{ClickWheel(dorList)}
+        school.setOnClickListener{ClickWheel(schoolList)}
         inputFilter(dor_number)
-        query_ele.setOnClickListener {
-            val builder = HttpUrlHelper.HttpRequest()
-                .get(PlanetApplication.ToolIp + "dormitory-electricity")
-                .build()
-            TODO()
+        query_ele.setOnClickListener {EventBus.getDefault()
+            .post(ElectronicAction.queryElectronic(CheckElectricity(school.text.toString(),dor.text.toString(),dor_number.text.toString())))
         }
-        back.setOnClickListener {
-            finish()
-        }
+        back.setOnClickListener { finish() }
     }
     private fun inputFilter(editText: EditText){
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
@@ -68,12 +66,10 @@ class ElectronicActivity : AppCompatActivity() {
         }
         editText.filters = arrayOf(inputFilter)
     }
-    private fun ClickWheel(button: TextView,item:List<String>){
-        button.setOnClickListener {
-            val Wheel = WheelBottomDialog()
-            Wheel.setItem(item)
-            Wheel.show(supportFragmentManager,"wheel")
-        }
+    private fun ClickWheel(item:List<String>){
+        val Wheel = WheelBottomDialog()
+        Wheel.setItem(item)
+        Wheel.show(supportFragmentManager,"wheel")
     }
     @Subscribe
     fun onClickText(selectEvent: SelectEvent){
