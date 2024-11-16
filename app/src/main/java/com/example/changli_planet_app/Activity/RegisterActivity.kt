@@ -21,13 +21,12 @@ import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.PlanetApplication
+import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.LoginInformationDialog
 import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
-import org.w3c.dom.Text
 
 class RegisterActivity : AppCompatActivity() {
     lateinit var binding : ActivityRegisterBinding

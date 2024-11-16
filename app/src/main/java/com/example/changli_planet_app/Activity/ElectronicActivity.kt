@@ -1,7 +1,6 @@
 package com.example.changli_planet_app.Activity
 import android.os.Bundle
 import android.text.InputFilter
-import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -9,19 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.ElectronicAction
 import com.example.changli_planet_app.Activity.Store.ElectronicStore
-import com.example.changli_planet_app.Data.jsonbean.CheckElectricity
-import com.example.changli_planet_app.Network.HttpUrlHelper
-import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.WheelBottomDialog
-import com.example.changli_planet_app.Util.Event.SelectEvent
-import com.example.changli_planet_app.Util.EventBusLifecycleObserver
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 
 class ElectronicActivity : AppCompatActivity() {
 

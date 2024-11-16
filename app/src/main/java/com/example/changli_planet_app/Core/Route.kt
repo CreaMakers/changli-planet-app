@@ -1,4 +1,4 @@
-package com.example.changli_planet_app
+package com.example.changli_planet_app.Core
 
 import android.content.Context
 import android.content.Intent

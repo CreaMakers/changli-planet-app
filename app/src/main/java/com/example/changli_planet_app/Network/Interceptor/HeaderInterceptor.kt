@@ -1,4 +1,4 @@
-import com.example.changli_planet_app.PlanetApplication
+import com.example.changli_planet_app.Core.PlanetApplication
 import okhttp3.Interceptor
 import okhttp3.Response
 class HeaderInterceptor : Interceptor {

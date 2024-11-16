@@ -1,6 +1,5 @@
 package com.example.changli_planet_app.Fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,9 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Route
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 
 // TODO: Rename parameter arguments, choose names that match

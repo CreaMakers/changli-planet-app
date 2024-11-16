@@ -2,12 +2,11 @@ package com.example.changli_planet_app.Network
 import android.util.Log
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.RefreshToken
-import com.example.changli_planet_app.PlanetApplication
+import com.example.changli_planet_app.Core.PlanetApplication
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.msdk.dns.MSDKDnsResolver
 import okhttp3.*
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody

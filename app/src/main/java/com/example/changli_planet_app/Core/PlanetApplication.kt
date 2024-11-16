@@ -1,7 +1,6 @@
-package com.example.changli_planet_app
+package com.example.changli_planet_app.Core
 import android.app.Application
 import android.util.Log
-import com.example.changli_planet_app.Network.OkHttpHelper
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
 import com.tencent.msdk.dns.MSDKDnsResolver

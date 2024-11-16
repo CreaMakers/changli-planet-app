@@ -64,7 +64,7 @@
                 android:textSize="20sp"
                 android:layout_height="wrap_content"
                 android:layout_weight="6"
-                android:text="金盆岭校区"/>
+                android:text="选择校区"/>
         </LinearLayout>
         <View
             android:layout_marginVertical="20dp"
@@ -92,7 +92,7 @@
                 android:textSize="20sp"
                 android:layout_height="wrap_content"
                 android:layout_weight="6"
-                android:text="16栋A区"/>
+                android:text="选择宿舍楼"/>
         </LinearLayout>
         <View
             android:layout_marginVertical="20dp"

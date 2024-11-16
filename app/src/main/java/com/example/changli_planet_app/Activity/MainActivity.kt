@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import com.example.changli_planet_app.Fragment.FeatureFragment
 import com.example.changli_planet_app.Fragment.FindFragment
 import com.example.changli_planet_app.Fragment.IMFragment
-import com.example.changli_planet_app.PlanetApplication
+import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayout
