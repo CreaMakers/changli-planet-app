@@ -134,7 +134,7 @@ object OkHttpHelper {
         val json = gson.toJson(PlanetApplication.refreshToken)
         val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val request = Request.Builder()
-            .url("wait")
+            .url(PlanetApplication.UserIp + "me/token")
             .put(body)
             .build()
         // 发送请求
@@ -145,11 +145,7 @@ object OkHttpHelper {
             }
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful && response.body != null) {
-                    // 使用 TypeToken 来指定泛型类型
-                    val myResponseType = object : TypeToken<MyResponse<RefreshToken>>() {}.type
-                    val myResponse: MyResponse<RefreshToken> = gson.fromJson(response.body!!.string(), myResponseType)
-                    PlanetApplication.accessToken = myResponse.data.access_token
-                    PlanetApplication.refreshToken = myResponse.data.refresh_token
+                    PlanetApplication.accessToken = response.headers["token"]
                 } else {
                     Log.e("API Error", "响应错误: ${response.code} - ${response.message}")
                     // 处理响应不成功的逻辑

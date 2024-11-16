@@ -12,25 +12,18 @@ import android.text.TextWatcher
 import android.text.style.UnderlineSpan
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.LoginAction
-import com.example.changli_planet_app.Activity.Store.LoginStore
+import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
+import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
 import com.example.changli_planet_app.Data.jsonbean.UserPassword
-import com.example.changli_planet_app.Network.HttpUrlHelper
-import com.example.changli_planet_app.Network.OkHttpHelper
-import com.example.changli_planet_app.Network.RequestCallback
-import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
-import com.example.changli_planet_app.UI.LoginInformationDialog
+import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
-import okhttp3.Response
+import org.greenrobot.eventbus.Subscribe
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -38,7 +31,7 @@ class LoginActivity : AppCompatActivity() {
     val route: TextView by lazy { binding.route }
     val account: EditText by lazy { binding.account }
     val password: EditText by lazy { binding.password }
-    val store = LoginStore()
+    val store = LoginAndRegisterStore()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -57,20 +50,20 @@ class LoginActivity : AppCompatActivity() {
                     Login.setBackgroundResource(R.drawable.enable_button)
                 }
             }
-        store.dispatch(LoginAction.initilaize)
+        store.dispatch(LoginAndRegisterAction.initilaize)
         setUnderLine()
         // 定义TextWatcher，用于监听account和password EditText内容变化
         val accountTextWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {store.dispatch(LoginAction.input(account.text.toString(),"account"))}
+            override fun afterTextChanged(s: Editable?) {store.dispatch(LoginAndRegisterAction.input(account.text.toString(),"account"))}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
         val passwordTextWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {store.dispatch(LoginAction.input(password.text.toString(),"password"))}
+            override fun afterTextChanged(s: Editable?) {store.dispatch(LoginAndRegisterAction.input(password.text.toString(),"password"))}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
-        Login.setOnClickListener{store.dispatch(LoginAction.Login
+        Login.setOnClickListener{store.dispatch(LoginAndRegisterAction.Login
             (UserPassword(account.text.toString(),password.text.toString()),
             this))
         }
@@ -93,6 +86,12 @@ class LoginActivity : AppCompatActivity() {
         underlinetext.setSpan(UnderlineSpan(),6,8,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         route.text = underlinetext
         route.setOnClickListener{ Route.goRegister(this)}
+    }
+    @Subscribe
+    fun onFinish(finishEvent: FinishEvent){
+        if(finishEvent.name=="Login"){
+            finish()
+        }
     }
     companion object {
         public fun getDeviceId(context: Context): String {
