@@ -29,7 +29,7 @@ class ElectronicStore {
         //监听事件
         eventStream.subscribe{action->
                         handleEvent(action)
-                    }
+        }
     }
     //处理事件
     private fun handleEvent(action:ElectronicAction){

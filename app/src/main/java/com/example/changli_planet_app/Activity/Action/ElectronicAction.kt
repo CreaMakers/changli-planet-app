@@ -2,6 +2,7 @@ package com.example.changli_planet_app.Activity.Action
 
 import com.example.changli_planet_app.Data.jsonbean.CheckElectricity
 
+
 /**
  * 定义了每个页面的事件
  */

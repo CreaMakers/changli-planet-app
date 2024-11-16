@@ -23,6 +23,8 @@ class WheelBottomDialog(val store: ElectronicStore) : BottomSheetDialogFragment(
     private lateinit var item : List<String>
     private var selectedIndex = 0
     private var onInvoke : ((String)->Unit) ?= null
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

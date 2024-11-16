@@ -24,6 +24,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class ElectronicActivity : AppCompatActivity() {
+
     lateinit var binding: ActivityElectronicBinding
     private val back:ImageView by lazy { binding.back }
     private val school:TextView by lazy { binding.school }
@@ -42,6 +43,7 @@ class ElectronicActivity : AppCompatActivity() {
         "至诚轩4栋A区","至诚轩4栋B区","西苑1栋","西苑2栋","西苑3栋","西苑4栋","西苑5栋","西苑6栋","西苑7栋","西苑8栋",
         "西苑9栋","西苑10栋","西苑11栋","东苑4栋","东苑5栋","东苑6栋","东苑9栋","东苑14栋","东苑14栋","南苑3栋","南苑4栋",
         "南苑5栋","南苑7栋","南苑8栋",)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
