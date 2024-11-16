@@ -24,9 +24,11 @@ import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.LoginInformationDialog
+import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
+import org.greenrobot.eventbus.Subscribe
 
 class RegisterActivity : AppCompatActivity() {
     lateinit var binding : ActivityRegisterBinding
@@ -71,34 +73,7 @@ class RegisterActivity : AppCompatActivity() {
         password.addTextChangedListener(textWatcher)
         inputFilter(account)
         inputFilter(password)
-        register.setOnClickListener{
-            val builder = HttpUrlHelper.HttpRequest()
-                .post(PlanetApplication.UserIp)
-                .body(OkHttpHelper.gson.toJson(UserPassword(account.text.toString(),password.text.toString())))
-                .build()
-            OkHttpHelper.sendRequest(builder,object : RequestCallback{
-                override fun onSuccess(response: Response) {
-                    if(OkHttpHelper.gson.fromJson(response.body?.string(),MyResponse::class.java).msg=="用户注册成功") {
-                        PlanetApplication.accessToken = response.headers.get("token")
-                        mmkv.apply {
-                            encode("token", "${PlanetApplication.accessToken}")
-                        }
-                        val intent = Intent(this@RegisterActivity, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    }else{
-                        val information = LoginInformationDialog(this@RegisterActivity,OkHttpHelper.gson.fromJson(response.body?.string(),MyResponse::class.java).msg)
-                        information.show()
-                    }
-                }
-                override fun onFailure(error: String) {
-                    runOnUiThread {
-                        Toast.makeText(this@RegisterActivity, "网络不给力", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-            })
-        }
+        register.setOnClickListener{}
     }
     private fun inputFilter(editText: EditText){
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
@@ -108,5 +83,11 @@ class RegisterActivity : AppCompatActivity() {
             if (regex.matches(source)) source else ""
         }
         editText.filters = arrayOf(inputFilter)
+    }
+    @Subscribe
+    fun onFinish(finishEvent: FinishEvent){
+        if(finishEvent.name=="Register"){
+            finish()
+        }
     }
 }
