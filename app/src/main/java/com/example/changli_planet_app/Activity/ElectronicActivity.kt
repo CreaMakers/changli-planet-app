@@ -1,6 +1,7 @@
 package com.example.changli_planet_app.Activity
 import android.os.Bundle
 import android.text.InputFilter
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.Activity.Action.ElectronicAction
+import com.example.changli_planet_app.Activity.Store.ElectronicStore
 import com.example.changli_planet_app.Data.jsonbean.CheckElectricity
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.PlanetApplication
@@ -17,6 +19,7 @@ import com.example.changli_planet_app.UI.WheelBottomDialog
 import com.example.changli_planet_app.Util.Event.SelectEvent
 import com.example.changli_planet_app.Util.EventBusLifecycleObserver
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -27,6 +30,7 @@ class ElectronicActivity : AppCompatActivity() {
     private val dor:TextView by lazy { binding.dor }
     private val query_ele:TextView by lazy { binding.queryElec }
     private val dor_number:EditText by lazy { binding.dorNumber }
+    private val electronicStore = ElectronicStore()
     private val schoolList:List<String> = listOf("金盆岭校区","云塘校区")
     private val dorList:List<String> =
         listOf("16栋A区","16栋B区","17栋","弘毅轩1栋A区","弘毅轩1栋B区","弘毅轩2栋A区1-6楼",
@@ -41,7 +45,6 @@ class ElectronicActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        lifecycle.addObserver(EventBusLifecycleObserver(this))
         binding = ActivityElectronicBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -49,11 +52,16 @@ class ElectronicActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        electronicStore._state
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe{ state->
+            school.text = state.address
+            dor.text = state.buildId
+        }
         dor.setOnClickListener{ClickWheel(dorList)}
         school.setOnClickListener{ClickWheel(schoolList)}
         inputFilter(dor_number)
-        query_ele.setOnClickListener {EventBus.getDefault()
-            .post(ElectronicAction.queryElectronic(CheckElectricity(school.text.toString(),dor.text.toString(),dor_number.text.toString())))
+        query_ele.setOnClickListener {
         }
         back.setOnClickListener { finish() }
     }
@@ -67,16 +75,8 @@ class ElectronicActivity : AppCompatActivity() {
         editText.filters = arrayOf(inputFilter)
     }
     private fun ClickWheel(item:List<String>){
-        val Wheel = WheelBottomDialog()
+        val Wheel = WheelBottomDialog(electronicStore)
         Wheel.setItem(item)
         Wheel.show(supportFragmentManager,"wheel")
-    }
-    @Subscribe
-    fun onClickText(selectEvent: SelectEvent){
-        if(selectEvent.eventType==2){
-            if(selectEvent.text.contains("校区")){
-                school.text = selectEvent.text
-            }else dor.text = selectEvent.text
-        }
     }
 }

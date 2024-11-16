@@ -87,6 +87,9 @@ class LoginActivity : AppCompatActivity() {
                                 Route.goHome(this@LoginActivity)
                             }
                         }
+                        else->{
+                            var loginInformationDialog = LoginInformationDialog(this@LoginActivity,fromJson.msg)
+                        }
                     }
                 }
                 override fun onFailure(error: String) {

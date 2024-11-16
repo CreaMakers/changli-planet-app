@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Activity.Store
 
+import android.util.Log
 import com.example.changli_planet_app.Activity.Action.ElectronicAction
 import com.example.changli_planet_app.Activity.State.ElectronicState
 import com.example.changli_planet_app.Network.HttpUrlHelper
@@ -22,26 +23,27 @@ class ElectronicStore {
     //事件流
     private val eventStream = PublishSubject.create<ElectronicAction>()
     //状态流
-    private val _state = BehaviorSubject.create<ElectronicState>()
+    val _state = PublishSubject.create<ElectronicState>()
+    private var currentState = ElectronicState("选择你的校区","选择你的宿舍")
     init {
-        EventBus.getDefault().register(this)
         //监听事件
-        eventStream.observeOn(Schedulers.io())
-                    .subscribe{action->
+        eventStream.subscribe{action->
                         handleEvent(action)
                     }
     }
     //处理事件
     private fun handleEvent(action:ElectronicAction){
-        when(action){
+        currentState = when(action){
             is ElectronicAction.selectAddress->{
-                _state.onNext(_state.value?.copy(action.address))
+                currentState.address = action.address
+                Log.d("d","${_state.toString()}")
+                _state.onNext(currentState)
+                currentState
             }
             is ElectronicAction.selectBuild->{
-                _state.onNext(_state.value?.copy(action.buildId))
-            }
-            is ElectronicAction.selectNod->{
-                _state.onNext(_state.value?.copy(action.nod))
+                currentState.buildId = action.buildId
+                _state.onNext(currentState)
+                currentState
             }
             is ElectronicAction.queryElectronic->{
                 val builder = HttpUrlHelper.HttpRequest()
@@ -54,11 +56,13 @@ class ElectronicStore {
     /**
      * Dispatch接收到的事件
      */
-    @Subscribe(threadMode = ThreadMode.MAIN)
     fun dispatch(action: ElectronicAction){
         eventStream.onNext(action)
     }
-    fun state(): Observable<ElectronicState> = _state.observeOn(AndroidSchedulers.mainThread())
+    fun state(): Observable<ElectronicState>{
+        Log.d("msg","${_state.observeOn(AndroidSchedulers.mainThread())}")
+        return _state.observeOn(AndroidSchedulers.mainThread())
+    }
     /**
      * 因为无法感知生命周期，需要手动解注册
      */

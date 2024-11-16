@@ -8,12 +8,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.changli_planet_app.Activity.Action.ElectronicAction
+import com.example.changli_planet_app.Activity.Store.ElectronicStore
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.UI.WheelBottomDialog
 import com.example.changli_planet_app.Util.Event.SelectEvent
 import com.example.changli_planet_app.Util.EventBusHelper
 import org.greenrobot.eventbus.EventBus
 
-class SelectorAdapter(private val list: List<String>):RecyclerView.Adapter<SelectorAdapter.SelectorViewHodler>() {
+class SelectorAdapter(private val list: List<String>,val store: ElectronicStore):RecyclerView.Adapter<SelectorAdapter.SelectorViewHodler>() {
     class SelectorViewHodler(item:View):ViewHolder(item){
         val selec : TextView = item.findViewById(R.id.select)
     }
@@ -27,11 +29,11 @@ class SelectorAdapter(private val list: List<String>):RecyclerView.Adapter<Selec
         holder.selec.text = list[position]
         holder.selec.setOnClickListener {
             if (list.size == 2) {
-                // 发布 selectAddress 事件
-                EventBus.getDefault().post(ElectronicAction.selectAddress(holder.selec.text.toString()))
+                store.dispatch(ElectronicAction.selectAddress(holder.selec.text.toString()))
+                EventBusHelper.post(SelectEvent(1))
             } else {
-                // 发布 selectBuild 事件
-                EventBus.getDefault().post(ElectronicAction.selectBuild(holder.selec.text.toString()))
+                store.dispatch(ElectronicAction.selectBuild(holder.selec.text.toString()))
+                EventBusHelper.post(SelectEvent(1))
             }
         }
     }
