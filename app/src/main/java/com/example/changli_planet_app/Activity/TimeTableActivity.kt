@@ -13,14 +13,13 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.PlanetApplication
+import com.example.changli_planet_app.MySubject
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.ViewModel.TimeTableActivityViewModel
+import com.example.changli_planet_app.TimeTableActivityViewModel
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
 import com.zhuangfei.timetable.TimetableView
