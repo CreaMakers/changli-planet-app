@@ -19,6 +19,3 @@ dependencyResolutionManagement {
         maven(url = "https://jitpack.io")
     }
 }
-rootProject.name = "changli-planet-app"
-include(":app")
-include(":build.gradle")
