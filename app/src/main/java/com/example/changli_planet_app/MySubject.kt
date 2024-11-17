@@ -8,13 +8,13 @@ import com.zhuangfei.timetable.model.ScheduleEnable
  */
 class MySubject(
     var term: String = "",
-    var name: String = "",
-    var room: String = "",
+    var courseName: String = "",
+    var classroom: String = "",
     var teacher: String = "",
-    var weekList: List<Int>? = emptyList(),
+    var weeks: List<Int>? = emptyList(),
     var start: Int = 0,
     var step: Int = 0,
-    var day: Int = 0,
+    var weekday: Int = 0,
     var colorRandom: Int = 0,
     var time: String = ""
 ) : ScheduleEnable {
@@ -29,13 +29,13 @@ class MySubject(
 
     override fun getSchedule(): Schedule {
         return Schedule().apply {
-            day = this@MySubject.day
-            name = this@MySubject.name
-            room = this@MySubject.room
+            day = this@MySubject.weekday
+            name = this@MySubject.courseName
+            room = this@MySubject.classroom
             start = this@MySubject.start
             step = this@MySubject.step
             teacher = this@MySubject.teacher
-            weekList = this@MySubject.weekList
+            weekList = this@MySubject.weeks
             colorRandom = 2
             putExtras(EXTRAS_ID, id)
             url?.let { putExtras(EXTRAS_AD_URL, it) }

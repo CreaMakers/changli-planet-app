@@ -3,14 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardCornerRadius="15dp"
-    android:elevation="5dp">
+    app:cardCornerRadius="50dp"
+    android:elevation="15dp"
+    android:background="@null"
+    android:id="@+id/cardView"
+
+   >
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+
+        >
 
         <TextView
             android:id="@+id/dialog_courseName"
@@ -19,9 +25,9 @@
             android:layout_gravity="center"
             android:layout_marginBottom="15dp"
             android:ellipsize="end"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp"
             android:paddingHorizontal="50dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:singleLine="true"
             android:text="体育(三)(23计算机飞盘08)"
             android:textSize="16sp" />

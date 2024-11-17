@@ -6,13 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activity.MainActivity">
-    <TextView
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:id="@+id/trace"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:elevation="5dp"/>
     <FrameLayout
         android:id="@+id/frag"
         android:layout_width="match_parent"
@@ -26,18 +19,45 @@
         app:layout_constraintBottom_toTopOf="@+id/tabLayout"
         android:background="@color/icon_gray"
         android:layout_height="1dp"/>
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:background="@color/icon_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintWidth_percent="0.35"
-        app:tabIconTint="@null"
         app:tabBackground="@color/white"
+        app:tabIconTint="@null"
         app:tabIndicatorHeight="0dp"
-        app:tabSelectedTextColor="@color/navigtion_blue"
-        app:tabRippleColor="@android:color/transparent"/>
+        app:tabRippleColor="@android:color/transparent"
+        app:tabSelectedTextColor="@color/navigtion_blue">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/feature"
+            android:text="@string/function" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/search"
+            android:text="@string/find" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/news"
+            android:text="@string/news" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/chat"
+            android:text="@string/chat" />
+    </com.google.android.material.tabs.TabLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

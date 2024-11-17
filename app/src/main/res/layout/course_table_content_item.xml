@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp"
+    android:background="#77C9EF"
+    android:gravity="fill_vertical">
+
+    <TextView
+        android:id="@+id/courseName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxEms="3"
+        android:text="大学物理B (下)"
+        android:textColor="#000000"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/courseAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxEms="3"
+        android:text="金6-309"
+        android:textColor="#777777"
+        android:textSize="10sp" />
+</LinearLayout>
+

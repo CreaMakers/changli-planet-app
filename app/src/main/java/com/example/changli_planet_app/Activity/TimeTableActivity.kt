@@ -1,10 +1,11 @@
 package com.example.changli_planet_app.Activity
 
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.text.Layout
 import android.text.TextUtils
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -12,33 +13,36 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.setPadding
-import com.example.changli_planet_app.MySubject
+import com.example.changli_planet_app.PlanetApplication
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.SubjectRepertory
+import com.example.changli_planet_app.ViewModel.TimeTableActivityViewModel
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
 import com.zhuangfei.timetable.TimetableView
-import com.zhuangfei.timetable.listener.ISchedule
 import com.zhuangfei.timetable.listener.OnFlaglayoutClickAdapter
 import com.zhuangfei.timetable.listener.OnItemBuildAdapter
 import com.zhuangfei.timetable.listener.OnItemClickAdapter
+import com.zhuangfei.timetable.listener.OnItemLongClickAdapter
 import com.zhuangfei.timetable.listener.OnSlideBuildAdapter
-import com.zhuangfei.timetable.listener.OnSpaceItemClickAdapter
 import com.zhuangfei.timetable.model.Schedule
+import com.zhuangfei.timetable.view.WeekView
 
 
 class TimeTable : AppCompatActivity() {
+
+    //lateinit var viewModel: TimeTableActivityViewModel
     private val binding by lazy { ActivityTimeTableBinding.inflate(layoutInflater) }
     private val timetableView: TimetableView by lazy { binding.timetableView }
-    private val weekView by lazy { binding.weekView }
-    private val subjects: MutableList<MySubject> by lazy {
-        mutableListOf<MySubject>()
+    private val weekView: WeekView by lazy { binding.weekView }
+    val subjects: MutableList<MySubject> by lazy {
+        TimeTableActivityViewModel.subjects
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,8 +53,8 @@ class TimeTable : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        subjects.addAll(SubjectRepertory.loadDefaultSubjects())
-        subjects.addAll(SubjectRepertory.loadDefaultSubjects2())
+//         viewModel = (application as PlanetApplication).getTimetableViewModel(this)
+
         //加载课表视图
         timetableView.source(subjects)
             .curWeek(9)
@@ -59,17 +63,14 @@ class TimeTable : AppCompatActivity() {
             .cornerAll(15)
             .isShowNotCurWeek(false)
 
-
-//            .marLeft(5)
             .showView()
         timetableView.apply {
             showTime()     //显示侧边栏时间
             showPopDialog()//课程点击事件,出现弹窗显示课程信息
             buildItemText()//按要求显示课程信息
-            addCourse()
-
+            addCourse()    //添加自定义课程
+            longClickToDeleteCourse()
         }
-
 
 
         //加载周视图
@@ -82,20 +83,22 @@ class TimeTable : AppCompatActivity() {
     }
 
     private fun showCourseDetailDialog(schedule: Schedule) {
-            val dialogBinding = CourseinfoDialogBinding.inflate(layoutInflater)
-        dialogBinding.dialogCourseName.text=schedule.name
-        dialogBinding.dialogTeacherpart.dialogTeacher.text = schedule.teacher
-       dialogBinding.dialogAlarmpart.dialogDayOfWeek.text = schedule.day.toString()
+        val dialogBinding = CourseinfoDialogBinding.inflate(layoutInflater)
+        dialogBinding.dialogCourseName.text = schedule.name
         dialogBinding.dialogPlacepart.dialogPlace.text = schedule.room
+        dialogBinding.dialogTeacherpart.dialogTeacher.text = schedule.teacher
+        dialogBinding.dialogWeekpart.dialogWeek.text =
+            "${schedule.weekList[0]} - ${schedule.weekList.last()} (周)"
+        dialogBinding.dialogAlarmpart.dialogCourseStep.text =
+            "${schedule.start} - ${(schedule.start - 1 + schedule.step)} 节"
 
-        val builder = AlertDialog.Builder(this).apply {
-//            setTitle(schedule.name) // 设置课程名称
+
+        AlertDialog.Builder(this).apply {
             setView(dialogBinding.root)
-            setPositiveButton("确定", null)
-
+            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             show()
-            Log.d("TimetableView", "showCourseDetailDialog")
         }
+
 
     }
 
@@ -153,33 +156,33 @@ class TimeTable : AppCompatActivity() {
 
     fun TimetableView.addCourse() {
         timetableView.callback(object : OnFlaglayoutClickAdapter() {
-
             override fun onFlaglayoutClick(day: Int, start: Int) {
-                timetableView.hideFlaglayout();
-//                                Toast.makeText(context,"55",Toast.LENGTH_SHORT).show()
-                val schedule = Schedule()
-                schedule.name = "course1"
-                schedule.day = day
-                schedule.start = start
-                schedule.step = 2
-                schedule.room = "room1"
-                schedule.teacher = "teacher1"
-                val subject = SubjectRepertory.addSchedule(schedule)
-                subjects.add(subject)
-                timetableView.clearData()
-            timetableView.source(subjects)
-                timetableView.updateView()
-                timetableView.buildItemText()
-//                Toast.makeText(context,dataSource.size.toString(),Toast.LENGTH_SHORT).show()
+                val intent = Intent(context, AddCourseInTimetable::class.java)
+                intent.putExtra("day", day + 1)// 底层的索引从0开始，但计算时却进行了 - 1 ，所以这里要 + 1
+                intent.putExtra("start", start)
+                startActivity(intent)
+            }
+        })
+    }
+
+    fun TimetableView.longClickToDeleteCourse() {
+        timetableView.callback(object : OnItemLongClickAdapter() {
+            override fun onLongClick(v: View?, day: Int, start: Int) {
 
             }
         })
     }
-    private fun TimetableView.clearData() {
-          timetableView.dataSource().clear()
-        timetableView.updateView()
 
+
+    override fun onResume() {
+        super.onResume()
+        binding.timetableView.apply {
+            source(TimeTableActivityViewModel.subjects)
+            updateView()
+
+        }
+        Toast.makeText(this, "subjects size =${subjects.size}", Toast.LENGTH_SHORT).show()
     }
-
 }
+
 

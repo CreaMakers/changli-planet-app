@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "changli-planet-app"
 include(":app")
- 
+include(":build.gradle")
