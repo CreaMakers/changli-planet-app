@@ -32,7 +32,7 @@ import com.zhuangfei.timetable.model.Schedule
 import com.zhuangfei.timetable.view.WeekView
 
 
-class TimeTable : AppCompatActivity() {
+class TimeTableActivity : AppCompatActivity() {
 
     //lateinit var viewModel: TimeTableActivityViewModel
     private val binding by lazy { ActivityTimeTableBinding.inflate(layoutInflater) }
@@ -156,7 +156,7 @@ class TimeTable : AppCompatActivity() {
     fun TimetableView.addCourse() {
         timetableView.callback(object : OnFlaglayoutClickAdapter() {
             override fun onFlaglayoutClick(day: Int, start: Int) {
-                val intent = Intent(context, AddCourseInTimetable::class.java)
+                val intent = Intent(context, AddCourseActivity::class.java)
                 intent.putExtra("day", day + 1)// 底层的索引从0开始，但计算时却进行了 - 1 ，所以这里要 + 1
                 intent.putExtra("start", start)
                 startActivity(intent)

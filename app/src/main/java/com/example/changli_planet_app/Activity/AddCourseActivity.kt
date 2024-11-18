@@ -4,10 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -21,7 +19,7 @@ import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.zhuangfei.timetable.model.Schedule
 import kotlinx.coroutines.launch
 
-class AddCourseInTimetable : AppCompatActivity() {
+class AddCourseActivity : AppCompatActivity() {
     private val binding by lazy { ActivityAddCourseInTimetableBinding.inflate(layoutInflater) }
     private val timetableBinding by lazy { ActivityTimeTableBinding.inflate(layoutInflater) }
 
