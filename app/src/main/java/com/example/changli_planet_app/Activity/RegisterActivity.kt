@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputFilter
@@ -16,12 +17,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
+import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
 import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.LoginInformationDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
@@ -37,6 +41,7 @@ class RegisterActivity : AppCompatActivity() {
     val account: EditText by lazy { binding.account }
     val mmkv = MMKV.defaultMMKV()
     val password: EditText by lazy { binding.password }
+    val store = LoginAndRegisterStore()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -47,33 +52,45 @@ class RegisterActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        var underlinetext = SpannableString(route.text.toString())
-        underlinetext.setSpan(UnderlineSpan(),6,8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        underlinetext.setSpan(object : ClickableSpan(){
-            override fun onClick(widget: View) {
-                val intent = Intent(this@RegisterActivity,RegisterActivity::class.java)
-                startActivity(intent)
-                finish()
+        store.state()
+            .subscribe{state->
+                if (!state.isEnable){
+                    register.setBackgroundColor(Color.parseColor("#8E959F"))
+                }else{
+                    register.setBackgroundResource(R.drawable.enable_button)
+                }
             }
-        },6,8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        route.text = underlinetext
-        // 设置Login Button的初始状态
-        register.isEnabled = false
+        store.dispatch(LoginAndRegisterAction.initilaize)
+        setUnderLine()
         // 定义TextWatcher，用于监听account和password EditText内容变化
-        val textWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                // 如果account和password为空，则禁用按钮并设置浅色背景
-                register.isEnabled = !(account.text.isEmpty() || password.text.isEmpty())
-            }
+        val accountTextWatcher = object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {store.dispatch(LoginAndRegisterAction.input(account.text.toString(),"account"))}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
-        //为account和password EditText添加TextWatcher监听器
-        account.addTextChangedListener(textWatcher)
-        password.addTextChangedListener(textWatcher)
+        val passwordTextWatcher = object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {store.dispatch(LoginAndRegisterAction.input(password.text.toString(),"password"))}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        }
+        register.setOnClickListener{store.dispatch(
+            LoginAndRegisterAction.Login
+            (UserPassword(account.text.toString(),password.text.toString()),
+            this))
+        }
+        account.addTextChangedListener(accountTextWatcher)
+        password.addTextChangedListener(passwordTextWatcher)
         inputFilter(account)
         inputFilter(password)
-        register.setOnClickListener{}
+        register.setOnClickListener{store.dispatch(LoginAndRegisterAction.Register
+            (UserPassword(account.text.toString(),password.text.toString()),
+            this))}
+    }
+    private fun setUnderLine(){
+        var underlinetext = SpannableString(route.text.toString())
+        underlinetext.setSpan(UnderlineSpan(),6,8,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        route.text = underlinetext
+        route.setOnClickListener{ Route.goRegister(this)}
     }
     private fun inputFilter(editText: EditText){
         val inputFilter = InputFilter { source, _, _, _, _, _ ->

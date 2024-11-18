@@ -12,11 +12,10 @@ class PlanetApplication : Application() {
     companion object {
         // 双Token
         var accessToken: String? = null
-        var refreshToken: String? = null
         var startTime: Long = 0
         var isLogin = false
-        const val UserIp: String = "http://113.44.47.220:8083/app/users/"
-        const val ToolIp: String = "http://113.44.47.220:8081/app/tools/"
+        const val UserIp: String = "http://113.44.47.220:8083/app/users"
+        const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
     }
     override fun onCreate() {
         super.onCreate()

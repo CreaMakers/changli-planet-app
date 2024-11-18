@@ -7,7 +7,6 @@ import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
-
 /**
  * 所有页面跳转逻辑都应卸载Route中，方便统一管理
  * 使用方法：Route.goxx()
