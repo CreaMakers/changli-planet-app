@@ -71,27 +71,35 @@ object OkHttpHelper {
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
-            .addInterceptor(Interceptor{chain ->
-                val originalRequest = chain.request()
-                // 添加Access Token
-                val requestWithToken = originalRequest.newBuilder()
-                    .addHeader("Authorization", "Bearer ${PlanetApplication.accessToken}")
-                    .build()
-                val response = chain.proceed(requestWithToken)
-                 //检查是否401 Unauthorized
-                if (response.code == 401) {
-                    synchronized(this) {
-                        //刷新AccessToken
-                        refreshAccessToken()
-                        //重新请求
-                        val retryRequest = originalRequest.newBuilder()
-                            .addHeader("Authorization", "Bearer ${PlanetApplication.accessToken}")
-                            .build()
-                        return@Interceptor chain.proceed(retryRequest)
-                    }
-                }
-                response
-            })
+//            .addInterceptor(Interceptor{chain ->
+//                val originalRequest = chain.request()
+//                // 添加Access Token
+//                val requestWithToken = originalRequest.newBuilder()
+//                    .addHeader("Authorization", "Bearer ${PlanetApplication.accessToken}")
+//                    .build()
+//                val response = chain.proceed(requestWithToken)
+//                try {
+//                    //检查是否401 Unauthorized
+//                    if (response.code == 401) {
+//                        synchronized(this) {
+//                            //刷新AccessToken
+//                            refreshAccessToken()
+//                            //重新请求
+//                            val retryRequest = originalRequest.newBuilder()
+//                                .addHeader(
+//                                    "Authorization",
+//                                    "Bearer ${PlanetApplication.accessToken}"
+//                                )
+//                                .build()
+//                            response.close()
+//                            return@Interceptor chain.proceed(retryRequest)
+//                        }
+//                    }
+//                    response
+//                }finally {
+//                    response.close()
+//                }
+//            })
             .build()
     }
     fun sendRequest(httpUrlHelper: HttpUrlHelper,callback: RequestCallback){
@@ -131,10 +139,10 @@ object OkHttpHelper {
      * 刷新AccessToken和RefreshToken
      */
     private fun refreshAccessToken(){
-        val json = gson.toJson(PlanetApplication.refreshToken)
+        val json = gson.toJson(PlanetApplication.accessToken)
         val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val request = Request.Builder()
-            .url(PlanetApplication.UserIp + "me/token")
+            .url(PlanetApplication.UserIp + "/me/token")
             .put(body)
             .build()
         // 发送请求

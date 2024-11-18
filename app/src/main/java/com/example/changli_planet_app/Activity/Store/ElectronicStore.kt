@@ -33,7 +33,7 @@ class ElectronicStore:Store<ElectronicState,ElectronicAction>() {
             }
             is ElectronicAction.queryElectronic->{
                 val builder = HttpUrlHelper.HttpRequest()
-                    .get(PlanetApplication.ToolIp + "dormitory-electricity")
+                    .get(PlanetApplication.ToolIp + "/dormitory-electricity")
                     .build()
                 TODO()
             }

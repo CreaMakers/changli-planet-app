@@ -46,7 +46,7 @@ class LoginAndRegisterStore:Store<LoginAndRegisterState,LoginAndRegisterAction>(
             }
             is LoginAndRegisterAction.Login->{
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .post(PlanetApplication.UserIp + "session")
+                    .post(PlanetApplication.UserIp + "/session")
                     .header("deviceId",LoginActivity.getDeviceId(action.context))
                     .body(OkHttpHelper.gson.toJson(action.userPassword))
                     .build()
@@ -79,12 +79,12 @@ class LoginAndRegisterStore:Store<LoginAndRegisterState,LoginAndRegisterAction>(
                     override fun onSuccess(response: Response) {
                         val fromJson = OkHttpHelper.gson.fromJson(response.body?.string(),MyResponse::class.java)
                         if(fromJson.msg=="用户注册成功") {
-                            PlanetApplication.accessToken = response.headers.get("token")
                             handler.post{
                                 Route.goLogin(action.context)
                                 EventBusHelper.post(FinishEvent("Register"))
                             }
-                        }else{handler.post{var loginInformationDialog = LoginInformationDialog(action.context,fromJson.msg).show()}}
+                        }else{handler.post{
+                            var loginInformationDialog = LoginInformationDialog(action.context,fromJson.msg).show()}}
                     }
                     override fun onFailure(error: String) {}
                 })

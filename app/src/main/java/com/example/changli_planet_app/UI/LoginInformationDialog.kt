@@ -14,6 +14,7 @@ class LoginInformationDialog(context: Context,val content:String):Dialog(context
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_dialog)
         contents = findViewById(R.id.content)
+        contents.text = content
         yes = findViewById(R.id.yes)
         yes.setOnClickListener {
                 dismiss()
