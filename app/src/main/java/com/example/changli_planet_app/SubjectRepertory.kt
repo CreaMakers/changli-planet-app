@@ -147,36 +147,36 @@ object SubjectRepertory {
     data class weekJsonInfo(val weeks: List<Int>?, val start: Int, val step: Int)
 
 
-    fun requestCourses(requestBodyJson: String) {
-        val commonRequestBody = requestBodyJson.toRequestBody()
-        val gzipRequestBody = OkHttpHelper.GzipRequestBody(commonRequestBody)
-        val httpUrlHelper = HttpUrlHelper
-            .HttpRequest()
-            .post("/app/tools/courses")
-            .header(
-                "token",
-                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVUaW1lIjoxNzMxMDQyNjQ1LCJleHAiOjE3MzEwNDk4NDUsInVzZXJuYW1lIjoiY3JlYW1ha2VyIn0.s1cv3k2Ul5E9wdBtCSVUh8hCwgta_JwrAlftm3gO-58"
-            )
-            .header("User-Agent", "Apifox/1.0.0 (https://apifox.com)")
-            .header("Content-Type", "application/json")
-            .build()
-//        httpUrlHelper.requestBody = gzipRequestBody
-        OkHttpHelper.sendRequest(
-            httpUrlHelper,
-            object : RequestCallback {
-                override fun onSuccess(response: String) {
-                    val gson = Gson()
-                    val responseData = gson.fromJson(response, CoursesResponse::class.java)
-                     responseData.data.forEach { it.weeks }
-
-                }
-
-                override fun onFailure(error: String) {
-                    RuntimeException(error)
-                }
-
-            }
-
-        )
-    }
+//    fun requestCourses(requestBodyJson: String) {
+//        val commonRequestBody = requestBodyJson.toRequestBody()
+//        val gzipRequestBody = OkHttpHelper.GzipRequestBody(commonRequestBody)
+//        val httpUrlHelper = HttpUrlHelper
+//            .HttpRequest()
+//            .post("/app/tools/courses")
+//            .header(
+//                "token",
+//                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVUaW1lIjoxNzMxMDQyNjQ1LCJleHAiOjE3MzEwNDk4NDUsInVzZXJuYW1lIjoiY3JlYW1ha2VyIn0.s1cv3k2Ul5E9wdBtCSVUh8hCwgta_JwrAlftm3gO-58"
+//            )
+//            .header("User-Agent", "Apifox/1.0.0 (https://apifox.com)")
+//            .header("Content-Type", "application/json")
+//            .build()
+////        httpUrlHelper.requestBody = gzipRequestBody
+//        OkHttpHelper.sendRequest(
+//            httpUrlHelper,
+//            object : RequestCallback {
+//                override fun onSuccess(response: String) {
+//                    val gson = Gson()
+//                    val responseData = gson.fromJson(response, CoursesResponse::class.java)
+//                     responseData.data.forEach { it.weeks }
+//
+//                }
+//
+//                override fun onFailure(error: String) {
+//                    RuntimeException(error)
+//                }
+//
+//            }
+//
+//        )
+//    }
 }

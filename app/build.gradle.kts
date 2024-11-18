@@ -3,8 +3,8 @@ import com.android.build.api.dsl.ViewBinding
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
 }
-0
 android {
     namespace = "com.example.changli_planet_app"
     compileSdk = 34
@@ -58,6 +58,11 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
         //TimetableView
     implementation("com.github.zfman:TimetableView:2.0.7")
+    //Room
+    implementation("androidx.room:room-runtime:2.5.2") // 替换为最新版本
+    kapt("androidx.room:room-compiler:2.5.2")         // 注解处理
+    implementation("androidx.room:room-ktx:2.5.2")    // Kotlin 扩展
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -67,4 +72,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }
