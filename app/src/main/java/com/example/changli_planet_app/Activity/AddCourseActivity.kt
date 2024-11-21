@@ -149,6 +149,7 @@ class AddCourseActivity : AppCompatActivity() {
 //
 //            }
             val schedule = Schedule()
+
             if (courseName.text.isNotEmpty()) {
                 schedule.name = courseName.text.toString()
             } else {

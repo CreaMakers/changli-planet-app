@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/feature"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/feature_white"
+
     tools:context=".Fragment.FeatureFragment">
+
     <ImageView
         android:id="@+id/planet_logo"
         android:layout_width="match_parent"
@@ -14,7 +18,8 @@
         android:src="@drawable/planet_logo"
         app:layout_constraintHeight_percent="0.3"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
     <LinearLayout
         android:id="@+id/mainfunction"
         android:layout_width="match_parent"
@@ -25,77 +30,90 @@
         android:orientation="vertical"
         android:padding="15dp"
         app:layout_constraintTop_toBottomOf="@+id/planet_logo">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="15sp"
                 android:text="常用功能"
+                android:textSize="15sp"
                 android:textStyle="bold" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp">
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/ngrade"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="成绩查询"/>
+                app:itemTitle="成绩查询" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/ncourse"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="课表"/>
+                app:itemTitle="课表" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nmap"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="校园地图"/>
+                app:itemTitle="校园地图" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/ncet"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="四六级"/>
+                app:itemTitle="四六级" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp">
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/ntest"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="考试安排"/>
+                app:itemTitle="考试安排" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/ncalender"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="校历"/>
+                app:itemTitle="校历" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nadd"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="GPA"/>
+                app:itemTitle="GPA" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nmande"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="普通话"/>
+                app:itemTitle="普通话" />
         </LinearLayout>
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/help"
         android:layout_width="match_parent"
@@ -106,71 +124,84 @@
         android:orientation="vertical"
         android:padding="15dp"
         app:layout_constraintTop_toBottomOf="@+id/mainfunction">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="15sp"
                 android:text="其他"
+                android:textSize="15sp"
                 android:textStyle="bold" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp">
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nlose"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="失物招领"/>
+                app:itemTitle="失物招领" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nnotice"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="教务公告"/>
+                app:itemTitle="教务公告" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nelectronic"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="电费查询"/>
+                app:itemTitle="电费查询" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nrank"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="学霸排行"/>
+                app:itemTitle="学霸排行" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp">
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nbalance"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="余额查询"/>
+                app:itemTitle="余额查询" />
+
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nclassroom"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="空闲教室"/>
+                app:itemTitle="空闲教室" />
+
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
+
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+

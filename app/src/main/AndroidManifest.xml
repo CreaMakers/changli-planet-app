@@ -25,7 +25,7 @@
             android:name=".Activity.TimeTableActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.AddCourseInTimetable"
+            android:name=".Activity.AddCourseActivity"
             android:exported="false" />
         <activity
             android:name=".Activity.RegisterActivity"

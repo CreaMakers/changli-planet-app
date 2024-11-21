@@ -7,29 +7,40 @@ import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
+import com.example.changli_planet_app.Activity.TimeTableActivity
+
 /**
  * 所有页面跳转逻辑都应卸载Route中，方便统一管理
  * 使用方法：Route.goxx()
  */
 object Route {
-    fun goLogin(context: Context){
-        val intent = Intent(context,LoginActivity::class.java)
+    fun goLogin(context: Context) {
+        val intent = Intent(context, LoginActivity::class.java)
         context.startActivity(intent)
     }
-    fun goRegister(context: Context){
-        val intent = Intent(context,RegisterActivity::class.java)
+
+    fun goRegister(context: Context) {
+        val intent = Intent(context, RegisterActivity::class.java)
         context.startActivity(intent)
     }
-    fun goElectronic(context: Context){
-        val intent = Intent(context,ElectronicActivity::class.java)
+
+    fun goElectronic(context: Context) {
+        val intent = Intent(context, ElectronicActivity::class.java)
         context.startActivity(intent)
     }
-    fun goHome(context: Context){
-        val intent = Intent(context,MainActivity::class.java)
+
+    fun goHome(context: Context) {
+        val intent = Intent(context, MainActivity::class.java)
         context.startActivity(intent)
     }
-    fun goLose(context: Context){
-        val intent = Intent(context,LoseActivity::class.java)
+
+    fun goTimetable(context: Context) {
+        val intent = Intent(context, TimeTableActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goLose(context: Context) {
+        val intent = Intent(context, LoseActivity::class.java)
         context.startActivity(intent)
     }
 }

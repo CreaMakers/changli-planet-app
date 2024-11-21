@@ -162,6 +162,7 @@ class TimeTableActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         })
+
     }
 
     fun TimetableView.longClickToDeleteCourse() {

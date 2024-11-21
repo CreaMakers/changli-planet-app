@@ -21,12 +21,15 @@ import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 class FeatureFragment : Fragment() {
     lateinit var  binding : FragmentFeatureBinding
     private val electronic:LinearLayout by lazy { binding.nelectronic }
+    private val timeTable by lazy { binding.ncourse }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentFeatureBinding.inflate(layoutInflater)
         electronic.setOnClickListener { activity?.let { it1 -> Route.goElectronic(it1) } }
+        timeTable.setOnClickListener { activity?.let { it1 -> Route.goTimetable(it1)} }
+
         // 将设置资源的代码放入 IdleHandler
         Handler(Looper.getMainLooper()).post {
             // 注册 IdleHandler
