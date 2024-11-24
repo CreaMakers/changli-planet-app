@@ -6,7 +6,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.changli_planet_app.Fragment.FeatureFragment
-import com.example.changli_planet_app.Fragment.FindFragment
+import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.position) {
                     0 -> initFragment(FeatureFragment.newInstance())  // feature tab
-                    1 -> initFragment(FindFragment.newInstance())     // look tab
+                    1 -> initFragment(NewsFragment.newInstance())     // look tab
                     2 -> initFragment(FeatureFragment.newInstance())     // post tab
                     3 -> initFragment(IMFragment.newInstance())        // im tab
                 }

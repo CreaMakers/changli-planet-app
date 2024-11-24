@@ -3,6 +3,7 @@ import android.util.Log
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Network.Interceptor.NetworkLogger
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.msdk.dns.MSDKDnsResolver
@@ -100,6 +101,7 @@ object OkHttpHelper {
 //                    response.close()
 //                }
 //            })
+            .addInterceptor(NetworkLogger.getLoggingInterceptor())
             .build()
     }
     fun sendRequest(httpUrlHelper: HttpUrlHelper,callback: RequestCallback){

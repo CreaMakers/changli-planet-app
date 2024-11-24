@@ -7,4 +7,5 @@ package com.example.changli_planet_app.Activity.State
 data class ElectronicState(
     var address:String,
     var buildId:String,
-){var nod:String = "" }
+){var nod:String = ""
+  var elec:String = ""}
