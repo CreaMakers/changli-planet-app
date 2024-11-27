@@ -22,77 +22,108 @@ import com.example.changli_planet_app.Util.EventBusHelper
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
 
-class LoginAndRegisterStore:Store<LoginAndRegisterState,LoginAndRegisterAction>() {
+class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterAction>() {
     var currentState = LoginAndRegisterState()
     var handler = Handler(Looper.getMainLooper())
     var mmkv = MMKV.defaultMMKV()
     override fun handleEvent(action: LoginAndRegisterAction) {
-        currentState = when(action){
-            is LoginAndRegisterAction.initilaize->{
+        currentState = when (action) {
+            is LoginAndRegisterAction.initilaize -> {
                 _state.onNext(currentState)
                 currentState
             }
-            is LoginAndRegisterAction.input->{
-                if(action.type=="account"){
+            is LoginAndRegisterAction.input -> {
+                if (action.type == "account") {
                     currentState.account = action.content
-                }else {
+                } else {
                     currentState.password = action.content
                 }
-                if(!currentState.isEnable&&checkEnable()){
+                if (!currentState.isEnable && checkEnable()) {
                     currentState.isEnable = true
+                }
+                currentState.isClearPassword = currentState.password.isNotEmpty()
+                if (!checkEnable()) {
+                    currentState.isEnable = false
                 }
                 _state.onNext(currentState)
                 currentState
             }
-            is LoginAndRegisterAction.Login->{
+
+            is LoginAndRegisterAction.Login -> {
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .post(PlanetApplication.UserIp + "/session")
-                    .header("deviceId",LoginActivity.getDeviceId(action.context))
+                    .header("deviceId", LoginActivity.getDeviceId(action.context))
                     .body(OkHttpHelper.gson.toJson(action.userPassword))
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
-                        var fromJson = OkHttpHelper.gson.fromJson(response.body?.string(), MyResponse::class.java)
-                        when(fromJson.msg){
-                            "用户登录成功"-> {
-                                mmkv.encode("account","${action.userPassword.username}")
-                                mmkv.encode("password","${action.userPassword.password}")
-                                mmkv.encode("token","${PlanetApplication.accessToken}")
+                        var fromJson = OkHttpHelper.gson.fromJson(
+                            response.body?.string(),
+                            MyResponse::class.java
+                        )
+                        when (fromJson.msg) {
+                            "用户登录成功" -> {
+                                mmkv.encode("account", "${action.userPassword.username}")
+                                mmkv.encode("password", "${action.userPassword.password}")
+                                mmkv.encode("token", "${PlanetApplication.accessToken}")
                                 handler.post {
                                     Route.goHome(action.context)
                                     EventBusHelper.post(FinishEvent("Login"))
                                 }
                             }
-                            else->{handler.post{var loginInformationDialog = LoginInformationDialog(action.context,fromJson.msg).show()}}
+
+                            else -> {
+                                handler.post {
+                                    var loginInformationDialog =
+                                        LoginInformationDialog(action.context, fromJson.msg).show()
+                                }
+                            }
                         }
                     }
+
                     override fun onFailure(error: String) {}
                 })
                 currentState
             }
-            is LoginAndRegisterAction.Register->{
+
+            is LoginAndRegisterAction.Register -> {
                 val builder = HttpUrlHelper.HttpRequest()
                     .post(PlanetApplication.UserIp)
                     .body(OkHttpHelper.gson.toJson(action.userPassword))
                     .build()
-                OkHttpHelper.sendRequest(builder,object : RequestCallback{
+                OkHttpHelper.sendRequest(builder, object : RequestCallback {
                     override fun onSuccess(response: Response) {
-                        val fromJson = OkHttpHelper.gson.fromJson(response.body?.string(),MyResponse::class.java)
-                        if(fromJson.msg=="用户注册成功") {
-                            handler.post{
+                        val fromJson = OkHttpHelper.gson.fromJson(
+                            response.body?.string(),
+                            MyResponse::class.java
+                        )
+                        if (fromJson.msg == "用户注册成功") {
+                            handler.post {
                                 Route.goLogin(action.context)
                                 EventBusHelper.post(FinishEvent("Register"))
                             }
-                        }else{handler.post{
-                            var loginInformationDialog = LoginInformationDialog(action.context,fromJson.msg).show()}}
+                        } else {
+                            handler.post {
+                                var loginInformationDialog =
+                                    LoginInformationDialog(action.context, fromJson.msg).show()
+                            }
+                        }
                     }
+
                     override fun onFailure(error: String) {}
                 })
                 currentState
             }
+
+            LoginAndRegisterAction.ChangeVisibilityOfPassword -> {
+                currentState.isVisibilityPassword = !currentState.isVisibilityPassword
+                _state.onNext(currentState)
+                currentState
+            }
         }
     }
-    private fun checkEnable():Boolean{
-        return currentState.account.isNotEmpty()&&currentState.password.isNotEmpty()
+
+    private fun checkEnable(): Boolean {
+        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty()
     }
 }

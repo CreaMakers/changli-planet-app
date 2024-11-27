@@ -25,7 +25,6 @@ class SelectorAdapter(private val list: List<String>,val store: ElectronicStore)
     }
     override fun getItemCount(): Int = list.size
 
-
     override fun onBindViewHolder(holder: SelectorViewHodler, position: Int) {
         holder.selec.text = list[position]
         holder.selec.setOnClickListener {
