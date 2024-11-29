@@ -12,4 +12,5 @@
     <color name="primary_blue">#0099FA</color>
     <color name="feature_user">#EEF4FF</color>
     <color name="search_land">#EDEDED</color>
+    <color name="score_bar">#E9EFFE</color>
 </resources>
