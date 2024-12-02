@@ -27,6 +27,7 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.greenrobot.eventbus.Subscribe
 
 class LoginActivity : AppCompatActivity() {
@@ -50,6 +51,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         store.state()
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe { state ->
                 updateButtonState(state.isEnable)
                 updatePasswordVisibility(state.isVisibilityPassword)

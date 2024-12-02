@@ -1,4 +1,5 @@
 package com.example.changli_planet_app.Network
+
 import android.util.Log
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.RefreshToken
@@ -60,6 +61,7 @@ object OkHttpHelper {
                         fallbackToLocalDns(hostname)
                     }
                 }
+
                 // 降级到 LocalDNS 的方法
                 private fun fallbackToLocalDns(hostname: String): List<InetAddress> {
                     return try {
@@ -104,7 +106,8 @@ object OkHttpHelper {
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
             .build()
     }
-    fun sendRequest(httpUrlHelper: HttpUrlHelper,callback: RequestCallback){
+
+    fun sendRequest(httpUrlHelper: HttpUrlHelper, callback: RequestCallback) {
         val requestBuilder = Request.Builder().url(httpUrlHelper.buildUrl())
         // 添加头部信息
         for ((key, value) in httpUrlHelper.headers) {
@@ -115,32 +118,44 @@ object OkHttpHelper {
         val request = when (httpUrlHelper.requestType) {
             HttpUrlHelper.RequestType.GET -> requestBuilder.get().build()
             HttpUrlHelper.RequestType.POST -> {
-                requestBuilder.post((httpUrlHelper.requestBody ?: "").toRequestBody("application/json".toMediaTypeOrNull()))
+                requestBuilder.post(
+                    (httpUrlHelper.requestBody
+                        ?: "").toRequestBody("application/json".toMediaTypeOrNull())
+                ).build()
+            }
+
+            HttpUrlHelper.RequestType.PUT -> {
+                requestBuilder.put(
+                    (httpUrlHelper.requestBody
+                        ?: "").toRequestBody("application/json".toMediaTypeOrNull())
+                )
                     .build()
             }
-            HttpUrlHelper.RequestType.PUT ->{
-                requestBuilder.put((httpUrlHelper.requestBody ?: "").toRequestBody("application/json".toMediaTypeOrNull()))
-                    .build()
-            }
-            HttpUrlHelper.RequestType.DELETE ->{
-                requestBuilder.delete((httpUrlHelper.requestBody ?: "").toRequestBody("application/json".toMediaTypeOrNull()))
+
+            HttpUrlHelper.RequestType.DELETE -> {
+                requestBuilder.delete(
+                    (httpUrlHelper.requestBody
+                        ?: "").toRequestBody("application/json".toMediaTypeOrNull())
+                )
                     .build()
             }
         }
-        client.newCall(request).enqueue(object :Callback{
+        client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback.onFailure("error")
                 e.printStackTrace()
             }
+
             override fun onResponse(call: Call, response: Response) {
                 callback.onSuccess(response)
             }
         })
     }
+
     /**
      * 刷新AccessToken和RefreshToken
      */
-    private fun refreshAccessToken(){
+    private fun refreshAccessToken() {
         val json = gson.toJson(PlanetApplication.accessToken)
         val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val request = Request.Builder()
@@ -153,6 +168,7 @@ object OkHttpHelper {
                 Log.e("API Error", "请求失败: ${e.message}")
                 // 这里可以处理失败逻辑，比如重试或用户提示
             }
+
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful && response.body != null) {
                     PlanetApplication.accessToken = response.headers["token"]
@@ -163,16 +179,19 @@ object OkHttpHelper {
             }
         })
     }
+
     //解析返回的Json和发送的Json
     val gson: Gson by lazy { Gson() }
+
     /**
      * Gzip请求体内部类，用于构建被Gzip压缩的Body
      */
-    class GzipRequestBody(private val requestBody: RequestBody) : RequestBody(){
+    class GzipRequestBody(private val requestBody: RequestBody) : RequestBody() {
         override fun contentType(): MediaType? {
             //返回原Body的MiMe
             return requestBody.contentType()
         }
+
         override fun writeTo(sink: BufferedSink) {
             //GzipSink压缩流用于压缩数据
             val gzipSink = GzipSink(sink).buffer()
@@ -183,6 +202,7 @@ object OkHttpHelper {
         }
 
     }
+
     /**
      * @param description : 文件的描述
      * @param url : 请求的url
@@ -192,13 +212,14 @@ object OkHttpHelper {
      * @param onFailure : 失败回调
      */
     // 上传 Gzip 压缩后的文件，并附加一个字符串参数
-    fun<T> uploadGzipFile
-     (description:String,
-      url: String,
-      file: File,
-      responseType: Type,
-      onSuccess: (T) -> Unit,
-      onFailure: (String) -> Unit) {
+    fun <T> uploadGzipFile(
+        description: String,
+        url: String,
+        file: File,
+        responseType: Type,
+        onSuccess: (T) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
         // 创建一个 RequestBody，包装原始文件的数据
         val fileBody = file.asRequestBody("application/octet-stream".toMediaTypeOrNull())
         // 使用 GzipRequestBody 包装原始的 RequestBody，确保文件在上传时进行 Gzip 压缩
@@ -220,6 +241,7 @@ object OkHttpHelper {
             override fun onFailure(call: Call, e: IOException) {
                 onFailure(e.message ?: "Unknown Error") // 调用失败回调并传递错误信息
             }
+
             // 处理服务器的响应
             override fun onResponse(call: Call, response: Response) {
                 response.body?.let { responseBody ->
@@ -238,6 +260,7 @@ object OkHttpHelper {
             }
         })
     }
+
     /**
      * @param url : WebSocket 服务器的 URL
      * @param onOpen : WebSocket 连接成功回调
@@ -287,6 +310,7 @@ object OkHttpHelper {
             }
         })
     }
+
     /**
      * 关闭 WebSocket
      * @param webSocket : WebSocket 对象
@@ -301,23 +325,24 @@ object OkHttpHelper {
      * 利用OkHttp的连接复用池，预连接以提高网络请求效率
      * 初步构想闪屏页面预请求首页数据
      */
-    fun preRequest(url: String){
+    fun preRequest(url: String) {
         val startTime = System.currentTimeMillis()
         val request = Request.Builder()
             .url(url)
             .head()
             .build()
-        client.newCall(request).enqueue(object : Callback{
+        client.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 //预连接成功与否不需关心
             }
+
             override fun onFailure(call: Call, e: IOException) {
                 //预连接成功与否不需关心
             }
         })
         val endTime = System.currentTimeMillis()
         val duration = endTime - startTime
-        Log.d("MyTag","PreRequestTime:${duration}")
+        Log.d("MyTag", "PreRequestTime:${duration}")
     }
 }
 
