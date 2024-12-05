@@ -36,7 +36,6 @@ import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import jp.wasabeef.blurry.Blurry
 import java.util.Calendar
-
 class ScoreInquiryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityScoreInquiryBinding
     private val backgroundLayout: LinearLayout by lazy { binding.mainInfoLayout }

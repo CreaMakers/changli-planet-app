@@ -18,6 +18,7 @@ data class Grade(
     val attribute: String,
     val reItem: String
 )
+
 data class GradeResponse(
     val code: String,
     val msg: String,

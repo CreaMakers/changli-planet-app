@@ -3,6 +3,7 @@ package com.example.changli_planet_app.Core
 import android.content.Context
 import android.content.Intent
 import com.example.changli_planet_app.Activity.ElectronicActivity
+import com.example.changli_planet_app.Activity.ExamArrangementActivity
 import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
@@ -41,6 +42,11 @@ object Route {
 
     fun goScoreInquiry(context: Context) {
         val intent = Intent(context, ScoreInquiryActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goExamArrangement(context: Context) {
+        val intent = Intent(context, ExamArrangementActivity::class.java)
         context.startActivity(intent)
     }
 }

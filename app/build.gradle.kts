@@ -40,6 +40,8 @@ android {
     }
 }
 dependencies {
+    // Material Design
+    implementation("com.google.android.material:material:1.11.0")
     // Blurry库
     implementation("jp.wasabeef:blurry:4.0.1") // 请根据需要选择最新版本
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
