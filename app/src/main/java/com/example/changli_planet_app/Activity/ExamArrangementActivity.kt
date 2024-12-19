@@ -35,7 +35,6 @@ class ExamArrangementActivity : AppCompatActivity() {
     private val progressBar: ProgressBar by lazy { binding.loadingProgress }
     private val store: ExamArrangementStore = ExamArrangementStore()
     private val currencyTime = generateTermsList()
-
     private var examList: MutableList<Exam> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +55,13 @@ class ExamArrangementActivity : AppCompatActivity() {
             .subscribe { state ->
                 showAllExamInfo(state.exams)
             }
-
+        progressBar.visibility = View.VISIBLE
+        store.dispatch(
+            ExamInquiryAction.UpdateExamData(
+                semesterNumberDate.text.toString(),
+                semesterDate.text.toString()
+            )
+        )
         backImageView.setOnClickListener { finish() }
         chosenTime.setOnClickListener { showChosenDialog() }
     }
@@ -70,7 +75,7 @@ class ExamArrangementActivity : AppCompatActivity() {
                 grade.room
             )
         }.toMutableList()
-
+        examRecyclerView.adapter = ExamArrangementAdapter(examList)
         if (examRecyclerView.adapter == null) {
             examRecyclerView.adapter = ExamArrangementAdapter(examList)
         } else {

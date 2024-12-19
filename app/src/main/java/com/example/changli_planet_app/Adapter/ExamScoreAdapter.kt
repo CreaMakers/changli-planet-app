@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Data.jsonbean.ExamScore
 import com.example.changli_planet_app.R
 
-class ExamScoreAdapter (var examScoreList: MutableList<ExamScore>): RecyclerView.Adapter<ExamScoreAdapter.ViewHolder>() {
+class ExamScoreAdapter (var examScoreData: MutableList<ExamScore>): RecyclerView.Adapter<ExamScoreAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val lessonName: TextView = view.findViewById(R.id.lesson_name)
@@ -19,7 +19,7 @@ class ExamScoreAdapter (var examScoreList: MutableList<ExamScore>): RecyclerView
     }
 
     fun updateData(newScores: MutableList<ExamScore>) {
-        examScoreList = newScores
+        examScoreData = newScores
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -27,10 +27,10 @@ class ExamScoreAdapter (var examScoreList: MutableList<ExamScore>): RecyclerView
         return ViewHolder(view)
     }
 
-    override fun getItemCount() = examScoreList.size
+    override fun getItemCount() = examScoreData.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val examScore = examScoreList[position]
+        val examScore = examScoreData[position]
         holder.lessonName.text = examScore.name
         holder.lessonType.text = examScore.attribute
         holder.lessonCredit.text = examScore.point

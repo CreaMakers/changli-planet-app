@@ -126,7 +126,7 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="7dp"
                     android:gravity="center"
-                    android:text="期中"
+                    android:text="期末"
                     android:textColor="@color/white"
                     android:textSize="25sp"
                     android:textStyle="bold" />

@@ -106,7 +106,7 @@ class ScoreInquiryActivity : AppCompatActivity() {
                 grade.grade
             )
         }.toMutableList()
-
+        recyclerView.adapter = ExamScoreAdapter(examScoreList)
         if (recyclerView.adapter == null) {
             recyclerView.adapter = ExamScoreAdapter(examScoreList)
         } else {
