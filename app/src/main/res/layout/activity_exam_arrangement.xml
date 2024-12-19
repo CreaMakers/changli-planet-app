@@ -68,7 +68,7 @@
                     android:fontFamily="sans-serif-medium"
                     android:gravity="center"
                     android:paddingBottom="3sp"
-                    android:text="时间"
+                    android:text="学期"
                     android:textColor="@color/black"
                     android:textSize="23sp" />
 
@@ -108,6 +108,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/semesterNumberDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -119,6 +120,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/semesterDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"

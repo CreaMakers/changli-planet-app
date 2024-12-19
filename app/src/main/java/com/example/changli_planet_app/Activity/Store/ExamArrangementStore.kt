@@ -1,43 +1,42 @@
 package com.example.changli_planet_app.Activity.Store
 
-import android.widget.Toast
-import com.example.changli_planet_app.Activity.Action.ScoreInquiryAction
-import com.example.changli_planet_app.Activity.State.ScoreInquiryState
+import com.example.changli_planet_app.Activity.Action.ExamInquiryAction
+import com.example.changli_planet_app.Activity.State.ExamInquiryState
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Store
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
+import com.example.changli_planet_app.Network.Response.ExamArrangementResponse
 import com.example.changli_planet_app.Network.Response.GradeResponse
-import com.example.changli_planet_app.Network.Response.MyResponse
 import okhttp3.Response
 
-class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
-    var currentState = ScoreInquiryState()
-    override fun handleEvent(action: ScoreInquiryAction) {
+class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
+    var currentState = ExamInquiryState()
+    override fun handleEvent(action: ExamInquiryAction) {
         currentState = when (action) {
-            is ScoreInquiryAction.ShowData -> {
-                currentState.showDataChosen = !currentState.showDataChosen
+            ExamInquiryAction.initilaize -> {
+                currentState.exams = emptyList()
                 _state.onNext(currentState)
                 currentState
             }
-
-            is ScoreInquiryAction.UpdateGrade -> {
+            is ExamInquiryAction.UpdateExamData -> {
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .get(PlanetApplication.ToolIp + "/grades")
+                    .get(PlanetApplication.ToolIp + "/exams")
                     .addQueryParam("stuNum", "202308010135")
                     .addQueryParam("password", "Jianyu@123")
-                    .addQueryParam("term", action.term)
+                    .addQueryParam("term", action.termTime)
+                    .addQueryParam("examType", action.termType)
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
-                        var gradeResponse = OkHttpHelper.gson.fromJson(
+                        var examArrangementResponse = OkHttpHelper.gson.fromJson(
                             response.body?.string(),
-                            GradeResponse::class.java
+                            ExamArrangementResponse::class.java
                         )
-                        currentState.grades = when (gradeResponse.code) {
+                        currentState.exams = when (examArrangementResponse.code) {
                             "200" -> {
-                                gradeResponse.data
+                                examArrangementResponse.data
                             }
                             else -> {
                                 emptyList()
@@ -47,23 +46,13 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
                     }
 
                     override fun onFailure(error: String) {
-                        currentState.grades = emptyList()
+                        currentState.exams = emptyList()
                         _state.onNext(currentState)
                     }
 
                 })
                 currentState
             }
-
-            ScoreInquiryAction.initilaize -> {
-                currentState.grades = emptyList()
-                currentState.showDataChosen = false
-                currentState.dataText = "日期"
-                _state.onNext(currentState)
-                currentState
-            }
         }
-
     }
-
 }

@@ -13,6 +13,8 @@
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
         android:text="高等数学2 (二)"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:textColor="@color/white"
         android:textSize="28sp"
         android:textStyle="bold" />

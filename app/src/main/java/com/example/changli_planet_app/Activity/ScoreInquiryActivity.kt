@@ -55,7 +55,6 @@ class ScoreInquiryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityScoreInquiryBinding.inflate(layoutInflater)
         window.statusBarColor = getColor(R.color.score_bar)
-
         WindowInsetsControllerCompat(window, window.decorView).apply {
             isAppearanceLightStatusBars = true
         }
@@ -107,7 +106,7 @@ class ScoreInquiryActivity : AppCompatActivity() {
                 grade.grade
             )
         }.toMutableList()
-        recyclerView.adapter = ExamScoreAdapter(examScoreList)
+
         if (recyclerView.adapter == null) {
             recyclerView.adapter = ExamScoreAdapter(examScoreList)
         } else {

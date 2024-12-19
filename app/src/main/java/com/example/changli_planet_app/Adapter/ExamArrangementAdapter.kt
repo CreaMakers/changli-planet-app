@@ -6,11 +6,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Data.jsonbean.Exam
+import com.example.changli_planet_app.Data.jsonbean.ExamScore
 import com.example.changli_planet_app.Network.Response.ExamArrangement
 import com.example.changli_planet_app.R
 import org.w3c.dom.Text
 
-class ExamArrangementAdapter(val examList: List<Exam>) : RecyclerView.Adapter<ExamArrangementAdapter.ViewHolder>() {
+class ExamArrangementAdapter(var examData: MutableList<Exam>) : RecyclerView.Adapter<ExamArrangementAdapter.ViewHolder>() {
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val examTitle: TextView = view.findViewById(R.id.exam_title)
         val examTime: TextView = view.findViewById(R.id.exam_time)
@@ -23,12 +24,16 @@ class ExamArrangementAdapter(val examList: List<Exam>) : RecyclerView.Adapter<Ex
         return ViewHolder(view)
     }
 
-    override fun getItemCount() = examList.size
+    fun updateData(newExamArrange: MutableList<Exam>) {
+        examData = newExamArrange
+    }
+
+    override fun getItemCount() = examData.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.examTitle.text = examList[position].name
-        holder.examId.text = examList[position].examId
-        holder.examRoom.text = examList[position].room
-        holder.examTime.text = examList[position].time
+        holder.examTitle.text = examData[position].name
+        holder.examId.text = examData[position].examId
+        holder.examRoom.text = examData[position].room
+        holder.examTime.text = examData[position].time
     }
 }
