@@ -1,62 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EEF4FF">
+    android:background="#F2F3F9"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#EEF4FF"
-        app:layout_constraintHeight_percent="0.05"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:background="#F2F3F9"
+        android:orientation="horizontal">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="5dp"
             android:src="@drawable/prehead"
-            app:shapeAppearance="@style/RoundedStyle" />
+            app:shapeAppearance="@style/CircleStyle" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="5dp"
             android:gravity="center_vertical"
-            android:text="这是你的名字" />
+            android:text="名字"
+            android:textColor="@color/black"
+            android:textSize="17sp" />
 
-        <Space
+        <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="7" />
+            android:layout_weight="1" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/add_btn" />
+
     </LinearLayout>
+
 
     <EditText
         android:id="@+id/editText"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:background="@drawable/im_search"
         android:gravity="center"
         android:hint="搜索"
-        app:layout_constraintHeight_percent="0.05"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        tools:layout_editor_absoluteX="10dp" />
+        android:paddingVertical="4dp"
+        android:textColorHint="@color/seach_gray" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chat_list_recycler"
+        android:layout_marginHorizontal="20dp"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_marginTop="10dp"
-        android:background="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:background="#F2F3F9" />
+</LinearLayout>
