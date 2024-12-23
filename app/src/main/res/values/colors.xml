@@ -14,4 +14,6 @@
     <color name="split_black">#88B4E5</color>
     <color name="search_land">#EDEDED</color>
     <color name="score_bar">#E9EFFE</color>
+    <color name="chat_group_blue">#698CD9</color>
+    <color name="light_gray">#E2E2E2</color>
 </resources>

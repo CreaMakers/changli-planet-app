@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Activity
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -9,6 +10,7 @@ import com.example.changli_planet_app.Fragment.FeatureFragment
 import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Fragment.ChatGroupFragment
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayout
@@ -47,12 +49,13 @@ class MainActivity : AppCompatActivity() {
         tabLayout.addTab(postTab)
         tabLayout.addTab(imTab)
     }
+
     private fun setupTabSelectionListener() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.position) {
                     0 -> initFragment(FeatureFragment.newInstance())  // feature tab
-                    1 -> initFragment(NewsFragment.newInstance())     // look tab
+                    1 -> initFragment(ChatGroupFragment.newInstance())     // look tab
                     2 -> initFragment(FeatureFragment.newInstance())     // post tab
                     3 -> initFragment(IMFragment.newInstance())        // im tab
                 }
