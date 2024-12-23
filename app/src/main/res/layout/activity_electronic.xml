@@ -7,153 +7,178 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".Activity.ElectronicActivity">
+
     <LinearLayout
         android:id="@+id/query"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:padding="10dp"
         android:background="@color/primary_blue"
+        android:padding="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <ImageView
             android:id="@+id/back"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/back"/>
+            android:layout_weight="1"
+            android:src="@drawable/back" />
+
         <TextView
-            android:textStyle="bold"
             android:layout_width="0dp"
-            android:gravity="center"
-            android:layout_weight="8"
-            android:textSize="25sp"
-            android:textColor="@color/white"
             android:layout_height="match_parent"
-            android:text="电费查询"/>
+            android:layout_weight="8"
+            android:gravity="center"
+            android:text="电费查询"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:orientation="vertical"
         android:padding="24dp"
-        app:layout_constraintTop_toBottomOf="@+id/query"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_height="0dp">
+        app:layout_constraintTop_toBottomOf="@+id/query">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
-                android:textStyle="bold"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
+                android:text="校区"
                 android:textSize="20sp"
-                android:text="校区"/>
+                android:textStyle="bold" />
+
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
+
             <TextView
-                android:textStyle="bold"
                 android:id="@+id/school"
                 android:layout_width="0dp"
-                android:textSize="20sp"
                 android:layout_height="wrap_content"
                 android:layout_weight="6"
-                android:text="选择校区"/>
+                android:text="选择校区"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
+
         <View
-            android:layout_marginVertical="20dp"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/itractor"/>
+            android:layout_marginVertical="20dp"
+            android:background="@color/itractor" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
-                android:textStyle="bold"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
+                android:text="宿舍楼"
                 android:textSize="20sp"
-                android:text="宿舍楼"/>
+                android:textStyle="bold" />
+
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
+
             <TextView
-                android:textStyle="bold"
                 android:id="@+id/dor"
                 android:layout_width="0dp"
-                android:textSize="20sp"
                 android:layout_height="wrap_content"
                 android:layout_weight="6"
-                android:text="选择宿舍楼"/>
+                android:text="选择宿舍楼"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
+
         <View
-            android:layout_marginVertical="20dp"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/itractor"/>
+            android:layout_marginVertical="20dp"
+            android:background="@color/itractor" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
-                android:textStyle="bold"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
+                android:text="房间号"
                 android:textSize="20sp"
-                android:text="房间号"/>
+                android:textStyle="bold" />
+
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
+
             <EditText
                 android:id="@+id/dor_number"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:background="@color/white"
-                android:layout_weight="6"/>
+                android:layout_weight="6"
+                android:background="@color/white" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"/>
+                android:layout_weight="3" />
+
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:background="@color/icon_gray"
-                android:layout_weight="6"/>
+                android:layout_weight="6"
+                android:background="@color/icon_gray" />
         </LinearLayout>
+
         <TextView
-            android:textStyle="bold"
-            android:layout_marginVertical="25dp"
             android:layout_width="match_parent"
-            android:textColor="@color/icon_gray"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="25dp"
+            android:text="@string/query_things"
+            android:textColor="@color/icon_gray"
             android:textSize="17sp"
-            android:text="@string/query_things"/>
+            android:textStyle="bold" />
+
         <Button
             android:id="@+id/query_elec"
             android:layout_width="match_parent"
-            android:textStyle="bold"
-            android:textSize="20sp"
             android:layout_height="wrap_content"
-            android:text="查询"/>
+            android:text="查询"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
         <ViewStub
             android:id="@+id/stub_tv"
-            android:layout_marginVertical="20dp"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="20dp"
             android:inflatedId="@+id/tv_result"
-            android:layout="@layout/electronic_result"
-            android:layout_height="wrap_content" />
+            android:layout="@layout/electronic_result" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

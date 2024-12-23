@@ -25,12 +25,16 @@ import com.example.changli_planet_app.databinding.FragmentFeatureBinding
  * create an instance of this fragment.
  */
 class FeatureFragment : Fragment() {
-    lateinit var binding: FragmentFeatureBinding
+
 //    lateinit var navHeaderBinding: NavHeaderBinding
     lateinit var menu: Menu
 
-    private val electronic: LinearLayout by lazy { binding.nelectronic }
+
     private val timeTable by lazy { binding.ncourse }
+    lateinit var  binding : FragmentFeatureBinding
+    private val electronic:LinearLayout by lazy { binding.nelectronic }
+    private val grade:LinearLayout by lazy { binding.ngrade }
+    private val ntest:LinearLayout by lazy { binding.ntest }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,6 +49,8 @@ class FeatureFragment : Fragment() {
         electronic.setOnClickListener { activity?.let { it1 -> Route.goElectronic(it1) } }
         timeTable.setOnClickListener { activity?.let { it1 -> Route.goTimetable(it1) } }
 
+        grade.setOnClickListener { activity?.let { it1 -> Route.goScoreInquiry(it1) } }
+        ntest.setOnClickListener { activity?.let { it1 -> Route.goExamArrangement(it1) } }
         // 将设置资源的代码放入 IdleHandler
         Handler(Looper.getMainLooper()).post {
             // 注册 IdleHandler
@@ -111,7 +117,6 @@ class FeatureFragment : Fragment() {
 //        menu.findItem(R.id.menu_contact_info).setIcon(R.drawable.menu_contact)
 //        menu.findItem(R.id.menu_tomorrow_courses).setIcon(R.drawable.menu_tomorrow_courses)
     }
-
     companion object {
 
         /**

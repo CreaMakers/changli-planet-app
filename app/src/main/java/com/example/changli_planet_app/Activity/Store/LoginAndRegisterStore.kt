@@ -32,7 +32,6 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                 _state.onNext(currentState)
                 currentState
             }
-
             is LoginAndRegisterAction.input -> {
                 if (action.type == "account") {
                     currentState.account = action.content
@@ -41,6 +40,10 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                 }
                 if (!currentState.isEnable && checkEnable()) {
                     currentState.isEnable = true
+                }
+                currentState.isClearPassword = currentState.password.isNotEmpty()
+                if (!checkEnable()) {
+                    currentState.isEnable = false
                 }
                 _state.onNext(currentState)
                 currentState
@@ -109,6 +112,12 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
 
                     override fun onFailure(error: String) {}
                 })
+                currentState
+            }
+
+            LoginAndRegisterAction.ChangeVisibilityOfPassword -> {
+                currentState.isVisibilityPassword = !currentState.isVisibilityPassword
+                _state.onNext(currentState)
                 currentState
             }
         }

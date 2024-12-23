@@ -7,22 +7,25 @@
     android:layout_height="match_parent"
     android:background="@drawable/login_background"
     tools:context=".Activity.RegisterActivity">
+
     <Space
         android:id="@+id/space"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintHeight_percent="0.10"
         app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
-        android:layout_marginStart="10dp"
         android:id="@+id/imageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="10dp"
         android:src="@drawable/turn"
         app:layout_constraintHeight_percent="0.10"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/space"
         app:layout_constraintWidth_percent="0.28" />
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"
@@ -35,6 +38,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
         app:layout_constraintWidth_percent="0.28" />
+
     <EditText
         android:id="@+id/account"
         android:layout_width="0dp"
@@ -48,34 +52,71 @@
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.1"
         app:layout_constraintWidth_percent="0.8" />
-    <EditText
-        android:id="@+id/password"
+
+
+    <LinearLayout
+        android:id="@+id/password_content"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/login_edit_shape"
-        android:gravity="center"
-        android:hint="请输入密码"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/account"
         app:layout_constraintVertical_bias="0.1"
-        app:layout_constraintWidth_percent="0.8" />
+        android:orientation="horizontal"
+        app:layout_constraintWidth_percent="0.8">
+
+        <ImageView
+            android:id="@+id/iv_eye"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5sp"
+            android:src="@drawable/line_invisible2" />
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="0dp"
+            android:layout_weight="10"
+            android:layout_height="40dp"
+            android:background="@drawable/login_edit_shape"
+            android:gravity="center"
+            android:hint="请输入密码"
+            android:inputType="textPassword" />
+
+        <ImageView
+            android:id="@+id/iv_ox"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5sp"
+            android:src="@drawable/dialog_login" />
+
+    </LinearLayout>
+
+
+
     <TextView
         android:id="@+id/login"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        app:layout_constraintVertical_bias="0.1"
-        app:layout_constraintWidth_percent="0.8"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:textColor="@color/white"
+        android:background="@drawable/enable_button"
         android:gravity="center"
         android:text="登录"
-        android:background="@drawable/enable_button"
+        android:textColor="@color/white"
         app:cornerRadius="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password" />
+        app:layout_constraintTop_toBottomOf="@+id/password_content"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintWidth_percent="0.8" />
+
     <ImageView
         android:id="@+id/regicremaker"
         android:layout_width="0dp"
@@ -86,14 +127,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login"
         app:layout_constraintWidth_percent="0.8" />
+
     <TextView
         android:id="@+id/route"
         android:layout_width="match_parent"
-        app:layout_constraintTop_toBottomOf="@id/regicremaker"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:textColor="@color/primary_blue"
+        android:layout_height="0dp"
         android:gravity="center"
-        android:textSize="15sp"
         android:text="没有账号？去注册"
-        android:layout_height="0dp"/>
+        android:textColor="@color/primary_blue"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/regicremaker" />
 </androidx.constraintlayout.widget.ConstraintLayout>

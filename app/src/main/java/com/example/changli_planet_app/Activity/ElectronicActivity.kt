@@ -1,6 +1,7 @@
 package com.example.changli_planet_app.Activity
 import android.os.Bundle
 import android.text.InputFilter
+import android.view.ViewStub
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -8,11 +9,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Activity.Action.ElectronicAction
 import com.example.changli_planet_app.Activity.Store.ElectronicStore
+import com.example.changli_planet_app.Data.jsonbean.CheckElectricity
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.WheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import org.w3c.dom.Text
 
 class ElectronicActivity : AppCompatActivity() {
 
@@ -22,6 +26,8 @@ class ElectronicActivity : AppCompatActivity() {
     private val dor:TextView by lazy { binding.dor }
     private val query_ele:TextView by lazy { binding.queryElec }
     private val dor_number:EditText by lazy { binding.dorNumber }
+    private val viewstub:ViewStub by lazy { binding.stubTv }
+    private val queryText:TextView by lazy { viewstub.inflate().findViewById(R.id.tv_result) }
     private val electronicStore = ElectronicStore()
     private val schoolList:List<String> = listOf("金盆岭校区","云塘校区")
     private val dorList:List<String> =
@@ -47,15 +53,15 @@ class ElectronicActivity : AppCompatActivity() {
         }
         electronicStore._state
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe{ state->
-            school.text = state.address
-            dor.text = state.buildId
-        }
+            .subscribe { state ->
+                school.text = state.address
+                dor.text = state.buildId
+                queryText.text = state.elec
+            }
         dor.setOnClickListener{ClickWheel(dorList)}
         school.setOnClickListener{ClickWheel(schoolList)}
         inputFilter(dor_number)
-        query_ele.setOnClickListener {
-        }
+        query_ele.setOnClickListener {electronicStore.dispatch(ElectronicAction.queryElectronic(CheckElectricity(school.text.toString(),dor.text.toString(),dor_number.text.toString())))}
         back.setOnClickListener { finish() }
     }
     private fun inputFilter(editText: EditText){

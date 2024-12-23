@@ -28,6 +28,13 @@
             android:name=".Activity.AddCourseActivity"
             android:exported="false" />
         <activity
+            android:name=".Activity.ExamArrangementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ScoreInquiryActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".Activity.RegisterActivity"
             android:exported="false" />
         <activity
