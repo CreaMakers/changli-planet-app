@@ -84,9 +84,9 @@ class TimeTableActivity : AppCompatActivity() {
         timeTableStore.dispatch(
             TimeTableAction.FetchCourses(
                 GetCourse(
-                    "202301160231",
-                    "Cy@20050917",
-                    " ",
+                    "202308010135",
+                    "@123",
+                    "1",
                     "2024-2025-1"
                 )
             )

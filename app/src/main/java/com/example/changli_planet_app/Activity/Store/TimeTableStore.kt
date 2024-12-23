@@ -107,11 +107,11 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
         //获得网络请求
         val httpUrlHelper = HttpUrlHelper.HttpRequest()
             .get(PlanetApplication.ToolIp + "/courses")
+//            .header("Authorization", "Bearer ${PlanetApplication.accessToken}")
             .addQueryParam("stuNum",action.getCourse.stuNum)
             .addQueryParam("password",action.getCourse.password)
             .addQueryParam("week",action.getCourse.week)
             .addQueryParam("term",action.getCourse.termId)
-            .header("Authorization", "Bearer ${PlanetApplication.accessToken}")
             .build()
 
         OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {

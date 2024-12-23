@@ -203,6 +203,6 @@ class AddCourseActivity : AppCompatActivity() {
         params.leftMargin = resources.displayMetrics.widthPixels / 4
         snackbar.view.layoutParams = params
         snackbar.show()
-//         TODO()
+
     }
 }

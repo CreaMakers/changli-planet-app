@@ -17,20 +17,23 @@ import com.example.changli_planet_app.Activity.ScoreInquiryActivity
  * 使用方法：Route.goxx()
  */
 object Route {
-    fun goLogin(context: Context){
-        val intent = Intent(context,LoginActivity::class.java)
+    fun goLogin(context: Context) {
+        val intent = Intent(context, LoginActivity::class.java)
         context.startActivity(intent)
     }
-    fun goRegister(context: Context){
-        val intent = Intent(context,RegisterActivity::class.java)
+
+    fun goRegister(context: Context) {
+        val intent = Intent(context, RegisterActivity::class.java)
         context.startActivity(intent)
     }
-    fun goElectronic(context: Context){
-        val intent = Intent(context,ElectronicActivity::class.java)
+
+    fun goElectronic(context: Context) {
+        val intent = Intent(context, ElectronicActivity::class.java)
         context.startActivity(intent)
     }
-    fun goHome(context: Context){
-        val intent = Intent(context,MainActivity::class.java)
+
+    fun goHome(context: Context) {
+        val intent = Intent(context, MainActivity::class.java)
         context.startActivity(intent)
     }
 
@@ -39,8 +42,6 @@ object Route {
         context.startActivity(intent)
     }
 
-    fun goLose(context: Context) {
-        val intent = Intent(context, LoseActivity::class.java)
 
     fun goLose(context: Context) {
         val intent = Intent(context, LoseActivity::class.java)
@@ -56,4 +57,5 @@ object Route {
         val intent = Intent(context, ExamArrangementActivity::class.java)
         context.startActivity(intent)
     }
+
 }
