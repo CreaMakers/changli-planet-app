@@ -35,19 +35,26 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    viewBinding{
+    viewBinding {
         enable = true
     }
 }
 dependencies {
+    //RxJava
     implementation("io.reactivex.rxjava3:rxjava:3.1.9")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
+    // Room RxJava3 兼容库
+    // Room RxJava3 兼容库
+    // 引用本地 .aar 文件
+//    implementation(":room-rxjava3@aar")
+    implementation(files("libs/room-rxjava3.aar"))
+    implementation(files("libs/rxjava3-bridge.jar"))  // 本地 .jar 文件
     //Lottie
     implementation("com.airbnb.android:lottie:6.6.0")
     //Glide
-    implementation("com.github.bumptech.glide:glide:4.16.0") // 替换为最新版本
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     //MMKV
-    implementation("com.tencent:mmkv:1.2.13") // 请根据需要选择最新版本
+    implementation("com.tencent:mmkv:1.2.13")
     //腾讯云HTTPDNS
     implementation("io.github.dnspod:httpdns-sdk:4.9.1")
     // OkHttp
@@ -56,13 +63,13 @@ dependencies {
     implementation("org.greenrobot:eventbus:3.3.1")
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
-        //TimetableView
+    //TimetableView
     implementation("com.github.zfman:TimetableView:2.0.7")
     //Room
-    implementation("androidx.room:room-runtime:2.5.2") // 替换为最新版本
-    kapt("androidx.room:room-compiler:2.5.2")         // 注解处理
-    implementation("androidx.room:room-ktx:2.5.2")    // Kotlin 扩展
-
+    implementation("androidx.room:room-runtime:2.5.2")
+    kapt("androidx.room:room-compiler:2.5.2")
+    // Kotlin 扩展
+    implementation("androidx.room:room-ktx:2.5.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

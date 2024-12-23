@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Core
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
@@ -14,6 +15,7 @@ class PlanetApplication : Application() {
         var accessToken: String? = null
         var startTime: Long = 0
         var isLogin = false
+        lateinit var appContext : Context
         const val UserIp: String = "http://113.44.47.220:8083/app/users"
         const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
     }
@@ -32,6 +34,7 @@ class PlanetApplication : Application() {
                     .build()
                 MSDKDnsResolver.getInstance().init(applicationContext, dnsConfigBuilder)
             }
+            appContext = applicationContext
             val mmkvDeferred = async {
                 MMKV.initialize(this@PlanetApplication)
             }

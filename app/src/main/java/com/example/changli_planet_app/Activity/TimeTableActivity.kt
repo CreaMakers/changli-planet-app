@@ -6,10 +6,12 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -17,11 +19,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Activity.Action.TimeTableAction
+import com.example.changli_planet_app.Activity.Store.TimeTableStore
+import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.CoursesDataBase
+import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.MySubject
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.TimeTableActivityViewModel
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
+import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.zhuangfei.timetable.TimetableView
 import com.zhuangfei.timetable.listener.OnFlaglayoutClickAdapter
 import com.zhuangfei.timetable.listener.OnItemBuildAdapter
@@ -30,19 +38,26 @@ import com.zhuangfei.timetable.listener.OnItemLongClickAdapter
 import com.zhuangfei.timetable.listener.OnSlideBuildAdapter
 import com.zhuangfei.timetable.model.Schedule
 import com.zhuangfei.timetable.view.WeekView
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 
 class TimeTableActivity : AppCompatActivity() {
-
-    //lateinit var viewModel: TimeTableActivityViewModel
+    private val disposables by lazy { CompositeDisposable() }
+//    private val timeBinding by lazy { CourseTableTimeBinding.inflate(layoutInflater) }
+//
+//    private val courseTerm by lazy { timeBinding.courseTerm }
+//    private val courseWeek by lazy { timeBinding.courseWeek }
     private val binding by lazy { ActivityTimeTableBinding.inflate(layoutInflater) }
     private val timetableView: TimetableView by lazy { binding.timetableView }
     private val weekView: WeekView by lazy { binding.weekView }
-    val subjects: MutableList<MySubject> by lazy {
-        TimeTableActivityViewModel.subjects
+    lateinit var dataBase: CoursesDataBase
+    private val timeTableStore: TimeTableStore by lazy {
+        TimeTableStore(dataBase.courseDao())
     }
-
-
+    private val nullTagSubjects by lazy {  mutableListOf(MySubject(term = "null")) }
+    private val termList = listOf("2023-2024-1", "2023-2024-2","2024-2025-1","2024-2025-2")
+    private val weekList = listOf("第一周","第二周","第三周","第四周","第五周","第六周","第七周","第八周","第九周","第十周","第十一周","第十二周","第十三周","第十四周","第十五周","第十六周","第十七周","第十八周","第十九周","第二十周")
+    lateinit var subjects: MutableList<MySubject>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -52,16 +67,39 @@ class TimeTableActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-//         viewModel = (application as PlanetApplication).getTimetableViewModel(this)
+        dataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
+        if (getValueInMMKV("subjects") != nullTagSubjects) {
+            subjects = getValueInMMKV("subjects")
+        }
+        disposables.add(
+            timeTableStore.state().subscribe { curState ->
+                subjects = curState.subjects
+                timetableView.source(subjects)
+                timetableView.updateView()
+                weekView.source(subjects)
+                weekView.updateView()
+            }
+        )
+
+        timeTableStore.dispatch(
+            TimeTableAction.FetchCourses(
+                GetCourse(
+                    "202301160231",
+                    "Cy@20050917",
+                    " ",
+                    "2024-2025-1"
+                )
+            )
+        )
+
 
         //加载课表视图
-        timetableView.source(subjects)
-            .curWeek(9)
+        timetableView
+            .curWeek(14)
             .maxSlideItem(10)
             .curTerm("大二上")
             .cornerAll(15)
             .isShowNotCurWeek(false)
-
             .showView()
         timetableView.apply {
             showTime()     //显示侧边栏时间
@@ -71,14 +109,49 @@ class TimeTableActivity : AppCompatActivity() {
             longClickToDeleteCourse()
         }
 
-
         //加载周视图
-        weekView.source(subjects)
-            .curWeek(9)
+        weekView
+            .curWeek(14)
             .isShow(true)
             .callback { week -> timetableView.changeWeekOnly(week) }
             .showView()
-
+//        findViewById<ImageButton>(R.id.courseRefresh).setOnClickListener {
+//            timeTableStore.dispatch(
+//                TimeTableAction.FetchCourses(
+//                    GetCourse(
+//                        "202301160231",
+//                        "Cy@20050917",
+//                        " ",
+//                        "2024-2025-1"
+//                    )
+//                )
+//            )
+//            timetableView.updateView()
+//            weekView.updateView()
+//            Toast.makeText(this, "subjects size =${subjects.size}", Toast.LENGTH_SHORT).show()
+//        }
+//        val termsExtendBtn = timeBinding.termsExtendBtn
+//        val weeksExtendBtn = timeBinding.weeksExtendBtn
+//        weeksExtendBtn.setOnClickListener {
+//            Log.d("TimeTableActivity","weeksExtendBtn is clicked")
+//            ClickWheel(weekList)
+//            Toast.makeText(this, "week Extend", Toast.LENGTH_SHORT).show()
+//        }
+//        termsExtendBtn.setOnClickListener {
+//            Log.d("TimeTableActivity","termsExtendBtn is clicked")
+//            ClickWheel(termList)
+//            Toast.makeText(this, "term Extend", Toast.LENGTH_SHORT).show()
+//        }
+//        weeksExtendBtn.setOnTouchListener { v, event ->
+//            Log.d("TimeTableActivity", "weeksExtendBtn touched: $event")
+//            false // 返回 false 让事件继续传递
+//        }
+//
+//        termsExtendBtn.setOnTouchListener { v, event ->
+//            Log.d("TimeTableActivity", "termsExtendBtn touched: $event")
+//            false // 返回 false 让事件继续传递
+//        }
+//        Log.d("TimeTableActivity", "weeksExtendBtn: $weeksExtendBtn, termsExtendBtn: $termsExtendBtn")
     }
 
     private fun showCourseDetailDialog(schedule: Schedule) {
@@ -125,6 +198,7 @@ class TimeTableActivity : AppCompatActivity() {
         )
     }
 
+
     fun TimetableView.buildItemText() {
         timetableView.callback(object : OnItemBuildAdapter() {
             override fun onItemUpdate(
@@ -154,12 +228,15 @@ class TimeTableActivity : AppCompatActivity() {
     }
 
     fun TimetableView.addCourse() {
+        timetableView.hideFlaglayout()
         timetableView.callback(object : OnFlaglayoutClickAdapter() {
             override fun onFlaglayoutClick(day: Int, start: Int) {
                 val intent = Intent(context, AddCourseActivity::class.java)
                 intent.putExtra("day", day + 1)// 底层的索引从0开始，但计算时却进行了 - 1 ，所以这里要 + 1
                 intent.putExtra("start", start)
+                intent.putExtra("curWeek",curWeek())
                 startActivity(intent)
+
             }
         })
 
@@ -167,6 +244,7 @@ class TimeTableActivity : AppCompatActivity() {
 
     fun TimetableView.longClickToDeleteCourse() {
         timetableView.callback(object : OnItemLongClickAdapter() {
+
             override fun onLongClick(v: View?, day: Int, start: Int) {
 
             }
@@ -176,13 +254,40 @@ class TimeTableActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        binding.timetableView.apply {
-            source(TimeTableActivityViewModel.subjects)
-            updateView()
-
+        if (::subjects.isInitialized) {
+            binding.timetableView.apply {
+                source(subjects)
+                updateView()
+            }
+//            Toast.makeText(this, "加载成功 in OnResume", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "subjects size =${subjects.size}", Toast.LENGTH_SHORT).show()
         }
-        Toast.makeText(this, "subjects size =${subjects.size}", Toast.LENGTH_SHORT).show()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        storeInMMKV("subjects", subjects)
+        disposables.dispose()
+    }
+
+    private fun storeInMMKV(key: String, value: List<MySubject>) {
+        val mmkv = MMKV.defaultMMKV()
+        val json = Gson().toJson(value)
+        mmkv.encode(key, json)
+    }
+
+    private fun getValueInMMKV(key: String) =
+        try {
+            Gson().fromJson(MMKV.defaultMMKV().decodeString(key, null), Array<MySubject>::class.java)
+                .toMutableList()
+        }catch (e : NullPointerException){
+            e.printStackTrace()
+            nullTagSubjects
+        }
+//    private fun ClickWheel(item:List<String>){
+//
+//        val Wheel = TimetableWheelBottomDialog(timeTableStore)
+//        Wheel.setItem(item)
+//        Wheel.show(supportFragmentManager,"wheel")
+//    }
 }
-
-
