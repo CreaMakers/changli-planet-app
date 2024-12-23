@@ -87,40 +87,27 @@
 
     <LinearLayout
         android:id="@+id/info"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="3sp"
+        android:gravity="start|center_vertical"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <LinearLayout
-
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/refresh"
-                    android:layout_width="155sp"
-                    android:layout_height="120sp"
-                    android:layout_marginStart="8sp"
-                    android:layout_marginEnd="4sp"
-                    android:clickable="true"
-                    android:src="@drawable/fulilian" />
-            </LinearLayout>
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/refresh"
+            android:layout_width="140dp"
+            android:layout_height="120dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="4dp"
+            android:clickable="true"
+            android:src="@drawable/fulilian" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25sp"
-            android:layout_marginTop="5dp"
+            android:layout_marginStart="29sp"
             android:orientation="vertical">
 
             <TextView
@@ -146,7 +133,7 @@
     <LinearLayout
         android:id="@+id/main_info_layout"
         android:layout_width="0dp"
-        android:layout_height="650sp"
+        android:layout_height="650dp"
         android:layout_marginVertical="30dp"
         android:background="@drawable/score_background"
         android:orientation="vertical"
@@ -160,7 +147,7 @@
     <LinearLayout
         android:id="@+id/content_layout"
         android:layout_width="0dp"
-        android:layout_height="650sp"
+        android:layout_height="650dp"
         android:layout_marginVertical="30dp"
         android:background="@android:color/transparent"
         android:orientation="vertical"
@@ -283,4 +270,18 @@
         app:layout_constraintStart_toStartOf="@id/support_text"
         app:layout_constraintTop_toBottomOf="@id/support_text" />
 
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="出现加载失败或数据过时的情况请手动点击左上角刷新"
+        android:textColor="#A8CCFA"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/content_layout"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="121dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

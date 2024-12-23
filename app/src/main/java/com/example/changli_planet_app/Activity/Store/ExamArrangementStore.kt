@@ -8,7 +8,6 @@ import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.ExamArrangementResponse
-import com.example.changli_planet_app.Network.Response.GradeResponse
 import okhttp3.Response
 
 class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
@@ -23,8 +22,8 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
             is ExamInquiryAction.UpdateExamData -> {
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .get(PlanetApplication.ToolIp + "/exams")
-                    .addQueryParam("stuNum", "202308010135")
-                    .addQueryParam("password", "@123")
+                    .addQueryParam("stuNum", "xxx")
+                    .addQueryParam("password", "xxx")
                     .addQueryParam("term", action.termTime)
                     .addQueryParam("examType", action.termType)
                     .build()

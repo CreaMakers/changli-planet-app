@@ -87,7 +87,7 @@
 
     <LinearLayout
         android:id="@+id/info"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="3sp"
         android:orientation="horizontal"
@@ -95,21 +95,15 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <LinearLayout
-
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="4"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="7dp"
-                android:orientation="vertical">
-
                 <TextView
                     android:id="@+id/semesterNumberDate"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="27sp"
@@ -130,32 +124,31 @@
                     android:textColor="@color/white"
                     android:textSize="25sp"
                     android:textStyle="bold" />
-
-
-            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="5"
             android:layout_height="wrap_content"
-            android:layout_marginStart="21sp"
-            android:layout_marginTop="12dp"
             android:orientation="vertical">
 
             <TextView
-                android:layout_width="60sp"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:letterSpacing="0.1"
                 android:text="问题反馈"
+                android:layout_marginTop="13dp"
+                android:layout_marginStart="13dp"
                 android:textColor="@color/white"
                 android:textSize="23sp"
                 android:textStyle="bold" />
 
             <ImageView
-                android:layout_width="22sp"
-                android:layout_height="22sp"
-                android:layout_gravity="center"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="35dp"
+                android:layout_gravity="center|start"
                 android:src="@drawable/commit_btn" />
 
         </LinearLayout>
@@ -206,6 +199,8 @@
 
 
         </LinearLayout>
+
+
 
 
     </LinearLayout>

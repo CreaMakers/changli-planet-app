@@ -55,6 +55,7 @@ class ExamArrangementActivity : AppCompatActivity() {
             .subscribe { state ->
                 showAllExamInfo(state.exams)
             }
+
         progressBar.visibility = View.VISIBLE
         store.dispatch(
             ExamInquiryAction.UpdateExamData(
