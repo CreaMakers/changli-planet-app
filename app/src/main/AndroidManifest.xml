@@ -6,7 +6,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 下载管理器权限 -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
         android:name=".Core.PlanetApplication"
@@ -24,18 +25,31 @@
         tools:replace="android:networkSecurityConfig"
         tools:targetApi="31">
         <activity
-            android:name=".Activity.ExamArrangementActivity"
+            android:name=".Activity.MandeActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
+
+        <activity
+            android:name=".Activity.CetActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:usesCleartextTraffic="true" />
+        <activity
+            android:name=".Activity.ExamArrangementActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.ScoreInquiryActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.RegisterActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.LoseActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.MainActivity"
             android:exported="false"

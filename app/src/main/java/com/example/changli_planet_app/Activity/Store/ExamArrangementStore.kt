@@ -22,8 +22,8 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
             is ExamInquiryAction.UpdateExamData -> {
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .get(PlanetApplication.ToolIp + "/exams")
-                    .addQueryParam("stuNum", "xxx")
-                    .addQueryParam("password", "xxx")
+                    .addQueryParam("stuNum", "xxxx")
+                    .addQueryParam("password", "xxxx")
                     .addQueryParam("term", action.termTime)
                     .addQueryParam("examType", action.termType)
                     .build()

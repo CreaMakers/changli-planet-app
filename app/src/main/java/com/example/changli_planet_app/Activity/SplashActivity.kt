@@ -23,7 +23,7 @@ class SplashActivity : AppCompatActivity() {
         }
         // 使用协程来处理延迟任务
         lifecycleScope.launch {
-            delay(2000) // 延迟 2 秒
+            delay(800) // 延迟 0.8 秒
             Route.goLogin(this@SplashActivity)
             finish()
         }

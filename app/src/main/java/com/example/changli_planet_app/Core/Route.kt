@@ -2,11 +2,13 @@ package com.example.changli_planet_app.Core
 
 import android.content.Context
 import android.content.Intent
+import com.example.changli_planet_app.Activity.CetActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.Activity.ExamArrangementActivity
 import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
+import com.example.changli_planet_app.Activity.MandeActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
 import com.example.changli_planet_app.Activity.ScoreInquiryActivity
 
@@ -47,6 +49,16 @@ object Route {
 
     fun goExamArrangement(context: Context) {
         val intent = Intent(context, ExamArrangementActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goCet(context: Context) {
+        val intent = Intent(context, CetActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goMande(context: Context) {
+        val intent = Intent(context, MandeActivity::class.java)
         context.startActivity(intent)
     }
 }

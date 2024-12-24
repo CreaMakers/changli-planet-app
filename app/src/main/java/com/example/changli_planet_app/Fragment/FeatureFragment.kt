@@ -23,6 +23,9 @@ class FeatureFragment : Fragment() {
     private val electronic:LinearLayout by lazy { binding.nelectronic }
     private val grade:LinearLayout by lazy { binding.ngrade }
     private val ntest:LinearLayout by lazy { binding.ntest }
+    private val ncet:LinearLayout by lazy { binding.ncet }
+    private val nmande:LinearLayout by lazy { binding.nmande }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -31,6 +34,8 @@ class FeatureFragment : Fragment() {
         electronic.setOnClickListener { activity?.let { it1 -> Route.goElectronic(it1) } }
         grade.setOnClickListener { activity?.let { it1 -> Route.goScoreInquiry(it1) } }
         ntest.setOnClickListener { activity?.let { it1 -> Route.goExamArrangement(it1) } }
+        ncet.setOnClickListener { activity?.let { it1 -> Route.goCet(it1) } }
+        nmande.setOnClickListener { activity?.let { it1 -> Route.goMande(it1) } }
         // 将设置资源的代码放入 IdleHandler
         Handler(Looper.getMainLooper()).post {
             // 注册 IdleHandler
