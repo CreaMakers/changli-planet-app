@@ -187,11 +187,11 @@ class AddCourseActivity : AppCompatActivity() {
             setResult(RESULT_OK, intent)
             finish()
         }
-//        binding.backBtn.setOnClickListener {
-//            val intent = Intent()
-//            setResult(RESULT_OK, intent)
-//            finish()
-//        }
+        binding.backBtn.setOnClickListener {
+            val intent = Intent()
+            setResult(RESULT_OK, intent)
+            finish()
+        }
 
     }
 

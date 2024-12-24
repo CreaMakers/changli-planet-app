@@ -32,8 +32,8 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
             is TimeTableAction.FetchCourses -> {
                 val cur = System.currentTimeMillis()
                 if (curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
-                    fetchTimetableFromNetwork(action)
-//                    fetchTimetableFromReposity(action)
+//                    fetchTimetableFromNetwork(action)
+                    fetchTimetableFromReposity(action)
                     Log.d("TimeTableStore", "网络请求获得课表")
                 } else {
                     //从数据库中获得课表

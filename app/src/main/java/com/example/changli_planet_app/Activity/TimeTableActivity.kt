@@ -7,7 +7,9 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.view.GestureDetector
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -27,10 +29,13 @@ import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.MySubject
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
+import com.example.changli_planet_app.databinding.CourseTableTimeBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.zhuangfei.timetable.TimetableView
+import com.zhuangfei.timetable.listener.ISchedule
+import com.zhuangfei.timetable.listener.IWeekView
 import com.zhuangfei.timetable.listener.OnFlaglayoutClickAdapter
 import com.zhuangfei.timetable.listener.OnItemBuildAdapter
 import com.zhuangfei.timetable.listener.OnItemClickAdapter
@@ -39,14 +44,20 @@ import com.zhuangfei.timetable.listener.OnSlideBuildAdapter
 import com.zhuangfei.timetable.model.Schedule
 import com.zhuangfei.timetable.view.WeekView
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 
 class TimeTableActivity : AppCompatActivity() {
     private val disposables by lazy { CompositeDisposable() }
-//    private val timeBinding by lazy { CourseTableTimeBinding.inflate(layoutInflater) }
-//
-//    private val courseTerm by lazy { timeBinding.courseTerm }
-//    private val courseWeek by lazy { timeBinding.courseWeek }
+
+    private val timeBinding by lazy { CourseTableTimeBinding.inflate(layoutInflater) }
+
+    //
+    private val courseTerm by lazy { timeBinding.courseTerm }
+    private val courseWeek by lazy { timeBinding.courseWeek }
+    private var curDisplayWeek = 0
     private val binding by lazy { ActivityTimeTableBinding.inflate(layoutInflater) }
     private val timetableView: TimetableView by lazy { binding.timetableView }
     private val weekView: WeekView by lazy { binding.weekView }
@@ -54,9 +65,30 @@ class TimeTableActivity : AppCompatActivity() {
     private val timeTableStore: TimeTableStore by lazy {
         TimeTableStore(dataBase.courseDao())
     }
-    private val nullTagSubjects by lazy {  mutableListOf(MySubject(term = "null")) }
-    private val termList = listOf("2023-2024-1", "2023-2024-2","2024-2025-1","2024-2025-2")
-    private val weekList = listOf("第一周","第二周","第三周","第四周","第五周","第六周","第七周","第八周","第九周","第十周","第十一周","第十二周","第十三周","第十四周","第十五周","第十六周","第十七周","第十八周","第十九周","第二十周")
+    private val nullTagSubjects by lazy { mutableListOf(MySubject(term = "null")) }
+    private val termList = listOf("2023-2024-1", "2023-2024-2", "2024-2025-1", "2024-2025-2")
+    private val weekList = listOf(
+        "第一周",
+        "第二周",
+        "第三周",
+        "第四周",
+        "第五周",
+        "第六周",
+        "第七周",
+        "第八周",
+        "第九周",
+        "第十周",
+        "第十一周",
+        "第十二周",
+        "第十三周",
+        "第十四周",
+        "第十五周",
+        "第十六周",
+        "第十七周",
+        "第十八周",
+        "第十九周",
+        "第二十周"
+    )
     lateinit var subjects: MutableList<MySubject>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,14 +125,15 @@ class TimeTableActivity : AppCompatActivity() {
         )
 
 
-        //加载课表视图
+        // 初始化 TimetableView
         timetableView
-            .curWeek(14)
+            .curWeek("2024-9-1 00:00:00")
             .maxSlideItem(10)
             .curTerm("大二上")
             .cornerAll(15)
             .isShowNotCurWeek(false)
             .showView()
+
         timetableView.apply {
             showTime()     //显示侧边栏时间
             showPopDialog()//课程点击事件,出现弹窗显示课程信息
@@ -109,12 +142,26 @@ class TimeTableActivity : AppCompatActivity() {
             longClickToDeleteCourse()
         }
 
-        //加载周视图
+        // 初始化 WeekView
         weekView
-            .curWeek(14)
+            .curWeek(timetableView.curWeek())
             .isShow(true)
-            .callback { week -> timetableView.changeWeekOnly(week) }
             .showView()
+
+            .callback(object : IWeekView.OnWeekItemClickedListener {
+                @Override
+                override fun onWeekClicked(week: Int) {
+                    val cur = timetableView.curWeek()
+                    //更新切换后的日期，从当前周cur->切换的周week
+                    timetableView.onDateBuildListener()
+                        .onUpdateDate(cur, week)
+                    timetableView.changeWeekOnly(week)
+                    curDisplayWeek = week
+
+                    courseWeek.text = "第${curDisplayWeek}周"
+                }
+            })
+
 //        findViewById<ImageButton>(R.id.courseRefresh).setOnClickListener {
 //            timeTableStore.dispatch(
 //                TimeTableAction.FetchCourses(
@@ -152,6 +199,11 @@ class TimeTableActivity : AppCompatActivity() {
 //            false // 返回 false 让事件继续传递
 //        }
 //        Log.d("TimeTableActivity", "weeksExtendBtn: $weeksExtendBtn, termsExtendBtn: $termsExtendBtn")
+        timetableView.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event) // 捕获滑动手势
+            false
+        }
+
     }
 
     private fun showCourseDetailDialog(schedule: Schedule) {
@@ -234,7 +286,7 @@ class TimeTableActivity : AppCompatActivity() {
                 val intent = Intent(context, AddCourseActivity::class.java)
                 intent.putExtra("day", day + 1)// 底层的索引从0开始，但计算时却进行了 - 1 ，所以这里要 + 1
                 intent.putExtra("start", start)
-                intent.putExtra("curWeek",curWeek())
+                intent.putExtra("curWeek", curDisplayWeek)
                 startActivity(intent)
 
             }
@@ -278,16 +330,100 @@ class TimeTableActivity : AppCompatActivity() {
 
     private fun getValueInMMKV(key: String) =
         try {
-            Gson().fromJson(MMKV.defaultMMKV().decodeString(key, null), Array<MySubject>::class.java)
+            Gson().fromJson(
+                MMKV.defaultMMKV().decodeString(key, null),
+                Array<MySubject>::class.java
+            )
                 .toMutableList()
-        }catch (e : NullPointerException){
+        } catch (e: NullPointerException) {
             e.printStackTrace()
             nullTagSubjects
         }
-//    private fun ClickWheel(item:List<String>){
+
+    //    private fun ClickWheel(item:List<String>){
 //
 //        val Wheel = TimetableWheelBottomDialog(timeTableStore)
 //        Wheel.setItem(item)
 //        Wheel.show(supportFragmentManager,"wheel")
 //    }
+//    private val  swipeThreshold by lazy { resources.displayMetrics.density * 100 }
+//    override fun onTouchEvent(event: MotionEvent?): Boolean {
+//        var startX: Float = 0f
+//        when (event?.action) {
+//            MotionEvent.ACTION_DOWN -> {
+//                Toast.makeText(this, "down", Toast.LENGTH_SHORT).show()
+//                startX = event.x
+//            }
+//
+//            MotionEvent.ACTION_MOVE -> {
+//                Toast.makeText(this, "move", Toast.LENGTH_SHORT).show()
+//                val deltaX = event.x - startX
+//
+//                if (Math.abs(deltaX) > swipeThreshold) {
+//                    if (deltaX > 0) {
+//                        Toast.makeText(this, "moveToNext", Toast.LENGTH_SHORT).show()
+//                        changeWeek(timetableView.curWeek() + 1)
+//                    } else {
+//                        Toast.makeText(this, "moveToPrev", Toast.LENGTH_SHORT).show()
+//                        changeWeek(timetableView.curWeek() - 1)
+//                    }
+//                }
+//
+//            }
+//        }
+//        return true
+//    }
+    private val gestureDetector by lazy {
+        GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            private val SWIPE_THRESHOLD = 100 // 最小滑动距离
+            private val SWIPE_VELOCITY_THRESHOLD = 100 // 最小滑动速度
+
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 == null || e2 == null) return false
+
+                val diffX = e2.x - e1.x // 横向滑动距离
+                val diffY = e2.y - e1.y // 纵向滑动距离
+
+                if (Math.abs(diffX) > Math.abs(diffY)) { // 判断是横向滑动
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            changeWeek(curDisplayWeek - 1) // 右滑，切换到上一周
+                        } else {
+                            changeWeek(curDisplayWeek + 1) // 左滑，切换到下一周
+                        }
+                        return true
+                    }
+                }
+                return false
+            }
+
+        })
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        event?.let { gestureDetector.onTouchEvent(it) } // 传递触摸事件
+        return super.onTouchEvent(event)
+    }
+
+    private fun changeWeek(newWeek: Int) {
+        if (newWeek in 1..20) {
+            timetableView.changeWeekOnly(newWeek) // 仅更新课表中的周次
+            timetableView.onDateBuildListener()
+                .onUpdateDate(timetableView.curWeek(), newWeek) // 更新日期栏
+            curDisplayWeek = newWeek
+            runOnUiThread {
+                courseWeek.text = "第${curDisplayWeek}周"
+            }
+
+
+            Toast.makeText(this, "切换到第${curDisplayWeek}周", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
 }

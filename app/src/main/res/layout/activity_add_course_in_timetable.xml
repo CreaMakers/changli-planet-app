@@ -14,6 +14,13 @@
         android:layout_height="wrap_content"
         android:background="#76CEBE">
 
+        <ImageButton
+            android:id="@+id/backBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/add_course_exit"
+            android:background="?attr/selectableItemBackground"
+            />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
