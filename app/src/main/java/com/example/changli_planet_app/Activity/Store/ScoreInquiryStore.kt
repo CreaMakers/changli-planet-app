@@ -25,8 +25,8 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
             is ScoreInquiryAction.UpdateGrade -> {
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .get(PlanetApplication.ToolIp + "/grades")
-                    .addQueryParam("stuNum", "xxx")
-                    .addQueryParam("password", "xxxx")
+                    .addQueryParam("stuNum", action.studentId)
+                    .addQueryParam("password", action.password)
                     .addQueryParam("term", action.term)
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {

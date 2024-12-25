@@ -76,6 +76,7 @@ class BindingUserActivity : AppCompatActivity() {
                 gravity = Gravity.CENTER
                 setPadding(80, 40, 80, 40)
             }
+
             cardView.addView(textView)
             setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 140)
             view = cardView

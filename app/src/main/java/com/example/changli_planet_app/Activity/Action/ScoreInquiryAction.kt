@@ -5,7 +5,8 @@ import com.example.changli_planet_app.Activity.State.ScoreInquiryState
 import com.google.android.material.color.utilities.Score
 
 sealed class ScoreInquiryAction {
-    object ShowData: ScoreInquiryAction()
-    object initilaize: ScoreInquiryAction()
-    data class UpdateGrade(val term: String) : ScoreInquiryAction()
+    object ShowData : ScoreInquiryAction()
+    object initilaize : ScoreInquiryAction()
+    data class UpdateGrade(val studentId: String, val password: String, val term: String) :
+        ScoreInquiryAction()
 }

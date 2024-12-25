@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Activity
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -16,26 +17,25 @@ import android.widget.PopupWindow
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Activity.Action.ScoreInquiryAction
-import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
 import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
 import com.example.changli_planet_app.Adapter.ExamScoreAdapter
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.ExamScore
 import com.example.changli_planet_app.Network.Response.Grade
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityScoreInquiryBinding
-import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import jp.wasabeef.blurry.Blurry
 import java.util.Calendar
+
 class ScoreInquiryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityScoreInquiryBinding
     private val backgroundLayout: LinearLayout by lazy { binding.mainInfoLayout }
@@ -50,6 +50,13 @@ class ScoreInquiryActivity : AppCompatActivity() {
     private var currentPopupWindow: PopupWindow? = null
     private val terms: List<String> by lazy { generateTermsList() }
     private var examScoreList: MutableList<ExamScore> = mutableListOf()
+
+
+    private val sharePreferences by lazy {
+        getSharedPreferences("user_info", Context.MODE_PRIVATE)
+    }
+    private val studentId by lazy { sharePreferences.getString("student_id", "") ?: "" }
+    private val studentPassword by lazy { sharePreferences.getString("password", "") ?: "" }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,8 +98,21 @@ class ScoreInquiryActivity : AppCompatActivity() {
             if (dataTextView.text.equals("日期")) {
                 showMessage("请选择查询时间")
             } else {
-                progressBar.visibility = View.VISIBLE
-                store.dispatch(ScoreInquiryAction.UpdateGrade(dataTextView.text.toString()))
+                if (studentId.isNotEmpty() && studentPassword.isNotEmpty()) {
+                    progressBar.visibility = View.VISIBLE
+                    store.dispatch(
+                        ScoreInquiryAction.UpdateGrade(
+                            studentId,
+                            studentPassword,
+                            dataTextView.text.toString()
+                        )
+                    )
+                } else {
+                    showMessage("请先绑定学号和密码")
+                    Route.goBindingUser(this)
+                    finish()
+                }
+
             }
         }
     }
@@ -149,23 +169,26 @@ class ScoreInquiryActivity : AppCompatActivity() {
     }
 
     private fun showMessage(message: String) {
-        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
-            .setBackgroundTint(getColor(R.color.score_bar))
-            .setTextColor(Color.BLACK)
-        val snackerView = snackbar.view
+        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).apply {
+            val cardView = CardView(applicationContext).apply {
+                radius = 25f
+                cardElevation = 8f
+                setCardBackgroundColor(getColor(R.color.score_bar))
+                useCompatPadding = true
+            }
 
-        snackerView.layoutParams = (snackerView.layoutParams as FrameLayout.LayoutParams).apply {
-            width = FrameLayout.LayoutParams.WRAP_CONTENT
-            gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
-            bottomMargin = 70
+            val textView = TextView(applicationContext).apply {
+                text = message
+                textSize = 17f
+                setTextColor(Color.BLACK)
+                gravity = Gravity.CENTER
+                setPadding(80, 40, 80, 40)
+            }
+            cardView.addView(textView)
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 140)
+            view = cardView
+            show()
         }
-
-        snackerView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).apply {
-            textSize = 16f
-            textAlignment = View.TEXT_ALIGNMENT_CENTER
-            setPadding(40, 8, 40, 8)
-        }
-        snackbar.show()
     }
 
     private fun showTermSelector() {
@@ -206,7 +229,19 @@ class ScoreInquiryActivity : AppCompatActivity() {
             dataTextView.text = terms[position]
             popupWindow.dismiss()
             progressBar.visibility = View.VISIBLE
-            store.dispatch(ScoreInquiryAction.UpdateGrade(terms[position]))
+            if (studentId.isNotEmpty() && studentPassword.isNotEmpty()) {
+                store.dispatch(
+                    ScoreInquiryAction.UpdateGrade(
+                        studentId,
+                        studentPassword,
+                        terms[position]
+                    )
+                )
+            } else {
+                showMessage("请先绑定学号和密码")
+                Route.goBindingUser(this)
+                finish()
+            }
         }
     }
 }
