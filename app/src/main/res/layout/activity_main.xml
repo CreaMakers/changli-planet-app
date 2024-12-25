@@ -60,6 +60,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/white"
+        android:clickable="true"
+        android:focusable="true"
         android:orientation="vertical">
 
         <LinearLayout
@@ -73,6 +75,9 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="25dp"
                 android:layout_marginEnd="15dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:padding="2dp"
                 android:src="@drawable/fulilian"
                 app:shapeAppearance="@style/CircleStyle"
@@ -128,6 +133,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/snowflakes_background4"
+            android:clickable="true"
+            android:focusable="true"
             android:orientation="vertical">
 
             <TextView
@@ -135,18 +142,24 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
                 android:layout_marginStart="6dp"
+                android:focusable="true"
                 android:text="主要设置"
                 android:textColor="#6C727F"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
             <LinearLayout
+                android:id="@+id/notification_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -180,12 +193,17 @@
 
 
             <LinearLayout
+                android:id="@+id/privacy_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -218,12 +236,17 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/account_security"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -259,6 +282,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
                 android:layout_marginStart="6dp"
+                android:focusable="true"
                 android:text="常用功能"
                 android:textColor="#6C727F"
                 android:textSize="15sp"
@@ -266,12 +290,17 @@
 
 
             <LinearLayout
+                android:id="@+id/clear_cache"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -303,12 +332,17 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/change_student_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -322,7 +356,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginStart="18dp"
-                    android:text="更改学号"
+                    android:text="绑定学号"
                     android:textColor="#394150"
                     android:textSize="20sp" />
 
@@ -342,12 +376,17 @@
 
 
             <LinearLayout
+                android:id="@+id/theme_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -381,12 +420,17 @@
 
 
             <LinearLayout
+                android:id="@+id/message_center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -424,6 +468,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="4dp"
                 android:layout_marginStart="6dp"
+                android:focusable="true"
                 android:text="帮助与支持"
                 android:textColor="#6C727F"
                 android:textSize="15sp"
@@ -431,12 +476,17 @@
 
 
             <LinearLayout
+                android:id="@+id/help_center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -470,12 +520,17 @@
 
 
             <LinearLayout
+                android:id="@+id/about_us"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -509,12 +564,17 @@
 
 
             <LinearLayout
+                android:id="@+id/feedback"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="horizontal"
-                android:padding="6dp">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="10dp">
 
                 <ImageView
                     android:layout_width="23dp"
@@ -553,12 +613,13 @@
 
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/logout_button"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10dp"
+                android:layout_marginBottom="70dp"
                 android:paddingVertical="14dp"
-                android:layout_marginBottom="60dp"
                 android:text="退出登录"
                 android:textColor="#263FA8"
                 android:textSize="18sp"

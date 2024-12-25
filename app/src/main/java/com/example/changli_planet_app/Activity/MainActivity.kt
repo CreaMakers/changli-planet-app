@@ -1,6 +1,7 @@
 package com.example.changli_planet_app.Activity
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -10,15 +11,36 @@ import com.example.changli_planet_app.Fragment.FeatureFragment
 import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Fragment.ChatGroupFragment
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityMainBinding
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
     private val tabLayout : TabLayout by lazy { binding.tabLayout }
+
+    // 主要设置
+    private val notificationSettings: LinearLayout by lazy { binding.notificationSettings }
+    private val privacySettings: LinearLayout by lazy { binding.privacySettings }
+    private val accountSecurity: LinearLayout by lazy { binding.accountSecurity }
+
+    // 常用功能
+    private val clearCache: LinearLayout by lazy { binding.clearCache }
+    private val changeStudentId: LinearLayout by lazy { binding.changeStudentId }
+    private val themeSettings: LinearLayout by lazy { binding.themeSettings }
+    private val messageCenter: LinearLayout by lazy { binding.messageCenter }
+
+    // 帮助与支持
+    private val helpCenter: LinearLayout by lazy { binding.helpCenter }
+    private val aboutUs: LinearLayout by lazy { binding.aboutUs }
+    private val feedback: LinearLayout by lazy { binding.feedback }
+
+    // 退出登录按钮
+    private val logoutButton: MaterialButton by lazy { binding.logoutButton }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +56,57 @@ class MainActivity : AppCompatActivity() {
         initFragment(FeatureFragment.newInstance())
         setupTabs()
         setupTabSelectionListener()
+        initClickListeners()
     }
+
+    private fun initClickListeners() {
+        notificationSettings.setOnClickListener {
+            // 处理通知设置点击
+        }
+
+        privacySettings.setOnClickListener {
+            // 处理隐私设置点击
+        }
+
+        accountSecurity.setOnClickListener {
+            // 处理账号安全点击
+        }
+
+        clearCache.setOnClickListener {
+            // 处理清除缓存点击
+        }
+
+        changeStudentId.setOnClickListener {
+            // 处理绑定学号点击
+            Route.goBindingUser(this)
+        }
+
+        themeSettings.setOnClickListener {
+            // 处理主题设置点击
+        }
+
+        messageCenter.setOnClickListener {
+            // 处理消息中心点击
+        }
+
+        helpCenter.setOnClickListener {
+            // 处理帮助中心点击
+        }
+
+        aboutUs.setOnClickListener {
+            // 处理关于我们点击
+        }
+
+        feedback.setOnClickListener {
+            // 处理意见反馈点击
+        }
+
+        logoutButton.setOnClickListener {
+            // 处理退出登录点击
+        }
+    }
+
+
     override fun onStart() {
         super.onStart()
         binding.trace.text =  (System.currentTimeMillis() - PlanetApplication.startTime).toString()

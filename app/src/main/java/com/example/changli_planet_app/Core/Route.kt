@@ -2,6 +2,7 @@ package com.example.changli_planet_app.Core
 
 import android.content.Context
 import android.content.Intent
+import com.example.changli_planet_app.Activity.BindingUserActivity
 import com.example.changli_planet_app.Activity.CetActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.Activity.ExamArrangementActivity
@@ -59,6 +60,11 @@ object Route {
 
     fun goMande(context: Context) {
         val intent = Intent(context, MandeActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goBindingUser(context: Context) {
+        val intent = Intent(context, BindingUserActivity::class.java)
         context.startActivity(intent)
     }
 }
