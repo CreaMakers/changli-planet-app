@@ -25,7 +25,7 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
                     .addQueryParam("stuNum", action.studentId)
                     .addQueryParam("password", action.password)
                     .addQueryParam("term", action.termTime)
-                    .addQueryParam("examType", action.termType)
+                    .addQueryParam("examType", "期末")
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {

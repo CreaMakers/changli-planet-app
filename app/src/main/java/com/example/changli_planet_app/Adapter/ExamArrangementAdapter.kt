@@ -15,7 +15,7 @@ class ExamArrangementAdapter(var examData: MutableList<Exam>) : RecyclerView.Ada
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val examTitle: TextView = view.findViewById(R.id.exam_title)
         val examTime: TextView = view.findViewById(R.id.exam_time)
-        val examId: TextView = view.findViewById(R.id.exam_id)
+        val examPlace: TextView = view.findViewById(R.id.exam_place)
         val examRoom: TextView = view.findViewById(R.id.exam_room)
     }
 
@@ -32,7 +32,7 @@ class ExamArrangementAdapter(var examData: MutableList<Exam>) : RecyclerView.Ada
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.examTitle.text = examData[position].name
-        holder.examId.text = examData[position].examId
+        holder.examPlace.text = examData[position].place
         holder.examRoom.text = examData[position].room
         holder.examTime.text = examData[position].time
     }

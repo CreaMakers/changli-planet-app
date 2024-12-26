@@ -27,6 +27,8 @@ import com.example.changli_planet_app.Activity.Action.ExamInquiryAction
 import com.example.changli_planet_app.Activity.Store.ExamArrangementStore
 import com.example.changli_planet_app.Adapter.ExamArrangementAdapter
 import com.example.changli_planet_app.Adapter.ExamScoreAdapter
+import com.example.changli_planet_app.Cache.ExamArrangementCache
+import com.example.changli_planet_app.Cache.ScoreCache
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.Exam
 import com.example.changli_planet_app.Data.jsonbean.ExamScore
@@ -44,31 +46,34 @@ import java.util.Calendar
 
 class ExamArrangementActivity : AppCompatActivity() {
     lateinit var binding: ActivityExamArrangementBinding
-    private val examRecyclerView: RecyclerView by lazy { binding.examRecyclerView }
-    private val backImageView: ImageView by lazy { binding.homeBack }
-    private val chosenTime: TextView by lazy { binding.chosenTime }
-    private val semesterNumberDate: TextView by lazy { binding.semesterNumberDate }
-    private val semesterDate: TextView by lazy { binding.semesterDate }
-    private val progressBar: ProgressBar by lazy { binding.loadingProgress }
+    private val examRecyclerView: RecyclerView by lazy { binding.recyclerView }
+    private val back: ImageView by lazy { binding.bindingBack }
+    private val refresh: ImageView by lazy { binding.refresh }
     private val store: ExamArrangementStore = ExamArrangementStore()
-    private val currencyTime = generateTermsList()
     private var examList: MutableList<Exam> = mutableListOf()
+    private val cache by lazy { ExamArrangementCache(this) }
 
     private val sharePreferences by lazy {
         getSharedPreferences("user_info", Context.MODE_PRIVATE)
     }
-    private val studentId by lazy { sharePreferences.getString("student_id", "") ?: ""}
-    private val studentPassword by lazy { sharePreferences.getString("password", "")  ?: ""}
+    private val studentId by lazy { sharePreferences.getString("student_id", "") ?: "" }
+    private val studentPassword by lazy { sharePreferences.getString("password", "") ?: "" }
+
+    private fun showLoading() {
+        binding.loadingLayout.visibility = View.VISIBLE
+        examRecyclerView.visibility = View.GONE
+    }
+
+    private fun hideLoading() {
+        binding.loadingLayout.visibility = View.GONE
+        examRecyclerView.visibility = View.VISIBLE
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExamArrangementBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         examRecyclerView.layoutManager = LinearLayoutManager(this)
         examRecyclerView.adapter = ExamArrangementAdapter(examList)
@@ -79,14 +84,28 @@ class ExamArrangementActivity : AppCompatActivity() {
                 showAllExamInfo(state.exams)
             }
 
-        if(studentId.isNotEmpty() && studentPassword.isNotEmpty()) {
-            progressBar.visibility = View.VISIBLE
+        loadCacheData()
+        back.setOnClickListener { finish() }
+        refresh.setOnClickListener { refreshData() }
+    }
+
+    private fun loadCacheData() {
+        val examArrangement = cache.getExamArrangement()
+        if (examArrangement != null) {
+            showAllExamInfo(examArrangement)
+        } else {
+            refreshData()
+        }
+    }
+
+    private fun refreshData() {
+        if (studentId.isNotEmpty() && studentPassword.isNotEmpty()) {
+            showLoading()
             store.dispatch(
                 ExamInquiryAction.UpdateExamData(
                     studentId,
                     studentPassword,
-                    semesterNumberDate.text.toString(),
-                    semesterDate.text.toString()
+                    getCurrentTerm()
                 )
             )
         } else {
@@ -94,17 +113,19 @@ class ExamArrangementActivity : AppCompatActivity() {
             Route.goBindingUser(this@ExamArrangementActivity)
             finish()
         }
-
-        backImageView.setOnClickListener { finish() }
-        chosenTime.setOnClickListener { showChosenDialog() }
     }
 
     private fun showAllExamInfo(exams: List<ExamArrangement>) {
+        if (exams.isEmpty()) {
+            showMessage("查询失败,请确认学号和密码绑定正确或尝试重新刷新")
+            return
+        }
+        cache.saveExamArrangement(exams)
         examList = exams.map { grade ->
             Exam(
                 grade.name,
                 grade.time,
-                grade.examId,
+                grade.place,
                 grade.room
             )
         }.toMutableList()
@@ -117,61 +138,18 @@ class ExamArrangementActivity : AppCompatActivity() {
                 notifyDataSetChanged()
             }
         }
-        progressBar.visibility = View.GONE
+        hideLoading()
     }
 
-    private fun showChosenDialog() {
-        val dialog = ExamChosenDialog.newInstance(currencyTime)
-        dialog.show(supportFragmentManager, "ExamChosenDialog")
-        dialog.setOnExamChosenListener { semester, examType ->
-            if(studentId.isNotEmpty() && studentPassword.isNotEmpty()) {
-                semesterNumberDate.text = semester
-                semesterDate.text = examType
-                progressBar.visibility = View.VISIBLE
-                store.dispatch(
-                    ExamInquiryAction.UpdateExamData(
-                        studentId,
-                        studentPassword,
-                        semesterNumberDate.text.toString(),
-                        semesterDate.text.toString()
-                    )
-                )
-            } else {
-                showMessage("请先绑定学号和密码")
-                Route.goBindingUser(this@ExamArrangementActivity)
-                finish()
-            }
-        }
-    }
-
-    private fun generateTermsList(yearsBack: Int = 15): List<String> {
-        val terms = mutableListOf<String>()
+    private fun getCurrentTerm(): String {
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH) + 1
-        val startYear = when {
-            currentMonth >= 9 -> currentYear
-            else -> currentYear - 1
+        return when {
+            currentMonth >= 9 -> "$currentYear-${currentYear + 1}-1"  // 第一学期
+            currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"  // 第二学期
+            else -> "${currentYear - 1}-${currentYear}-1"  // 上学年第一学期
         }
-        val currentTerm = when {
-            currentMonth >= 9 -> 1
-            currentMonth >= 2 -> 2
-            else -> 1
-        }
-        for (year in startYear downTo (startYear - yearsBack)) {
-            if (year == startYear) {
-                if (currentTerm == 1) {
-                    terms.add("$year-${year + 1}-1")
-                } else {
-                    terms.add("$year-${year + 1}-2")
-                    terms.add("$year-${year + 1}-1")
-                }
-            } else {
-                terms.add("$year-${year + 1}-2")
-                terms.add("$year-${year + 1}-1")
-            }
-        }
-        return terms
     }
 
     private fun showMessage(message: String) {
