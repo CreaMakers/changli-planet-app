@@ -122,6 +122,7 @@ class ExamArrangementActivity : AppCompatActivity() {
 
     private fun showChosenDialog() {
         val dialog = ExamChosenDialog.newInstance(currencyTime)
+        dialog.show(supportFragmentManager, "ExamChosenDialog")
         dialog.setOnExamChosenListener { semester, examType ->
             if(studentId.isNotEmpty() && studentPassword.isNotEmpty()) {
                 semesterNumberDate.text = semester
@@ -135,14 +136,11 @@ class ExamArrangementActivity : AppCompatActivity() {
                         semesterDate.text.toString()
                     )
                 )
-                dialog.show(supportFragmentManager, "ExamChosenDialog")
             } else {
                 showMessage("请先绑定学号和密码")
                 Route.goBindingUser(this@ExamArrangementActivity)
                 finish()
             }
-
-
         }
     }
 

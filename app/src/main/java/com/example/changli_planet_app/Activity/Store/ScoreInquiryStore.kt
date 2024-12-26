@@ -17,7 +17,6 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
     override fun handleEvent(action: ScoreInquiryAction) {
         currentState = when (action) {
             is ScoreInquiryAction.ShowData -> {
-                currentState.showDataChosen = !currentState.showDataChosen
                 _state.onNext(currentState)
                 currentState
             }
@@ -27,7 +26,7 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
                     .get(PlanetApplication.ToolIp + "/grades")
                     .addQueryParam("stuNum", action.studentId)
                     .addQueryParam("password", action.password)
-                    .addQueryParam("term", action.term)
+                    .addQueryParam("term", "")
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
@@ -57,8 +56,6 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
 
             ScoreInquiryAction.initilaize -> {
                 currentState.grades = emptyList()
-                currentState.showDataChosen = false
-                currentState.dataText = "日期"
                 _state.onNext(currentState)
                 currentState
             }
