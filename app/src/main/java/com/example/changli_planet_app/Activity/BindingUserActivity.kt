@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityBindingUserBinding
 import com.google.android.material.button.MaterialButton
@@ -26,9 +27,6 @@ class BindingUserActivity : AppCompatActivity() {
     private val back: ImageView by lazy { binding.bindingBack }
     private val save: MaterialButton by lazy { binding.saveUser }
 
-    private val sharePreferences by lazy {
-        getSharedPreferences("user_info", Context.MODE_PRIVATE)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +49,8 @@ class BindingUserActivity : AppCompatActivity() {
             showMessage("学号和密码不能为空")
             return
         }
-        sharePreferences.edit().apply {
-            putString("student_id", studentId)
-            putString("password", studentPassword)
-            apply()
-        }
+        UserInfoManager.studentId = studentId
+        UserInfoManager.studentPassword = studentPassword
         showMessage("学号和密码保存成功！")
         finish()
     }

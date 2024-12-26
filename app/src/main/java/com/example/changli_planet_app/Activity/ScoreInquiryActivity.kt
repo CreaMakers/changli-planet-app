@@ -18,6 +18,7 @@ import com.example.changli_planet_app.Activity.Action.ScoreInquiryAction
 import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
 import com.example.changli_planet_app.Adapter.ExamScoreAdapter
 import com.example.changli_planet_app.Cache.ScoreCache
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.model.CourseScore
 import com.example.changli_planet_app.Data.model.SemesterGroup
@@ -44,11 +45,8 @@ class ScoreInquiryActivity : AppCompatActivity() {
         binding.ScoreRecyclerView.visibility = View.VISIBLE
     }
 
-    private val sharePreferences by lazy {
-        getSharedPreferences("user_info", Context.MODE_PRIVATE)
-    }
-    private val studentId by lazy { sharePreferences.getString("student_id", "") ?: "" }
-    private val studentPassword by lazy { sharePreferences.getString("password", "") ?: "" }
+    private val studentId by lazy { UserInfoManager.studentId }
+    private val studentPassword by lazy { UserInfoManager.studentPassword }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

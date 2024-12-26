@@ -29,6 +29,7 @@ import com.example.changli_planet_app.Adapter.ExamArrangementAdapter
 import com.example.changli_planet_app.Adapter.ExamScoreAdapter
 import com.example.changli_planet_app.Cache.ExamArrangementCache
 import com.example.changli_planet_app.Cache.ScoreCache
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.Exam
 import com.example.changli_planet_app.Data.jsonbean.ExamScore
@@ -53,11 +54,8 @@ class ExamArrangementActivity : AppCompatActivity() {
     private var examList: MutableList<Exam> = mutableListOf()
     private val cache by lazy { ExamArrangementCache(this) }
 
-    private val sharePreferences by lazy {
-        getSharedPreferences("user_info", Context.MODE_PRIVATE)
-    }
-    private val studentId by lazy { sharePreferences.getString("student_id", "") ?: "" }
-    private val studentPassword by lazy { sharePreferences.getString("password", "") ?: "" }
+    private val studentId by lazy { UserInfoManager.studentId }
+    private val studentPassword by lazy { UserInfoManager.studentPassword }
 
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
