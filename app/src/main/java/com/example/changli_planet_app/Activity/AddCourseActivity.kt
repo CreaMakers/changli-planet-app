@@ -23,12 +23,14 @@ import com.example.changli_planet_app.SubjectRepertory
 import com.example.changli_planet_app.databinding.ActivityAddCourseInTimetableBinding
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import com.zhuangfei.timetable.model.Schedule
 import kotlinx.coroutines.launch
+
 class AddCourseActivity : AppCompatActivity() {
     lateinit var coursesDataBase: CoursesDataBase
     lateinit var timeTableStore: TimeTableStore
-
+    private val gson by lazy { Gson() }
     private val binding by lazy { ActivityAddCourseInTimetableBinding.inflate(layoutInflater) }
     private val courseName by lazy { binding.customCourseName }
     private val courseRoom by lazy { binding.customCourseRoom }
@@ -60,7 +62,7 @@ class AddCourseActivity : AppCompatActivity() {
         timeTableStore = TimeTableStore(coursesDataBase.courseDao())
 
         val startCourse = intent.getIntExtra("start", 0)
-        val curWeek = intent.getIntExtra("curWeek",0)
+        val curWeek = intent.getIntExtra("curWeek", 0)
         courseStep.setText("0$startCourse - 0${startCourse + 1} 节")
         binding.toolbar.setNavigationOnClickListener {
             finish()
@@ -179,11 +181,11 @@ class AddCourseActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            mySubject.weeks =
-                listOf(curWeek)
-            timeTableStore.dispatch(TimeTableAction.AddCourse(mySubject))
-
-            val intent = Intent()
+            mySubject.weeks = listOf(curWeek)
+            val intent = Intent().apply {
+//                putExtra("course", mySubject)
+                putExtra("newCourse",gson.toJson(mySubject))
+            }
             setResult(RESULT_OK, intent)
             finish()
         }

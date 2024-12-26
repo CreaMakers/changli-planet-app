@@ -1,6 +1,6 @@
 package com.example.changli_planet_app.Fragment
 
-import android.graphics.Color
+
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,13 +10,9 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
-//import com.example.changli_planet_app.databinding.NavHeaderBinding
 
 // TODO: Rename parameter arguments, choose names that match
 /**
@@ -26,7 +22,7 @@ import com.example.changli_planet_app.databinding.FragmentFeatureBinding
  */
 class FeatureFragment : Fragment() {
 
-//    lateinit var navHeaderBinding: NavHeaderBinding
+
     lateinit var menu: Menu
 
 
@@ -41,10 +37,6 @@ class FeatureFragment : Fragment() {
     ): View {
         binding = FragmentFeatureBinding.inflate(layoutInflater)
 
-//        val headerLayout = binding.navigation.getHeaderView(0)
-//        navHeaderBinding = NavHeaderBinding.bind(headerLayout)
-
-//        menu = binding.navigation.menu
 
         electronic.setOnClickListener { activity?.let { it1 -> Route.goElectronic(it1) } }
         timeTable.setOnClickListener { activity?.let { it1 -> Route.goTimetable(it1) } }
@@ -64,31 +56,7 @@ class FeatureFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        binding.drawerBtn.setOnClickListener {
-//            binding.drawerLayout.openDrawer(GravityCompat.START)
-//        }
-//        binding.drawerLayout.setScrimColor(Color.TRANSPARENT)  // 禁止侧滑阴影效果
-//        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED) // 解锁滑动模式
-//
-//        navHeaderBinding.editName.setOnClickListener {
-//
-//        }
-//        menu.findItem(R.id.menu_unbind).setOnMenuItemClickListener {
-//            Toast.makeText(context, "功能开发中", Toast.LENGTH_SHORT).show()
-//            true
-//        }
-//        menu.findItem(R.id.menu_clear_cache).setOnMenuItemClickListener {
-//            Toast.makeText(context, "功能开发中", Toast.LENGTH_SHORT).show()
-//            true
-//        }
-//        menu.findItem(R.id.menu_contact_info).setOnMenuItemClickListener {
-//            Toast.makeText(context, "功能开发中", Toast.LENGTH_SHORT).show()
-//            true
-//        }
-//        menu.findItem(R.id.menu_tomorrow_courses).setOnMenuItemClickListener {
-//            Toast.makeText(context, "功能开发中", Toast.LENGTH_SHORT).show()
-//            true
-//        }
+
     }
 
     fun setUpImageView() {
@@ -108,14 +76,7 @@ class FeatureFragment : Fragment() {
         binding.nrank.setIcon(R.drawable.nrank)
         binding.nbalance.setIcon(R.drawable.nbalance)
         binding.nclassroom.setIcon(R.drawable.nclassroom)
-//        binding.drawerBtn.setImageResource(R.drawable.prehead)
-//        navHeaderBinding.iconImage.setImageResource(R.drawable.prehead)
-//        navHeaderBinding.navRootLayout.setBackgroundResource(R.drawable.personbackground)
-//        navHeaderBinding.editName.setImageResource(R.drawable.nav_edit)
-//        menu.findItem(R.id.menu_unbind).setIcon(R.drawable.menu_unbind)
-//        menu.findItem(R.id.menu_clear_cache).setIcon(R.drawable.menu_clear_cache)
-//        menu.findItem(R.id.menu_contact_info).setIcon(R.drawable.menu_contact)
-//        menu.findItem(R.id.menu_tomorrow_courses).setIcon(R.drawable.menu_tomorrow_courses)
+
     }
     companion object {
 

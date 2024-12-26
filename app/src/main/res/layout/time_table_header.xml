@@ -37,7 +37,7 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <ImageButton
-        android:id="@+id/curseRefresh"
+        android:id="@+id/courseRefresh"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="@null"

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="260dp"
+
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp">
+        <TextView
+            android:textStyle="bold"
+            android:layout_width="0dp"
+            android:layout_weight="6"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="选择学期"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/itractor"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/selectRecyclerTimetable"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"/>
+</LinearLayout>

@@ -1,28 +1,110 @@
-<?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
     xmlns:tools="http://schemas.android.com/tools"
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Activity.TimeTableActivity"
+    tools:context=".Activity.TimeTableActivity">
 
-    >
-
+    <!-- 顶部头部布局 -->
     <include layout="@layout/time_table_header" />
 
-    <include layout="@layout/course_table_time" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:orientation="horizontal">
 
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:src="@drawable/coursetable_ic_calendar"
+
+                />
+
+            <TextView
+                android:id="@+id/courseTerm"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5dp"
+                android:gravity="center"
+                android:text="2024-2025-1"
+                android:textColor="#000000"
+                android:textSize="18sp"
+
+                />
+
+            <ImageButton
+                android:id="@+id/termsExtendBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="2dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/coursetable_ic_extend" />
+
+        </LinearLayout>
+
+        <Space
+            android:layout_width="25dp"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/courseWeek"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="5dp"
+                android:gravity="center"
+                android:text="第8周"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <ImageButton
+                android:id="@+id/weeksExtendBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/coursetable_ic_extend"
+
+                />
+
+            <TextView
+                android:id="@+id/isCurWeek"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="5dp"
+                android:gravity="center"
+                android:text="本周"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 周视图 -->
     <com.zhuangfei.timetable.view.WeekView
         android:id="@+id/weekView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <!-- 课表视图 -->
     <com.zhuangfei.timetable.TimetableView
         android:id="@+id/timetableView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/app_white"></com.zhuangfei.timetable.TimetableView>
+        android:background="@color/app_white"
+        />
+
 </LinearLayout>

@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.changli_planet_app.Network.Response.Course
 
-@Database(entities = [MySubject::class], version = 1,exportSchema = true)
+@Database(entities = [MySubject::class], version = 3, exportSchema = true)
 @TypeConverters(WeeksTypeConverter::class)
 abstract class CoursesDataBase() : RoomDatabase() {
     abstract fun courseDao(): CourseDao
@@ -20,7 +20,9 @@ abstract class CoursesDataBase() : RoomDatabase() {
                 context.applicationContext,
                 CoursesDataBase::class.java,
                 "course_database"
-            ).build()
+            )
+                                .fallbackToDestructiveMigration()
+                .build()
             INSTANCE = instance
             instance
         }

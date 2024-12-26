@@ -3,10 +3,13 @@ package com.example.changli_planet_app.Activity.Store
 import android.annotation.SuppressLint
 import android.util.Log
 import com.example.changli_planet_app.Activity.Action.TimeTableAction
+import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.State.TimeTableState
+import com.example.changli_planet_app.Activity.TimeTableActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Store
 import com.example.changli_planet_app.CourseDao
+import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.MySubject
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
@@ -34,15 +37,21 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                 if (curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
 //                    fetchTimetableFromNetwork(action)
                     fetchTimetableFromReposity(action)
-                    Log.d("TimeTableStore", "网络请求获得课表")
+//                    Log.d("TimeTableStore", "网络请求获得课表")
                 } else {
                     //从数据库中获得课表
-                    courseDao.getAllCourse()
+                    courseDao.getAllCourses()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({ result ->
-                            curState.subjects = result
-                            _state.onNext(curState)
+                            if (result.isNotEmpty()) {
+                                curState.subjects = result
+                                _state.onNext(curState)
+                                Log.d("Debug", "Courses loaded from database: $result")
+                            } else {
+                                Log.w("Debug", "No courses found in database")
+                            }
+
                         }, { error ->
                             error.printStackTrace()
                         })
@@ -53,7 +62,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
             is TimeTableAction.UpdateCourses -> {
                 //更新数据库
                 Observable.fromCallable {
-                    courseDao.updateCourse(action.subjects)
+                    courseDao.insertCourses(action.subjects)
                 }
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -62,7 +71,9 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                         curState.lastUpdate = System.currentTimeMillis()
                         curState.subjects = action.subjects
                         _state.onNext(curState)
+                        Log.d("Debug", "Courses in database update")
                     }, { error ->
+                        Log.e("Debug", "Error updating course", error)
                         error.printStackTrace()
                     })
 
@@ -75,23 +86,44 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                 }
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
+                    .subscribe({ result ->
+                        Log.d("Debug", "Courses in database after insert/update: $result")
                         //更新curState
-                        curState.subjects.add(action.subject)
+                        curState = curState.copy(
+                            subjects = curState.subjects.toMutableList()
+                                .apply { add(action.subject) }
+                        )
                         _state.onNext(curState)
+                        Log.d(
+                            "Debug",
+                            "State updated with new subject in AddCourse: ${curState.subjects}"
+                        )
+                        Log.d("TimeTableStore", "Active subscribers: ${_state.hasObservers()}")
+
                     }, { error ->
+                        Log.e("Debug", "Error add course", error)
                         error.printStackTrace()
                     })
             }
 
             is TimeTableAction.selectWeek -> {
-                curState.week = action.week
+                curState.weekInfo = action.weekInfo
                 _state.onNext(curState)
             }
 
             is TimeTableAction.selectTerm -> {
                 curState.term = action.term
                 _state.onNext(curState)
+//                dispatch(
+//                    TimeTableAction.FetchCourses(
+//                        GetCourse(
+//                            "202301160231",
+//                            "Cy@20050917",
+//                            " ",
+//                            action.term
+//                        )
+//                    )
+//                )
             }
         }
     }
@@ -106,12 +138,17 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
         val subjects = mutableListOf<MySubject>()
         //获得网络请求
         val httpUrlHelper = HttpUrlHelper.HttpRequest()
+            .header("Authorization", "Bearer ${PlanetApplication.accessToken}")
+//            .header("deviceId", TimeTableActivity.getDeviceId(action.context))
             .get(PlanetApplication.ToolIp + "/courses")
-//            .header("Authorization", "Bearer ${PlanetApplication.accessToken}")
-            .addQueryParam("stuNum",action.getCourse.stuNum)
-            .addQueryParam("password",action.getCourse.password)
-            .addQueryParam("week",action.getCourse.week)
-            .addQueryParam("term",action.getCourse.termId)
+//            .addQueryParam("stuNum", action.getCourse.stuNum)
+//            .addQueryParam("password", action.getCourse.password)
+//            .addQueryParam("week", action.getCourse.week)
+//            .addQueryParam("term", action.getCourse.termId)
+            .addQueryParam("stuNum", "202301160231")
+            .addQueryParam("password", "Cy@20050917")
+            .addQueryParam("week", " ")
+            .addQueryParam("term", "2024-2025-1")
             .build()
 
         OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {

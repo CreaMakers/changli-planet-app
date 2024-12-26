@@ -8,4 +8,5 @@ data class ElectronicState(
     var address:String,
     var buildId:String,
 ){var nod:String = ""
-  var elec:String = ""}
+    var isElec:Boolean = false
+    var elec:String = ""}
