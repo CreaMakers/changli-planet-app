@@ -6,7 +6,7 @@ object UserInfoManager {
     private val mmkv by lazy { MMKV.defaultMMKV() }
 
     private const val KEY_STUDENT_ID = "student_id"
-    private const val KEY_PASSWORD = "password"
+    private const val KEY_PASSWORD = "student_password"
 
     var studentId: String
         get() = mmkv.getString(KEY_STUDENT_ID, "") ?: ""

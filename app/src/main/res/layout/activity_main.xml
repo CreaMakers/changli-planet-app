@@ -14,14 +14,6 @@
         android:layout_height="match_parent">
 
 
-        <TextView
-            android:id="@+id/trace"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:elevation="5dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <FrameLayout
             android:id="@+id/frag"
             android:layout_width="match_parent"

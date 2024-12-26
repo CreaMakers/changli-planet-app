@@ -120,7 +120,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        binding.trace.text = (System.currentTimeMillis() - PlanetApplication.startTime).toString()
     }
 
     private fun setupTabs() {
