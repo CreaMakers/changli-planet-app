@@ -1,40 +1,77 @@
 package com.example.changli_planet_app.Adapter
 
+
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.Data.jsonbean.ExamScore
-import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Adapter.ViewHolder.SemesterViewHolder
+import com.example.changli_planet_app.Data.model.CourseListItem
+import com.example.changli_planet_app.Data.model.SemesterGroup
+import com.example.changli_planet_app.databinding.ScoreItemSemesterBinding
 
-class ExamScoreAdapter (var examScoreData: MutableList<ExamScore>): RecyclerView.Adapter<ExamScoreAdapter.ViewHolder>() {
+class ExamScoreAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private var _items = emptyList<CourseListItem>()
+    private val currentList: List<CourseListItem> get() = _items
 
-    inner class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
-        val lessonName: TextView = view.findViewById(R.id.lesson_name)
-        val lessonType: TextView = view.findViewById(R.id.lesson_type)
-        val lessonCredit: TextView = view.findViewById(R.id.lesson_credit)
-        val lessonScore: TextView = view.findViewById(R.id.lesson_score)
+    companion object {
+        private const val TYPE_SEMESTER = 0
+        private const val TYPE_COURSE = 1
     }
 
-    fun updateData(newScores: MutableList<ExamScore>) {
-        examScoreData = newScores
+    fun submitList(semesters: List<SemesterGroup>) {
+        val newItems = mutableListOf<CourseListItem>()
+
+        semesters.forEach { semester ->
+            val semesterItem = CourseListItem.SemesterItem(semester)
+            newItems.add(semesterItem)
+        }
+
+        val diffCallback = object : DiffUtil.Callback() {
+            override fun getOldListSize() = _items.size
+            override fun getNewListSize() = newItems.size
+
+            override fun areItemsTheSame(oldPos: Int, newPos: Int): Boolean {
+                val oldItem = _items[oldPos]
+                val newItem = newItems[newPos]
+                return when {
+                    oldItem is CourseListItem.SemesterItem && newItem is CourseListItem.SemesterItem ->
+                        oldItem.semester.semesterName == newItem.semester.semesterName
+                    else -> false
+                }
+            }
+
+            override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean {
+                return _items[oldPos] == newItems[newPos]
+            }
+        }
+
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        _items = newItems
+        diffResult.dispatchUpdatesTo(this)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-       val view = LayoutInflater.from(parent.context).inflate(R.layout.score_item, parent, false)
-        return ViewHolder(view)
+    override fun getItemViewType(position: Int) = TYPE_SEMESTER
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val binding = ScoreItemSemesterBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return SemesterViewHolder(binding) { position -> toggleGroup(position) }
     }
 
-    override fun getItemCount() = examScoreData.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val examScore = examScoreData[position]
-        holder.lessonName.text = examScore.name
-        holder.lessonType.text = examScore.attribute
-        holder.lessonCredit.text = examScore.point
-        holder.lessonScore.text = examScore.grade
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val item = currentList[position] as CourseListItem.SemesterItem
+        (holder as SemesterViewHolder).bind(item)
     }
 
+    override fun getItemCount(): Int = currentList.size
+
+    private fun toggleGroup(position: Int) {
+        val currentItems = currentList.toMutableList()
+        val semesterItem = currentItems[position] as? CourseListItem.SemesterItem ?: return
+        currentItems[position] = semesterItem.copy(isExpanded = !semesterItem.isExpanded)
+        _items = currentItems
+        notifyItemChanged(position)
+    }
 }

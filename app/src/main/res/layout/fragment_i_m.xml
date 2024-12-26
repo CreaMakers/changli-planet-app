@@ -17,11 +17,11 @@
         android:orientation="horizontal">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="5dp"
-            android:src="@drawable/prehead"
+            android:src="@drawable/fulilian"
             app:shapeAppearance="@style/CircleStyle" />
 
         <TextView
@@ -29,9 +29,9 @@
             android:layout_height="match_parent"
             android:layout_marginStart="5dp"
             android:gravity="center_vertical"
-            android:text="名字"
+            android:text="魏子清"
             android:textColor="@color/black"
-            android:textSize="17sp" />
+            android:textSize="18sp" />
 
         <View
             android:layout_width="0dp"

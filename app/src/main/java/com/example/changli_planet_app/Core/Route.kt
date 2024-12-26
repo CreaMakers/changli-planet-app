@@ -8,8 +8,6 @@ import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
-import com.example.changli_planet_app.Activity.TimeTableActivity
-
 import com.example.changli_planet_app.Activity.ScoreInquiryActivity
 
 /**
@@ -58,4 +56,18 @@ object Route {
         context.startActivity(intent)
     }
 
+    fun goCet(context: Context) {
+        val intent = Intent(context, CetActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goMande(context: Context) {
+        val intent = Intent(context, MandeActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goBindingUser(context: Context) {
+        val intent = Intent(context, BindingUserActivity::class.java)
+        context.startActivity(intent)
+    }
 }

@@ -1,51 +1,77 @@
 package com.example.changli_planet_app.Activity
 
+import android.content.Context
+import android.graphics.Color
+import android.graphics.PixelFormat
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.Gravity
 import android.view.View
+import android.view.WindowManager
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Activity.Action.ExamInquiryAction
 import com.example.changli_planet_app.Activity.Store.ExamArrangementStore
 import com.example.changli_planet_app.Adapter.ExamArrangementAdapter
 import com.example.changli_planet_app.Adapter.ExamScoreAdapter
+import com.example.changli_planet_app.Cache.ExamArrangementCache
+import com.example.changli_planet_app.Cache.ScoreCache
+import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.Exam
 import com.example.changli_planet_app.Data.jsonbean.ExamScore
 import com.example.changli_planet_app.Network.Response.ExamArrangement
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.ExamChosenDialog
 import com.example.changli_planet_app.databinding.ActivityExamArrangementBinding
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.w3c.dom.Text
 import java.util.Calendar
 
 class ExamArrangementActivity : AppCompatActivity() {
     lateinit var binding: ActivityExamArrangementBinding
-    private val examRecyclerView: RecyclerView by lazy { binding.examRecyclerView }
-    private val backImageView: ImageView by lazy { binding.homeBack }
-    private val chosenTime: TextView by lazy { binding.chosenTime }
-    private val semesterNumberDate: TextView by lazy { binding.semesterNumberDate }
-    private val semesterDate: TextView by lazy { binding.semesterDate }
-    private val progressBar: ProgressBar by lazy { binding.loadingProgress }
+    private val examRecyclerView: RecyclerView by lazy { binding.recyclerView }
+    private val back: ImageView by lazy { binding.bindingBack }
+    private val refresh: ImageView by lazy { binding.refresh }
     private val store: ExamArrangementStore = ExamArrangementStore()
-    private val currencyTime = generateTermsList()
     private var examList: MutableList<Exam> = mutableListOf()
+    private val cache by lazy { ExamArrangementCache(this) }
+
+    private val studentId by lazy { UserInfoManager.studentId }
+    private val studentPassword by lazy { UserInfoManager.studentPassword }
+
+    private fun showLoading() {
+        binding.loadingLayout.visibility = View.VISIBLE
+        examRecyclerView.visibility = View.GONE
+    }
+
+    private fun hideLoading() {
+        binding.loadingLayout.visibility = View.GONE
+        examRecyclerView.visibility = View.VISIBLE
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExamArrangementBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         examRecyclerView.layoutManager = LinearLayoutManager(this)
         examRecyclerView.adapter = ExamArrangementAdapter(examList)
@@ -56,23 +82,48 @@ class ExamArrangementActivity : AppCompatActivity() {
                 showAllExamInfo(state.exams)
             }
 
-        progressBar.visibility = View.VISIBLE
-        store.dispatch(
-            ExamInquiryAction.UpdateExamData(
-                semesterNumberDate.text.toString(),
-                semesterDate.text.toString()
+        loadCacheData()
+        back.setOnClickListener { finish() }
+        refresh.setOnClickListener { refreshData() }
+    }
+
+    private fun loadCacheData() {
+        val examArrangement = cache.getExamArrangement()
+        if (examArrangement != null) {
+            showAllExamInfo(examArrangement)
+        } else {
+            refreshData()
+        }
+    }
+
+    private fun refreshData() {
+        if (studentId.isNotEmpty() && studentPassword.isNotEmpty()) {
+            showLoading()
+            store.dispatch(
+                ExamInquiryAction.UpdateExamData(
+                    studentId,
+                    studentPassword,
+                    getCurrentTerm()
+                )
             )
-        )
-        backImageView.setOnClickListener { finish() }
-        chosenTime.setOnClickListener { showChosenDialog() }
+        } else {
+            showMessage("请先绑定学号和密码")
+            Route.goBindingUser(this@ExamArrangementActivity)
+            finish()
+        }
     }
 
     private fun showAllExamInfo(exams: List<ExamArrangement>) {
+        if (exams.isEmpty()) {
+            showMessage("查询失败,请确认学号和密码绑定正确或尝试重新刷新")
+            return
+        }
+        cache.saveExamArrangement(exams)
         examList = exams.map { grade ->
             Exam(
                 grade.name,
                 grade.time,
-                grade.examId,
+                grade.place,
                 grade.room
             )
         }.toMutableList()
@@ -85,54 +136,41 @@ class ExamArrangementActivity : AppCompatActivity() {
                 notifyDataSetChanged()
             }
         }
-        progressBar.visibility = View.GONE
+        hideLoading()
     }
 
-    private fun showChosenDialog() {
-        val dialog = ExamChosenDialog.newInstance(currencyTime)
-        dialog.setOnExamChosenListener { semester, examType ->
-            if (semester.isNotEmpty() && examType.isNotEmpty()) {
-                semesterNumberDate.text = semester
-                semesterDate.text = examType
-                progressBar.visibility = View.VISIBLE
-                store.dispatch(
-                    ExamInquiryAction.UpdateExamData(
-                        semesterNumberDate.text.toString(),
-                        semesterDate.text.toString()
-                    )
-                )
-            }
-        }
-        dialog.show(supportFragmentManager, "ExamChosenDialog")
-    }
-
-    private fun generateTermsList(yearsBack: Int = 15): List<String> {
-        val terms = mutableListOf<String>()
+    private fun getCurrentTerm(): String {
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH) + 1
-        val startYear = when {
-            currentMonth >= 9 -> currentYear
-            else -> currentYear - 1
+        return when {
+            currentMonth >= 9 -> "$currentYear-${currentYear + 1}-1"  // 第一学期
+            currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"  // 第二学期
+            else -> "${currentYear - 1}-${currentYear}-1"  // 上学年第一学期
         }
-        val currentTerm = when {
-            currentMonth >= 9 -> 1
-            currentMonth >= 2 -> 2
-            else -> 1
-        }
-        for (year in startYear downTo (startYear - yearsBack)) {
-            if (year == startYear) {
-                if (currentTerm == 1) {
-                    terms.add("$year-${year + 1}-1")
-                } else {
-                    terms.add("$year-${year + 1}-2")
-                    terms.add("$year-${year + 1}-1")
-                }
-            } else {
-                terms.add("$year-${year + 1}-2")
-                terms.add("$year-${year + 1}-1")
-            }
-        }
-        return terms
     }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).apply {
+            val cardView = CardView(applicationContext).apply {
+                radius = 25f
+                cardElevation = 8f
+                setCardBackgroundColor(getColor(R.color.score_bar))
+                useCompatPadding = true
+            }
+
+            val textView = TextView(applicationContext).apply {
+                text = message
+                textSize = 17f
+                setTextColor(Color.BLACK)
+                gravity = Gravity.CENTER
+                setPadding(80, 40, 80, 40)
+            }
+            cardView.addView(textView)
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 140)
+            view = cardView
+            show()
+        }
+    }
+
 }
