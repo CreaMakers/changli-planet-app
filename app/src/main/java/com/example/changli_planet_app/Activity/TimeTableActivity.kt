@@ -3,52 +3,40 @@ package com.example.changli_planet_app.Activity
 import java.lang.reflect.Type
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.PopupWindow
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.ScoreInquiryAction
 import com.example.changli_planet_app.Activity.Action.TimeTableAction
 import com.example.changli_planet_app.Activity.Store.TimeTableStore
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.CoursesDataBase
+import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
-import com.example.changli_planet_app.MySubject
+import com.example.changli_planet_app.Cache.Room.MySubject
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.TimetableWheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
-import com.example.changli_planet_app.databinding.CourseTableTimeBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.zhuangfei.timetable.TimetableView
-import com.zhuangfei.timetable.listener.ISchedule
 import com.zhuangfei.timetable.listener.IWeekView
 import com.zhuangfei.timetable.listener.OnFlaglayoutClickAdapter
 import com.zhuangfei.timetable.listener.OnItemBuildAdapter
@@ -56,13 +44,9 @@ import com.zhuangfei.timetable.listener.OnItemClickAdapter
 import com.zhuangfei.timetable.listener.OnItemLongClickAdapter
 import com.zhuangfei.timetable.listener.OnSlideBuildAdapter
 import com.zhuangfei.timetable.model.Schedule
-import com.zhuangfei.timetable.model.ScheduleSupport
 import com.zhuangfei.timetable.view.WeekView
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import java.sql.Time
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 
 class TimeTableActivity : AppCompatActivity() {
@@ -103,6 +87,9 @@ class TimeTableActivity : AppCompatActivity() {
         "第20周"
     )
     lateinit var subjects: MutableList<MySubject>
+    private val studentId by lazy { UserInfoManager.studentId }
+    private val studentPassword by lazy { UserInfoManager.studentPassword }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -163,11 +150,11 @@ class TimeTableActivity : AppCompatActivity() {
         timeTableStore.dispatch(
             TimeTableAction.FetchCourses(
                 GetCourse(
-                    "202301160231",
-                    "Cy@20050917",
+                    studentId,
+                    studentPassword,
                     " ",
                     courseTerm.text.toString()
-                ), this
+                )
             )
         )
 
@@ -214,11 +201,11 @@ class TimeTableActivity : AppCompatActivity() {
             timeTableStore.dispatch(
                 TimeTableAction.FetchCourses(
                     GetCourse(
-                        "202301160231",
-                        "Cy@20050917",
-                        " ",
+                        studentId,
+                        studentPassword,
+                        "",
                         courseTerm.text.toString()
-                    ), this
+                    )
                 )
             )
             timetableView.updateView()
@@ -255,6 +242,7 @@ class TimeTableActivity : AppCompatActivity() {
                             // 允许父视图拦截
                             view.parent?.requestDisallowInterceptTouchEvent(false)
                         }
+
                         MotionEvent.ACTION_MOVE -> {
                             val deltaX = Math.abs(event.x - initialX)
                             val deltaY = Math.abs(event.y - initialY)
@@ -275,7 +263,7 @@ class TimeTableActivity : AppCompatActivity() {
 
     }
 
-  private  fun findScrollView(view: View): ScrollView? {
+    private fun findScrollView(view: View): ScrollView? {
         if (view is ScrollView) return view
         if (view is ViewGroup) {
             for (i in 0 until view.childCount) {
@@ -471,10 +459,10 @@ class TimeTableActivity : AppCompatActivity() {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
                             if (curDisplayWeek - 1 in 1..20)
-                           timeTableStore.dispatch(TimeTableAction.selectWeek("第${curDisplayWeek - 1}周")) // 右滑，切换到上一周
+                                timeTableStore.dispatch(TimeTableAction.selectWeek("第${curDisplayWeek - 1}周")) // 右滑，切换到上一周
                         } else {
                             if (curDisplayWeek + 1 in 1..20)
-                            timeTableStore.dispatch(TimeTableAction.selectWeek("第${curDisplayWeek + 1}周"))// 左滑，切换到下一周
+                                timeTableStore.dispatch(TimeTableAction.selectWeek("第${curDisplayWeek + 1}周"))// 左滑，切换到下一周
                         }
                         return true
                     }
@@ -527,10 +515,5 @@ class TimeTableActivity : AppCompatActivity() {
         return matchResult?.value?.toInt() ?: 0
     }
 
-    companion object {
-        public fun getDeviceId(context: Context): String {
-            return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-        }
-    }
 
 }

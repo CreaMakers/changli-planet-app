@@ -1,4 +1,4 @@
-package com.example.changli_planet_app
+package com.example.changli_planet_app.Cache
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson

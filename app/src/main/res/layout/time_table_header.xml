@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="80dp"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#00BCD4"
+    android:background="#93DAED"
     tools:showIn="@layout/activity_time_table"
      android:id="@+id/main"
      >

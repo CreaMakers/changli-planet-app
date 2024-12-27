@@ -1,6 +1,6 @@
 package com.example.changli_planet_app.Activity.State
 
-import com.example.changli_planet_app.MySubject
+import com.example.changli_planet_app.Cache.Room.MySubject
 
 data class TimeTableState(
     var lastUpdate: Long = 0,

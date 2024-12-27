@@ -2,13 +2,17 @@ package com.example.changli_planet_app.Core
 
 import android.content.Context
 import android.content.Intent
+import com.example.changli_planet_app.Activity.BindingUserActivity
+import com.example.changli_planet_app.Activity.CetActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.Activity.ExamArrangementActivity
 import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
+import com.example.changli_planet_app.Activity.MandeActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
 import com.example.changli_planet_app.Activity.ScoreInquiryActivity
+import com.example.changli_planet_app.Activity.TimeTableActivity
 
 /**
  * 所有页面跳转逻辑都应卸载Route中，方便统一管理

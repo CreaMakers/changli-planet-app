@@ -3,20 +3,18 @@ package com.example.changli_planet_app.Activity.Store
 import android.annotation.SuppressLint
 import android.util.Log
 import com.example.changli_planet_app.Activity.Action.TimeTableAction
-import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.State.TimeTableState
-import com.example.changli_planet_app.Activity.TimeTableActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Store
-import com.example.changli_planet_app.CourseDao
-import com.example.changli_planet_app.Data.jsonbean.GetCourse
-import com.example.changli_planet_app.MySubject
+import com.example.changli_planet_app.Cache.Room.CourseDao
+import com.example.changli_planet_app.Cache.Room.MySubject
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.SubjectRepertory
+import com.example.changli_planet_app.Data.SampleData.SubjectRepertory
+import com.google.gson.reflect.TypeToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -35,8 +33,8 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
             is TimeTableAction.FetchCourses -> {
                 val cur = System.currentTimeMillis()
                 if (curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
-//                    fetchTimetableFromNetwork(action)
-                    fetchTimetableFromReposity(action)
+                    fetchTimetableFromNetwork(action)
+//
 //                    Log.d("TimeTableStore", "网络请求获得课表")
                 } else {
                     //从数据库中获得课表
@@ -138,28 +136,23 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
         val subjects = mutableListOf<MySubject>()
         //获得网络请求
         val httpUrlHelper = HttpUrlHelper.HttpRequest()
-            .header("Authorization", "Bearer ${PlanetApplication.accessToken}")
-//            .header("deviceId", TimeTableActivity.getDeviceId(action.context))
+            .header("Authorization", "${PlanetApplication.accessToken}")
             .get(PlanetApplication.ToolIp + "/courses")
-//            .addQueryParam("stuNum", action.getCourse.stuNum)
-//            .addQueryParam("password", action.getCourse.password)
-//            .addQueryParam("week", action.getCourse.week)
-//            .addQueryParam("term", action.getCourse.termId)
-            .addQueryParam("stuNum", "202301160231")
-            .addQueryParam("password", "Cy@20050917")
-            .addQueryParam("week", " ")
-            .addQueryParam("term", "2024-2025-1")
+            .addQueryParam("stuNum", action.getCourse.stuNum)
+            .addQueryParam("password", action.getCourse.password)
+            .addQueryParam("week", "")
+            .addQueryParam("termId", action.getCourse.termId)
             .build()
 
         OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
             override fun onSuccess(response: Response) {
-
+                val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
                 val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
                     response.body?.string(),
-                    MyResponse::class.java
+                    type
                 )
-                when (fromJson.msg) {
-                    "Timetable fetched successfully" -> {
+                when (fromJson.code) {
+                    "200" -> {
                         fromJson.data.forEach {
                             val weeks = parseWeeks(it.weeks).weeks
                             val start = parseWeeks(it.weeks).start
@@ -178,6 +171,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                             )
 
                         }
+                        handleEvent(TimeTableAction.UpdateCourses(subjects))
                     }
                 }
             }
@@ -185,44 +179,55 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
             override fun onFailure(error: String) {}
 
         })
-        handleEvent(TimeTableAction.UpdateCourses(subjects))
+
 
     }
 
     private fun parseWeeks(weekJson: String): weekJsonInfo {
-        val pattern =
-            java.util.regex.Pattern.compile("(\\d+-\\d+)(\\((单周|双周)?\\))?\\[(\\d{2})-(\\d{2})节\\]")
+        // 匹配周数范围、单双周（可选）、以及节次范围
+        val pattern = java.util.regex.Pattern.compile(
+            "(\\d+(?:-\\d+)?)(\\((周|单周|双周)?\\))?\\[(\\d{2})(?:-(\\d{2}))?(?:-(\\d{2}))?(?:-(\\d{2}))?节\\]"
+        )
         val matcher = pattern.matcher(weekJson)
         if (matcher.find()) {
-            val weeksRange = matcher.group(1) ?: null
-            val weekType = matcher.group(3) // 单周、双周或 null（全部周）
-            val startClass = matcher.group(4)?.toIntOrNull()
-            val endClass = matcher.group(5)?.toIntOrNull()
+            val weeksRange = matcher.group(1) // 周数范围，例如 "1-16" 或 "9"
+            val weekType = matcher.group(3)   // "单周"、"双周"、"周"，也可能为 null
+            val startClass = matcher.group(4)?.toIntOrNull() ?: 0 // 起始节次
+            val endClass = matcher.group(7)?.toIntOrNull()
+                ?: matcher.group(6)?.toIntOrNull()
+                ?: matcher.group(5)?.toIntOrNull()
+                ?: startClass // 结束节次，默认等于起始节次
+            val step = endClass - startClass + 1 // 计算 step（持续节次数量）
 
-            val step = try {
-                endClass!! - startClass!! + 1
-            } catch (e: Exception) {
-                return weekJsonInfo(listOf(), 0, 0)
-            }
-
+            // 解析周数列表
             val weeks = try {
-                weeksRange?.let {
-                    val (weekDayFirst, weekDayLast) = it.split("-").map { it.toInt() }
-                    when (weekType) {
-                        "单周" -> (weekDayFirst..weekDayLast).filter { it % 2 != 0 }
-                        "双周" -> (weekDayFirst..weekDayLast).filter { it % 2 == 0 }
-                        else -> (weekDayFirst..weekDayLast).toList()
+                weeksRange?.let { range ->
+                    if (range.contains("-")) {
+                        // 范围周数处理，例如 "1-16"
+                        val (weekStart, weekEnd) = range.split("-").map { it.toInt() }
+                        when (weekType) {
+                            "单周" -> (weekStart..weekEnd).filter { it % 2 != 0 } // 奇数周
+                            "双周" -> (weekStart..weekEnd).filter { it % 2 == 0 } // 偶数周
+                            else -> (weekStart..weekEnd).toList() // 全部周（包括 null 和 "周"）
+                        }
+                    } else {
+                        // 单个周数处理，例如 "9"
+                        listOf(range.toInt())
                     }
-                }
+                } ?: listOf()
             } catch (e: Exception) {
-                return weekJsonInfo(listOf(), 0, 0)
+                listOf() // 异常时返回空列表
             }
+
+            // 返回解析结果
             return weekJsonInfo(weeks, startClass, step)
         }
-        return weekJsonInfo(listOf(), 0, 0)
 
+        // 返回空的结果
+        return weekJsonInfo(listOf(), 0, 0)
     }
 
-    data class weekJsonInfo(val weeks: List<Int>?, val start: Int, val step: Int)
+    // 数据类
+    data class weekJsonInfo(val weeks: List<Int>, val start: Int, val step: Int)
 
 }

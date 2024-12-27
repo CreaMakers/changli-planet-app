@@ -13,18 +13,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
-import com.example.changli_planet_app.Activity.Action.TimeTableAction
 import com.example.changli_planet_app.Activity.Store.TimeTableStore
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.CoursesDataBase
-import com.example.changli_planet_app.MySubject
+import com.example.changli_planet_app.Cache.Room.CoursesDataBase
+import com.example.changli_planet_app.Cache.Room.MySubject
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.SubjectRepertory
 import com.example.changli_planet_app.databinding.ActivityAddCourseInTimetableBinding
-import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
-import com.zhuangfei.timetable.model.Schedule
 import kotlinx.coroutines.launch
 
 class AddCourseActivity : AppCompatActivity() {

@@ -1,8 +1,9 @@
-package com.example.changli_planet_app
+package com.example.changli_planet_app.Cache.Room
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.example.changli_planet_app.Cache.WeeksTypeConverter
 import com.zhuangfei.timetable.model.Schedule
 import com.zhuangfei.timetable.model.ScheduleEnable
 import java.util.Collections.emptyList
