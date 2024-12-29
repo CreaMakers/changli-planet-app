@@ -34,11 +34,16 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
             is TimeTableAction.FetchCourses -> {
                 val cur = System.currentTimeMillis()
                 if (curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
-//                    fetchTimetableFromNetwork(action)
-                    val SimpleData = fetchTimetableFromLocalData(action)
-                    immergeData(SimpleData).subscribe { result ->
-                        handleEvent(TimeTableAction.UpdateCourses(result))
-                    }
+                    fetchTimetableFromNetwork(action)
+                        .map { result ->
+                            (result + curState.subjects).distinctBy { "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}" }
+                                .toMutableList()
+                        }
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            result-> handleEvent(TimeTableAction.UpdateCourses(result))
+                        }
                     Log.d("TimeTableStore", "网络请求获得课表")
                 } else {
                     //从数据库中获得课表
@@ -134,114 +139,58 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
         }
     }
 
-    private fun immergeData(simpleData: MutableList<MySubject>): Single<MutableList<MySubject>> {
-        return courseDao.getAllCourses()
-            .subscribeOn(Schedulers.io())
-            .map { result ->
-                (result + simpleData).distinctBy { "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}" }
-                    .toMutableList()
-            }
-            .observeOn(AndroidSchedulers.mainThread())
-    }
 
 
-    private fun fetchTimetableFromLocalData(action: TimeTableAction.FetchCourses): MutableList<MySubject> {
-        val subjects = mutableListOf<MySubject>()
+    private fun fetchTimetableFromNetwork(action: TimeTableAction.FetchCourses): Single<MutableList<MySubject>> {
+        return Single.create { emitter ->
+            val subjects = mutableListOf<MySubject>()
+            //获得网络请求
+            val httpUrlHelper = HttpUrlHelper.HttpRequest()
+                .header("Authorization", "${PlanetApplication.accessToken}")
+                .get(PlanetApplication.ToolIp + "/courses")
+                .addQueryParam("stuNum", action.getCourse.stuNum)
+                .addQueryParam("password", action.getCourse.password)
+                .addQueryParam("week", action.getCourse.week)
+                .addQueryParam("termId", action.getCourse.termId)
+                .build()
 
-        // 模拟网络传输的数据
-        val subjectsJson = """
-        {
-            "code": "200",
-            "msg": "Courses retrieved successfully.",
-            "data": [
-                {"courseName":"形势与政策（3）","teacher":"李丽红讲师","weeks":"9(周)[01-02-03-04节]","classroom":"金6-209","weekday":"7"},
-                {"courseName":"大学物理B（下）","teacher":"张华林讲师","weeks":"1-16(周)[01-02节]","classroom":"金6-309","weekday":"1"},
-                {"courseName":"软件工程概论","teacher":"胡立辉高级实验师","weeks":"1-13(周)[01-02节]","classroom":"金13-204","weekday":"3"},
-                {"courseName":"马克思主义基本原理","teacher":"唐叶萍副教授","weeks":"1-11(双周)[01-02节]","classroom":"金12-106","weekday":"4"},
-                {"courseName":"英语应用文写作","teacher":"王喜霞讲师","weeks":"1-11(双周)[01-02节]","classroom":"金12-106","weekday":"5"},
-                {"courseName":"离散结构","teacher":"王静实验师","weeks":"1-14(周)[03-04节]","classroom":"金6-407","weekday":"1"},
-                {"courseName":"体育(三) (23计算机飞盘男08)","teacher":"曹绍芳讲师","weeks":"1-15(周)[03-04节]","classroom":"金东田径场1","weekday":"3"},
-                {"courseName":"程序设计、算法与数据结构（三）","teacher":"邓泽林副教授","weeks":"1-12(周)[07-08节]","classroom":"金6-309","weekday":"3"}
-            ]
-        }
-    """.trimIndent()
-
-        // 使用 Gson 解析 JSON 数据
-        val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
-        val fromJson = Gson().fromJson<MyResponse<List<Course>>>(subjectsJson, type)
-
-        // 模拟本地数据解析逻辑
-        if (fromJson.code == "200") {
-            fromJson.data.forEach {
-                val weeks = parseWeeks(it.weeks).weeks
-                val start = parseWeeks(it.weeks).start
-                val step = parseWeeks(it.weeks).step
-
-                subjects.add(
-                    MySubject(
-                        courseName = it.courseName,
-                        classroom = it.classroom,
-                        teacher = it.teacher,
-                        weeks = weeks,
-                        start = start,
-                        step = step,
-                        weekday = it.weekday.toInt()
+            OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
+                override fun onSuccess(response: Response) {
+                    val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
+                    val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
+                        response.body?.string(),
+                        type
                     )
-                )
-            }
-
-        }
-        return subjects
-    }
-
-    private fun fetchTimetableFromNetwork(action: TimeTableAction.FetchCourses) {
-        val subjects = mutableListOf<MySubject>()
-        //获得网络请求
-        val httpUrlHelper = HttpUrlHelper.HttpRequest()
-            .header("Authorization", "${PlanetApplication.accessToken}")
-            .get(PlanetApplication.ToolIp + "/courses")
-            .addQueryParam("stuNum", action.getCourse.stuNum)
-            .addQueryParam("password", action.getCourse.password)
-            .addQueryParam("week", action.getCourse.week)
-            .addQueryParam("termId", action.getCourse.termId)
-            .build()
-
-        OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-
-            override fun onSuccess(response: Response) {
-                val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
-                val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
-                    response.body?.string(),
-                    type
-                )
-                when (fromJson.code) {
-                    "200" -> {
-                        fromJson.data.forEach {
-                            val weeks = parseWeeks(it.weeks).weeks
-                            val start = parseWeeks(it.weeks).start
-                            val step = parseWeeks(it.weeks).step
-                            subjects.add(
-                                MySubject(
-                                    courseName = it.courseName,
-                                    classroom = it.classroom,
-                                    teacher = it.teacher,
-                                    weeks = weeks,
-                                    start = start,
-                                    step = step,
-                                    weekday = it.weekday.toInt(),
+                    when (fromJson.code) {
+                        "200" -> {
+                            fromJson.data.forEach {
+                                val weeks = parseWeeks(it.weeks).weeks
+                                val start = parseWeeks(it.weeks).start
+                                val step = parseWeeks(it.weeks).step
+                                subjects.add(
+                                    MySubject(
+                                        courseName = it.courseName,
+                                        classroom = it.classroom,
+                                        teacher = it.teacher,
+                                        weeks = weeks,
+                                        start = start,
+                                        step = step,
+                                        weekday = it.weekday.toInt(),
+                                    )
                                 )
-                            )
+
+                            }
+                            emitter.onSuccess(subjects)
 
                         }
-                        handleEvent(TimeTableAction.UpdateCourses(subjects))
                     }
                 }
-            }
 
-            override fun onFailure(error: String) {}
-
-        })
-
+                override fun onFailure(error: String) {
+                    emitter.onError(Throwable(error))
+                }
+            })
+        }
 
     }
 
