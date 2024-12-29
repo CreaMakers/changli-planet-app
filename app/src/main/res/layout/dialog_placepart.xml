@@ -28,4 +28,5 @@
         android:layout_height="wrap_content"
         android:text="金东田径场1"
         android:textSize="16sp" />
+
 </LinearLayout>

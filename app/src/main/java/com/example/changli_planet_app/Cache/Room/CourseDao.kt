@@ -17,14 +17,11 @@ interface CourseDao {
     fun getAllCourses(): Single<MutableList<MySubject>>
 
     // 插入单个课程
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCourse(subject: MySubject): Completable
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertCourse(subject: MySubject): Long
 
     // 批量插入课程
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCourses(subjects: MutableList<MySubject>): Completable
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertCourses(subjects: MutableList<MySubject>):List<Long>
 
-    // 更新多个课程
-    @Update
-    fun updateCourses(subjects: MutableList<MySubject>): Completable
 }

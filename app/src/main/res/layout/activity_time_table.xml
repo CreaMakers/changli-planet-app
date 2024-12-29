@@ -93,13 +93,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 周视图 -->
-    <com.zhuangfei.timetable.view.WeekView
-        android:id="@+id/weekView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <!-- 课表视图 -->
     <com.zhuangfei.timetable.TimetableView
         android:id="@+id/timetableView"
         android:layout_width="match_parent"

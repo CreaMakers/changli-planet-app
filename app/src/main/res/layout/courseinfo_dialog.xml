@@ -46,6 +46,10 @@
 
         <include
             android:id="@+id/dialog_placepart"
-            layout="@layout/dialog_placepart" />
+            layout="@layout/dialog_placepart"
+            />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -12,7 +12,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#76CEBE">
+        android:background="#93DAED">
 
         <ImageButton
             android:id="@+id/backBtn"
@@ -148,7 +148,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="50dp"
         android:layout_marginTop="25dp"
-        android:backgroundTint="#76CEBE"
+        android:backgroundTint="#93DAED"
         android:text="保存"
         app:cornerRadius="15dp" />
 

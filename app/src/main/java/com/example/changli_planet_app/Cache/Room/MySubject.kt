@@ -1,20 +1,19 @@
 package com.example.changli_planet_app.Cache.Room
 import androidx.room.Entity
 import androidx.room.Ignore
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.example.changli_planet_app.Cache.WeeksTypeConverter
 import com.zhuangfei.timetable.model.Schedule
 import com.zhuangfei.timetable.model.ScheduleEnable
-import java.util.Collections.emptyList
 
-/**
- * 自定义实体类需要实现 ScheduleEnable 接口并实现 getSchedule()
- */
 
-@Entity(tableName = "courses")
+@Entity(
+    tableName = "courses",
+    indices = [Index(value = ["courseName", "classroom", "teacher", "start", "step", "weekday"], unique = true)]
+)
 data class MySubject(
-    var term: String = "",
     var courseName: String = "",
     var classroom: String = "",
     var teacher: String = "",
@@ -23,15 +22,16 @@ data class MySubject(
     var start: Int = 0,
     var step: Int = 0,
     var weekday: Int = 0,
-    var colorRandom: Int = 0,
-    var time: String = ""
-) : ScheduleEnable {
-
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    var id: Int = 0 // 主键放入主构造函数
+) : ScheduleEnable {
+    @Ignore
+    var term: String = ""
+    @Ignore
+    var colorRandom: Int = 0 // 非持久化字段
 
     @Ignore
-    constructor() : this("", "", "", "", emptyList(), 0, 0, 0, 0, "")
+    var time: String = "" // 非持久化字段
 
     override fun getSchedule(): Schedule {
         return Schedule().apply {
@@ -43,9 +43,6 @@ data class MySubject(
             teacher = this@MySubject.teacher
             weekList = this@MySubject.weeks
             colorRandom = 0
-
         }
-
     }
-
 }
