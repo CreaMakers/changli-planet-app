@@ -10,4 +10,5 @@ sealed class TimeTableAction {
     data class AddCourse(val subject: MySubject) : TimeTableAction()
     data class selectWeek(val weekInfo: String) : TimeTableAction()
     data class selectTerm(val term: String) : TimeTableAction()
+    data class DeleteCourse(val day: Int, val start: Int, val curDisplayWeek: Int) : TimeTableAction()
 }

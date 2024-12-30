@@ -47,21 +47,15 @@ android {
 }
 dependencies {
 
-    implementation(files("libs/develocity-gradle-plugin-3.17.6.jar"))
     // Material Design
     implementation("com.google.android.material:material:1.11.0")
     // Blurry库
-
     implementation(files("libs/blurry-4.0.1.aar"))
-
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    //RxJava
     implementation("io.reactivex.rxjava3:rxjava:3.1.9")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
-    // Room RxJava3 兼容库
-    // Room RxJava3 兼容库
-    // 引用本地 .aar 文件
     implementation(files("libs/room-rxjava3.aar"))
-    implementation(files("libs/rxjava3-bridge.jar"))  // 本地 .jar 文件
+    implementation(files("libs/rxjava3-bridge.jar"))
     //Lottie
     implementation("com.airbnb.android:lottie:6.6.0")
     //Glide
@@ -72,6 +66,7 @@ dependencies {
     implementation("io.github.dnspod:httpdns-sdk:4.9.1")
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     // EventBus
     implementation("org.greenrobot:eventbus:3.3.1")
     // Gson
@@ -82,6 +77,7 @@ dependencies {
     implementation("androidx.room:room-runtime:2.5.2")
     kapt("androidx.room:room-compiler:2.5.2")
     // Kotlin 扩展
+    implementation(files("libs/develocity-gradle-plugin-3.17.6.jar"))
     implementation("androidx.room:room-ktx:2.5.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

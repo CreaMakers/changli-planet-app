@@ -13,14 +13,14 @@ import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-
 import okhttp3.Response
+
 
 class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, TimeTableAction>() {
     companion object {
@@ -41,8 +41,8 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                         }
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe {
-                            result-> handleEvent(TimeTableAction.UpdateCourses(result))
+                        .subscribe { result ->
+                            handleEvent(TimeTableAction.UpdateCourses(result))
                         }
                     Log.d("TimeTableStore", "网络请求获得课表")
                 } else {
@@ -136,9 +136,26 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
 //                    )
 //                )
             }
+
+            is TimeTableAction.DeleteCourse -> {
+                curState = curState.copy(
+                    subjects = curState.subjects.filterNot {
+                        it.start == action.start && it.weekday == action.day && action.curDisplayWeek in (it.weeks
+                            ?: emptyList()) && it.isCustom
+                    }.toMutableList()
+                )
+                Completable.fromAction {
+                    courseDao.clearAllCourses()
+                    courseDao.insertCourses(curState.subjects)
+                }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        _state.onNext(curState)
+                    }
+            }
         }
     }
-
 
 
     private fun fetchTimetableFromNetwork(action: TimeTableAction.FetchCourses): Single<MutableList<MySubject>> {

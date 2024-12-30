@@ -38,6 +38,7 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.TimetableWheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.zhuangfei.timetable.TimetableView
@@ -347,9 +348,17 @@ class TimeTableActivity : AppCompatActivity() {
 
     fun TimetableView.longClickToDeleteCourse() {
         timetableView.callback(object : OnItemLongClickAdapter() {
-
-            override fun onLongClick(v: View?, day: Int, start: Int) {
-
+            override fun onLongClick(v: View, day: Int, start: Int) {
+                val snackbar = Snackbar.make(v, "删除自定义课程", Snackbar.LENGTH_SHORT)
+                snackbar.setAction("确定") {
+                    timeTableStore.dispatch(TimeTableAction.DeleteCourse(day, start,curDisplayWeek))
+                }
+                val params = snackbar.view.layoutParams as ViewGroup.MarginLayoutParams
+                params.bottomMargin = resources.displayMetrics.heightPixels / 7
+                params.width = resources.displayMetrics.widthPixels / 3 * 2
+                params.leftMargin = resources.displayMetrics.widthPixels / 4
+                snackbar.view.layoutParams = params
+                snackbar.show()
             }
         })
     }
