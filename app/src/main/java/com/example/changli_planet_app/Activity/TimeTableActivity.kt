@@ -1,11 +1,8 @@
 package com.example.changli_planet_app.Activity
 
-import java.lang.reflect.Type
-import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.GestureDetector
@@ -15,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
-import android.widget.RelativeLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -29,7 +25,7 @@ import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.Cache.Room.MySubject
-import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.TimetableWheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
@@ -37,7 +33,6 @@ import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.zhuangfei.timetable.TimetableView
-import com.zhuangfei.timetable.listener.ISchedule
 import com.zhuangfei.timetable.listener.OnFlaglayoutClickAdapter
 import com.zhuangfei.timetable.listener.OnItemBuildAdapter
 import com.zhuangfei.timetable.listener.OnItemClickAdapter
@@ -85,8 +80,8 @@ class TimeTableActivity : AppCompatActivity() {
         "第20周"
     )
     lateinit var subjects: MutableList<MySubject>
-    private val studentId by lazy { UserInfoManager.studentId }
-    private val studentPassword by lazy { UserInfoManager.studentPassword }
+    private val studentId by lazy { StudentInfoManager.studentId }
+    private val studentPassword by lazy { StudentInfoManager.studentPassword }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

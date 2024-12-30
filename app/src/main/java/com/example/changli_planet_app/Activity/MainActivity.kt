@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Fragment.FeatureFragment
 import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Fragment.IMFragment
@@ -113,7 +114,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         logoutButton.setOnClickListener {
-            // 处理退出登录点击
+            UserInfoManager.clear()
+            Route.goLogin(this@MainActivity)
+            finish()
         }
     }
 

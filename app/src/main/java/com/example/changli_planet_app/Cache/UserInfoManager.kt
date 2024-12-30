@@ -5,18 +5,30 @@ import com.tencent.mmkv.MMKV
 object UserInfoManager {
     private val mmkv by lazy { MMKV.defaultMMKV() }
 
-    private const val KEY_STUDENT_ID = "student_id"
-    private const val KEY_PASSWORD = "student_password"
+    private const val KEY_USERNAME = "account"
+    private const val KEY_USER_PASSWORD = "user_password"
+    private const val KEY_TOKEN = "user_token"
 
-    var studentId: String
-        get() = mmkv.getString(KEY_STUDENT_ID, "") ?: ""
+    var username: String
+        get() = mmkv.getString(KEY_USERNAME, "") ?: ""
         set(value) {
-            mmkv.putString(KEY_STUDENT_ID, value)
+            mmkv.putString(KEY_USERNAME, value)
         }
 
-    var studentPassword: String
-        get() = mmkv.getString(KEY_PASSWORD, "") ?: ""
+    var userPassword: String
+        get() = mmkv.getString(KEY_USER_PASSWORD, "") ?: ""
         set(value) {
-            mmkv.putString(KEY_PASSWORD, value)
+            mmkv.putString(KEY_USER_PASSWORD, value)
         }
+
+    var token: String
+        get() = mmkv.getString(KEY_TOKEN, "") ?: ""
+        set(value) {
+            mmkv.putString(KEY_TOKEN, value)
+        }
+    fun clear() {
+        username = ""
+        userPassword = ""
+        token = ""
+    }
 }

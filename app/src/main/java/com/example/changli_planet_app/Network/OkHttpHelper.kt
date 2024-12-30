@@ -23,6 +23,7 @@ import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
 object OkHttpHelper {
+
     //懒加载OkhttpClient
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()

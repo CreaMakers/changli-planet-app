@@ -1,48 +1,27 @@
 package com.example.changli_planet_app.Activity
 
-import android.content.Context
 import android.graphics.Color
-import android.graphics.PixelFormat
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.Gravity
 import android.view.View
-import android.view.WindowManager
-import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Activity.Action.ExamInquiryAction
 import com.example.changli_planet_app.Activity.Store.ExamArrangementStore
 import com.example.changli_planet_app.Adapter.ExamArrangementAdapter
-import com.example.changli_planet_app.Adapter.ExamScoreAdapter
 import com.example.changli_planet_app.Cache.ExamArrangementCache
-import com.example.changli_planet_app.Cache.ScoreCache
-import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.Exam
-import com.example.changli_planet_app.Data.jsonbean.ExamScore
 import com.example.changli_planet_app.Network.Response.ExamArrangement
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.ExamChosenDialog
 import com.example.changli_planet_app.databinding.ActivityExamArrangementBinding
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 import java.util.Calendar
 
 class ExamArrangementActivity : AppCompatActivity() {
@@ -54,8 +33,8 @@ class ExamArrangementActivity : AppCompatActivity() {
     private var examList: MutableList<Exam> = mutableListOf()
     private val cache by lazy { ExamArrangementCache(this) }
 
-    private val studentId by lazy { UserInfoManager.studentId }
-    private val studentPassword by lazy { UserInfoManager.studentPassword }
+    private val studentId by lazy { StudentInfoManager.studentId }
+    private val studentPassword by lazy { StudentInfoManager.studentPassword }
 
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE

@@ -8,6 +8,7 @@ import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
 import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.State.LoginAndRegisterState
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.Store
@@ -20,6 +21,10 @@ import com.example.changli_planet_app.UI.LoginInformationDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.Util.EventBusHelper
 import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import okhttp3.Dispatcher
 import okhttp3.Response
 
 class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterAction>() {
@@ -32,6 +37,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                 _state.onNext(currentState)
                 currentState
             }
+
             is LoginAndRegisterAction.input -> {
                 if (action.type == "account") {
                     currentState.account = action.content
@@ -63,19 +69,17 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                         )
                         when (fromJson.msg) {
                             "用户登录成功" -> {
-                                mmkv.encode("account", "${action.userPassword.username}")
-                                mmkv.encode("password", "${action.userPassword.password}")
-                                mmkv.encode("token", "${PlanetApplication.accessToken}")
+                                UserInfoManager.username = action.userPassword.username
+                                UserInfoManager.userPassword = action.userPassword.password
+                                UserInfoManager.token = response.header("Authorization", "") ?: ""
                                 handler.post {
                                     Route.goHome(action.context)
                                     EventBusHelper.post(FinishEvent("Login"))
                                 }
                             }
-
                             else -> {
                                 handler.post {
-                                    var loginInformationDialog =
-                                        LoginInformationDialog(action.context, fromJson.msg).show()
+                                    LoginInformationDialog(action.context, fromJson.msg,"登陆失败").show()
                                 }
                             }
                         }
@@ -88,7 +92,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
 
             is LoginAndRegisterAction.Register -> {
                 val builder = HttpUrlHelper.HttpRequest()
-                    .post(PlanetApplication.UserIp)
+                    .post(PlanetApplication.UserIp + "/register")
                     .body(OkHttpHelper.gson.toJson(action.userPassword))
                     .build()
                 OkHttpHelper.sendRequest(builder, object : RequestCallback {
@@ -104,8 +108,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                             }
                         } else {
                             handler.post {
-                                var loginInformationDialog =
-                                    LoginInformationDialog(action.context, fromJson.msg).show()
+                                LoginInformationDialog(action.context, fromJson.msg, "注册失败").show()
                             }
                         }
                     }

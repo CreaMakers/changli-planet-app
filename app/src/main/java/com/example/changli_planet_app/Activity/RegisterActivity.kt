@@ -1,4 +1,5 @@
 package com.example.changli_planet_app.Activity
+
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -35,8 +36,8 @@ import okhttp3.Response
 import org.greenrobot.eventbus.Subscribe
 
 class RegisterActivity : AppCompatActivity() {
-    lateinit var binding : ActivityRegisterBinding
-    val register:TextView by lazy { binding.register }
+    lateinit var binding: ActivityRegisterBinding
+    val register: TextView by lazy { binding.register }
     val route: TextView by lazy { binding.routes }
     val account: EditText by lazy { binding.account }
     val mmkv = MMKV.defaultMMKV()
@@ -53,10 +54,10 @@ class RegisterActivity : AppCompatActivity() {
             insets
         }
         store.state()
-            .subscribe{state->
-                if (!state.isEnable){
+            .subscribe { state ->
+                if (!state.isEnable) {
                     register.setBackgroundColor(Color.parseColor("#8E959F"))
-                }else{
+                } else {
                     register.setBackgroundResource(R.drawable.enable_button)
                 }
             }
@@ -64,35 +65,53 @@ class RegisterActivity : AppCompatActivity() {
         setUnderLine()
         // 定义TextWatcher，用于监听account和password EditText内容变化
         val accountTextWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {store.dispatch(LoginAndRegisterAction.input(account.text.toString(),"account"))}
+            override fun afterTextChanged(s: Editable?) {
+                store.dispatch(LoginAndRegisterAction.input(account.text.toString(), "account"))
+            }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
         val passwordTextWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {store.dispatch(LoginAndRegisterAction.input(password.text.toString(),"password"))}
+            override fun afterTextChanged(s: Editable?) {
+                store.dispatch(LoginAndRegisterAction.input(password.text.toString(), "password"))
+            }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
-        register.setOnClickListener{store.dispatch(
-            LoginAndRegisterAction.Login
-            (UserPassword(account.text.toString(),password.text.toString()),
-            this))
+        register.setOnClickListener {
+            store.dispatch(
+                LoginAndRegisterAction.Login
+                    (
+                    UserPassword(account.text.toString(), password.text.toString()),
+                    this
+                )
+            )
         }
         account.addTextChangedListener(accountTextWatcher)
         password.addTextChangedListener(passwordTextWatcher)
         inputFilter(account)
         inputFilter(password)
-        register.setOnClickListener{store.dispatch(LoginAndRegisterAction.Register
-            (UserPassword(account.text.toString(),password.text.toString()),
-            this))}
+        register.setOnClickListener {
+            store.dispatch(
+                LoginAndRegisterAction.Register
+                    (
+                    UserPassword(account.text.toString(), password.text.toString()),
+                    this
+                )
+            )
+        }
     }
-    private fun setUnderLine(){
+
+    private fun setUnderLine() {
         var underlinetext = SpannableString(route.text.toString())
-        underlinetext.setSpan(UnderlineSpan(),6,8,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        underlinetext.setSpan(UnderlineSpan(), 6, 8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         route.text = underlinetext
-        route.setOnClickListener{ Route.goRegister(this)}
+        route.setOnClickListener { Route.goRegister(this) }
     }
-    private fun inputFilter(editText: EditText){
+
+    private fun inputFilter(editText: EditText) {
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
             // 允许的字符是英文字母和数字
             val regex = Regex("^[a-zA-Z0-9]*$")
@@ -101,9 +120,10 @@ class RegisterActivity : AppCompatActivity() {
         }
         editText.filters = arrayOf(inputFilter)
     }
+
     @Subscribe
-    fun onFinish(finishEvent: FinishEvent){
-        if(finishEvent.name=="Register"){
+    fun onFinish(finishEvent: FinishEvent) {
+        if (finishEvent.name == "Register") {
             finish()
         }
     }

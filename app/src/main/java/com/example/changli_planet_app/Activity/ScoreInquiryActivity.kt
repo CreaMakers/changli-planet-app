@@ -1,12 +1,10 @@
 package com.example.changli_planet_app.Activity
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +16,7 @@ import com.example.changli_planet_app.Activity.Action.ScoreInquiryAction
 import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
 import com.example.changli_planet_app.Adapter.ExamScoreAdapter
 import com.example.changli_planet_app.Cache.ScoreCache
-import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.model.CourseScore
 import com.example.changli_planet_app.Data.model.SemesterGroup
@@ -45,8 +43,8 @@ class ScoreInquiryActivity : AppCompatActivity() {
         binding.ScoreRecyclerView.visibility = View.VISIBLE
     }
 
-    private val studentId by lazy { UserInfoManager.studentId }
-    private val studentPassword by lazy { UserInfoManager.studentPassword }
+    private val studentId by lazy { StudentInfoManager.studentId }
+    private val studentPassword by lazy { StudentInfoManager.studentPassword }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

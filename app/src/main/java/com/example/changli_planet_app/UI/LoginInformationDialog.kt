@@ -7,9 +7,10 @@ import android.view.View
 import android.widget.TextView
 import com.example.changli_planet_app.R
 
-class LoginInformationDialog(context: Context,val content:String):Dialog(context) {
-    lateinit var yes : TextView
-    lateinit var contents : TextView
+class LoginInformationDialog(context: Context, val content: String, val type: String) : Dialog(context) {
+    lateinit var yes: TextView
+    lateinit var contents: TextView
+    lateinit var fade : TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_dialog)
@@ -17,7 +18,9 @@ class LoginInformationDialog(context: Context,val content:String):Dialog(context
         contents.text = content
         yes = findViewById(R.id.yes)
         yes.setOnClickListener {
-                dismiss()
-            }
+            dismiss()
         }
+        fade = findViewById(R.id.fade)
+        fade.text = type
     }
+}

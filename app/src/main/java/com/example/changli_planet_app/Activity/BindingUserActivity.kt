@@ -1,11 +1,8 @@
 package com.example.changli_planet_app.Activity
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
-import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -14,11 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityBindingUserBinding
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.snackbar.Snackbar
 
 class BindingUserActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBindingUserBinding
@@ -49,8 +45,8 @@ class BindingUserActivity : AppCompatActivity() {
             showMessage("学号和密码不能为空")
             return
         }
-        UserInfoManager.studentId = studentId
-        UserInfoManager.studentPassword = studentPassword
+        StudentInfoManager.studentId = studentId
+        StudentInfoManager.studentPassword = studentPassword
         showMessage("学号和密码保存成功！")
         finish()
     }
