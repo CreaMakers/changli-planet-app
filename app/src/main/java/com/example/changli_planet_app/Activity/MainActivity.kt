@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     // 退出登录按钮
     private val logoutButton: MaterialButton by lazy { binding.logoutButton }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

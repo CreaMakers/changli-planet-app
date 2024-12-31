@@ -56,12 +56,15 @@ class RegisterActivity : AppCompatActivity() {
         store.state()
             .subscribe { state ->
                 if (!state.isEnable) {
-                    register.setBackgroundColor(Color.parseColor("#8E959F"))
+                    register.isEnabled = state.isEnable
+                    register.setBackgroundResource(R.drawable.disable_button)
                 } else {
+                    register.isEnabled = state.isEnable
                     register.setBackgroundResource(R.drawable.enable_button)
                 }
             }
         store.dispatch(LoginAndRegisterAction.initilaize)
+        store.dispatch(LoginAndRegisterAction.input("checked", "checkbox"))
         setUnderLine()
         // 定义TextWatcher，用于监听account和password EditText内容变化
         val accountTextWatcher = object : TextWatcher {

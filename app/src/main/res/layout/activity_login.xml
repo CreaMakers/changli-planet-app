@@ -59,29 +59,29 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/login_edit_shape"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/account"
         app:layout_constraintVertical_bias="0.1"
-        android:orientation="horizontal"
         app:layout_constraintWidth_percent="0.8">
 
         <ImageView
             android:id="@+id/iv_eye"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:clickable="true"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginLeft="5sp"
+            android:layout_weight="1"
+            android:clickable="true"
             android:src="@drawable/line_invisible2" />
 
         <EditText
             android:id="@+id/password"
             android:layout_width="0dp"
-            android:layout_weight="10"
             android:layout_height="40dp"
+            android:layout_weight="10"
             android:background="@drawable/login_edit_shape"
             android:gravity="center"
             android:hint="请输入密码"
@@ -90,16 +90,51 @@
         <ImageView
             android:id="@+id/iv_ox"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:clickable="true"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginRight="5sp"
+            android:layout_weight="1"
+            android:clickable="true"
             android:src="@drawable/dialog_login" />
 
     </LinearLayout>
 
 
+    <LinearLayout
+        android:id="@+id/agreement_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.341"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/password_content"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintWidth_percent="0.8">
+
+        <CheckBox
+            android:id="@+id/agreement_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/agreement_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="我已阅读并同意"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/agreement_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="《长理星球用户协议》"
+            android:textColor="@color/primary_blue"
+            android:textSize="14sp" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/login"
@@ -114,7 +149,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password_content"
-        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintVertical_bias="0.162"
         app:layout_constraintWidth_percent="0.8" />
 
     <ImageView
@@ -137,5 +172,7 @@
         android:textColor="@color/primary_blue"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/regicremaker" />
+        app:layout_constraintTop_toBottomOf="@id/regicremaker"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="0dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,5 +5,6 @@ data class LoginAndRegisterState(
     var password: String = "",
     var isVisibilityPassword: Boolean = false,
     var isClearPassword: Boolean = false,
-    var isEnable: Boolean = false
+    var isEnable: Boolean = false,
+    var isCheck: Boolean = false
 )

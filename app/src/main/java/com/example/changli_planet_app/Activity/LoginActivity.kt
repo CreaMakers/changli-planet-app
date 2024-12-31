@@ -11,7 +11,9 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.view.MotionEvent
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -32,12 +34,14 @@ import org.greenrobot.eventbus.Subscribe
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
-    val Login: TextView by lazy { binding.login }
-    val route: TextView by lazy { binding.route }
-    val account: EditText by lazy { binding.account }
-    val password: EditText by lazy { binding.password }
-    val iVEye: ImageView by lazy { binding.ivEye }
-    val ivOx: ImageView by lazy { binding.ivOx }
+    private val Login: TextView by lazy { binding.login }
+    private val route: TextView by lazy { binding.route }
+    private val account: EditText by lazy { binding.account }
+    private val password: EditText by lazy { binding.password }
+    private val iVEye: ImageView by lazy { binding.ivEye }
+    private val ivOx: ImageView by lazy { binding.ivOx }
+    private val agreementCheckBox: CheckBox by lazy { binding.agreementCheckbox }
+
     val store = LoginAndRegisterStore()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +80,7 @@ class LoginActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
+
         Login.setOnClickListener {
             store.dispatch(
                 LoginAndRegisterAction.Login
@@ -95,6 +100,14 @@ class LoginActivity : AppCompatActivity() {
         }
         account.addTextChangedListener(accountTextWatcher)
         password.addTextChangedListener(passwordTextWatcher)
+        agreementCheckBox.setOnCheckedChangeListener { _ , isChecked ->
+            if (isChecked) {
+                store.dispatch(LoginAndRegisterAction.input("checked", "checkbox"))
+            } else {
+                store.dispatch(LoginAndRegisterAction.input("unchecked", "checkbox"))
+            }
+
+        }
         inputFilter(account)
         inputFilter(password)
     }
@@ -121,10 +134,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun updateButtonState(isEnable: Boolean) {
-        if (!isEnable) {
-            Login.setBackgroundColor(Color.parseColor("#8E959F"))
-        } else {
+        Login.isEnabled = isEnable
+        if (isEnable) {
             Login.setBackgroundResource(R.drawable.enable_button)
+        } else {
+            Login.setBackgroundResource(R.drawable.disable_button)
         }
     }
 

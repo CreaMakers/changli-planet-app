@@ -41,8 +41,10 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
             is LoginAndRegisterAction.input -> {
                 if (action.type == "account") {
                     currentState.account = action.content
-                } else {
+                } else if (action.type == "password") {
                     currentState.password = action.content
+                } else {
+                    currentState.isCheck = action.content.equals("checked")
                 }
                 if (!currentState.isEnable && checkEnable()) {
                     currentState.isEnable = true
@@ -77,9 +79,14 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                                     EventBusHelper.post(FinishEvent("Login"))
                                 }
                             }
+
                             else -> {
                                 handler.post {
-                                    LoginInformationDialog(action.context, fromJson.msg,"登陆失败").show()
+                                    LoginInformationDialog(
+                                        action.context,
+                                        fromJson.msg,
+                                        "登陆失败"
+                                    ).show()
                                 }
                             }
                         }
@@ -108,7 +115,11 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                             }
                         } else {
                             handler.post {
-                                LoginInformationDialog(action.context, fromJson.msg, "注册失败").show()
+                                LoginInformationDialog(
+                                    action.context,
+                                    fromJson.msg,
+                                    "注册失败"
+                                ).show()
                             }
                         }
                     }
@@ -127,6 +138,6 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
     }
 
     private fun checkEnable(): Boolean {
-        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty()
+        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty() && currentState.isCheck
     }
 }
