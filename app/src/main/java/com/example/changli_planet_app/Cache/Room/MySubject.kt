@@ -1,4 +1,5 @@
 package com.example.changli_planet_app.Cache.Room
+
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.Index
@@ -11,7 +12,10 @@ import com.zhuangfei.timetable.model.ScheduleEnable
 
 @Entity(
     tableName = "courses",
-    indices = [Index(value = ["courseName", "classroom", "teacher", "start", "step", "weekday"], unique = true)]
+    indices = [Index(
+        value = ["courseName", "classroom", "teacher", "start", "step", "weekday"],
+        unique = true
+    )]
 )
 data class MySubject(
     var courseName: String = "",
@@ -23,10 +27,15 @@ data class MySubject(
     var step: Int = 0,
     var weekday: Int = 0,
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0 // 主键放入主构造函数
+    var id: Int = 0, // 主键放入主构造函数
+    val isCustom: Boolean = false
 ) : ScheduleEnable {
     @Ignore
+    constructor() :this("")
+
+    @Ignore
     var term: String = ""
+
     @Ignore
     var colorRandom: Int = 0 // 非持久化字段
 

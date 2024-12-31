@@ -1,6 +1,7 @@
 package com.example.changli_planet_app.Activity
 
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.TextUtils
@@ -14,9 +15,11 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.Activity.Action.TimeTableAction
@@ -26,10 +29,13 @@ import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.Cache.Room.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.TimetableWheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.zhuangfei.timetable.TimetableView
@@ -91,6 +97,12 @@ class TimeTableActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+        if (studentId.isEmpty() || studentPassword.isEmpty()) {
+            showMessage("请先绑定学号和密码")
+            Route.goBindingUser(this)
+            finish()
+            return
         }
         dataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
         // 初始化 TimetableView
@@ -332,9 +344,17 @@ class TimeTableActivity : AppCompatActivity() {
 
     fun TimetableView.longClickToDeleteCourse() {
         timetableView.callback(object : OnItemLongClickAdapter() {
-
-            override fun onLongClick(v: View?, day: Int, start: Int) {
-
+            override fun onLongClick(v: View, day: Int, start: Int) {
+                val snackbar = Snackbar.make(v, "删除自定义课程", Snackbar.LENGTH_SHORT)
+                snackbar.setAction("确定") {
+                    timeTableStore.dispatch(TimeTableAction.DeleteCourse(day, start,curDisplayWeek))
+                }
+                val params = snackbar.view.layoutParams as ViewGroup.MarginLayoutParams
+                params.bottomMargin = resources.displayMetrics.heightPixels / 7
+                params.width = resources.displayMetrics.widthPixels / 3 * 2
+                params.leftMargin = resources.displayMetrics.widthPixels / 4
+                snackbar.view.layoutParams = params
+                snackbar.show()
             }
         })
     }
@@ -432,6 +452,27 @@ class TimeTableActivity : AppCompatActivity() {
         val matchResult = regex.find(weekString)
         return matchResult?.value?.toInt() ?: 0
     }
+    private fun showMessage(message: String) {
+        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).apply {
+            val cardView = CardView(applicationContext).apply {
+                radius = 25f
+                cardElevation = 8f
+                setCardBackgroundColor(getColor(R.color.score_bar))
+                useCompatPadding = true
+            }
 
+            val textView = TextView(applicationContext).apply {
+                text = message
+                textSize = 17f
+                setTextColor(Color.BLACK)
+                gravity = Gravity.CENTER
+                setPadding(80, 40, 80, 40)
+            }
+            cardView.addView(textView)
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 140)
+            view = cardView
+            show()
+        }
+    }
 
 }

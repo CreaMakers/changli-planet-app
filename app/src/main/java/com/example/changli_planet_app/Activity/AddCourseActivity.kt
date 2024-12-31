@@ -148,7 +148,7 @@ class AddCourseActivity : AppCompatActivity() {
 
 
         binding.addCourseBtn.setOnClickListener {
-            val mySubject = MySubject()
+            val mySubject = MySubject(isCustom = true)
 
             if (courseName.text.isNotEmpty()) {
                 mySubject.courseName = courseName.text.toString()
