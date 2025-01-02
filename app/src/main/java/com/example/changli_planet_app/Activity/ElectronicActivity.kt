@@ -59,14 +59,14 @@ class ElectronicActivity : AppCompatActivity() {
                 dor.text = state.buildId
                 if(state.isElec){
                     if (viewstub.parent==null){
-                        val td = viewstub.parent as View
-                        val text = td.findViewById<TextView>(R.id.tv_result)
+                        val text =  findViewById<TextView>(R.id.tv_result)
                         text.text = state.elec
                     }else{
                         val td = viewstub.inflate() as View
                         val text = td.findViewById<TextView>(R.id.tv_result)
                         text.text = state.elec
                     }
+                    state.isElec = false
                 }
             }
         dor.setOnClickListener{ClickWheel(dorList)}
