@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity() {
 
         accountSecurity.setOnClickListener {
             // 处理账号安全点击
+            Route.goAccountSecurity(this)
         }
 
         clearCache.setOnClickListener {

@@ -43,13 +43,21 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                     currentState.account = action.content
                 } else if (action.type == "password") {
                     currentState.password = action.content
-                } else {
-                    currentState.isCheck = action.content.equals("checked")
+
+                    currentState.isLengthValid = action.content.length >= 8
+
+                    currentState.hasUpperAndLower = action.content.matches(".*[A-Z].*".toRegex()) &&
+                            action.content.matches(".*[a-z].*".toRegex())
+
+                    currentState.hasNumberAndSpecial =
+                        action.content.matches(".*[0-9].*".toRegex()) &&
+                                action.content.matches(".*[^A-Za-z0-9].*".toRegex())
+
                 }
                 if (!currentState.isEnable && checkEnable()) {
                     currentState.isEnable = true
                 }
-                currentState.isClearPassword = currentState.password.isNotEmpty()
+
                 if (!checkEnable()) {
                     currentState.isEnable = false
                 }
@@ -73,7 +81,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                             "用户登录成功" -> {
                                 UserInfoManager.username = action.userPassword.username
                                 UserInfoManager.userPassword = action.userPassword.password
-                                UserInfoManager.token = response.header("Authorization", "") ?: ""
+                                PlanetApplication.accessToken = response.header("Authorization", "") ?: ""
                                 handler.post {
                                     Route.goHome(action.context)
                                     EventBusHelper.post(FinishEvent("Login"))
@@ -134,10 +142,34 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                 _state.onNext(currentState)
                 currentState
             }
+
+            is LoginAndRegisterAction.InputLogin -> {
+                if (action.type == "account") {
+                    currentState.account = action.content
+                } else if (action.type == "password") {
+                    currentState.password = action.content
+                } else {
+                    currentState.isCheck = action.content.equals("checked")
+                }
+
+                if (!currentState.isEnable && checkLoginEnable()) {
+                    currentState.isEnable = true
+                }
+                currentState.isClearPassword = currentState.password.isNotEmpty()
+                if (!checkLoginEnable()) {
+                    currentState.isEnable = false
+                }
+                _state.onNext(currentState)
+                currentState
+            }
         }
     }
 
     private fun checkEnable(): Boolean {
+        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty() && currentState.isLengthValid && currentState.hasUpperAndLower && currentState.hasNumberAndSpecial
+    }
+
+    private fun checkLoginEnable(): Boolean {
         return currentState.account.isNotEmpty() && currentState.password.isNotEmpty() && currentState.isCheck
     }
 }

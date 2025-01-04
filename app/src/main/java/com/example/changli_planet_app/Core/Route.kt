@@ -2,6 +2,7 @@ package com.example.changli_planet_app.Core
 
 import android.content.Context
 import android.content.Intent
+import com.example.changli_planet_app.Activity.AccountSecurityActivity
 import com.example.changli_planet_app.Activity.BindingUserActivity
 import com.example.changli_planet_app.Activity.CetActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
@@ -72,6 +73,11 @@ object Route {
 
     fun goBindingUser(context: Context) {
         val intent = Intent(context, BindingUserActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goAccountSecurity(context: Context) {
+        val intent = Intent(context, AccountSecurityActivity::class.java)
         context.startActivity(intent)
     }
 }

@@ -24,6 +24,39 @@ import java.util.concurrent.TimeUnit
 
 object OkHttpHelper {
 
+    class AuthInterceptor : Interceptor {
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val originalRequest = chain.request()
+
+            // 添加 Authorization 头
+            val requestWithToken = originalRequest.newBuilder()
+                .addHeader("Authorization", PlanetApplication.accessToken ?: "")
+                .addHeader("deviceId", PlanetApplication.deviceId)
+                .build()
+
+            var response = chain.proceed(requestWithToken)
+
+            // 如果返回 401，尝试刷新 Token
+            if (response.code == 401) {
+                response.close()
+
+                synchronized(this) {
+                    // 刷新 Token
+                    val newToken = refreshTokenSync()
+                    if (newToken != null) {
+                        // 使用新 Token 重试请求
+                        val newRequest = originalRequest.newBuilder()
+                            .addHeader("Authorization", newToken)
+                            .build()
+                        return chain.proceed(newRequest)
+                    }
+                }
+            }
+
+            return response
+        }
+    }
+
     //懒加载OkhttpClient
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
@@ -105,6 +138,7 @@ object OkHttpHelper {
 //                }
 //            })
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
+            .addInterceptor(AuthInterceptor())
             .build()
     }
 
@@ -154,6 +188,37 @@ object OkHttpHelper {
     }
 
     /**
+     * 刷新AccessToken
+     */
+    private fun refreshTokenSync(): String? {
+        try {
+
+            val request = Request.Builder()
+                .url("${PlanetApplication.UserIp}/me/token")
+                .addHeader("Authorization", PlanetApplication.accessToken ?: "")  // 如果不需要Bearer前缀
+                .addHeader("deviceId", PlanetApplication.deviceId)
+                .put("".toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
+                .build()
+
+            val response = client.newBuilder()
+                .build()
+                .newCall(request)
+                .execute()
+
+            if (response.isSuccessful) {
+                response.headers["Authorization"]?.let { newToken ->
+                    PlanetApplication.accessToken = newToken
+                    return newToken
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Token Refresh", "Failed to refresh token", e)
+            e.printStackTrace()  // 打印详细错误信息
+        }
+        return null
+    }
+
+    /**
      * 刷新AccessToken和RefreshToken
      */
     private fun refreshAccessToken() {
@@ -172,7 +237,7 @@ object OkHttpHelper {
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful && response.body != null) {
-                    PlanetApplication.accessToken = response.headers["token"]
+                    PlanetApplication.accessToken = response.headers["Authorization"]
                 } else {
                     Log.e("API Error", "响应错误: ${response.code} - ${response.message}")
                     // 处理响应不成功的逻辑

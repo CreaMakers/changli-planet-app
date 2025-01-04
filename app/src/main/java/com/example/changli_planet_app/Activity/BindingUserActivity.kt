@@ -11,10 +11,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Activity.Action.BindingUserAction
+import com.example.changli_planet_app.Activity.Store.BindingUserStore
 import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityBindingUserBinding
 import com.google.android.material.button.MaterialButton
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
 class BindingUserActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBindingUserBinding
@@ -23,6 +30,7 @@ class BindingUserActivity : AppCompatActivity() {
     private val back: ImageView by lazy { binding.bindingBack }
     private val save: MaterialButton by lazy { binding.saveUser }
 
+    private val store = BindingUserStore()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +42,7 @@ class BindingUserActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        EventBus.getDefault().register(this)
         save.setOnClickListener { saveUserInfo() }
         back.setOnClickListener { finish() }
     }
@@ -47,8 +56,7 @@ class BindingUserActivity : AppCompatActivity() {
         }
         StudentInfoManager.studentId = studentId
         StudentInfoManager.studentPassword = studentPassword
-        showMessage("学号和密码保存成功！")
-        finish()
+        store.dispatch(BindingUserAction.BindingStudentNumber(this, studentId))
     }
 
     private fun showMessage(message: String) {
@@ -74,4 +82,13 @@ class BindingUserActivity : AppCompatActivity() {
             show()
         }
     }
+    @Subscribe
+    fun onFinish(finishEvent: FinishEvent) {
+        if (finishEvent.name.equals("bindingUser")) {
+            showMessage("学号和密码保存成功！")
+            Route.goHome(this)
+            finish()
+        }
+    }
+
 }

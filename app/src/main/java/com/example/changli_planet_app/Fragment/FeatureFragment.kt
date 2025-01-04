@@ -81,7 +81,6 @@ class FeatureFragment : Fragment() {
         binding.nrank.setIcon(R.drawable.nrank)
         binding.nbalance.setIcon(R.drawable.nbalance)
         binding.nclassroom.setIcon(R.drawable.nclassroom)
-
     }
     companion object {
 

@@ -5,8 +5,10 @@ package com.example.changli_planet_app.Activity.State
  */
 
 data class ElectronicState(
-    var address:String,
-    var buildId:String,
-){var nod:String = ""
-    var isElec:Boolean = false
-    var elec:String = ""}
+    var address: String,
+    var buildId: String,
+) {
+    var nod: String = ""
+    var isElec: Boolean = false
+    var elec: String = ""
+}

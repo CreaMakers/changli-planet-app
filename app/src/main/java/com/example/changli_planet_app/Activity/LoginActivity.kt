@@ -66,7 +66,12 @@ class LoginActivity : AppCompatActivity() {
         setUnderLine()
         val accountTextWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                store.dispatch(LoginAndRegisterAction.input(account.text.toString(), "account"))
+                store.dispatch(
+                    LoginAndRegisterAction.InputLogin(
+                        account.text.toString(),
+                        "account"
+                    )
+                )
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -74,7 +79,12 @@ class LoginActivity : AppCompatActivity() {
         }
         val passwordTextWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                store.dispatch(LoginAndRegisterAction.input(password.text.toString(), "password"))
+                store.dispatch(
+                    LoginAndRegisterAction.InputLogin(
+                        password.text.toString(),
+                        "password"
+                    )
+                )
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -100,16 +110,16 @@ class LoginActivity : AppCompatActivity() {
         }
         account.addTextChangedListener(accountTextWatcher)
         password.addTextChangedListener(passwordTextWatcher)
-        agreementCheckBox.setOnCheckedChangeListener { _ , isChecked ->
+        agreementCheckBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                store.dispatch(LoginAndRegisterAction.input("checked", "checkbox"))
+                store.dispatch(LoginAndRegisterAction.InputLogin("checked", "checkbox"))
             } else {
-                store.dispatch(LoginAndRegisterAction.input("unchecked", "checkbox"))
+                store.dispatch(LoginAndRegisterAction.InputLogin("unchecked", "checkbox"))
             }
 
         }
         inputFilter(account)
-        inputFilter(password)
+        inputFilterPassword(password)
     }
 
     private fun inputFilter(editText: EditText) {
@@ -161,7 +171,6 @@ class LoginActivity : AppCompatActivity() {
         password.setSelection(password.text.length)
     }
 
-
     @Subscribe
     fun onFinish(finishEvent: FinishEvent) {
         if (finishEvent.name == "Login") {
@@ -169,9 +178,25 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    private fun inputFilterPassword(editText: EditText) {
+        val inputFilter = InputFilter { source, _, _, _, _, _ ->
+            val regex = Regex("^[a-zA-Z0-9!@#\$%^&*(),.?\":{}|<>]+$")
+            source.toString().filter { char ->
+                regex.matches(char.toString())
+            }
+        }
+        editText.filters = arrayOf(inputFilter)
+    }
+
     companion object {
-        public fun getDeviceId(context: Context): String {
-            return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        fun getDeviceId(context: Context): String {
+            val androidId =
+                Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            return when {
+                androidId.isNullOrEmpty() -> "unknown_device"
+                androidId == "9774d56d682e549c" -> "emulator_device"
+                else -> androidId
+            }
         }
     }
 }

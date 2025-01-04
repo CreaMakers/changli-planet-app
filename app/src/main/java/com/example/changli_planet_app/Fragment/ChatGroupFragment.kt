@@ -39,23 +39,7 @@ class ChatGroupFragment : Fragment() {
         ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
         ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
         ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
+
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

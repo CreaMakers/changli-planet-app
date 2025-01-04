@@ -32,7 +32,6 @@ class ExamArrangementActivity : AppCompatActivity() {
     private val store: ExamArrangementStore = ExamArrangementStore()
     private var examList: MutableList<Exam> = mutableListOf()
     private val cache by lazy { ExamArrangementCache(this) }
-
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
 
@@ -80,6 +79,7 @@ class ExamArrangementActivity : AppCompatActivity() {
             showLoading()
             store.dispatch(
                 ExamInquiryAction.UpdateExamData(
+                    this,
                     studentId,
                     studentPassword,
                     getCurrentTerm()
@@ -94,7 +94,7 @@ class ExamArrangementActivity : AppCompatActivity() {
 
     private fun showAllExamInfo(exams: List<ExamArrangement>) {
         if (exams.isEmpty()) {
-            showMessage("查询失败,请确认学号和密码绑定正确或尝试重新刷新")
+            hideLoading()
             return
         }
         cache.saveExamArrangement(exams)

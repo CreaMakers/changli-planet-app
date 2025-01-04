@@ -54,24 +54,6 @@ class IMFragment : Fragment() {
         ),
         ChatListItem(
             groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
-            groupName = "Brooke Davis",
-            lastMessage = "I am who I am. No excuses.",
-            messageCount = 2
-        ),
-        ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
-            groupName = "Brooke Davis",
-            lastMessage = "I am who I am. No excuses.",
-            messageCount = 2
-        ),
-        ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
-            groupName = "Brooke Davis",
-            lastMessage = "I am who I am. No excuses.",
-            messageCount = 2
-        ),
-        ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
             groupName = "Marvin McFadden",
             lastMessage = "Last night in the NBA the Charlotte Bobcats quietly made a move that most sports fans...",
             messageCount = 0
@@ -99,24 +81,6 @@ class IMFragment : Fragment() {
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2
-        ),
-        ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
-            groupName = "Jamie Scott",
-            lastMessage = "Some people are a little different. I think that's cool.",
-            messageCount = 0
-        ),
-        ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
-            groupName = "Marvin McFadden",
-            lastMessage = "Last night in the NBA the Charlotte Bobcats quietly made a move that most sports fans...",
-            messageCount = 0
-        ),
-        ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
-            groupName = "Antwon Taylor",
-            lastMessage = "Meet me at the Rivercourt",
-            messageCount = 0
         )
     )
     override fun onCreateView(

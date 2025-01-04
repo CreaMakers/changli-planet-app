@@ -15,6 +15,7 @@ class PlanetApplication : Application() {
         var accessToken: String? = null
         var startTime: Long = 0
         var isLogin = false
+        var deviceId: String = ""
         lateinit var appContext : Context
         const val UserIp: String = "http://113.44.47.220:8083/app/users"
         const val ToolIp: String = "http://113.44.47.220:8081/app/tools"

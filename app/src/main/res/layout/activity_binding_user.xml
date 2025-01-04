@@ -181,7 +181,7 @@
         android:layout_marginHorizontal="20dp"
         android:gravity="center"
         android:lineSpacingExtra="4dp"
-        android:text="您的学号与密码仅用于教务系统查询，所有信息均存储在您的手机本地，不会上传至任何服务器。"
+        android:text="隐私声明：您的学号将用于身份认证并与账号绑定，是参与校园社区交流的必要凭证。密码仅用于教务系统数据查询，采用本地存储，不会上传至云端服务器，确保您的账号安全₍ᐢ..ᐢ₎♡。"
         android:textColor="#CCD4E4"
         android:textSize="13sp" />
 

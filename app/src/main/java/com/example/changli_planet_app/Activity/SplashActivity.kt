@@ -32,6 +32,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
+        PlanetApplication.deviceId = LoginActivity.getDeviceId(this)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -66,7 +67,7 @@ class SplashActivity : AppCompatActivity() {
                         )
                         when (fromJson.msg) {
                             "用户登录成功" -> {
-                                UserInfoManager.token = response.header("Authorization", "") ?: ""
+                                PlanetApplication.accessToken = response.header("Authorization", "") ?: ""
                                 Route.goHome(this@SplashActivity)
                                 finish()
                             }

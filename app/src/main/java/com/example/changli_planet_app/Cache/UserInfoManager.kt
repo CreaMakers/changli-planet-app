@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Cache
 
+import com.example.changli_planet_app.Core.PlanetApplication
 import com.tencent.mmkv.MMKV
 
 object UserInfoManager {
@@ -26,9 +27,10 @@ object UserInfoManager {
         set(value) {
             mmkv.putString(KEY_TOKEN, value)
         }
+
     fun clear() {
         username = ""
         userPassword = ""
-        token = ""
+        PlanetApplication.accessToken = null
     }
 }

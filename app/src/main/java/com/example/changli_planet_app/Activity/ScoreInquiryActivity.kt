@@ -98,14 +98,13 @@ class ScoreInquiryActivity : AppCompatActivity() {
         }
 
         if (forceUpdate || cache.getGrades() == null) {
+            store.dispatch(ScoreInquiryAction.UpdateGrade(this, studentId, studentPassword))
             showLoading()
-            store.dispatch(ScoreInquiryAction.UpdateGrade(studentId, studentPassword))
         }
     }
 
     private fun showInfo(rawData: List<Grade>) {
         if (rawData.isEmpty()) {
-            showMessage("查询失败,请确认学号和密码绑定正确或尝试重新刷新")
             return
         }
         cache.saveGrades(rawData)

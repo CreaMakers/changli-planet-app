@@ -53,6 +53,7 @@ class RegisterActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         store.state()
             .subscribe { state ->
                 if (!state.isEnable) {
@@ -62,7 +63,13 @@ class RegisterActivity : AppCompatActivity() {
                     register.isEnabled = state.isEnable
                     register.setBackgroundResource(R.drawable.enable_button)
                 }
+                binding.apply {
+                    lengthIcon.setImageResource(if (state.isLengthValid) R.drawable.dui else R.drawable.cuo)
+                    upperLowerIcon.setImageResource(if (state.hasUpperAndLower) R.drawable.dui else R.drawable.cuo)
+                    numberSpecialIcon.setImageResource(if (state.hasNumberAndSpecial) R.drawable.dui else R.drawable.cuo)
+                }
             }
+
         store.dispatch(LoginAndRegisterAction.initilaize)
         store.dispatch(LoginAndRegisterAction.input("checked", "checkbox"))
         setUnderLine()
@@ -95,7 +102,7 @@ class RegisterActivity : AppCompatActivity() {
         account.addTextChangedListener(accountTextWatcher)
         password.addTextChangedListener(passwordTextWatcher)
         inputFilter(account)
-        inputFilter(password)
+        inputFilterPassword(password)
         register.setOnClickListener {
             store.dispatch(
                 LoginAndRegisterAction.Register
@@ -105,6 +112,26 @@ class RegisterActivity : AppCompatActivity() {
                 )
             )
         }
+    }
+
+    private fun validatePassword(password: String) {
+        val isLengthValid = password.length >= 8
+        val hasUpperAndLower = password.matches(".*[A-Z].*".toRegex()) &&
+                password.matches(".*[a-z].*".toRegex())
+
+        val hasNumberAndSpecial = password.matches(".*[0-9].*".toRegex()) &&
+                password.matches(".*[^A-Za-z0-9].*".toRegex())
+        binding.apply {
+            lengthIcon.setImageResource(if (isLengthValid) R.drawable.dui else R.drawable.cuo)
+            upperLowerIcon.setImageResource(if (hasUpperAndLower) R.drawable.dui else R.drawable.cuo)
+            numberSpecialIcon.setImageResource(if (hasNumberAndSpecial) R.drawable.dui else R.drawable.cuo)
+        }
+        store.dispatch(
+            LoginAndRegisterAction.input(
+                if (isLengthValid && hasUpperAndLower && hasNumberAndSpecial) "valid" else "invalid",
+                "password"
+            )
+        )
     }
 
     private fun setUnderLine() {
@@ -120,6 +147,16 @@ class RegisterActivity : AppCompatActivity() {
             val regex = Regex("^[a-zA-Z0-9]*$")
             // 如果输入内容符合正则表达式，则允许输入，否则返回空字符串禁止输入
             if (regex.matches(source)) source else ""
+        }
+        editText.filters = arrayOf(inputFilter)
+    }
+
+    private fun inputFilterPassword(editText: EditText) {
+        val inputFilter = InputFilter { source, _, _, _, _, _ ->
+            val regex = Regex("^[a-zA-Z0-9!@#\$%^&*(),.?\":{}|<>]+$")
+            source.toString().filter { char ->
+                regex.matches(char.toString())
+            }
         }
         editText.filters = arrayOf(inputFilter)
     }

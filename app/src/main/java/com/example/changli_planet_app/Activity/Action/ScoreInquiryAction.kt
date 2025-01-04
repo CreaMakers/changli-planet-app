@@ -7,6 +7,6 @@ import com.google.android.material.color.utilities.Score
 sealed class ScoreInquiryAction {
     object ShowData : ScoreInquiryAction()
     object initilaize : ScoreInquiryAction()
-    data class UpdateGrade(val studentId: String, val password: String) :
+    data class UpdateGrade(val context: Context, val studentId: String, val password: String) :
         ScoreInquiryAction()
 }
