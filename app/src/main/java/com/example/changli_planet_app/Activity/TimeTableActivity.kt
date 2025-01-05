@@ -291,11 +291,6 @@ class TimeTableActivity : AppCompatActivity() {
             else -> schedule.weekList.joinToString(",") + "周"
         }
         schedule.room?.let { dialogBinding.dialogPlacepart.dialogPlace.text = it }
-//        AlertDialog.Builder(this).apply {
-//            setView(dialogBinding.root)
-//            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-//            show()
-//        }
         val dialog = AlertDialog.Builder(this).apply {
             setView(dialogBinding.root)
         }.create()
@@ -322,8 +317,16 @@ class TimeTableActivity : AppCompatActivity() {
     fun TimetableView.showPopDialog() {
 
         timetableView.callback(object : OnItemClickAdapter() {
-            override fun onItemClick(v: View?, scheduleList: MutableList<Schedule>?) {
-                showCourseDetailDialog(v?.tag as Schedule)
+            override fun onItemClick(v: View, scheduleList: MutableList<Schedule>) {
+                if (scheduleList.size == 1) {
+                    showCourseDetailDialog(scheduleList.last())
+                    return
+                }else{
+                    scheduleList.forEach {
+                        if (curDisplayWeek in it.weekList)  showCourseDetailDialog(it)
+                    }
+                }
+
             }
         }
         )
@@ -333,7 +336,6 @@ class TimeTableActivity : AppCompatActivity() {
 
     fun TimetableView.buildItemText() {
         timetableView.callback(object : OnItemBuildAdapter() {
-
             override fun onItemUpdate(
                 layout: FrameLayout?,
                 textView: TextView?,
@@ -343,12 +345,10 @@ class TimeTableActivity : AppCompatActivity() {
             ) {
                 textView?.tag = schedule // 为view 绑定对应的Schedule,方便后续的点击事件
                 // 设置 TextView 的内容
-
                 textView?.text = when {
                     schedule?.room != null -> "${schedule.name}\n\n${schedule.room}\n\n${schedule.teacher}"
                     else -> "${schedule?.name}\n\n${schedule?.teacher}"
                 }
-
                 // 设置 TextView 的属性
                 textView?.apply {
                     textSize = 9f
@@ -391,6 +391,7 @@ class TimeTableActivity : AppCompatActivity() {
 
     fun TimetableView.longClickToDeleteCourse() {
         timetableView.callback(object : OnItemLongClickAdapter() {
+
             override fun onLongClick(v: View, day: Int, start: Int) {
                 val snackbar = Snackbar.make(v, "删除自定义课程", Snackbar.LENGTH_SHORT)
                 snackbar.setAction("确定") {

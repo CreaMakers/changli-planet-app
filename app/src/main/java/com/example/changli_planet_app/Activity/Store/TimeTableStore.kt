@@ -14,7 +14,6 @@ import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -22,10 +21,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Response
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.util.Calendar
-import java.util.concurrent.CountDownLatch
 
 
 class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, TimeTableAction>() {
@@ -40,7 +35,6 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
             is TimeTableAction.FetchCourses -> {
                 val cur = System.currentTimeMillis()
                 if (curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
-//                    fetchTimetableFromLocalData(action).map { result ->
                     fetchTimetableFromNetwork(action).map { result ->
                         (result + curState.subjects).distinctBy { "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}" }
                             .filter { it.term == curState.term }.toMutableList()
@@ -147,7 +141,6 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
 //            }
         }
     }
-
 //    fun extractWeekAndDay(input: String): List<String> {
 //        val weekRegex = Regex("第\\d+周")  // 匹配第X周
 //        val dayRegex = Regex("星期[一二三四五六日]") // 匹配星期X

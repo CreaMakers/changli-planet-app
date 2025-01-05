@@ -21,7 +21,6 @@ abstract class CoursesDataBase() : RoomDatabase() {
                 CoursesDataBase::class.java,
                 "course_database"
             )
-                .fallbackToDestructiveMigration()
                 .build()
             INSTANCE = instance
             instance
