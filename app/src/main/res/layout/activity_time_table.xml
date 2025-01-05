@@ -30,6 +30,7 @@
                 />
 
             <TextView
+                android:clickable="true"
                 android:id="@+id/courseTerm"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -42,7 +43,6 @@
                 />
 
             <ImageButton
-                android:visibility="gone"
                 android:id="@+id/termsExtendBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

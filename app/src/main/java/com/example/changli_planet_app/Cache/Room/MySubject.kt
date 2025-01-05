@@ -13,13 +13,13 @@ import com.zhuangfei.timetable.model.ScheduleEnable
 @Entity(
     tableName = "courses",
     indices = [Index(
-        value = ["courseName", "classroom", "teacher", "start", "step", "weekday"],
+        value = ["courseName", "classroom", "teacher", "start", "step", "weekday","term"],
         unique = true
     )]
 )
 data class MySubject(
     var courseName: String = "",
-    var classroom: String = "",
+    var classroom: String? = "",
     var teacher: String = "",
     @TypeConverters(WeeksTypeConverter::class)
     var weeks: List<Int>? = emptyList(),
@@ -28,13 +28,14 @@ data class MySubject(
     var weekday: Int = 0,
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0, // 主键放入主构造函数
-    val isCustom: Boolean = false
+    val isCustom: Boolean = false,
+    var term: String = ""
 ) : ScheduleEnable {
     @Ignore
     constructor() :this("")
 
-    @Ignore
-    var term: String = ""
+
+
 
     @Ignore
     var colorRandom: Int = 0 // 非持久化字段
@@ -51,6 +52,7 @@ data class MySubject(
             step = this@MySubject.step
             teacher = this@MySubject.teacher
             weekList = this@MySubject.weeks
+            term= this@MySubject.term
             colorRandom = 0
         }
     }

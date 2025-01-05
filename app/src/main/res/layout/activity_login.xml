@@ -132,7 +132,9 @@
             android:layout_height="wrap_content"
             android:text="《长理星球用户协议》"
             android:textColor="@color/primary_blue"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:singleLine="true"
+            />
 
     </LinearLayout>
 

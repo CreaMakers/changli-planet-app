@@ -158,7 +158,7 @@ class AddCourseActivity : AppCompatActivity() {
 //                Snackbar.make(binding.root, "请输入课程名", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
+            mySubject.term = intent.getStringExtra("curTerm")!!
             mySubject.weekday = intent.getIntExtra("day", 0) // 底层的索引从0开始，但计算时却进行了 - 1 ，所以这里要 + 1
             mySubject.start = intent.getIntExtra("start", 0)
 //        schedule.step = courseStep.text.toString().toInt()

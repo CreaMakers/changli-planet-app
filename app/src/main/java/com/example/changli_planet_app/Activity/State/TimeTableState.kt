@@ -8,5 +8,6 @@ data class TimeTableState(
     var weekInfo: String = " ",
     var term: String = " ",
     val stuNum : String = " ",
-    val password : String = " "
+    val password : String = " ",
+//    var startTime :String = " "
 )
