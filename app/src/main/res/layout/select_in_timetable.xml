@@ -11,12 +11,14 @@
         android:layout_height="wrap_content"
         android:padding="15dp">
         <TextView
+            android:id="@+id/selectTimetableTitle"
+            android:layout_gravity="center"
             android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_weight="6"
             android:gravity="center"
             android:textSize="20sp"
-            android:text="选择学期"
+            android:text="选择"
             android:layout_height="match_parent"/>
     </LinearLayout>
     <View

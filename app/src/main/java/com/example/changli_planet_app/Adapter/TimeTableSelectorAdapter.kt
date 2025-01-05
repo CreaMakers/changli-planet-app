@@ -31,6 +31,7 @@ class TimeTableSelectorAdapter(private val list: List<String>, val store: TimeTa
     override fun getItemCount(): Int = list.size
 
     override fun onBindViewHolder(holder: TimeTableViewHodler, position: Int) {
+
         holder.selec.text = list[position]
         holder.selec.setOnClickListener {
             if (list.size == 20) {

@@ -9,18 +9,6 @@
      android:id="@+id/main"
      >
 
-    <ImageButton
-        android:id="@+id/curseNotice"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="@null"
-        android:src="@drawable/coursetable_ic_notice"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginStart="16dp"
-        />
-
     <TextView
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -48,15 +36,5 @@
         android:layout_marginEnd="20dp"
         />
 
-<!--    <ImageButton-->
-<!--        android:id="@+id/curseColor"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:background="@null"-->
-<!--        android:src="@drawable/coursetable_ic_color"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        android:layout_marginEnd="16dp"-->
-<!--        />-->
+
 </androidx.constraintlayout.widget.ConstraintLayout>
