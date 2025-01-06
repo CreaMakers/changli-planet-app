@@ -1,9 +1,12 @@
 package com.example.changli_planet_app.Network
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Interceptor.NetworkLogger
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -24,7 +27,19 @@ import java.util.concurrent.TimeUnit
 
 object OkHttpHelper {
 
-    class AuthInterceptor : Interceptor {
+    class AuthInterceptor(private val tokenExpiredHandler: TokenExpiredHandler? = null) :
+        Interceptor {
+        companion object {
+            private const val MAX_RETRY_ATTEMPTS = 3
+            private const val MAX_BACKOFF_DELAY = 1000L // 最大延迟2秒
+        }
+
+        interface TokenExpiredHandler {
+            fun onTokenExpired()
+        }
+
+        private var retryCount = 0
+
         override fun intercept(chain: Interceptor.Chain): Response {
             val originalRequest = chain.request()
 
@@ -36,23 +51,42 @@ object OkHttpHelper {
 
             var response = chain.proceed(requestWithToken)
 
-            // 如果返回 401，尝试刷新 Token
-            if (response.code == 401) {
-                response.close()
-
+            if (response.code == 401 && response.message.equals("Unauthorized access") && retryCount < MAX_RETRY_ATTEMPTS) {
+                val responseBody = response.peekBody(Long.MAX_VALUE)
+                retryCount++
                 synchronized(this) {
-                    // 刷新 Token
-                    val newToken = refreshTokenSync()
-                    if (newToken != null) {
-                        // 使用新 Token 重试请求
-                        val newRequest = originalRequest.newBuilder()
-                            .addHeader("Authorization", newToken)
-                            .build()
-                        return chain.proceed(newRequest)
+                    try {
+                        // 计算当前重试的延迟时间（指数退避）
+                        val delayMs =
+                            (100L * (1 shl (retryCount - 1))).coerceAtMost(MAX_BACKOFF_DELAY)
+                        Thread.sleep(delayMs)
+
+                        // 刷新 Token
+                        val newToken = refreshTokenSync()
+                        if (newToken != null) {
+                            response.close()
+                            // 使用新 Token 重试请求
+                            val newRequest = originalRequest.newBuilder()
+                                .addHeader("Authorization", newToken)
+                                .addHeader("deviceId", PlanetApplication.deviceId)
+                                .build()
+                            return chain.proceed(newRequest)
+                        } else {
+                        }
+                    } catch (e: Exception) {
+                        Log.e("Token Refresh", "Retry attempt $retryCount failed", e)
                     }
                 }
             }
-
+            // 如果重试次数达到上限，可以触发重新登录
+            if (retryCount >= MAX_RETRY_ATTEMPTS) {
+                Log.w("Token Refresh", "Max retry attempts reached")
+                // 清除token
+                PlanetApplication.accessToken = null
+                // 处理token过期操作
+                tokenExpiredHandler?.onTokenExpired()
+            }
+            retryCount = 0
             return response
         }
     }
@@ -138,7 +172,14 @@ object OkHttpHelper {
 //                }
 //            })
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
-            .addInterceptor(AuthInterceptor())
+            .addInterceptor(AuthInterceptor(object : AuthInterceptor.TokenExpiredHandler {
+                override fun onTokenExpired() {
+                    Handler(Looper.getMainLooper()).post {
+                        Route.goLoginForcibly(PlanetApplication.appContext)
+                    }
+                }
+
+            }))
             .build()
     }
 
@@ -192,30 +233,34 @@ object OkHttpHelper {
      */
     private fun refreshTokenSync(): String? {
         try {
-
             val request = Request.Builder()
                 .url("${PlanetApplication.UserIp}/me/token")
-                .addHeader("Authorization", PlanetApplication.accessToken ?: "")  // 如果不需要Bearer前缀
+                .addHeader("Authorization", PlanetApplication.accessToken ?: "")
                 .addHeader("deviceId", PlanetApplication.deviceId)
                 .put("".toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
                 .build()
 
-            val response = client.newBuilder()
-                .build()
-                .newCall(request)
-                .execute()
+            return client.newCall(request).execute().use { response ->
+                when {
+                    response.isSuccessful -> {
+                        response.headers["Authorization"]?.also { newToken ->
+                            PlanetApplication.accessToken = newToken
+                            Log.d("Token Refresh", "Token refreshed successfully")
+                        }
+                    }
 
-            if (response.isSuccessful) {
-                response.headers["Authorization"]?.let { newToken ->
-                    PlanetApplication.accessToken = newToken
-                    return newToken
+                    else -> {
+                        Log.w("Token Refresh", "Failed to refresh token: ${response.code}")
+                        val errorBody = response.body?.string()
+                        Log.w("Token Refresh", "Error response: $errorBody")
+                    }
                 }
+                response.headers["Authorization"]
             }
         } catch (e: Exception) {
-            Log.e("Token Refresh", "Failed to refresh token", e)
-            e.printStackTrace()  // 打印详细错误信息
+            Log.e("Token Refresh", "Network error during token refresh", e)
+            return null
         }
-        return null
     }
 
     /**
