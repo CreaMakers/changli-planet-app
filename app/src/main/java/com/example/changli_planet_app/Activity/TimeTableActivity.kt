@@ -5,7 +5,11 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.TextUtils
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
@@ -328,20 +332,63 @@ class TimeTableActivity : AppCompatActivity() {
                 schedule: Schedule?,
                 gd: GradientDrawable?
             ) {
-                textView?.tag = schedule // 为view 绑定对应的Schedule,方便后续的点击事件
-                // 设置 TextView 的内容
+                textView?.tag = schedule
                 textView?.text = when {
-                    schedule?.room != null -> "${schedule.name}\n\n${schedule.room}\n\n${schedule.teacher}"
-                    else -> "${schedule?.name}\n\n${schedule?.teacher}"
+                    schedule?.room != null -> SpannableStringBuilder().apply {
+                        // 课程名称（加粗，大字）
+                        append(schedule.name)
+                        append("\n")
+
+                        // 教室（加粗，大字）
+                        append("@${schedule.room}")
+                        append("\n")
+
+                        // 教师名（普通字体，小字）
+                        val teacherStart = length
+                        append(schedule.teacher)
+                        setSpan(
+                            StyleSpan(Typeface.NORMAL),  // 普通字体
+                            teacherStart,
+                            length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        setSpan(
+                            RelativeSizeSpan(0.85f),  // 字体缩小到 0.9 倍
+                            teacherStart,
+                            length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+
+                    else -> SpannableStringBuilder().apply {
+                        append(schedule?.name ?: "")
+                        append("\n")
+
+                        val teacherStart = length
+                        append(schedule?.teacher ?: "")
+                        setSpan(
+                            StyleSpan(Typeface.NORMAL),
+                            teacherStart,
+                            length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        setSpan(
+                            RelativeSizeSpan(0.85f),
+                            teacherStart,
+                            length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
                 }
-                // 设置 TextView 的属性
                 textView?.apply {
-                    textSize = 9f
-                    gravity = Gravity.CENTER
+                    textSize = 12f
                     layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+                    gravity = Gravity.START
                     isSingleLine = false
                     ellipsize = TextUtils.TruncateAt.END
                     setPadding(5, 5, 5, 5)
+                    typeface = Typeface.DEFAULT_BOLD
+                    setLineSpacing(6f, 1f)
                 }
 
             }
