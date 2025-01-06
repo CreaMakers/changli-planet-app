@@ -512,7 +512,7 @@ class TimeTableActivity : AppCompatActivity() {
 
     // 判断触摸事件是否在课程区域
     private fun isTouchInCourseArea(event: MotionEvent): Boolean {
-        val timetableView = findViewById<View>(R.id.timetableView) // 替换为实际 TimetableView 的 ID
+        val timetableView = findViewById<View>(R.id.timetableView)
         val location = IntArray(2)
         timetableView.getLocationOnScreen(location)
 

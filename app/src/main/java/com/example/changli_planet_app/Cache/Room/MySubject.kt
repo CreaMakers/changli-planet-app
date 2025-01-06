@@ -29,7 +29,9 @@ data class MySubject(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0, // 主键放入主构造函数
     val isCustom: Boolean = false,
-    var term: String = ""
+    var term: String = "",
+    val studentId : String = "",
+    val studentPassword : String = ""
 ) : ScheduleEnable {
     @Ignore
     constructor() :this("")

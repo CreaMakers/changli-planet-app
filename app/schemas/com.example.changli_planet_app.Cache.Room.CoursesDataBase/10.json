@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 10,
-    "identityHash": "8ea4955334619029708e145b4ccaab7d",
+    "identityHash": "50bfffbe8fbcb7a0959d6fb009870990",
     "entities": [
       {
         "tableName": "courses",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`courseName` TEXT NOT NULL, `classroom` TEXT, `teacher` TEXT NOT NULL, `weeks` TEXT, `start` INTEGER NOT NULL, `step` INTEGER NOT NULL, `weekday` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `isCustom` INTEGER NOT NULL, `term` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`courseName` TEXT NOT NULL, `classroom` TEXT, `teacher` TEXT NOT NULL, `weeks` TEXT, `start` INTEGER NOT NULL, `step` INTEGER NOT NULL, `weekday` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `isCustom` INTEGER NOT NULL, `term` TEXT NOT NULL, `studentId` TEXT NOT NULL, `studentPassword` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "courseName",
@@ -67,6 +67,18 @@
             "columnName": "term",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "studentId",
+            "columnName": "studentId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "studentPassword",
+            "columnName": "studentPassword",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -98,7 +110,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8ea4955334619029708e145b4ccaab7d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '50bfffbe8fbcb7a0959d6fb009870990')"
     ]
   }
 }

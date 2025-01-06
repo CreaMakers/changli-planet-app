@@ -44,10 +44,7 @@ android {
             excludes += "mozilla/public-suffix-list.txt"
         }
     }
-    lint {
-        checkReleaseBuilds = false
-        abortOnError = false
-    }
+
 }
 dependencies {
 

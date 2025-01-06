@@ -17,6 +17,7 @@ import com.example.changli_planet_app.Activity.Store.TimeTableStore
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Cache.Room.MySubject
+import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityAddCourseInTimetableBinding
 import com.google.android.material.snackbar.Snackbar
@@ -33,6 +34,8 @@ class AddCourseActivity : AppCompatActivity() {
     private val courseTeacher by lazy { binding.customTeacherName }
     private val courseWeek by lazy { binding.customWeekAndDay }
     private val courseStep by lazy { binding.customCourseStep }
+    private val studentId by lazy { StudentInfoManager.studentId }
+    private val studentPassword by lazy { StudentInfoManager.studentPassword }
     private val weekDayMap = mapOf(
         1 to "周一",
         2 to "周二",
@@ -148,20 +151,20 @@ class AddCourseActivity : AppCompatActivity() {
 
 
         binding.addCourseBtn.setOnClickListener {
-            val mySubject = MySubject(isCustom = true)
+            val mySubject = MySubject(isCustom = true, studentId = studentId, studentPassword = studentPassword)
 
             if (courseName.text.isNotEmpty()) {
                 mySubject.courseName = courseName.text.toString()
             } else {
                 Toast.makeText(this, "请输入课程名", Toast.LENGTH_SHORT).show()
-//                showSnackbar(binding.root, "请输入课程名")
-//                Snackbar.make(binding.root, "请输入课程名", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            mySubject.term = intent.getStringExtra("curTerm")!!
-            mySubject.weekday = intent.getIntExtra("day", 0) // 底层的索引从0开始，但计算时却进行了 - 1 ，所以这里要 + 1
-            mySubject.start = intent.getIntExtra("start", 0)
-//        schedule.step = courseStep.text.toString().toInt()
+
+            mySubject.apply {
+                term = intent.getStringExtra("curTerm")!!
+                weekday = intent.getIntExtra("day", 0) // 底层的索引从0开始，但计算时却进行了 - 1 ，所以这里要 + 1
+                start = intent.getIntExtra("start", 0)
+            }
 
             mySubject.step = 2
             if (courseTeacher.text.isNotEmpty()) {
@@ -179,8 +182,7 @@ class AddCourseActivity : AppCompatActivity() {
 
             mySubject.weeks = listOf(curWeek)
             val intent = Intent().apply {
-//                putExtra("course", mySubject)
-                putExtra("newCourse",gson.toJson(mySubject))
+                putExtra("newCourse", gson.toJson(mySubject))
             }
             setResult(RESULT_OK, intent)
             finish()
@@ -193,14 +195,4 @@ class AddCourseActivity : AppCompatActivity() {
 
     }
 
-    private fun showSnackbar(view: View, text: String) {
-        val snackbar = Snackbar.make(view, text, Snackbar.LENGTH_SHORT)
-        val params = snackbar.view.layoutParams as ViewGroup.MarginLayoutParams
-        params.bottomMargin = resources.displayMetrics.heightPixels / 4
-        params.width = resources.displayMetrics.widthPixels / 2
-        params.leftMargin = resources.displayMetrics.widthPixels / 4
-        snackbar.view.layoutParams = params
-        snackbar.show()
-
-    }
 }

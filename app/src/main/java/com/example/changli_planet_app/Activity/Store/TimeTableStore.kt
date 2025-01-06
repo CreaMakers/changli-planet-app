@@ -8,6 +8,7 @@ import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Store
 import com.example.changli_planet_app.Cache.Room.CourseDao
 import com.example.changli_planet_app.Cache.Room.MySubject
+import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
@@ -24,6 +25,9 @@ import okhttp3.Response
 
 
 class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, TimeTableAction>() {
+    private val studentId by lazy { StudentInfoManager.studentId }
+    private val studentPassword by lazy { StudentInfoManager.studentPassword }
+
     companion object {
         @JvmStatic
         var curState = TimeTableState()
@@ -37,7 +41,8 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                 if (curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
                     fetchTimetableFromNetwork(action).map { result ->
                         (result + curState.subjects).distinctBy { "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}" }
-                            .filter { it.term == curState.term }.toMutableList()
+                            .filter { it.term == curState.term && it.studentId == studentId && it.studentPassword == studentPassword }
+                            .toMutableList()
                     }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                         .subscribe { result ->
                             handleEvent(TimeTableAction.UpdateCourses(result))
@@ -45,7 +50,8 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                     Log.d("TimeTableStore", "网络请求获得课表")
                 } else {
                     //从数据库中获得课表
-                    courseDao.getCoursesByTerm(curState.term).subscribeOn(Schedulers.io())
+                    courseDao.getCoursesByTerm(curState.term, studentId, studentPassword)
+                        .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
                             if (result.isNotEmpty()) {
                                 curState.subjects = result
@@ -313,7 +319,9 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                     start = start,
                     step = step,
                     weekday = it.weekday.toInt(),
-                    term = curState.term
+                    term = curState.term,
+                    studentId = studentId,
+                    studentPassword = studentPassword
                 )
             )
         }
