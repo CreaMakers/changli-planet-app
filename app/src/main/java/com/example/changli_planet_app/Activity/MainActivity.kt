@@ -179,8 +179,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         logoutButton.setOnClickListener {
-            UserInfoManager.clear()
-            Route.goLogin(this@MainActivity)
+            PlanetApplication.clearCacheAll()
+            Route.goLoginForcibly(this@MainActivity)
             finish()
         }
     }

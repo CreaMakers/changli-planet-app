@@ -3,6 +3,7 @@ package com.example.changli_planet_app.Network
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.Core.PlanetApplication
@@ -52,7 +53,6 @@ object OkHttpHelper {
             var response = chain.proceed(requestWithToken)
 
             if (response.code == 401 && response.message.equals("Unauthorized access") && retryCount < MAX_RETRY_ATTEMPTS) {
-                val responseBody = response.peekBody(Long.MAX_VALUE)
                 retryCount++
                 synchronized(this) {
                     try {
@@ -82,7 +82,7 @@ object OkHttpHelper {
             if (retryCount >= MAX_RETRY_ATTEMPTS) {
                 Log.w("Token Refresh", "Max retry attempts reached")
                 // 清除token
-                PlanetApplication.accessToken = null
+                PlanetApplication.clearCacheAll()
                 // 处理token过期操作
                 tokenExpiredHandler?.onTokenExpired()
             }

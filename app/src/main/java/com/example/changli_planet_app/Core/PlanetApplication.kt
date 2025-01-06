@@ -4,6 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.changli_planet_app.Cache.ScoreCache
+import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.R
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
@@ -24,6 +27,11 @@ class PlanetApplication : Application() {
         lateinit var appContext : Context
         const val UserIp: String = "http://113.44.47.220:8083/app/users"
         const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
+
+        fun clearCacheAll() {
+            MMKV.mmkvWithID("import_cache").clearAll()
+            MMKV.mmkvWithID("content_cache").clearAll()
+        }
     }
 
     override fun onCreate() {
@@ -93,4 +101,5 @@ class PlanetApplication : Application() {
             }
         }
     }
+
 }

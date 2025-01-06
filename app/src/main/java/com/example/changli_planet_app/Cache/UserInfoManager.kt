@@ -4,7 +4,7 @@ import com.example.changli_planet_app.Core.PlanetApplication
 import com.tencent.mmkv.MMKV
 
 object UserInfoManager {
-    private val mmkv by lazy { MMKV.defaultMMKV() }
+    private val mmkv by lazy { MMKV.mmkvWithID("import_cache") }
 
     private const val KEY_USERNAME = "account"
     private const val KEY_USER_PASSWORD = "user_password"

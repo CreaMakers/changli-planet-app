@@ -60,7 +60,6 @@ class FeatureFragment : Fragment() {
                     .load(R.drawable.planet_logo)
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .into(planetLogo)
-
                 // 设置功能图标
                 ngrade.setIcon(R.drawable.ngrade)
                 ncourse.setIcon(R.drawable.ncourse)
