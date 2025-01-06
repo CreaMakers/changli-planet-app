@@ -15,7 +15,7 @@
         android:gravity="center"
         android:text="课程表"
         android:textColor="@color/white"
-        android:textSize="22sp"
+        android:textSize="23sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

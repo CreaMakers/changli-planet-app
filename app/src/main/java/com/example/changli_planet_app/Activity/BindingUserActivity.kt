@@ -20,6 +20,7 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityBindingUserBinding
 import com.google.android.material.button.MaterialButton
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -30,6 +31,7 @@ class BindingUserActivity : AppCompatActivity() {
     private val back: ImageView by lazy { binding.bindingBack }
     private val save: MaterialButton by lazy { binding.saveUser }
 
+    private val disposables by lazy { CompositeDisposable() }
     private val store = BindingUserStore()
 
     override fun onCreate(savedInstanceState: Bundle?) {
