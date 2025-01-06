@@ -34,6 +34,7 @@ import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import okhttp3.Response
+import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class RegisterActivity : AppCompatActivity() {
@@ -71,9 +72,10 @@ class RegisterActivity : AppCompatActivity() {
                         numberSpecialIcon.setImageResource(if (state.hasNumberAndSpecial) R.drawable.dui else R.drawable.cuo)
                     }
                 }
+
         )
 
-
+        EventBus.getDefault().register(this)
         store.dispatch(LoginAndRegisterAction.initilaize)
         store.dispatch(LoginAndRegisterAction.input("checked", "checkbox"))
         setUnderLine()
@@ -142,7 +144,7 @@ class RegisterActivity : AppCompatActivity() {
         var underlinetext = SpannableString(route.text.toString())
         underlinetext.setSpan(UnderlineSpan(), 6, 8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         route.text = underlinetext
-        route.setOnClickListener { Route.goRegister(this) }
+        route.setOnClickListener { Route.goLoginForcibly(this) }
     }
 
     private fun inputFilter(editText: EditText) {
@@ -172,7 +174,7 @@ class RegisterActivity : AppCompatActivity() {
 
     @Subscribe
     fun onFinish(finishEvent: FinishEvent) {
-        if (finishEvent.name == "Register") {
+        if (finishEvent.name.equals("Register")) {
             finish()
         }
     }

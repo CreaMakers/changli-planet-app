@@ -25,6 +25,13 @@ object Route {
         context.startActivity(intent)
     }
 
+    fun goLoginFromRegister(context: Context, name: String, password: String) {
+        val intent = Intent(context, LoginActivity::class.java)
+        intent.putExtra("username", name)
+        intent.putExtra("password", password)
+        context.startActivity(intent)
+    }
+
     fun goLoginForcibly(context: Context) {
         val intent = Intent(context, LoginActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -43,6 +50,14 @@ object Route {
 
     fun goHome(context: Context) {
         val intent = Intent(context, MainActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goHomeForcibly(context: Context) {
+        val intent = Intent(
+            context,
+            MainActivity::class.java
+        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         context.startActivity(intent)
     }
 

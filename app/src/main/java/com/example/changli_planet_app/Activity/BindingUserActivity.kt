@@ -44,6 +44,8 @@ class BindingUserActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        username.setText(StudentInfoManager.studentId)
+
         EventBus.getDefault().register(this)
         save.setOnClickListener { saveUserInfo() }
         back.setOnClickListener { finish() }
@@ -88,7 +90,7 @@ class BindingUserActivity : AppCompatActivity() {
     fun onFinish(finishEvent: FinishEvent) {
         if (finishEvent.name.equals("bindingUser")) {
             showMessage("学号和密码保存成功！")
-            Route.goHome(this)
+            Route.goHomeForcibly(this)
             finish()
         }
     }

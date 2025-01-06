@@ -83,7 +83,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                                 UserInfoManager.userPassword = action.userPassword.password
                                 PlanetApplication.accessToken = response.header("Authorization", "") ?: ""
                                 handler.post {
-                                    Route.goHome(action.context)
+                                    Route.goHomeForcibly(action.context)
                                     EventBusHelper.post(FinishEvent("Login"))
                                 }
                             }
@@ -118,7 +118,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                         )
                         if (fromJson.msg == "用户注册成功") {
                             handler.post {
-                                Route.goLogin(action.context)
+                                Route.goLoginFromRegister(action.context, action.userPassword.username, action.userPassword.password)
                                 EventBusHelper.post(FinishEvent("Register"))
                             }
                         } else {
