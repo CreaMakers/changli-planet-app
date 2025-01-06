@@ -30,9 +30,11 @@
             android:exported="false" />
         <activity
             android:name=".Activity.TimeTableActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activity.AddCourseActivity"
+
             android:exported="false" />
         <activity
             android:name=".Activity.BindingUserActivity"

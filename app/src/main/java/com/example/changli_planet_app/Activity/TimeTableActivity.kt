@@ -2,9 +2,14 @@ package com.example.changli_planet_app.Activity
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.TextUtils
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
@@ -15,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
@@ -52,6 +58,7 @@ import com.zhuangfei.timetable.listener.OnWeekChangedAdapter
 import com.zhuangfei.timetable.model.Schedule
 import com.zhuangfei.timetable.model.ScheduleSupport
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.text.SimpleDateFormat
 import java.util.Calendar
 
 
@@ -139,6 +146,7 @@ class TimeTableActivity : AppCompatActivity() {
         if (TimeTableStore.curState.subjects != null) {
             TimeTableStore.curState.lastUpdate = getValueInMMKV("lastUpdate")
         }
+        initTimetableDate()
         disposables.add(
             timeTableStore.state().subscribe { curState ->
                 timetableView.setCurWeek(termMap[curState.term])
@@ -324,20 +332,63 @@ class TimeTableActivity : AppCompatActivity() {
                 schedule: Schedule?,
                 gd: GradientDrawable?
             ) {
-                textView?.tag = schedule // 为view 绑定对应的Schedule,方便后续的点击事件
-                // 设置 TextView 的内容
+                textView?.tag = schedule
                 textView?.text = when {
-                    schedule?.room != null -> "${schedule.name}\n\n${schedule.room}\n\n${schedule.teacher}"
-                    else -> "${schedule?.name}\n\n${schedule?.teacher}"
+                    schedule?.room != null -> SpannableStringBuilder().apply {
+                        // 课程名称（加粗，大字）
+                        append(schedule.name)
+                        append("\n")
+
+                        // 教室（加粗，大字）
+                        append("@${schedule.room}")
+                        append("\n")
+
+                        // 教师名（普通字体，小字）
+                        val teacherStart = length
+                        append(schedule.teacher)
+                        setSpan(
+                            StyleSpan(Typeface.NORMAL),  // 普通字体
+                            teacherStart,
+                            length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        setSpan(
+                            RelativeSizeSpan(0.85f),  // 字体缩小到 0.9 倍
+                            teacherStart,
+                            length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+
+                    else -> SpannableStringBuilder().apply {
+                        append(schedule?.name ?: "")
+                        append("\n")
+
+                        val teacherStart = length
+                        append(schedule?.teacher ?: "")
+                        setSpan(
+                            StyleSpan(Typeface.NORMAL),
+                            teacherStart,
+                            length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        setSpan(
+                            RelativeSizeSpan(0.85f),
+                            teacherStart,
+                            length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
                 }
-                // 设置 TextView 的属性
                 textView?.apply {
-                    textSize = 9f
-                    gravity = Gravity.CENTER
+                    textSize = 12f
                     layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+                    gravity = Gravity.START
                     isSingleLine = false
                     ellipsize = TextUtils.TruncateAt.END
                     setPadding(5, 5, 5, 5)
+                    typeface = Typeface.DEFAULT_BOLD
+                    setLineSpacing(6f, 1f)
                 }
 
             }
@@ -412,6 +463,7 @@ class TimeTableActivity : AppCompatActivity() {
         Wheel.setItem(item)
         Wheel.show(supportFragmentManager, "TimetableWheel")
     }
+
     // 初始化 GestureDetector
     private val gestureDetector by lazy {
         GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
@@ -542,6 +594,166 @@ class TimeTableActivity : AppCompatActivity() {
             onWeekChangedListener().onWeekChanged(week)
         }
 
+    }
+
+    private fun initTimetableDate() {
+        timetableView.callback(object : ISchedule.OnDateBuildListener {
+            private val layouts = arrayOfNulls<LinearLayout>(8)
+            private lateinit var views: Array<View>
+
+            override fun onInit(layout: LinearLayout?, alpha: Float) {
+                layout?.alpha = alpha
+            }
+
+            override fun getDateViews(
+                mInflate: LayoutInflater?,
+                monthWidth: Float,
+                perWidth: Float,
+                height: Int
+            ): Array<View> {
+                val heightPx = 130
+                views = Array(8) { TextView(this@TimeTableActivity) }
+
+                // 第一个视图（月份）
+                val firstParams = LinearLayout.LayoutParams(monthWidth.toInt(), heightPx)
+                val firstView = TextView(this@TimeTableActivity).apply {
+                    layoutParams = firstParams
+                    gravity = Gravity.CENTER
+                    text = "${Calendar.getInstance().get(Calendar.MONTH) + 1}月"
+                    setTextColor(Color.BLACK)
+                    textSize = 14f
+                    typeface = Typeface.DEFAULT_BOLD
+                }
+                layouts[0] = null
+                views[0] = firstView
+
+                val weekParams = LinearLayout.LayoutParams(perWidth.toInt(), heightPx)
+                weekParams.gravity = Gravity.CENTER
+                val dateArray = arrayOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
+
+                // 创建周一至周日的视图
+                for (i in 1..7) {
+                    val weekView = TextView(this@TimeTableActivity).apply {
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT
+                        ).apply {
+                            gravity = Gravity.CENTER
+                        }
+                        gravity = Gravity.CENTER
+                        text = dateArray[i - 1]
+                        setTextColor(Color.BLACK)
+                        textSize = 12f
+                        setLineSpacing(8f, 1f)
+                        typeface = Typeface.DEFAULT_BOLD
+                    }
+
+                    val weekLayout = LinearLayout(this@TimeTableActivity).apply {
+                        layoutParams = weekParams
+                        gravity = Gravity.CENTER
+                        orientation = LinearLayout.VERTICAL
+                        addView(weekView)
+                    }
+                    layouts[i] = weekLayout
+                    views[i] = weekLayout
+                }
+
+                return views
+            }
+
+            override fun onHighLight() {
+                // 初始化背景色
+                val defaultColor = Color.parseColor("#F4F8F8")
+                val highlightColor = Color.parseColor("#BFF6F4")
+
+                // 重置所有背景色
+                for (i in 1..7) {
+                    layouts[i]?.setBackgroundColor(defaultColor)
+                }
+
+                // 获取当前日期
+                val today = Calendar.getInstance()
+                val startTime = termMap[courseTerm.text.toString()]
+
+                startTime?.let {
+                    val weekStart = Calendar.getInstance()
+                    weekStart.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(it)
+                    weekStart.add(Calendar.WEEK_OF_YEAR, curDisplayWeek - 1)
+                    weekStart.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+
+                    // 遍历本周的每一天
+                    for (i in 1..7) {
+                        if (weekStart.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                            weekStart.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+                            weekStart.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)
+                        ) {
+                            layouts[i]?.setBackgroundColor(highlightColor)
+                            break
+                        }
+                        weekStart.add(Calendar.DAY_OF_MONTH, 1)
+                    }
+                }
+            }
+
+            override fun onUpdateDate(curWeek: Int, targetWeek: Int) {
+                val calendar = Calendar.getInstance()
+                val startTime = termMap[courseTerm.text.toString()]
+
+                startTime?.let {
+                    calendar.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(it)
+                    calendar.add(Calendar.WEEK_OF_YEAR, targetWeek - 1)
+                    calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+
+                    // 获取今天的日期
+                    val today = Calendar.getInstance()
+
+                    // 更新月份显示
+                    (views[0] as? TextView)?.text = "${calendar.get(Calendar.MONTH) + 1}月"
+
+                    // 更新日期显示和高亮
+                    for (i in 1..7) {
+                        val weekView = (layouts[i]?.getChildAt(0) as? TextView)
+                        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+                        // 检查是否是今天
+                        val isToday = calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                                calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+                                calendar.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)
+
+                        // 更新文本
+                        weekView?.text = buildString {
+                            append("周${getWeekDay(i)}")
+                            append("\n")
+                            append("${day}日")
+                        }
+
+                        // 设置背景色和文字颜色
+                        if (isToday) {
+                            layouts[i]?.setBackgroundColor(Color.parseColor("#BFF6F4"))
+                            weekView?.setTextColor(Color.parseColor("#1E88E5"))
+                        } else {
+                            layouts[i]?.setBackgroundColor(Color.parseColor("#F4F8F8"))
+                            weekView?.setTextColor(Color.BLACK)
+                        }
+
+                        calendar.add(Calendar.DAY_OF_MONTH, 1)
+                    }
+                }
+            }
+
+            private fun getWeekDay(index: Int): String {
+                return when (index) {
+                    1 -> "一"
+                    2 -> "二"
+                    3 -> "三"
+                    4 -> "四"
+                    5 -> "五"
+                    6 -> "六"
+                    7 -> "日"
+                    else -> ""
+                }
+            }
+        })
     }
 
 }

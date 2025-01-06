@@ -22,6 +22,7 @@ import com.example.changli_planet_app.Network.Response.ExamArrangement
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityExamArrangementBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.Calendar
 
 class ExamArrangementActivity : AppCompatActivity() {
@@ -34,7 +35,7 @@ class ExamArrangementActivity : AppCompatActivity() {
     private val cache by lazy { ExamArrangementCache(this) }
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
-
+    private val disposables by lazy { CompositeDisposable() }
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
         examRecyclerView.visibility = View.GONE
@@ -54,11 +55,14 @@ class ExamArrangementActivity : AppCompatActivity() {
         examRecyclerView.layoutManager = LinearLayoutManager(this)
         examRecyclerView.adapter = ExamArrangementAdapter(examList)
 
-        store.state()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { state ->
-                showAllExamInfo(state.exams)
-            }
+        disposables.add(
+            store.state()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { state ->
+                    showAllExamInfo(state.exams)
+                }
+        )
+
 
         loadCacheData()
         back.setOnClickListener { finish() }
@@ -152,4 +156,8 @@ class ExamArrangementActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
+    }
 }

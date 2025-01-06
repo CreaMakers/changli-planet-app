@@ -26,20 +26,20 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityAccountSecurityBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class AccountSecurityActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAccountSecurityBinding
     private val bindingBack by lazy { binding.bindingBack }
-
+    private val disposables by lazy { CompositeDisposable() }
     private val curPasswordEt by lazy { binding.curPasswordEt }
     private val curPasswordImg by lazy { binding.curPasswordImg }
     private val newPasswordEt by lazy { binding.newPasswordEt }
     private val newPasswordImg by lazy { binding.newPasswordImg }
     private val confirmPasswordEt by lazy { binding.confirmPasswordEt }
     private val confirmPasswordImg by lazy { binding.confirmPasswordImg }
-
     private val strongPasswordPrb by lazy { binding.strongPasswordPrb }
     private val strength8Img by lazy { binding.strength8Img }
     private val containBigAndSmallImg by lazy { binding.containBigAndSmallImg }
@@ -68,21 +68,31 @@ class AccountSecurityActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
-        store.state()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { state ->
-                updateCondition(state.isLengthValid, strength8Img)
-                updateCondition(state.hasUpperAndLower, containBigAndSmallImg)
-                updateCondition(state.hasNumberAndSpecial, containNumberIconImg)
-                updatePasswordVisibility(state.curPasswordVisible, curPasswordEt, curPasswordImg)
-                updatePasswordVisibility(state.newPasswordVisible, newPasswordEt, newPasswordImg)
-                updatePasswordVisibility(
-                    state.confirmPasswordVisible,
-                    confirmPasswordEt,
-                    confirmPasswordImg
-                )
-                updateProgressBar(state.safeType)
-            }
+        disposables.add(
+            store.state()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { state ->
+                    updateCondition(state.isLengthValid, strength8Img)
+                    updateCondition(state.hasUpperAndLower, containBigAndSmallImg)
+                    updateCondition(state.hasNumberAndSpecial, containNumberIconImg)
+                    updatePasswordVisibility(
+                        state.curPasswordVisible,
+                        curPasswordEt,
+                        curPasswordImg
+                    )
+                    updatePasswordVisibility(
+                        state.newPasswordVisible,
+                        newPasswordEt,
+                        newPasswordImg
+                    )
+                    updatePasswordVisibility(
+                        state.confirmPasswordVisible,
+                        confirmPasswordEt,
+                        confirmPasswordImg
+                    )
+                    updateProgressBar(state.safeType)
+                }
+        )
 
         newPasswordEt.addTextChangedListener(passwordTextWatcher)
         inputFilterPassword(curPasswordEt)
@@ -146,14 +156,17 @@ class AccountSecurityActivity : AppCompatActivity() {
             0 -> {
                 strongPasswordPrb.progress = 0
             }
+
             1 -> {
                 strongPasswordPrb.progress = 33
                 strongPasswordPrb.progressTintList = ColorStateList.valueOf(Color.RED)
             }
+
             2 -> {
                 strongPasswordPrb.progress = 66
                 strongPasswordPrb.progressTintList = ColorStateList.valueOf(Color.YELLOW)
             }
+
             3 -> {
                 strongPasswordPrb.progress = 100
                 strongPasswordPrb.progressTintList =
@@ -193,6 +206,11 @@ class AccountSecurityActivity : AppCompatActivity() {
             }
         }
         editText.filters = arrayOf(inputFilter)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
     }
 
     @Subscribe

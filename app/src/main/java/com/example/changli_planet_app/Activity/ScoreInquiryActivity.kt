@@ -24,6 +24,7 @@ import com.example.changli_planet_app.Network.Response.Grade
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityScoreInquiryBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class ScoreInquiryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityScoreInquiryBinding
@@ -32,7 +33,7 @@ class ScoreInquiryActivity : AppCompatActivity() {
     private val examScoreAdapter = ExamScoreAdapter()
     private val store = ScoreInquiryStore()
     private val cache by lazy { ScoreCache(this) }
-
+    private val disposables by lazy { CompositeDisposable() }
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
         binding.ScoreRecyclerView.visibility = View.GONE
@@ -56,12 +57,15 @@ class ScoreInquiryActivity : AppCompatActivity() {
 
         refresh.setOnClickListener { refreshData(true) }
         loadCachedData()
-        store.state()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { state ->
-                hideLoading()
-                showInfo(state.grades)
-            }
+        disposables.add(
+            store.state()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { state ->
+                    hideLoading()
+                    showInfo(state.grades)
+                }
+        )
+
     }
 
     private fun setupToolbar() {
@@ -191,5 +195,10 @@ class ScoreInquiryActivity : AppCompatActivity() {
             view = cardView
             show()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
     }
 }

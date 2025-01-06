@@ -32,6 +32,7 @@ import com.example.changli_planet_app.UI.LoginInformationDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import com.tencent.mmkv.MMKV
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import okhttp3.Response
 import org.greenrobot.eventbus.Subscribe
 
@@ -43,6 +44,7 @@ class RegisterActivity : AppCompatActivity() {
     val mmkv = MMKV.defaultMMKV()
     val password: EditText by lazy { binding.password }
     val store = LoginAndRegisterStore()
+    private val disposables by lazy { CompositeDisposable() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -53,22 +55,24 @@ class RegisterActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        disposables.add(
+            store.state()
+                .subscribe { state ->
+                    if (!state.isEnable) {
+                        register.isEnabled = state.isEnable
+                        register.setBackgroundResource(R.drawable.disable_button)
+                    } else {
+                        register.isEnabled = state.isEnable
+                        register.setBackgroundResource(R.drawable.enable_button)
+                    }
+                    binding.apply {
+                        lengthIcon.setImageResource(if (state.isLengthValid) R.drawable.dui else R.drawable.cuo)
+                        upperLowerIcon.setImageResource(if (state.hasUpperAndLower) R.drawable.dui else R.drawable.cuo)
+                        numberSpecialIcon.setImageResource(if (state.hasNumberAndSpecial) R.drawable.dui else R.drawable.cuo)
+                    }
+                }
+        )
 
-        store.state()
-            .subscribe { state ->
-                if (!state.isEnable) {
-                    register.isEnabled = state.isEnable
-                    register.setBackgroundResource(R.drawable.disable_button)
-                } else {
-                    register.isEnabled = state.isEnable
-                    register.setBackgroundResource(R.drawable.enable_button)
-                }
-                binding.apply {
-                    lengthIcon.setImageResource(if (state.isLengthValid) R.drawable.dui else R.drawable.cuo)
-                    upperLowerIcon.setImageResource(if (state.hasUpperAndLower) R.drawable.dui else R.drawable.cuo)
-                    numberSpecialIcon.setImageResource(if (state.hasNumberAndSpecial) R.drawable.dui else R.drawable.cuo)
-                }
-            }
 
         store.dispatch(LoginAndRegisterAction.initilaize)
         store.dispatch(LoginAndRegisterAction.input("checked", "checkbox"))
@@ -159,6 +163,11 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
         editText.filters = arrayOf(inputFilter)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
     }
 
     @Subscribe
