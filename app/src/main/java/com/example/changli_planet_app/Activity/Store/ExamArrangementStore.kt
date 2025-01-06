@@ -11,6 +11,7 @@ import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.ExamArrangementResponse
+import com.example.changli_planet_app.UI.ErrorStuPasswordResponseDialog
 import com.example.changli_planet_app.UI.NormalResponseDialog
 import okhttp3.Response
 
@@ -44,7 +45,7 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
                             }
                             "403" -> {
                                 handler.post {
-                                    NormalResponseDialog(
+                                    ErrorStuPasswordResponseDialog(
                                         action.context,
                                         "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
                                         "查询失败"

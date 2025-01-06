@@ -6,12 +6,14 @@ import android.widget.Toast
 import com.example.changli_planet_app.Activity.Action.ScoreInquiryAction
 import com.example.changli_planet_app.Activity.State.ScoreInquiryState
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.Store
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.GradeResponse
 import com.example.changli_planet_app.Network.Response.MyResponse
+import com.example.changli_planet_app.UI.ErrorStuPasswordResponseDialog
 import com.example.changli_planet_app.UI.NormalResponseDialog
 import okhttp3.Response
 
@@ -49,7 +51,7 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
                                     currentState.grades = emptyList()
                                     handler.post {
                                         try {
-                                            NormalResponseDialog(
+                                            ErrorStuPasswordResponseDialog(
                                                 action.context,
                                                 "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
                                                 "查询失败"

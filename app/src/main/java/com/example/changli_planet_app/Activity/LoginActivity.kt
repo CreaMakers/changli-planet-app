@@ -31,6 +31,7 @@ import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class LoginActivity : AppCompatActivity() {
@@ -54,6 +55,7 @@ class LoginActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        EventBus.getDefault().register(this)
         disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -63,7 +65,6 @@ class LoginActivity : AppCompatActivity() {
                     updateButtonClear(state.isClearPassword)
                 }
         )
-
 
         store.dispatch(LoginAndRegisterAction.initilaize)
         setUnderLine()
@@ -123,7 +124,10 @@ class LoginActivity : AppCompatActivity() {
         }
         inputFilter(account)
         inputFilterPassword(password)
+        account.setText(intent.getStringExtra("username") ?: "")
+        password.setText(intent.getStringExtra("password") ?: "")
     }
+
 
     private fun inputFilter(editText: EditText) {
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
@@ -139,7 +143,9 @@ class LoginActivity : AppCompatActivity() {
         var underlinetext = SpannableString(route.text.toString())
         underlinetext.setSpan(UnderlineSpan(), 6, 8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         route.text = underlinetext
-        route.setOnClickListener { Route.goRegister(this) }
+        route.setOnClickListener {
+            Route.goRegister(this)
+        }
     }
 
     private fun clearCurPassword() {
@@ -181,7 +187,7 @@ class LoginActivity : AppCompatActivity() {
 
     @Subscribe
     fun onFinish(finishEvent: FinishEvent) {
-        if (finishEvent.name == "Login") {
+        if (finishEvent.name.equals("Login")) {
             finish()
         }
     }

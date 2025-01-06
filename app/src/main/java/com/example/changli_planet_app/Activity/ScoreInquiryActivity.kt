@@ -33,6 +33,7 @@ class ScoreInquiryActivity : AppCompatActivity() {
     private val examScoreAdapter = ExamScoreAdapter()
     private val store = ScoreInquiryStore()
     private val cache by lazy { ScoreCache(this) }
+    private val back by lazy { binding.bindingBack }
     private val disposables by lazy { CompositeDisposable() }
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
@@ -65,8 +66,7 @@ class ScoreInquiryActivity : AppCompatActivity() {
                     showInfo(state.grades)
                 }
         )
-
-
+        back.setOnClickListener { finish() }
     }
 
     private fun setupToolbar() {

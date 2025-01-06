@@ -63,6 +63,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.LoseActivity"
+            android:launchMode="singleTask"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
