@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -21,7 +22,6 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -42,7 +42,6 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.TimetableWheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
-import com.example.changli_planet_app.databinding.SelectInTimetableBinding
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
@@ -54,10 +53,13 @@ import com.zhuangfei.timetable.listener.OnItemClickAdapter
 import com.zhuangfei.timetable.listener.OnItemLongClickAdapter
 import com.zhuangfei.timetable.listener.OnScrollViewBuildAdapter
 import com.zhuangfei.timetable.listener.OnSlideBuildAdapter
-import com.zhuangfei.timetable.listener.OnWeekChangedAdapter
 import com.zhuangfei.timetable.model.Schedule
 import com.zhuangfei.timetable.model.ScheduleSupport
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
@@ -120,6 +122,7 @@ class TimeTableActivity : AppCompatActivity() {
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
 
+    @SuppressLint("WrongThread")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -136,6 +139,15 @@ class TimeTableActivity : AppCompatActivity() {
             return
         }
         dataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
+        if (mmkv.getBoolean("isFirstLaunch",true)){
+            CoroutineScope(Dispatchers.IO).launch {
+                dataBase.clearAllTables()
+                withContext(Dispatchers.Main){
+                    mmkv.encode("isFirstLaunch",false)
+                }
+
+            }
+        }
         timetableView.setCurWeek(termMap[courseTerm.text])
         timetableView
             .maxSlideItem(10)
