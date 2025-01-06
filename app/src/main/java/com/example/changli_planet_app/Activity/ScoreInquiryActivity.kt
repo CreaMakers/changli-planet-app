@@ -66,6 +66,7 @@ class ScoreInquiryActivity : AppCompatActivity() {
                 }
         )
 
+
     }
 
     private fun setupToolbar() {

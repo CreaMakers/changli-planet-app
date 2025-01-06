@@ -5,13 +5,17 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="false"
+    android:hardwareAccelerated="true"
+    app:elevation="0dp"
     tools:context=".Activity.MainActivity">
 
     <!-- 主要内容 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="false">
 
 
         <FrameLayout
@@ -64,9 +68,11 @@
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:animateLayoutChanges="false"
         android:background="@color/white"
         android:clickable="true"
         android:focusable="true"
+        android:hardwareAccelerated="true"
         android:orientation="vertical">
 
         <LinearLayout
@@ -140,6 +146,7 @@
             android:background="@drawable/snowflakes_background4"
             android:clickable="true"
             android:focusable="true"
+            android:layerType="hardware"
             android:orientation="vertical">
 
             <TextView

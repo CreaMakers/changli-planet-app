@@ -30,6 +30,7 @@ import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.Subscribe
 
 class LoginActivity : AppCompatActivity() {
@@ -41,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
     private val iVEye: ImageView by lazy { binding.ivEye }
     private val ivOx: ImageView by lazy { binding.ivOx }
     private val agreementCheckBox: CheckBox by lazy { binding.agreementCheckbox }
-
+    private val disposables by lazy { CompositeDisposable() }
     val store = LoginAndRegisterStore()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,14 +54,16 @@ class LoginActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        disposables.add(
+            store.state()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { state ->
+                    updateButtonState(state.isEnable)
+                    updatePasswordVisibility(state.isVisibilityPassword)
+                    updateButtonClear(state.isClearPassword)
+                }
+        )
 
-        store.state()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { state ->
-                updateButtonState(state.isEnable)
-                updatePasswordVisibility(state.isVisibilityPassword)
-                updateButtonClear(state.isClearPassword)
-            }
 
         store.dispatch(LoginAndRegisterAction.initilaize)
         setUnderLine()
@@ -169,6 +172,11 @@ class LoginActivity : AppCompatActivity() {
             iVEye.setImageResource(R.drawable.line_invisible2)
         }
         password.setSelection(password.text.length)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
     }
 
     @Subscribe

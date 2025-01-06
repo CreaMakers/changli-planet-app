@@ -12,7 +12,7 @@ class ExamArrangementCache(private val context: Context) {
         MMKV.initialize(context)
     }
 
-    private val mmkv = MMKV.defaultMMKV()
+    private val mmkv = MMKV.mmkvWithID("content_cache")
     private val gson = Gson()
 
     fun saveExamArrangement(exams: List<ExamArrangement>) {

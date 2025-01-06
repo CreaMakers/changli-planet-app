@@ -1,9 +1,12 @@
 package com.example.changli_planet_app.Cache
 
+import com.example.changli_planet_app.Cache.UserInfoManager.userPassword
+import com.example.changli_planet_app.Cache.UserInfoManager.username
+import com.example.changli_planet_app.Core.PlanetApplication
 import com.tencent.mmkv.MMKV
 
 object StudentInfoManager {
-    private val mmkv by lazy { MMKV.defaultMMKV() }
+    private val mmkv by lazy { MMKV.mmkvWithID("import_cache") }
 
     private const val KEY_STUDENT_ID = "student_id"
     private const val KEY_PASSWORD = "student_password"
@@ -19,4 +22,9 @@ object StudentInfoManager {
         set(value) {
             mmkv.putString(KEY_PASSWORD, value)
         }
+
+    fun clear() {
+        studentId = ""
+        studentPassword = ""
+    }
 }

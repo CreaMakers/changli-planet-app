@@ -100,7 +100,7 @@
                         android:layout_weight="1"
                         android:background="@null"
                         android:gravity="center_vertical"
-                        android:hint="请输入学号"
+                        android:hint="请输入长理学号"
                         android:maxLines="1"
                         android:inputType="number"
                         android:textColorHint="#6C727F"
@@ -150,7 +150,7 @@
                         android:background="@null"
                         android:gravity="center_vertical"
                         android:inputType="textPassword"
-                        android:hint="请输入密码"
+                        android:hint="请输入教务密码"
                         android:maxLines="1"
                         android:textColorHint="#6C727F"
                         android:textSize="16sp" />

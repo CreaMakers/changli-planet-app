@@ -1,16 +1,27 @@
 package com.example.changli_planet_app.Activity
 
+import android.animation.LayoutTransition
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.transition.Transition
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.Scroller
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.customview.widget.ViewDragHelper
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.target.CustomTarget
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Fragment.FeatureFragment
 import com.example.changli_planet_app.Fragment.NewsFragment
@@ -27,6 +38,9 @@ import com.google.android.material.tabs.TabLayout.Tab
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
+
+    private val fragments = mutableMapOf<Int, Fragment>()
+    private var currentTabPosition: Int = 0
 
     private val tabLayout: TabLayout by lazy { binding.tabLayout }
 
@@ -50,11 +64,12 @@ class MainActivity : AppCompatActivity() {
     private val logoutButton: MaterialButton by lazy { binding.logoutButton }
 
 
+    private var isDrawerAnimating = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
-
         PlanetApplication.startTime = System.currentTimeMillis()
         setContentView(binding.root)
         drawerLayout = binding.drawerLayout
@@ -66,10 +81,58 @@ class MainActivity : AppCompatActivity() {
         binding.menuButton.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
-        initFragment(FeatureFragment.newInstance())
+        if (savedInstanceState == null) {
+            val firstFragment = FeatureFragment.newInstance()
+            fragments[0] = firstFragment
+            supportFragmentManager.beginTransaction()
+                .add(R.id.frag, firstFragment)
+                .commit()
+        }
         setupTabs()
         setupTabSelectionListener()
+        setupDrawerLayout()
         initClickListeners()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState)
+        outState.putInt("currentTab", currentTabPosition)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        currentTabPosition = savedInstanceState.getInt("currentTab")
+    }
+    private fun setupDrawerLayout() {
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+            override fun onDrawerStateChanged(newState: Int) {
+                when (newState) {
+                    DrawerLayout.STATE_DRAGGING, DrawerLayout.STATE_SETTLING -> {
+                        // 抽屉开始移动时，冻结 Fragment 的布局更新
+                        isDrawerAnimating = true
+                        fragments[currentTabPosition]?.view?.let { fragmentView ->
+                            fragmentView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+                            // 禁用布局更新
+                            (fragmentView as? ViewGroup)?.layoutTransition = null
+                        }
+                    }
+                    DrawerLayout.STATE_IDLE -> {
+                        // 抽屉停止时，恢复 Fragment 的布局更新
+                        isDrawerAnimating = false
+                        fragments[currentTabPosition]?.view?.let { fragmentView ->
+                            fragmentView.setLayerType(View.LAYER_TYPE_NONE, null)
+                            // 恢复布局更新
+                            (fragmentView as? ViewGroup)?.layoutTransition = LayoutTransition()
+                        }
+                    }
+                }
+            }
+
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                // 在滑动时禁用主内容区域的移动
+                binding.main.translationX = 0f
+            }
+        })
     }
 
     private fun initClickListeners() {
@@ -116,8 +179,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         logoutButton.setOnClickListener {
-            UserInfoManager.clear()
-            Route.goLogin(this@MainActivity)
+            PlanetApplication.clearCacheAll()
+            Route.goLoginForcibly(this@MainActivity)
             finish()
         }
     }
@@ -142,12 +205,19 @@ class MainActivity : AppCompatActivity() {
     private fun setupTabSelectionListener() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
-                when (tab.position) {
-                    0 -> initFragment(FeatureFragment.newInstance())  // feature tab
-                    1 -> initFragment(ChatGroupFragment.newInstance())     // look tab
-                    2 -> initFragment(FeatureFragment.newInstance())     // post tab
-                    3 -> initFragment(IMFragment.newInstance())        // im tab
+                if (currentTabPosition == tab.position) return
+
+                val fragment = fragments.getOrPut(tab.position) {
+                    when (tab.position) {
+                        0 -> FeatureFragment.newInstance()
+                        1 -> ChatGroupFragment.newInstance()
+                        2 -> FeatureFragment.newInstance()
+                        3 -> IMFragment.newInstance()
+                        else -> throw IllegalStateException("Invalid position")
+                    }
                 }
+                switchFragment(fragment)
+                currentTabPosition = tab.position
                 animateTabSelect(tab) // 动画效果
             }
 
@@ -159,6 +229,19 @@ class MainActivity : AppCompatActivity() {
                 // 可选：处理重新选中事件
             }
         })
+    }
+
+    private fun switchFragment(newFragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        fragments[currentTabPosition]?.let {
+            transaction.hide(it)
+        }
+        if (newFragment.isAdded) {
+            transaction.show(newFragment)
+        } else {
+            transaction.add(R.id.frag, newFragment)
+        }
+        transaction.commit()
     }
 
     private fun initFragment(fragment: Fragment) {
