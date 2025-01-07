@@ -27,6 +27,7 @@ import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
 import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
+import com.example.changli_planet_app.UI.ExpiredDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -65,7 +66,13 @@ class LoginActivity : AppCompatActivity() {
                     updateButtonClear(state.isClearPassword)
                 }
         )
-
+        if(intent.getBooleanExtra("from_token_expired", false)) {
+            ExpiredDialog(
+                this,
+                "您的登录状态过期啦꒰ঌ( ⌯' '⌯)໒꒱",
+                "登录提示"
+            ).show()
+        }
         store.dispatch(LoginAndRegisterAction.initilaize)
         setUnderLine()
         val accountTextWatcher = object : TextWatcher {

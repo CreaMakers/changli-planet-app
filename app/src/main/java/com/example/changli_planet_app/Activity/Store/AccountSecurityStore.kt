@@ -17,6 +17,7 @@ import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.UI.NormalResponseDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.Util.EventBusHelper
+import com.example.changli_planet_app.Util.PlanetConst
 import okhttp3.Response
 import org.greenrobot.eventbus.EventBus
 
@@ -84,6 +85,13 @@ class AccountSecurityStore : Store<AccountSecurityState, AccountSecurityAction>(
                             "200" -> {
                                 handler.post {
                                     EventBusHelper.post(FinishEvent("ChangePassword"))
+                                }
+                            }
+                            "401" -> {
+                                if (fromJson.msg.equals(PlanetConst.UNAUTHORIZATION)) {
+
+                                } else {
+
                                 }
                             }
                             else -> {

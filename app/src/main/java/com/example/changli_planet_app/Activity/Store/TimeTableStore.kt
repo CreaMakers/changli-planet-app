@@ -43,32 +43,43 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
         when (action) {
             is TimeTableAction.FetchCourses -> {
                 val cur = System.currentTimeMillis()
-                if (curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
-                    fetchTimetableFromNetwork(action).map { result ->
-                        (result + curState.subjects).distinctBy { "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}" }
-                            .filter { it.term == curState.term && it.studentId == studentId && it.studentPassword == studentPassword }
-                            .toMutableList()
-                    }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { result ->
-                            handleEvent(TimeTableAction.UpdateCourses(result))
+
+                courseDao.getAllCourseCount()
+                    .subscribeOn(Schedulers.io())
+                    .flatMap { count ->
+                        if (count == 0 || curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
+                            // 需要从网络获取数据
+                            fetchTimetableFromNetwork(action)
+                                .map { result ->
+                                    (result + curState.subjects)
+                                        .distinctBy { "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}" }
+                                        .filter { it.term == curState.term && it.studentId == studentId && it.studentPassword == studentPassword }
+                                        .toMutableList()
+                                }
+                                .doOnSuccess { Log.d("TimeTableStore", "网络请求获得课表") }
+                        } else {
+                            // 从数据库获取数据
+                            courseDao.getCoursesByTerm(curState.term, studentId, studentPassword)
+                                .doOnSuccess { Log.d("TimeTableStore", "从数据库获得课表") }
                         }
-                    Log.d("TimeTableStore", "网络请求获得课表")
-                } else {
-                    //从数据库中获得课表
-                    courseDao.getCoursesByTerm(curState.term, studentId, studentPassword)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
-                            if (result.isNotEmpty()) {
+                    }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ result ->
+                        if (result.isNotEmpty()) {
+                            if (action is TimeTableAction.FetchCourses) {
+                                handleEvent(TimeTableAction.UpdateCourses(result))
+                            } else {
                                 curState.subjects = result
                                 _state.onNext(curState)
-                            } else {
-                                Log.w("Debug", "No courses found in database")
                             }
-                        }, { error ->
-                            error.printStackTrace()
-                        })
-                    Log.d("TimeTableStore", "从数据库获得课表")
-                }
+                        } else {
+                            Log.w("Debug", "No courses found")
+                        }
+                    }, { error ->
+                        Log.e("TimeTableStore", "Error fetching courses", error)
+                        error.printStackTrace()
+                    })
             }
 
             is TimeTableAction.UpdateCourses -> {
@@ -239,46 +250,74 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
 
             OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                 override fun onSuccess(response: Response) {
-                    val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
-                    val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
-                        response.body?.string(), type
-                    )
-                    when (fromJson.code) {
-                        "200" -> {
-                            subjects.addAll(generateSubjects(fromJson.data))
-                            emitter.onSuccess(subjects)
-                        }
-                        "403" -> {
-                            handler.post {
-                                try {
-                                    ErrorStuPasswordResponseDialog(
-                                        action.context,
-                                        "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
-                                        "查询失败"
-                                    ).show()
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
+                    try {
+                        val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
+                        val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
+                            response.body?.string(), type
+                        )
+
+                        when (fromJson.code) {
+                            "200" -> {
+                                subjects.addAll(generateSubjects(fromJson.data))
+                                emitter.onSuccess(subjects)
+                            }
+
+                            "403" -> {
+                                handler.post {
+                                    try {
+                                        ErrorStuPasswordResponseDialog(
+                                            action.context,
+                                            "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
+                                            "查询失败"
+                                        ).show()
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                }
+                            }
+
+                            in listOf("404", "500") -> {
+                                handler.post {
+                                    try {
+                                        NormalResponseDialog(
+                                            action.context,
+                                            "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+                                            "查询失败"
+                                        ).show()
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
                                 }
                             }
                         }
-                        "404" -> {
-                            handler.post {
-                                try {
-                                    NormalResponseDialog(
-                                        action.context,
-                                        "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
-                                        "查询失败"
-                                    ).show()
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
+                    } catch (e: Exception) {
+                        handler.post {
+                            try {
+                                NormalResponseDialog(
+                                    action.context,
+                                    "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+                                    "查询失败"
+                                ).show()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
                             }
                         }
+                        e.printStackTrace()
                     }
                 }
 
                 override fun onFailure(error: String) {
-                    emitter.onError(Throwable(error))
+                    handler.post {
+                        try {
+                            NormalResponseDialog(
+                                action.context,
+                                "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+                                "查询失败"
+                            ).show()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
                 }
             })
         }

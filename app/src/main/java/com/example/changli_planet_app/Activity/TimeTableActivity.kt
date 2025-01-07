@@ -39,6 +39,7 @@ import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.UI.NormalResponseDialog
 import com.example.changli_planet_app.UI.TimetableWheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
@@ -78,6 +79,7 @@ class TimeTableActivity : AppCompatActivity() {
     private val timeTableStore: TimeTableStore by lazy {
         TimeTableStore(dataBase.courseDao())
     }
+
 
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
@@ -164,13 +166,21 @@ class TimeTableActivity : AppCompatActivity() {
         showLoading()
         dataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
         if (mmkv.getBoolean("isFirstLaunch", true)) {
+
             CoroutineScope(Dispatchers.IO).launch {
                 dataBase.clearAllTables()
                 withContext(Dispatchers.Main) {
                     mmkv.encode("isFirstLaunch", false)
                 }
-
             }
+        }
+        if (mmkv.getBoolean("isFirstDialog", true)) {
+            NormalResponseDialog(
+                this,
+                "喵呜~ 试试左右滑动日期栏来切换周次吧！(◍•ᴗ•◍)✧*。",
+                "贴心小提示"
+            ).show()
+            mmkv.encode("isFirstDialog", false)
         }
         courseTerm.text = getCurrentTerm()
         timetableView.setCurWeek(termMap[courseTerm.text])
@@ -234,6 +244,7 @@ class TimeTableActivity : AppCompatActivity() {
 //                )
 //            )
 //        )
+
         timetableView.apply {
             showTime()     //显示侧边栏时间
             showPopDialog()//课程点击事件,出现弹窗显示课程信息
@@ -244,6 +255,7 @@ class TimeTableActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.courseRefresh).setOnClickListener {
             TimeTableStore.curState.lastUpdate = 0
+            hideLoading()
             showLoading()
             timeTableStore.dispatch(
                 TimeTableAction.FetchCourses(

@@ -99,11 +99,11 @@
                 app:itemTitle="校历" />
 
             <com.example.changli_planet_app.UI.FunctionItem
-                android:id="@+id/nadd"
+                android:id="@+id/nelectronic"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="GPA" />
+                app:itemTitle="电费查询" />
 
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nmande"
@@ -159,11 +159,13 @@
                 app:itemTitle="教务公告" />
 
             <com.example.changli_planet_app.UI.FunctionItem
-                android:id="@+id/nelectronic"
+                android:id="@+id/nbalance"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:itemTitle="电费查询" />
+                app:itemTitle="余额查询" />
+
+
 
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nrank"
@@ -178,12 +180,7 @@
             android:layout_height="wrap_content"
             android:padding="15dp">
 
-            <com.example.changli_planet_app.UI.FunctionItem
-                android:id="@+id/nbalance"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="余额查询" />
+
 
             <com.example.changli_planet_app.UI.FunctionItem
                 android:id="@+id/nclassroom"
@@ -191,6 +188,10 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 app:itemTitle="空闲教室" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
 
             <Space
                 android:layout_width="0dp"

@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:background="@color/white"
-    android:layout_height="260dp"
+    android:layout_height="350dp"
 
     >
     <LinearLayout
@@ -28,5 +28,5 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/selectRecyclerTimetable"
         android:layout_width="match_parent"
-        android:layout_height="200dp"/>
+        android:layout_height="290dp"/>
 </LinearLayout>
