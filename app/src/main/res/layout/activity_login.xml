@@ -46,6 +46,7 @@
         android:background="@drawable/login_edit_shape"
         android:gravity="center"
         android:hint="请输入账号"
+        android:singleLine="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -85,7 +86,8 @@
             android:background="@drawable/login_edit_shape"
             android:gravity="center"
             android:hint="请输入密码"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:singleLine="true"/>
 
         <ImageView
             android:id="@+id/iv_ox"
