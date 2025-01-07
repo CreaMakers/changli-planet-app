@@ -1,14 +1,20 @@
 package com.example.changli_planet_app.Network
 
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Interceptor.NetworkLogger
+import com.example.changli_planet_app.Network.Response.Course
+import com.example.changli_planet_app.Network.Response.GradeResponse
+import com.example.changli_planet_app.Network.Response.NormalResponse
+import com.example.changli_planet_app.Util.PlanetConst
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.msdk.dns.MSDKDnsResolver
@@ -32,7 +38,7 @@ object OkHttpHelper {
         Interceptor {
         companion object {
             private const val MAX_RETRY_ATTEMPTS = 3
-            private const val MAX_BACKOFF_DELAY = 1000L // 最大延迟2秒
+            private const val MAX_BACKOFF_DELAY = 500L // 最大延迟0.5秒
         }
 
         interface TokenExpiredHandler {
@@ -40,6 +46,7 @@ object OkHttpHelper {
         }
 
         private var retryCount = 0
+
 
         override fun intercept(chain: Interceptor.Chain): Response {
             val originalRequest = chain.request()
@@ -51,14 +58,15 @@ object OkHttpHelper {
                 .build()
 
             var response = chain.proceed(requestWithToken)
-
-            if (response.code == 401 && response.message.equals("Unauthorized access") && retryCount < MAX_RETRY_ATTEMPTS) {
+            val responseBody = response.peekBody(Long.MAX_VALUE).string()
+            val realResponse = gson.fromJson(responseBody, NormalResponse::class.java)
+            if (realResponse.code.equals("401") && realResponse.msg.equals(PlanetConst.UNAUTHORIZATION) && retryCount < MAX_RETRY_ATTEMPTS) {
                 retryCount++
                 synchronized(this) {
                     try {
                         // 计算当前重试的延迟时间（指数退避）
                         val delayMs =
-                            (100L * (1 shl (retryCount - 1))).coerceAtMost(MAX_BACKOFF_DELAY)
+                            (300L * (1 shl (retryCount - 1))).coerceAtMost(MAX_BACKOFF_DELAY)
                         Thread.sleep(delayMs)
 
                         // 刷新 Token
@@ -135,7 +143,7 @@ object OkHttpHelper {
                     return try {
                         InetAddress.getAllByName(hostname).toList()
                     } catch (e: UnknownHostException) {
-                        emptyList() // 返回空列表，表示无法解析
+                        emptyList()
                     }
                 }
             })
@@ -175,7 +183,10 @@ object OkHttpHelper {
             .addInterceptor(AuthInterceptor(object : AuthInterceptor.TokenExpiredHandler {
                 override fun onTokenExpired() {
                     Handler(Looper.getMainLooper()).post {
-                        Route.goLoginForcibly(PlanetApplication.appContext)
+                        val intent = Intent(PlanetApplication.appContext, LoginActivity::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .putExtra("from_token_expired", true)
+                        PlanetApplication.appContext.startActivity(intent)
                     }
                 }
 

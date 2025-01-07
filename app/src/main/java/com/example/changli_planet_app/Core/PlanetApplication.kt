@@ -2,6 +2,7 @@ package com.example.changli_planet_app.Core
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.changli_planet_app.Cache.ScoreCache
@@ -29,6 +30,7 @@ class PlanetApplication : Application() {
         const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
 
         fun clearCacheAll() {
+            accessToken = ""
             MMKV.mmkvWithID("import_cache").clearAll()
             MMKV.mmkvWithID("content_cache").clearAll()
         }
@@ -37,7 +39,7 @@ class PlanetApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         val startTime = System.currentTimeMillis()
-
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         CoroutineScope(Dispatchers.IO).launch {
             // 并发执行所有初始化任务
             val tasks = listOf(

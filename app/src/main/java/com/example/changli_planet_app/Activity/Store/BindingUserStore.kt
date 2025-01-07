@@ -10,9 +10,11 @@ import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
+import com.example.changli_planet_app.UI.ExpiredDialog
 import com.example.changli_planet_app.UI.NormalResponseDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.Util.EventBusHelper
+import com.example.changli_planet_app.Util.PlanetConst
 import okhttp3.Response
 
 class BindingUserStore : Store<BindingUserState, BindingUserAction>() {  // 修正泛型参数
@@ -46,6 +48,15 @@ class BindingUserStore : Store<BindingUserState, BindingUserAction>() {  // 修�
                                         EventBusHelper.post(FinishEvent("bindingUser"))
                                     }
                                 }
+
+                                "401" -> {
+                                    if (fromJson.msg.equals(PlanetConst.UNAUTHORIZATION)) {
+
+                                    } else {
+
+                                    }
+                                }
+
                                 else -> {
                                     handler.post {
                                         NormalResponseDialog(

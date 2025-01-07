@@ -151,6 +151,7 @@ class MainActivity : AppCompatActivity() {
 
         clearCache.setOnClickListener {
             // 处理清除缓存点击
+            PlanetApplication.accessToken = "1231231231231"
         }
 
         changeStudentId.setOnClickListener {
