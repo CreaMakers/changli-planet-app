@@ -47,7 +47,7 @@
 
         <!-- 确定按钮 -->
         <TextView
-            android:id="@+id/no"
+            android:id="@+id/chosen_no"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="44dp"
@@ -60,7 +60,7 @@
 
         <!-- 确定按钮 -->
         <TextView
-            android:id="@+id/yes"
+            android:id="@+id/chosen_yes"
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"

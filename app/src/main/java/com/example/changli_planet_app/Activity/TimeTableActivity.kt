@@ -39,6 +39,7 @@ import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.UI.NormalResponseDialog
 import com.example.changli_planet_app.UI.TimetableWheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
@@ -165,13 +166,21 @@ class TimeTableActivity : AppCompatActivity() {
         showLoading()
         dataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
         if (mmkv.getBoolean("isFirstLaunch", true)) {
+
             CoroutineScope(Dispatchers.IO).launch {
                 dataBase.clearAllTables()
                 withContext(Dispatchers.Main) {
                     mmkv.encode("isFirstLaunch", false)
                 }
-
             }
+        }
+        if (mmkv.getBoolean("isFirstDialog", true)) {
+            NormalResponseDialog(
+                this,
+                "喵呜~ 试试左右滑动日期栏来切换周次吧！(◍•ᴗ•◍)✧*。",
+                "贴心小提示"
+            ).show()
+            mmkv.encode("isFirstDialog", false)
         }
         courseTerm.text = getCurrentTerm()
         timetableView.setCurWeek(termMap[courseTerm.text])

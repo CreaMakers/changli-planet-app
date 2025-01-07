@@ -30,14 +30,13 @@ class NormalChosenDialog(
         setContentView(R.layout.normal_chosen_dialog)
         contents = findViewById(R.id.content)
         contents.text = content
-        yes = findViewById(R.id.yes)
-        no = findViewById(R.id.no)
+        yes = findViewById(R.id.chosen_yes)
+        no = findViewById(R.id.chosen_no)
         yes.setOnClickListener {
-            onConfirm
+            onConfirm()
             dismiss()
         }
         no.setOnClickListener {
-
             dismiss()
         }
         fade = findViewById(R.id.fade)

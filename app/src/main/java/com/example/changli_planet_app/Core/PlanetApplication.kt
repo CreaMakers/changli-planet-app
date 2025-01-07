@@ -1,4 +1,5 @@
 package com.example.changli_planet_app.Core
+
 import android.app.Application
 import android.content.Context
 import android.util.Log
@@ -26,19 +27,24 @@ class PlanetApplication : Application() {
         var startTime: Long = 0
         var isLogin = false
         var deviceId: String = ""
-        lateinit var appContext : Context
+        lateinit var appContext: Context
         const val UserIp: String = "http://113.44.47.220:8083/app/users"
         const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
 
         fun clearCacheAll() {
-            accessToken = ""
-            MMKV.mmkvWithID("import_cache").clearAll()
-            MMKV.mmkvWithID("content_cache").clearAll()
-            CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
+            CoroutineScope(Dispatchers.IO).launch {
+                accessToken = ""
+                MMKV.mmkvWithID("import_cache").clearAll()
+                MMKV.mmkvWithID("content_cache").clearAll()
+                CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
+            }
         }
+
         fun clearContentCache() {
-            MMKV.mmkvWithID("content_cache").clearAll()
-            CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
+            CoroutineScope(Dispatchers.IO).launch {
+                MMKV.mmkvWithID("content_cache").clearAll()
+                CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
+            }
         }
     }
 

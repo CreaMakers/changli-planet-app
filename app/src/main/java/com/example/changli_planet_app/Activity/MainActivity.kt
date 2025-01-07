@@ -156,8 +156,7 @@ class MainActivity : AppCompatActivity() {
                 "将清除实用工具的所有缓存",
                 "确定要清除缓存嘛₍ᐢ.ˬ.⑅ᐢ₎",
                 onConfirm = {
-                    PlanetApplication.clearCacheAll()
-                    Route.goLoginForcibly(this@MainActivity)
+                    PlanetApplication.clearContentCache()
                 }
             ).show()
 
