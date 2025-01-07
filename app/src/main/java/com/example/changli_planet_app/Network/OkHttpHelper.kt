@@ -37,7 +37,7 @@ object OkHttpHelper {
     class AuthInterceptor(private val tokenExpiredHandler: TokenExpiredHandler? = null) :
         Interceptor {
         companion object {
-            private const val MAX_RETRY_ATTEMPTS = 3
+            private const val MAX_RETRY_ATTEMPTS = 2
             private const val MAX_BACKOFF_DELAY = 500L // 最大延迟0.5秒
         }
 
@@ -60,13 +60,16 @@ object OkHttpHelper {
             var response = chain.proceed(requestWithToken)
             val responseBody = response.peekBody(Long.MAX_VALUE).string()
             val realResponse = gson.fromJson(responseBody, NormalResponse::class.java)
-            if (realResponse.code.equals("401") && realResponse.msg.equals(PlanetConst.UNAUTHORIZATION) && retryCount < MAX_RETRY_ATTEMPTS) {
+            if (realResponse?.code == "401" &&
+                realResponse?.msg == PlanetConst.UNAUTHORIZATION &&
+                retryCount < MAX_RETRY_ATTEMPTS
+            ) {
                 retryCount++
                 synchronized(this) {
                     try {
                         // 计算当前重试的延迟时间（指数退避）
                         val delayMs =
-                            (300L * (1 shl (retryCount - 1))).coerceAtMost(MAX_BACKOFF_DELAY)
+                            (30L * (1 shl (retryCount - 1))).coerceAtMost(MAX_BACKOFF_DELAY)
                         Thread.sleep(delayMs)
 
                         // 刷新 Token
