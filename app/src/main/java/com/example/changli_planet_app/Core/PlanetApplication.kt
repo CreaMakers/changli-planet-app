@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Cache.ScoreCache
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Cache.UserInfoManager
@@ -33,6 +34,11 @@ class PlanetApplication : Application() {
             accessToken = ""
             MMKV.mmkvWithID("import_cache").clearAll()
             MMKV.mmkvWithID("content_cache").clearAll()
+            CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
+        }
+        fun clearContentCache() {
+            MMKV.mmkvWithID("content_cache").clearAll()
+            CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
         }
     }
 

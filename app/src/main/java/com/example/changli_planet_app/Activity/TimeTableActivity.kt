@@ -79,6 +79,7 @@ class TimeTableActivity : AppCompatActivity() {
         TimeTableStore(dataBase.courseDao())
     }
 
+
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
         binding.timetableView.visibility = View.GONE
@@ -234,6 +235,7 @@ class TimeTableActivity : AppCompatActivity() {
 //                )
 //            )
 //        )
+
         timetableView.apply {
             showTime()     //显示侧边栏时间
             showPopDialog()//课程点击事件,出现弹窗显示课程信息
@@ -244,6 +246,7 @@ class TimeTableActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.courseRefresh).setOnClickListener {
             TimeTableStore.curState.lastUpdate = 0
+            hideLoading()
             showLoading()
             timeTableStore.dispatch(
                 TimeTableAction.FetchCourses(

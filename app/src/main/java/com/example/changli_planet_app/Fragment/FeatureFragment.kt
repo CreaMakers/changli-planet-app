@@ -67,7 +67,6 @@ class FeatureFragment : Fragment() {
                 ncet.setIcon(R.drawable.ncet)
                 ntest.setIcon(R.drawable.ntest)
                 ncalender.setIcon(R.drawable.ncalender)
-                nadd.setIcon(R.drawable.nadd)
                 nmande.setIcon(R.drawable.nmande)
                 nlose.setIcon(R.drawable.nlose)
                 nnotice.setIcon(R.drawable.nnotice)

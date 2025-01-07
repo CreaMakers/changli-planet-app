@@ -35,5 +35,7 @@ interface CourseDao {
     @Query("DELETE FROM courses WHERE start = :start AND weekday = :day AND :curDisplayWeek IN (weeks) AND isCustom = 1")
     fun deleteCourse(start: Int, day: Int, curDisplayWeek: Int): Single<Int>
 
+    @Query("SELECT COUNT(*) FROM courses")
+    fun getAllCourseCount(): Single<Int>
 
 }

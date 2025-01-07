@@ -30,6 +30,7 @@ import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Fragment.ChatGroupFragment
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.UI.NormalChosenDialog
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayout
@@ -150,8 +151,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         clearCache.setOnClickListener {
-            // 处理清除缓存点击
-            PlanetApplication.accessToken = "1231231231231"
+            NormalChosenDialog(
+                this,
+                "将清除实用工具的所有缓存",
+                "确定要清除缓存嘛₍ᐢ.ˬ.⑅ᐢ₎",
+                onConfirm = {
+                    PlanetApplication.clearCacheAll()
+                    Route.goLoginForcibly(this@MainActivity)
+                }
+            ).show()
+
         }
 
         changeStudentId.setOnClickListener {
@@ -180,9 +189,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         logoutButton.setOnClickListener {
-            PlanetApplication.clearCacheAll()
-            Route.goLoginForcibly(this@MainActivity)
-            finish()
+            NormalChosenDialog(
+                this,
+                "将清除本地所有缓存",
+                "是否登出",
+                onConfirm = {
+                    PlanetApplication.clearCacheAll()
+                    Route.goLoginForcibly(this@MainActivity)
+                }
+            ).show()
         }
     }
 
