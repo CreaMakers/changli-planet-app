@@ -1,6 +1,8 @@
 package com.example.changli_planet_app.Activity.Store
 
 import android.annotation.SuppressLint
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.example.changli_planet_app.Activity.Action.TimeTableAction
 import com.example.changli_planet_app.Activity.State.TimeTableState
@@ -15,6 +17,8 @@ import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
+import com.example.changli_planet_app.UI.ErrorStuPasswordResponseDialog
+import com.example.changli_planet_app.UI.NormalResponseDialog
 import com.google.gson.reflect.TypeToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -27,6 +31,7 @@ import okhttp3.Response
 class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, TimeTableAction>() {
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
+    private val handler = Handler(Looper.getMainLooper())
 
     companion object {
         @JvmStatic
@@ -117,8 +122,9 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                 _state.onNext(curState)
                 dispatch(
                     TimeTableAction.FetchCourses(
+                        action.context,
                         GetCourse(
-                            "202301160231", "Cy@20050917", "", action.term
+                            action.stuNum, action.password, "", action.term
                         )
                     )
                 )
@@ -241,6 +247,32 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                         "200" -> {
                             subjects.addAll(generateSubjects(fromJson.data))
                             emitter.onSuccess(subjects)
+                        }
+                        "403" -> {
+                            handler.post {
+                                try {
+                                    ErrorStuPasswordResponseDialog(
+                                        action.context,
+                                        "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
+                                        "查询失败"
+                                    ).show()
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        }
+                        "404" -> {
+                            handler.post {
+                                try {
+                                    NormalResponseDialog(
+                                        action.context,
+                                        "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+                                        "查询失败"
+                                    ).show()
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
                         }
                     }
                 }

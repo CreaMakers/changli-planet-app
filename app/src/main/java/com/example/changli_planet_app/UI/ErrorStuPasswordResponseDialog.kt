@@ -9,7 +9,7 @@ import android.widget.TextView
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
 
-class ErrorStuPasswordResponseDialog(context: Context, val content: String, val type: String) :
+class  ErrorStuPasswordResponseDialog(context: Context, val content: String, val type: String) :
     Dialog(context) {
     private lateinit var yes: TextView
     private lateinit var contents: TextView

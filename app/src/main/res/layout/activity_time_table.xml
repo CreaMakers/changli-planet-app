@@ -30,8 +30,8 @@
                 />
 
             <TextView
-                android:clickable="true"
                 android:id="@+id/courseTerm"
+                android:clickable="true"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="5dp"
@@ -41,7 +41,6 @@
                 android:textSize="18sp"
 
                 />
-
 
 
         </LinearLayout>
@@ -57,8 +56,8 @@
             android:orientation="horizontal">
 
             <TextView
-                android:clickable="true"
                 android:id="@+id/courseWeek"
+                android:clickable="true"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginRight="5dp"
@@ -89,12 +88,45 @@
         </LinearLayout>
     </LinearLayout>
 
-
-    <com.zhuangfei.timetable.TimetableView
-        android:id="@+id/timetableView"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/app_white" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.zhuangfei.timetable.TimetableView
+            android:id="@+id/timetableView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/app_white" />
+
+        <RelativeLayout
+            android:id="@+id/loadingLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80FFFFFF"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminateTintMode="src_atop"
+                android:indeterminateTint="#4C81CE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/progressBar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dp"
+                android:text="加载中..."
+                android:textColor="#4C81CE"
+                android:textSize="14sp" />
+        </RelativeLayout>
+
+
+    </FrameLayout>
 
 
 </LinearLayout>

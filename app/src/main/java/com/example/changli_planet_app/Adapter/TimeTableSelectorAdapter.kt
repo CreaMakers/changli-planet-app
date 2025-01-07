@@ -17,7 +17,13 @@ import com.example.changli_planet_app.Util.Event.SelectEvent
 import com.example.changli_planet_app.Util.EventBusHelper
 import org.greenrobot.eventbus.EventBus
 
-class TimeTableSelectorAdapter(private val list: List<String>, val store: TimeTableStore) :
+class TimeTableSelectorAdapter(
+    private val context: Context,
+    private val stuNum: String,
+    private val stuPassword: String,
+    val list: List<String>,
+    val store: TimeTableStore
+) :
     RecyclerView.Adapter<TimeTableSelectorAdapter.TimeTableViewHodler>() {
     class TimeTableViewHodler(item: View) : ViewHolder(item) {
         val selec: TextView = item.findViewById(R.id.select)
@@ -38,7 +44,14 @@ class TimeTableSelectorAdapter(private val list: List<String>, val store: TimeTa
                 store.dispatch(TimeTableAction.selectWeek(list[position]))
                 EventBusHelper.post(SelectEvent(1))
             } else {
-                store.dispatch(TimeTableAction.selectTerm(list[position]))
+                store.dispatch(
+                    TimeTableAction.selectTerm(
+                        context,
+                        stuNum,
+                        stuPassword,
+                        list[position]
+                    )
+                )
                 EventBusHelper.post(SelectEvent(1))
             }
         }

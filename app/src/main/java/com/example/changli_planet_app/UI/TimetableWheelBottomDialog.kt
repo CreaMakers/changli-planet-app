@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.UI
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,13 +18,18 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.greenrobot.eventbus.Subscribe
 
 
-class TimetableWheelBottomDialog(val store:TimeTableStore) : BottomSheetDialogFragment() {
+class TimetableWheelBottomDialog(
+    val mcontext: Context,
+    val stuNum: String,
+    val stuPassword: String,
+    val store: TimeTableStore
+) : BottomSheetDialogFragment() {
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter : TimeTableSelectorAdapter
-    private lateinit var text:String
-    private lateinit var item : List<String>
+    private lateinit var adapter: TimeTableSelectorAdapter
+    private lateinit var text: String
+    private lateinit var item: List<String>
     private var selectedIndex = 0
-    private var onInvoke : ((String)->Unit) ?= null
+    private var onInvoke: ((String) -> Unit)? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,23 +37,26 @@ class TimetableWheelBottomDialog(val store:TimeTableStore) : BottomSheetDialogFr
         savedInstanceState: Bundle?
     ): View? {
         lifecycle.addObserver(EventBusLifecycleObserver(this))
-        val view = inflater.inflate(R.layout.select_in_timetable,container,false)
+        val view = inflater.inflate(R.layout.select_in_timetable, container, false)
         recyclerView = view.findViewById(R.id.selectRecyclerTimetable)
-        adapter = TimeTableSelectorAdapter(item,store)
+        adapter = TimeTableSelectorAdapter(mcontext, stuNum, stuPassword, item, store)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         recyclerView.scrollToPosition(selectedIndex)
         return view
     }
-    fun setItem(list: List<String>){
+
+    fun setItem(list: List<String>) {
         item = list
     }
-    fun setTitle(title:String){
+
+    fun setTitle(title: String) {
         text = title
     }
+
     @Subscribe
-    fun ClickEvent(selectEvent: SelectEvent){
-        if(selectEvent.eventType==1) {
+    fun ClickEvent(selectEvent: SelectEvent) {
+        if (selectEvent.eventType == 1) {
             dismiss()
         }
     }

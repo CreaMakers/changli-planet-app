@@ -78,6 +78,17 @@ class TimeTableActivity : AppCompatActivity() {
     private val timeTableStore: TimeTableStore by lazy {
         TimeTableStore(dataBase.courseDao())
     }
+
+    private fun showLoading() {
+        binding.loadingLayout.visibility = View.VISIBLE
+        binding.timetableView.visibility = View.GONE
+    }
+
+    private fun hideLoading() {
+        binding.loadingLayout.visibility = View.GONE
+        binding.timetableView.visibility = View.VISIBLE
+    }
+
     private val termMap by lazy {
         mapOf(
             "2024-2025-2" to "2025-02-24 00:00:00",
@@ -94,6 +105,18 @@ class TimeTableActivity : AppCompatActivity() {
             "2019-2020-1" to "2019-09-02 00:00:00",
         )
     }
+
+    private fun getCurrentTerm(): String {
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH) + 1
+        return when {
+            currentMonth >= 9 -> "$currentYear-${currentYear + 1}-1"  // 第一学期
+            currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"  // 第二学期
+            else -> "${currentYear - 1}-${currentYear}-1"  // 上学年第一学期
+        }
+    }
+
     private val weekList by lazy {
         listOf(
             "第1周",
@@ -138,16 +161,18 @@ class TimeTableActivity : AppCompatActivity() {
             finish()
             return
         }
+        showLoading()
         dataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
-        if (mmkv.getBoolean("isFirstLaunch",true)){
+        if (mmkv.getBoolean("isFirstLaunch", true)) {
             CoroutineScope(Dispatchers.IO).launch {
                 dataBase.clearAllTables()
-                withContext(Dispatchers.Main){
-                    mmkv.encode("isFirstLaunch",false)
+                withContext(Dispatchers.Main) {
+                    mmkv.encode("isFirstLaunch", false)
                 }
 
             }
         }
+        courseTerm.text = getCurrentTerm()
         timetableView.setCurWeek(termMap[courseTerm.text])
         timetableView
             .maxSlideItem(10)
@@ -166,7 +191,6 @@ class TimeTableActivity : AppCompatActivity() {
                 timetableView.source(subjects)
                 timetableView.updateView()
                 courseWeek.text = curState.weekInfo
-                courseTerm.text = curState.term
                 timetableView.changeWeekOnly(extractWeekNumber(courseWeek.text.toString()))
                 curDisplayWeek = extractWeekNumber(courseWeek.text.toString())
                 timetableView.onDateBuildListener()
@@ -176,13 +200,19 @@ class TimeTableActivity : AppCompatActivity() {
                 } else {
                     isCurWeek.text = "非本周"
                 }
+                hideLoading()
                 Log.d("Debug", "startTime : ${termMap[curState.term]}")
                 Log.d("Debug", "curWeek : ${timetableView.curWeek()}")
             }
 
         )
         timeTableStore.dispatch(
-            TimeTableAction.selectTerm(getCurTerm(Calendar.getInstance()))
+            TimeTableAction.selectTerm(
+                this@TimeTableActivity,
+                studentId,
+                studentPassword,
+                getCurTerm(Calendar.getInstance())
+            )
         )
 //        timeTableStore.dispatch(
 //            TimeTableAction.getStartTime(
@@ -193,16 +223,17 @@ class TimeTableActivity : AppCompatActivity() {
 //        )
         timeTableStore.dispatch(TimeTableAction.selectWeek("第${timetableView.curWeek()}周"))
 
-        timeTableStore.dispatch(
-            TimeTableAction.FetchCourses(
-                GetCourse(
-                    studentId,
-                    studentPassword,
-                    "",
-                    courseTerm.text.toString()
-                )
-            )
-        )
+//        timeTableStore.dispatch(
+//            TimeTableAction.FetchCourses(
+//                this,
+//                GetCourse(
+//                    studentId,
+//                    studentPassword,
+//                    "",
+//                    courseTerm.text.toString()
+//                )
+//            )
+//        )
         timetableView.apply {
             showTime()     //显示侧边栏时间
             showPopDialog()//课程点击事件,出现弹窗显示课程信息
@@ -213,8 +244,10 @@ class TimeTableActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.courseRefresh).setOnClickListener {
             TimeTableStore.curState.lastUpdate = 0
+            showLoading()
             timeTableStore.dispatch(
                 TimeTableAction.FetchCourses(
+                    this,
                     GetCourse(
                         studentId,
                         studentPassword,
@@ -231,12 +264,12 @@ class TimeTableActivity : AppCompatActivity() {
             ClickWheel(weekList)
         }
         binding.weeksExtendBtn.setOnClickListener {
-
             ClickWheel(weekList)
         }
-        binding.courseTerm.setOnClickListener {
-            ClickWheel(termList)
-        }
+        // 暂时关闭选择学期
+//        binding.courseTerm.setOnClickListener {
+//            ClickWheel(termList)
+//        }
         timetableView.findViewById<View>(com.zhuangfei.android_timetableview.sample.R.id.contentPanel)
             .setOnTouchListener { _, event ->
                 gestureDetector.onTouchEvent(event)
@@ -471,7 +504,12 @@ class TimeTableActivity : AppCompatActivity() {
     private fun getValueInMMKV(key: String) = mmkv.decodeLong(key)
 
     private fun ClickWheel(item: List<String>) {
-        val Wheel = TimetableWheelBottomDialog(timeTableStore)
+        val Wheel = TimetableWheelBottomDialog(
+            this@TimeTableActivity,
+            studentId,
+            studentPassword,
+            timeTableStore
+        )
         Wheel.setItem(item)
         Wheel.show(supportFragmentManager, "TimetableWheel")
     }
@@ -497,10 +535,18 @@ class TimeTableActivity : AppCompatActivity() {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
                             if (curDisplayWeek - 1 in 1..20)
-                                timeTableStore.dispatch(TimeTableAction.selectWeek("第${curDisplayWeek - 1}周")) // 右滑，切换到上一周
+                                timeTableStore.dispatch(
+                                    TimeTableAction.selectWeek(
+                                        "第${curDisplayWeek - 1}周"
+                                    )
+                                ) // 右滑，切换到上一周
                         } else {
                             if (curDisplayWeek + 1 in 1..20)
-                                timeTableStore.dispatch(TimeTableAction.selectWeek("第${curDisplayWeek + 1}周")) // 左滑，切换到下一周
+                                timeTableStore.dispatch(
+                                    TimeTableAction.selectWeek(
+                                        "第${curDisplayWeek + 1}周"
+                                    )
+                                ) // 左滑，切换到下一周
                         }
                         return true
                     }
