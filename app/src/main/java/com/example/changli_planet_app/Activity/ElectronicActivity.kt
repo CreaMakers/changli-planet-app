@@ -17,6 +17,7 @@ import com.example.changli_planet_app.Data.jsonbean.CheckElectricity
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.WheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
+import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.w3c.dom.Text
@@ -24,6 +25,7 @@ import org.w3c.dom.Text
 class ElectronicActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityElectronicBinding
+    private val mmkv by lazy { MMKV.defaultMMKV() }
     private val back: ImageView by lazy { binding.back }
     private val school: TextView by lazy { binding.school }
     private val dor: TextView by lazy { binding.dor }
@@ -166,8 +168,19 @@ class ElectronicActivity : AppCompatActivity() {
         Wheel.show(supportFragmentManager, "wheel")
     }
 
+    override fun onResume() {
+        super.onResume()
+        school.text = mmkv.decodeString("school", "选择校区")
+        dor.text = mmkv.decodeString("dor", "选择宿舍楼")
+        dor_number.setText(mmkv.decodeString("dor_number", ""))
+        electronicStore.dispatch(ElectronicAction.selectAddress(school.text.toString()))
+        electronicStore.dispatch(ElectronicAction.selectBuild(dor.text.toString()))
+    }
     override fun onDestroy() {
         super.onDestroy()
+        mmkv.encode("school", school.text.toString())
+        mmkv.encode("dor", dor.text.toString())
+        mmkv.encode("dor_number", dor_number.text.toString())
         disposables.clear()
     }
 }
