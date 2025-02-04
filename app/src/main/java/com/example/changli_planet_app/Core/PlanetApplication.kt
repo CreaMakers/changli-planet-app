@@ -5,7 +5,13 @@ import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.bumptech.glide.Glide
+import com.bumptech.glide.GlideBuilder
+import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.module.AppGlideModule
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Cache.ScoreCache
 import com.example.changli_planet_app.Cache.StudentInfoManager
@@ -23,7 +29,11 @@ import kotlinx.coroutines.withContext
 
 class PlanetApplication : Application() {
     companion object {
-        var accessToken: String? = null
+        var accessToken: String?
+            get() = MMKV.defaultMMKV()?.getString("token", null)
+            set(value) {
+                MMKV.defaultMMKV()?.putString("token", value)
+            }
         var startTime: Long = 0
         var isLogin = false
         var deviceId: String = ""
@@ -105,15 +115,19 @@ class PlanetApplication : Application() {
             R.drawable.nclassroom
         )
 
+        // Glide 需要在主线程初始化
         withContext(Dispatchers.Main) {
-            // Glide 需要在主线程初始化
-            iconResources.forEach { resId ->
-                Glide.with(applicationContext)
-                    .load(resId)
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .preload()
+            iconResources.chunked(4) {
+                it.forEach { resId ->
+                    Glide.with(applicationContext)
+                        .load(resId)
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .preload()
+                }
             }
         }
     }
 
+
 }
+

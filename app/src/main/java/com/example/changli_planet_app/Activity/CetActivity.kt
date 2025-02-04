@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Activity
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
@@ -14,8 +15,14 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.StrictMode
+import android.view.GestureDetector
+import android.view.GestureDetector.OnGestureListener
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.Gravity
+import android.view.MotionEvent
+import android.view.VelocityTracker
 import android.view.View
+import android.view.ViewConfiguration
 import android.webkit.URLUtil
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -57,9 +64,6 @@ class CetActivity : AppCompatActivity() {
         }
         toolBar.setOnClickListener { finish() }
         setupWebView()
-        onBackPressedDispatcher.addCallback(this) {
-            webView.goBack()
-        }
     }
 
     private fun setupWebView() {
@@ -105,7 +109,7 @@ class CetActivity : AppCompatActivity() {
 
     private fun showMessage(message: String) {
         val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
-            .setBackgroundTint(getColor(R.color.score_bar))
+            .setBackgroundTint(getColor(                                        R.color.score_bar))
             .setTextColor(Color.BLACK)
         val snackerView = snackbar.view
 

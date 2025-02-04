@@ -29,6 +29,7 @@ import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Fragment.ChatGroupFragment
+import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.UI.NormalChosenDialog
 import com.example.changli_planet_app.databinding.ActivityMainBinding
@@ -36,7 +37,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), DrawerController {
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
 
@@ -79,9 +80,7 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        binding.menuButton.setOnClickListener {
-            drawerLayout.openDrawer(GravityCompat.START)
-        }
+
         if (savedInstanceState == null) {
             val firstFragment = FeatureFragment.newInstance()
             fragments[0] = firstFragment
@@ -104,6 +103,8 @@ class MainActivity : AppCompatActivity() {
         super.onRestoreInstanceState(savedInstanceState)
         currentTabPosition = savedInstanceState.getInt("currentTab")
     }
+
+
     private fun setupDrawerLayout() {
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerStateChanged(newState: Int) {
@@ -117,6 +118,7 @@ class MainActivity : AppCompatActivity() {
                             (fragmentView as? ViewGroup)?.layoutTransition = null
                         }
                     }
+
                     DrawerLayout.STATE_IDLE -> {
                         // 抽屉停止时，恢复 Fragment 的布局更新
                         isDrawerAnimating = false
@@ -134,6 +136,8 @@ class MainActivity : AppCompatActivity() {
                 binding.main.translationX = 0f
             }
         })
+
+
     }
 
     private fun initClickListeners() {
@@ -234,6 +238,7 @@ class MainActivity : AppCompatActivity() {
                 switchFragment(fragment)
                 currentTabPosition = tab.position
                 animateTabSelect(tab) // 动画效果
+
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {
@@ -279,5 +284,9 @@ class MainActivity : AppCompatActivity() {
                     .start()
             }
             .start()
+    }
+
+    override fun openDrawer() {
+        drawerLayout.openDrawer(GravityCompat.START)
     }
 }

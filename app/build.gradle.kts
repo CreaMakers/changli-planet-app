@@ -83,6 +83,9 @@ dependencies {
     // Kotlin 扩展
     implementation(files("libs/develocity-gradle-plugin-3.17.6.jar"))
     implementation("androidx.room:room-ktx:2.5.2")
+
+    // 图片裁剪库
+    implementation("com.github.Yalantis:uCrop:2.2.8")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

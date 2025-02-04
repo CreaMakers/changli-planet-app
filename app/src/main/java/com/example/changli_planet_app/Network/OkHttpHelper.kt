@@ -57,6 +57,10 @@ object OkHttpHelper {
                 .addHeader("deviceId", PlanetApplication.deviceId)
                 .build()
 
+            if (originalRequest.url.encodedPath == "/app/users/me/token" && originalRequest.method == "PUT") {
+                return chain.proceed(requestWithToken)
+            }
+
             var response = chain.proceed(requestWithToken)
             val responseBody = response.peekBody(Long.MAX_VALUE).string()
             val realResponse = gson.fromJson(responseBody, NormalResponse::class.java)

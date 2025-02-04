@@ -1,11 +1,14 @@
 package com.example.changli_planet_app.Fragment
 
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.MessageQueue.IdleHandler
 import android.transition.Transition
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -16,8 +19,10 @@ import android.widget.LinearLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.Target
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
+import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.UI.FunctionItem
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 
@@ -28,7 +33,24 @@ import com.example.changli_planet_app.databinding.FragmentFeatureBinding
  * create an instance of this fragment.
  */
 class FeatureFragment : Fragment() {
+    private val TAG = "FeatureFragment"
     private lateinit var binding: FragmentFeatureBinding
+    private val menuButton by lazy { binding.featureMenuButton }
+    private var drawerController: DrawerController? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is DrawerController) {
+            drawerController = context
+        } else {
+            Log.d(TAG, "DrawerControl,宿主Activity未实现接口")
+        }
+    }
+
+    override fun onDetach() {
+        drawerController = null
+        super.onDetach()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +60,11 @@ class FeatureFragment : Fragment() {
         binding = FragmentFeatureBinding.inflate(layoutInflater)
         setupClickListeners()
         setIcons()
+        menuButton.setOnClickListener { drawerController?.openDrawer() }
+        Looper.myQueue().addIdleHandler {
+            setIcons()
+            false
+        }
         return binding.root
     }
 
@@ -55,11 +82,7 @@ class FeatureFragment : Fragment() {
     private fun setIcons() {
         context?.let { ctx ->
             with(binding) {
-                // 设置 logo
-                Glide.with(ctx)
-                    .load(R.drawable.planet_logo)
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .into(planetLogo)
+                planetLogo.setImageResource(R.drawable.planet_logo)
                 // 设置功能图标
                 ngrade.setIcon(R.drawable.ngrade)
                 ncourse.setIcon(R.drawable.ncourse)
@@ -81,5 +104,28 @@ class FeatureFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() = FeatureFragment()
+    }
+
+    // 动态计算尺寸的核心方法
+    private fun calculateTargetSize(view: View): Pair<Int, Int> {
+        return when {
+            view.width > 0 && view.height > 0 ->
+                Pair(view.width, view.height) // 已测量完成的情况
+
+            view.isLaidOut ->
+                Pair(view.width, view.height) // 已布局完成的情况
+
+            else -> {
+                // 未完成布局时使用屏幕宽高估算
+                val displayMetrics = view.context.resources.displayMetrics
+                val screenWidth = displayMetrics.widthPixels
+                val screenHeight = displayMetrics.heightPixels
+
+                // 根据布局参数动态计算（示例为宽度充满，高度按比例）
+                val targetWidth = screenWidth
+                val targetHeight = (screenWidth * 1f).toInt() // 假设原图是1:1比例
+                Pair(targetWidth, targetHeight)
+            }
+        }
     }
 }
