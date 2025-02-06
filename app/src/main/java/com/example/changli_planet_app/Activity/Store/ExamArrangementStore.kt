@@ -35,7 +35,7 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
-                        var examArrangementResponse = OkHttpHelper.gson.fromJson(
+                        val examArrangementResponse = OkHttpHelper.gson.fromJson(
                             response.body?.string(),
                             ExamArrangementResponse::class.java
                         )
