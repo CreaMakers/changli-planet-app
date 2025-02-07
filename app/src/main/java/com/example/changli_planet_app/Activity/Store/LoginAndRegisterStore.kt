@@ -73,11 +73,12 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
-                        var fromJson = OkHttpHelper.gson.fromJson(
+                        val fromJson = OkHttpHelper.gson.fromJson(
                             response.body?.string(),
                             MyResponse::class.java
                         )
                         when (fromJson.msg) {
+
                             "用户登录成功" -> {
                                 UserInfoManager.username = action.userPassword.username
                                 UserInfoManager.userPassword = action.userPassword.password

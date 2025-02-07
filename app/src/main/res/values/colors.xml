@@ -19,4 +19,6 @@
     <color name="seach_gray">#717279</color>
     <color name="low_blue">#C2D4F8</color>
     <color name="normal_background">#F5F7F9</color>
+    <color name="text_color">#333333</color>
+    <color name="grey">#D4D4D4</color>
 </resources>

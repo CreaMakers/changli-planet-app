@@ -14,6 +14,7 @@ import com.example.changli_planet_app.Activity.MandeActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
 import com.example.changli_planet_app.Activity.ScoreInquiryActivity
 import com.example.changli_planet_app.Activity.TimeTableActivity
+import com.example.changli_planet_app.Activity.UserProfileActivity
 
 /**
  * 所有页面跳转逻辑都应卸载Route中，方便统一管理
@@ -22,6 +23,11 @@ import com.example.changli_planet_app.Activity.TimeTableActivity
 object Route {
     fun goLogin(context: Context) {
         val intent = Intent(context, LoginActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goUserProfile(context: Context) {
+        val intent = Intent(context, UserProfileActivity::class.java)
         context.startActivity(intent)
     }
 

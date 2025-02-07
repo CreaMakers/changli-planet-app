@@ -38,6 +38,7 @@ class PlanetApplication : Application() {
         var isLogin = false
         var deviceId: String = ""
         lateinit var appContext: Context
+//        const val UserIp: String = "http://10.0.2.2:8083/app/users"
         const val UserIp: String = "http://113.44.47.220:8083/app/users"
         const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
 
@@ -62,11 +63,11 @@ class PlanetApplication : Application() {
         super.onCreate()
         val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        initMMKV()
         CoroutineScope(Dispatchers.IO).launch {
             // 并发执行所有初始化任务
             val tasks = listOf(
                 async { initDNS() },
-                async { initMMKV() },
                 async { preloadImages() }  // 添加图片预加载任务
             )
 
@@ -91,7 +92,7 @@ class PlanetApplication : Application() {
         MSDKDnsResolver.getInstance().init(applicationContext, dnsConfigBuilder)
     }
 
-    private suspend fun initMMKV() {
+    private fun initMMKV() {
         MMKV.initialize(this@PlanetApplication)
     }
 

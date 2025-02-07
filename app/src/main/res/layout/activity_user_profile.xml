@@ -110,7 +110,7 @@
                         android:textStyle="bold" />
 
 
-                    <EditText
+                    <TextView
                         android:id="@+id/user_profile_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -188,6 +188,40 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingVertical="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="10dp"
+                        android:text="性别"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+
+                    <TextView
+                        android:id="@+id/user_profile_gender"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="10dp"
+                        android:gravity="end"
+                        android:hint="点击添加"
+                        android:textColor="#333333"
+                        android:textColorHint="#999999"
+                        android:textSize="16sp" />
+
+                </RelativeLayout>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
