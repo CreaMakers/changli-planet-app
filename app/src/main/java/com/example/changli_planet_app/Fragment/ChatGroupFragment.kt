@@ -50,14 +50,16 @@ class ChatGroupFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentChatGroupBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        binding.underConstructionView.setOnClickListener {
+            it.visibility = View.GONE
+        }
         leftRecyclerView.adapter = ChatGroupLeftItemAdapter(leftRecyclerData)
         leftRecyclerView.layoutManager = LinearLayoutManager(context)
         rightRecyclerView.adapter = ChatGroupRightAdapter(rightRecyclerData)

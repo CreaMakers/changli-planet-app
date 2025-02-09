@@ -230,7 +230,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
                     when (tab.position) {
                         0 -> FeatureFragment.newInstance()
                         1 -> ChatGroupFragment.newInstance()
-                        2 -> FeatureFragment.newInstance()
+                        2 -> NewsFragment.newInstance()
                         3 -> IMFragment.newInstance()
                         else -> throw IllegalStateException("Invalid position")
                     }

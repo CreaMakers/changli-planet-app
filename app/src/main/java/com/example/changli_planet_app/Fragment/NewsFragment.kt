@@ -13,7 +13,15 @@ class NewsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentNewsBinding.inflate(layoutInflater)
+
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.underConstructionView.setOnClickListener {
+            it.visibility = View.GONE
+        }
     }
     companion object {
         @JvmStatic
