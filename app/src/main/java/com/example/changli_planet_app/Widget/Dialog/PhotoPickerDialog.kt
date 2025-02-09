@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.UI
+package com.example.changli_planet_app.Widget.Dialog
 
 import android.content.Context
 import android.graphics.Color

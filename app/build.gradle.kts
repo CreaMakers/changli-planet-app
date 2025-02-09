@@ -86,6 +86,8 @@ dependencies {
 
     // 图片裁剪库
     implementation("com.github.Yalantis:uCrop:2.2.8")
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

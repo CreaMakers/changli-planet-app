@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.UI
+package com.example.changli_planet_app.Widget.View
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet

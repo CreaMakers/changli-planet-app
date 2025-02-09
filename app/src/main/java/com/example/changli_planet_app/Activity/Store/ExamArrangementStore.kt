@@ -2,7 +2,6 @@ package com.example.changli_planet_app.Activity.Store
 
 import android.os.Handler
 import android.os.Looper
-import com.example.changli_planet_app.Activity.Action.AccountSecurityAction
 import com.example.changli_planet_app.Activity.Action.ExamInquiryAction
 import com.example.changli_planet_app.Activity.State.ExamInquiryState
 import com.example.changli_planet_app.Core.PlanetApplication
@@ -11,8 +10,8 @@ import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.ExamArrangementResponse
-import com.example.changli_planet_app.UI.ErrorStuPasswordResponseDialog
-import com.example.changli_planet_app.UI.NormalResponseDialog
+import com.example.changli_planet_app.Widget.Dialog.ErrorStuPasswordResponseDialog
+import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import okhttp3.Response
 
 class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {

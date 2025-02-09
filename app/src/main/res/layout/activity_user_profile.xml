@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
     tools:context=".Activity.UserProfileActivity">
 
     <LinearLayout
@@ -190,6 +191,7 @@
                 android:orientation="vertical">
 
                 <RelativeLayout
+                    android:id="@+id/gender_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackground"
@@ -224,6 +226,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/grade_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackground"
@@ -258,6 +261,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/locationLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackground"
@@ -292,6 +296,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/birthday_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackground"

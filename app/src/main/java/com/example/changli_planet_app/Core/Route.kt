@@ -5,6 +5,7 @@ import android.content.Intent
 import com.example.changli_planet_app.Activity.AccountSecurityActivity
 import com.example.changli_planet_app.Activity.BindingUserActivity
 import com.example.changli_planet_app.Activity.CetActivity
+import com.example.changli_planet_app.Activity.CityActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.Activity.ExamArrangementActivity
 import com.example.changli_planet_app.Activity.LoginActivity
@@ -21,6 +22,7 @@ import com.example.changli_planet_app.Activity.UserProfileActivity
  * 使用方法：Route.goxx()
  */
 object Route {
+
     fun goLogin(context: Context) {
         val intent = Intent(context, LoginActivity::class.java)
         context.startActivity(intent)

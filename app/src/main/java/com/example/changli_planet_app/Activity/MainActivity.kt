@@ -1,40 +1,31 @@
 package com.example.changli_planet_app.Activity
 
 import android.animation.LayoutTransition
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.transition.Transition
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.Scroller
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.customview.widget.ViewDragHelper
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.CustomTarget
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Fragment.FeatureFragment
-import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Fragment.ChatGroupFragment
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.NormalChosenDialog
+import com.example.changli_planet_app.Widget.Dialog.NormalChosenDialog
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
@@ -84,6 +75,10 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     private val store by lazy { UserStore() }
 
+    override fun onResume() {
+        super.onResume()
+        store.dispatch(UserAction.initilaize())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

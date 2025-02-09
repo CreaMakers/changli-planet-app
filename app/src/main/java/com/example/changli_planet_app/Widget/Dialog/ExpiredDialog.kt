@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.UI
+package com.example.changli_planet_app.Widget.Dialog
 
 import android.app.Dialog
 import android.content.Context
@@ -6,8 +6,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.TextView
-import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
 
 class  ExpiredDialog(context: Context, val content: String, val type: String) :

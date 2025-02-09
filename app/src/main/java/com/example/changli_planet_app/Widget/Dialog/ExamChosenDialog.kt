@@ -1,19 +1,13 @@
-package com.example.changli_planet_app.UI
+package com.example.changli_planet_app.Widget.Dialog
 
 import android.app.Dialog
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.example.changli_planet_app.Adapter.CustomDropDownAdapter
-import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.FragmentArrangeDialogBinding
-import java.util.Calendar
 
 class ExamChosenDialog(val times: List<String>) : DialogFragment() {
 

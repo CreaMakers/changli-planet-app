@@ -9,20 +9,15 @@ import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
-import com.example.changli_planet_app.Data.jsonbean.Exam
 import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.UI.LoginInformationDialog
-import com.example.changli_planet_app.Util.Event.FinishEvent
-import com.example.changli_planet_app.Util.EventBusHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
 import okhttp3.Response
 
 class SplashActivity : AppCompatActivity() {

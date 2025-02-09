@@ -12,7 +12,7 @@
         android:padding="15dp">
 
         <TextView
-            android:id="@+id/selectTimetableTitle"
+            android:id="@+id/select_userprofile_title"
             android:layout_gravity="center"
             android:textStyle="bold"
             android:layout_width="0dp"
@@ -29,7 +29,7 @@
         android:background="@color/itractor" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/selectRecyclerTimetable"
+        android:id="@+id/selectRecyclerUserProfile"
         android:paddingBottom="7dp"
         android:paddingTop="6dp"
         android:layout_width="match_parent"

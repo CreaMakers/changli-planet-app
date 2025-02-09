@@ -1,30 +1,22 @@
 package com.example.changli_planet_app.Activity.Store
 
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
 import com.example.changli_planet_app.Activity.LoginActivity
-import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.State.LoginAndRegisterState
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.Store
-import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.UI.LoginInformationDialog
+import com.example.changli_planet_app.Widget.Dialog.LoginInformationDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.Util.EventBusHelper
 import com.tencent.mmkv.MMKV
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import okhttp3.Dispatcher
 import okhttp3.Response
 
 class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterAction>() {

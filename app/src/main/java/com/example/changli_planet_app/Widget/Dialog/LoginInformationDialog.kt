@@ -1,11 +1,10 @@
-package com.example.changli_planet_app.UI
+package com.example.changli_planet_app.Widget.Dialog
 
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.View
 import android.widget.TextView
 import com.example.changli_planet_app.R
 

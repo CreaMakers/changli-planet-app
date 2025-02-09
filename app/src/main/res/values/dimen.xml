@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="circle_item_size">54dp</dimen>
-    <dimen name="circle_item_padding">18dp</dimen>
-    <dimen name="circle_item_size_half">27dp</dimen>
-</resources>

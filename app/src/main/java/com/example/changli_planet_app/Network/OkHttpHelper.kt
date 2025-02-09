@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit
 
 object OkHttpHelper {
 
+    private val TAG = "OkHttpHelper"
     class AuthInterceptor(private val tokenExpiredHandler: TokenExpiredHandler? = null) :
         Interceptor {
         companion object {
@@ -63,6 +64,7 @@ object OkHttpHelper {
 
             var response = chain.proceed(requestWithToken)
             val responseBody = response.peekBody(Long.MAX_VALUE).string()
+            Log.d(TAG, responseBody)
             val realResponse = gson.fromJson(responseBody, NormalResponse::class.java)
             if (realResponse?.code == "401" &&
                 realResponse?.msg == PlanetConst.UNAUTHORIZATION &&

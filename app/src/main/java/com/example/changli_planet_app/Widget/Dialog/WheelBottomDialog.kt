@@ -1,29 +1,31 @@
-package com.example.changli_planet_app.UI
+package com.example.changli_planet_app.Widget.Dialog
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Activity.Store.ElectronicStore
 import com.example.changli_planet_app.Adapter.SelectorAdapter
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.Event.SelectEvent
-import com.example.changli_planet_app.Util.EventBusHelper
 import com.example.changli_planet_app.Util.EventBusLifecycleObserver
+import com.example.changli_planet_app.Widget.View.DividerItemDecoration
+import com.example.changli_planet_app.Widget.View.MaxHeightLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.greenrobot.eventbus.Subscribe
 
-class WheelBottomDialog(val store: ElectronicStore) : BottomSheetDialogFragment() {
+class WheelBottomDialog(
+    val store: ElectronicStore, val maxHeight: Int
+) :
+    BottomSheetDialogFragment() {
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter : SelectorAdapter
-    private lateinit var text:String
-    private lateinit var item : List<String>
+    private lateinit var adapter: SelectorAdapter
+    private lateinit var text: String
+    private lateinit var item: List<String>
     private var selectedIndex = 0
-    private var onInvoke : ((String)->Unit) ?= null
+    private var onInvoke: ((String) -> Unit)? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,23 +33,31 @@ class WheelBottomDialog(val store: ElectronicStore) : BottomSheetDialogFragment(
         savedInstanceState: Bundle?
     ): View? {
         lifecycle.addObserver(EventBusLifecycleObserver(this))
-        val view = inflater.inflate(R.layout.select_dor_school,container,false)
+        val view = inflater.inflate(R.layout.select_dor_school, container, false)
+
+        val maxHeightLinearLayout = view.findViewById<MaxHeightLinearLayout>(R.id.maxHeightLayout)
+        maxHeightLinearLayout.setMaxHeight(maxHeight)
+
         recyclerView = view.findViewById(R.id.selector)
-        adapter = SelectorAdapter(item,store)
+        adapter = SelectorAdapter(item, store)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         recyclerView.scrollToPosition(selectedIndex)
+        recyclerView.addItemDecoration(DividerItemDecoration())
         return view
     }
-    fun setItem(list: List<String>){
+
+    fun setItem(list: List<String>) {
         item = list
     }
-    fun setTitle(title:String){
+
+    fun setTitle(title: String) {
         text = title
     }
+
     @Subscribe
-    fun ClickEvent(selectEvent: SelectEvent){
-        if(selectEvent.eventType==1) {
+    fun ClickEvent(selectEvent: SelectEvent) {
+        if (selectEvent.eventType == 1) {
             dismiss()
         }
     }

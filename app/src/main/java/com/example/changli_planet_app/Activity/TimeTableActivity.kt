@@ -11,6 +11,7 @@ import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
@@ -39,8 +40,8 @@ import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.NormalResponseDialog
-import com.example.changli_planet_app.UI.TimetableWheelBottomDialog
+import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
+import com.example.changli_planet_app.Widget.Dialog.TimetableWheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
 import com.google.android.material.snackbar.Snackbar
@@ -80,6 +81,11 @@ class TimeTableActivity : AppCompatActivity() {
         TimeTableStore(dataBase.courseDao())
     }
 
+    private val maxHeight by lazy {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        displayMetrics.heightPixels / 2
+    }
 
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
@@ -520,7 +526,8 @@ class TimeTableActivity : AppCompatActivity() {
             this@TimeTableActivity,
             studentId,
             studentPassword,
-            timeTableStore
+            timeTableStore,
+            maxHeight
         )
         Wheel.setItem(item)
         Wheel.show(supportFragmentManager, "TimetableWheel")

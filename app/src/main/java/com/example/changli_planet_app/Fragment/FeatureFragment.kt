@@ -2,28 +2,16 @@ package com.example.changli_planet_app.Fragment
 
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
-import android.os.MessageQueue.IdleHandler
-import android.transition.Transition
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.target.Target
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Interface.DrawerController
-import com.example.changli_planet_app.UI.FunctionItem
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -69,6 +57,7 @@ class FeatureFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+
         with(binding) {
             nelectronic.setOnClickListener { activity?.let { Route.goElectronic(it) } }
             ncourse.setOnClickListener { activity?.let { Route.goTimetable(it) } }
@@ -77,6 +66,7 @@ class FeatureFragment : Fragment() {
             ncet.setOnClickListener { activity?.let { Route.goCet(it) } }
             nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
         }
+
     }
 
     private fun setIcons() {
@@ -92,10 +82,8 @@ class FeatureFragment : Fragment() {
                 ncalender.setIcon(R.drawable.ncalender)
                 nmande.setIcon(R.drawable.nmande)
                 nlose.setIcon(R.drawable.nlose)
-                nnotice.setIcon(R.drawable.nnotice)
                 nelectronic.setIcon(R.drawable.nelectronic)
                 nrank.setIcon(R.drawable.nrank)
-                nbalance.setIcon(R.drawable.nbalance)
                 nclassroom.setIcon(R.drawable.nclassroom)
             }
         }

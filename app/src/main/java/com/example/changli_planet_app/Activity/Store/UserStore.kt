@@ -2,7 +2,6 @@ package com.example.changli_planet_app.Activity.Store
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.State.UserState
 import com.example.changli_planet_app.Core.PlanetApplication
@@ -13,7 +12,9 @@ import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.UploadAvatarResponse
 import com.example.changli_planet_app.Network.Response.UserProfileResponse
 import com.example.changli_planet_app.Network.Response.UserStatsResponse
-import com.example.changli_planet_app.UI.CustomToast
+import com.example.changli_planet_app.Util.Event.FinishEvent
+import com.example.changli_planet_app.Util.EventBusHelper
+import com.example.changli_planet_app.Widget.View.CustomToast
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
 
@@ -44,6 +45,10 @@ class UserStore : Store<UserState, UserAction>() {
                                     currentState.userProfile = it
                                     currentState.avatarUri = it.avatarUrl
                                 }
+                            }
+
+                            else -> {
+                                CustomToast.showMessage(action.context, "请求失败, ${fromJson.msg}")
                             }
                         }
 
@@ -141,6 +146,50 @@ class UserStore : Store<UserState, UserAction>() {
 
                 })
                 _state.onNext(currentState)
+                currentState
+            }
+
+            is UserAction.UpdateUserProfile -> {
+                action.userProfileRequest.avatarUrl = currentState.avatarUri
+                action.userProfileRequest.userLevel = currentState.userProfile.userLevel
+                val httpUrlHelper = HttpUrlHelper.HttpRequest()
+                    .put(PlanetApplication.UserIp + "/me/profile")
+                    .body(OkHttpHelper.gson.toJson(action.userProfileRequest))
+                    .build()
+                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
+                    override fun onSuccess(response: Response) {
+                        val fromJson = OkHttpHelper.gson.fromJson(
+                            response.body?.string(),
+                            UserProfileResponse::class.java
+                        )
+                        when (fromJson.code) {
+                            "200" -> {
+                                handler.post {
+                                    CustomToast.showMessage(action.context, "更改成功(ฅ′ω`ฅ)")
+                                    EventBusHelper.post(FinishEvent("updateUser"))
+                                }
+                            }
+
+                            else -> {
+                                handler.post {
+                                    CustomToast.showMessage(
+                                        action.context,
+                                        "提交失败, ${fromJson.msg}"
+                                    )
+                                }
+                            }
+                        }
+
+                        _state.onNext(currentState)
+                    }
+
+                    override fun onFailure(error: String) {
+                        handler.post {
+                            CustomToast.showMessage(action.context, "获取用户动态信息失败")
+                        }
+                        _state.onNext(currentState)
+                    }
+                })
                 currentState
             }
         }

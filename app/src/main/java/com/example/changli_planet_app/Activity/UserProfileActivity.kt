@@ -2,7 +2,6 @@ package com.example.changli_planet_app.Activity
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,7 +11,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.NumberPicker
+import android.util.DisplayMetrics
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -27,9 +27,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Data.jsonbean.UserProfileRequest
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.CustomToast
-import com.example.changli_planet_app.UI.PhotoPickerDialog
+import com.example.changli_planet_app.Widget.View.CustomToast
+import com.example.changli_planet_app.Widget.Dialog.PhotoPickerDialog
+import com.example.changli_planet_app.Widget.Dialog.UserProfileWheelBottomDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityUserProfileBinding
 import com.yalantis.ucrop.UCrop
@@ -53,6 +55,8 @@ class UserProfileActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_CAMERA = 1001
         private const val REQUEST_GALLERY = 1002
+        private const val REQUEST_PROVINCE = 1112
+        private const val REQUEST_CITY = 1113
 
         // 图片最大尺寸大于90 保证图片清晰度
         private const val MAX_IMAGE_SIZE = 180
@@ -79,8 +83,40 @@ class UserProfileActivity : AppCompatActivity() {
     private val gender by lazy { binding.userProfileGender }
     private val birthday by lazy { binding.userProfileBirthday }
     private val website by lazy { binding.userProfileWebsite }
+    private val location by lazy { binding.userProfileLocation }
+
+    private val genderLayout by lazy { binding.genderLayout }
+    private val gradeLayout by lazy { binding.gradeLayout }
+    private val birthdayLayout by lazy { binding.birthdayLayout }
+    private val locationLayout by lazy { binding.locationLayout }
 
     private val submit by lazy { binding.userProfileSubmit }
+
+    val maxHeight by lazy {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val screenHeight = displayMetrics.heightPixels
+        screenHeight / 2
+    }
+    // data
+
+    private val genderList = listOf("男", "女", "保密")
+
+    val gradeList = listOf(
+        "保密~",
+        "大一",
+        "大二",
+        "大三",
+        "大四",
+        "研一",
+        "研二",
+        "研三",
+        "博一",
+        "博二",
+        "博三",
+        "在职人员"
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -96,9 +132,32 @@ class UserProfileActivity : AppCompatActivity() {
         store.dispatch(UserAction.initilaize())
         setAvatar.setOnClickListener { setAvatar() }
         back.setOnClickListener { finish() }
-        birthday.setOnClickListener { setBirthday() }
-        gender.setOnClickListener { showGenderPickerDialog() }
+        birthdayLayout.setOnClickListener { setBirthday() }
+        genderLayout.setOnClickListener { showGenderPickerDialog(genderList) }
+        gradeLayout.setOnClickListener { showGradePickerDialog(gradeList) }
+        locationLayout.setOnClickListener {
+            val intent = Intent(this@UserProfileActivity, ProvinceActivity::class.java)
+            startActivityForResult(intent, REQUEST_PROVINCE)
+        }
+        submit.setOnClickListener { updateUserProfile() }
         EventBus.getDefault().register(this)
+    }
+
+    private fun updateUserProfile() {
+        // 头像去store中再填
+        val userProfileRequest = UserProfileRequest(
+            bio = bio.text.toString(),
+            gender = when (gender.text.toString()) {
+                "男" -> 0
+                "女" -> 1
+                else -> 2
+            },
+            grade = grade.text.toString(),
+            birthdate = birthday.text.toString(),
+            location = location.text.toString(),
+            website = website.text.toString()
+        )
+        store.dispatch(UserAction.UpdateUserProfile(userProfileRequest,this))
     }
 
     private fun observeState() {
@@ -110,13 +169,10 @@ class UserProfileActivity : AppCompatActivity() {
                     loadAvatar(state.avatarUri)
                     account.text = UserInfoManager.username
                     bio.setText(userProfile.bio)
-                    grade.text = userProfile.grade
+                    grade.text = state.userProfile.grade
                     birthday.text = userProfile.birthDate
-                    gender.text = when (userProfile.gender) {
-                        0 -> "男"
-                        1 -> "女"
-                        else -> "保密"
-                    }
+                    gender.text = genderList[state.userProfile.gender]
+                    location.text = state.userProfile.location
                     website.setText(userProfile.website)
                 }
         )
@@ -149,32 +205,12 @@ class UserProfileActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun showGenderPickerDialog() {
-        // 定义性别选项数组
-        val genders = arrayOf("男", "女", "保密")
+    private fun showGenderPickerDialog(list: List<String>) {
+        clickWheel(list)
+    }
 
-        val numberPicker = NumberPicker(this).apply {
-            minValue = 0
-            maxValue = genders.size - 1
-            displayedValues = genders
-            wrapSelectorWheel = false
-        }
-
-        // 使用 AlertDialog 包含 NumberPicker
-        AlertDialog.Builder(this)
-            .setTitle("请选择性别")
-            .setView(numberPicker)
-            .setPositiveButton("确定") { dialog, _ ->
-                // 获取选中的数组下标对应的性别
-                val selectedGender = genders[numberPicker.value]
-                // 例如可更新某个 TextView 显示选中的性别
-                gender.text = selectedGender
-                dialog.dismiss()
-            }
-            .setNegativeButton("取消") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
+    private fun showGradePickerDialog(list: List<String>) {
+        clickWheel(list)
     }
 
     private fun checkCameraPermission() {
@@ -188,6 +224,20 @@ class UserProfileActivity : AppCompatActivity() {
                 REQUEST_CAMERA
             )
         }
+    }
+
+    private fun clickWheel(item: List<String>) {
+        val wheel = UserProfileWheelBottomDialog(
+            this@UserProfileActivity,
+            store,
+            maxHeight, {
+                gender.text = it
+            }, {
+                grade.text = it
+            }
+        )
+        wheel.setItem(item)
+        wheel.show(supportFragmentManager, "UserProfileWheel")
     }
 
     private fun checkGalleryPermission() {
@@ -250,6 +300,11 @@ class UserProfileActivity : AppCompatActivity() {
             REQUEST_CAMERA -> currentPhotoUri?.let { startCrop(it) }
             REQUEST_GALLERY -> data?.data?.let { startCrop(it) }
             UCrop.REQUEST_CROP -> handleCropResult(data)
+            REQUEST_PROVINCE -> {
+                val province = data?.getStringExtra("province")
+                val city = data?.getStringExtra("city")
+                location.text = "$province $city"
+            }
         }
     }
 
@@ -396,7 +451,7 @@ class UserProfileActivity : AppCompatActivity() {
 
     @Subscribe
     fun onFinish(finishEvent: FinishEvent) {
-        if (finishEvent.name == "updateUserProfile") {
+        if (finishEvent.name == "updateUser") {
             finish()
         }
     }

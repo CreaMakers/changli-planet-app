@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.UI
+package com.example.changli_planet_app.Widget.View
 
 import android.annotation.SuppressLint
 import android.content.Context

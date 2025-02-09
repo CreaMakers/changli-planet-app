@@ -2,6 +2,7 @@ package com.example.changli_planet_app.Activity
 
 import android.os.Bundle
 import android.text.InputFilter
+import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewStub
 import android.widget.EditText
@@ -15,12 +16,11 @@ import com.example.changli_planet_app.Activity.Action.ElectronicAction
 import com.example.changli_planet_app.Activity.Store.ElectronicStore
 import com.example.changli_planet_app.Data.jsonbean.CheckElectricity
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.WheelBottomDialog
+import com.example.changli_planet_app.Widget.Dialog.WheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
 import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import org.w3c.dom.Text
 
 class ElectronicActivity : AppCompatActivity() {
 
@@ -36,6 +36,12 @@ class ElectronicActivity : AppCompatActivity() {
     private val electronicStore = ElectronicStore(this)
     private val disposables by lazy { CompositeDisposable() }
     private val schoolList: List<String> = listOf("金盆岭校区", "云塘校区")
+    private val maxHeight by lazy {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val screenHeight = displayMetrics.heightPixels
+        screenHeight / 2
+    }
     private val dorList: List<String> =
         listOf(
             "16栋A区",
@@ -163,7 +169,7 @@ class ElectronicActivity : AppCompatActivity() {
     }
 
     private fun ClickWheel(item: List<String>) {
-        val Wheel = WheelBottomDialog(electronicStore)
+        val Wheel = WheelBottomDialog(electronicStore, maxHeight)
         Wheel.setItem(item)
         Wheel.show(supportFragmentManager, "wheel")
     }
@@ -176,6 +182,7 @@ class ElectronicActivity : AppCompatActivity() {
         electronicStore.dispatch(ElectronicAction.selectAddress(school.text.toString()))
         electronicStore.dispatch(ElectronicAction.selectBuild(dor.text.toString()))
     }
+
     override fun onDestroy() {
         super.onDestroy()
         mmkv.encode("school", school.text.toString())
