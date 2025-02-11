@@ -1,4 +1,5 @@
 package com.example.changli_planet_app.Activity
+
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -37,6 +38,7 @@ class SplashActivity : AppCompatActivity() {
         lifecycleScope.launch {
             delay(200) // 延迟 0.2 秒
             Route.goHome(this@SplashActivity)
+            finish()
 //            autoLogin()
         }
     }
@@ -55,7 +57,7 @@ class SplashActivity : AppCompatActivity() {
                     .header("deviceId", LoginActivity.getDeviceId(this@SplashActivity))
                     .body(OkHttpHelper.gson.toJson(userPassword))
                     .build()
-                    OkHttpHelper.sendRequest(httpUrlHelper, object: RequestCallback {
+                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
                         var fromJson = OkHttpHelper.gson.fromJson(
                             response.body?.string(),
@@ -63,16 +65,19 @@ class SplashActivity : AppCompatActivity() {
                         )
                         when (fromJson.msg) {
                             "用户登录成功" -> {
-                                PlanetApplication.accessToken = response.header("Authorization", "") ?: ""
+                                PlanetApplication.accessToken =
+                                    response.header("Authorization", "") ?: ""
                                 Route.goHome(this@SplashActivity)
                                 finish()
                             }
+
                             else -> {
                                 Route.goLogin(this@SplashActivity)
                                 finish()
                             }
                         }
                     }
+
                     override fun onFailure(error: String) {
                         Route.goLogin(this@SplashActivity)
                         finish()

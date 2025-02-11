@@ -6,5 +6,11 @@ data class CourseScore(
     val score: Int,
     val credit: Double,
     val earnedCredit: Double,
-    val courseType: String
+    val courseType: String,
+    val pscj: String? = null,
+    val pscjBL: String? = null,
+    val qmcjBL: String? = null,
+    val qzcj: String? = null,
+    val sjcj: String? = null,
+    val sjcjBL: String? = null,
 )

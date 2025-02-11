@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:orientation="horizontal"
+    android:id="@+id/score_item_layout"
     android:padding="16dp">
     <LinearLayout
         android:layout_width="0dp"

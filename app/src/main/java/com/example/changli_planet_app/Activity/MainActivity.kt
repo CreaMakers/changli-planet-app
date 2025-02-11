@@ -3,6 +3,7 @@ package com.example.changli_planet_app.Activity
 import android.animation.LayoutTransition
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -24,6 +25,7 @@ import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Fragment.ChatGroupFragment
 import com.example.changli_planet_app.Interface.DrawerController
+import com.example.changli_planet_app.Pool.TabAnimationPool
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.Dialog.NormalChosenDialog
 import com.example.changli_planet_app.databinding.ActivityMainBinding
@@ -45,7 +47,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     // 侧边栏头像部分
     private val mainAvatarLinear: LinearLayout by lazy { binding.mainAvatar }
-    private val drawerUsername : TextView by lazy { binding.drawerUsername }
+    private val drawerUsername: TextView by lazy { binding.drawerUsername }
     private val drawerAvatar: ShapeableImageView by lazy { binding.drawerAvatar }
     private val drawerStuNumber: TextView by lazy { binding.mainStuNumber }
 
@@ -75,6 +77,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     private val store by lazy { UserStore() }
 
+
     override fun onResume() {
         super.onResume()
         store.dispatch(UserAction.initilaize())
@@ -103,7 +106,6 @@ class MainActivity : AppCompatActivity(), DrawerController {
         store.dispatch(UserAction.GetCurrentUserStats(this))
         store.dispatch(UserAction.GetCurrentUserProfile(this))
         drawerUsername.text = UserInfoManager.username
-        drawerAvatar
         observeState();
         setupTabs()
         setupTabSelectionListener()
@@ -304,6 +306,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
             transaction.add(R.id.frag, newFragment)
         }
         transaction.commit()
+
     }
 
     private fun initFragment(fragment: Fragment) {
@@ -313,22 +316,19 @@ class MainActivity : AppCompatActivity(), DrawerController {
     }
 
     fun animateTabSelect(tab: Tab) {
-        val tabView = tab.view
-        tabView.animate()
-            .scaleX(0.8f)
-            .scaleY(0.8f)
-            .setDuration(200)
-            .withEndAction {
-                tabView.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(200)
-                    .start()
-            }
-            .start()
+        TabAnimationPool.animateTabSelect(tab)
     }
 
     override fun openDrawer() {
-        drawerLayout.openDrawer(GravityCompat.START)
+        val startTime = System.currentTimeMillis()
+        binding.drawerLayout.openDrawer(GravityCompat.START)
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+            override fun onDrawerOpened(drawerView: View) {
+                val endTime = System.currentTimeMillis()
+                val duration = endTime - startTime
+                Log.d("DrawerPerformance", "Drawer opened in $duration ms")
+                binding.drawerLayout.removeDrawerListener(this)
+            }
+        })
     }
 }

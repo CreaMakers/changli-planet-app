@@ -7,6 +7,7 @@ import com.example.changli_planet_app.databinding.ScoreItemCourseBinding
 class CourseViewHolder(
     private val binding: ScoreItemCourseBinding
 ) : RecyclerView.ViewHolder(binding.root) {
+
     fun bind(courseScore: CourseScore) {
         binding.apply {
             tvCourseName.text = courseScore.name
@@ -15,6 +16,10 @@ class CourseViewHolder(
             tvCredit.text = String.format("学分: %.1f", courseScore.credit)
             getCredit.text = String.format("绩点: %.1f", courseScore.earnedCredit)
             tvType.text = courseScore.courseType
+        }
+
+        binding.scoreItemLayout.setOnClickListener {
+
         }
     }
 }

@@ -25,7 +25,7 @@ class FeatureFragment : Fragment() {
     private lateinit var binding: FragmentFeatureBinding
     private val menuButton by lazy { binding.featureMenuButton }
     private var drawerController: DrawerController? = null
-
+    private var firstLoad = false
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is DrawerController) {
@@ -46,14 +46,18 @@ class FeatureFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentFeatureBinding.inflate(layoutInflater)
-        setupClickListeners()
-        setIcons()
-        menuButton.setOnClickListener { drawerController?.openDrawer() }
         Looper.myQueue().addIdleHandler {
             setIcons()
             false
         }
+        setupClickListeners()
+        menuButton.setOnClickListener { drawerController?.openDrawer() }
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
     }
 
     private fun setupClickListeners() {
@@ -65,6 +69,7 @@ class FeatureFragment : Fragment() {
             ntest.setOnClickListener { activity?.let { Route.goExamArrangement(it) } }
             ncet.setOnClickListener { activity?.let { Route.goCet(it) } }
             nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
+            nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
         }
 
     }
@@ -93,6 +98,7 @@ class FeatureFragment : Fragment() {
         @JvmStatic
         fun newInstance() = FeatureFragment()
     }
+
 
     // 动态计算尺寸的核心方法
     private fun calculateTargetSize(view: View): Pair<Int, Int> {

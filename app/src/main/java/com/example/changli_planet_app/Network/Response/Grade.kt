@@ -16,7 +16,13 @@ data class Grade(
     val method: String,
     val property: String,
     val attribute: String,
-    val reItem: String
+    val reItem: String,
+    val pscj: String?,
+    val pscjBL: String?,
+    val qmcjBL: String?,
+    val qzcj: String?,
+    val sjcj: String?,
+    val sjcjBL: String?,
 )
 
 data class GradeResponse(

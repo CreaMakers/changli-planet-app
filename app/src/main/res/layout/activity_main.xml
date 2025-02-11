@@ -55,7 +55,7 @@
     <!-- 自定义抽屉内容 -->
     <LinearLayout
         android:id="@+id/drawer_content"
-        android:layout_width="300dp"
+        android:layout_width="270dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:animateLayoutChanges="false"
@@ -76,7 +76,7 @@
                 android:layout_width="75dp"
                 android:layout_height="75dp"
                 android:layout_gravity="center"
-                android:layout_marginStart="25dp"
+                android:layout_marginStart="15dp"
                 android:layout_marginEnd="15dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
@@ -140,7 +140,6 @@
             android:background="@drawable/snowflakes_background4"
             android:clickable="true"
             android:focusable="true"
-            android:layerType="hardware"
             android:orientation="vertical">
 
             <TextView

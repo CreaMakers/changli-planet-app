@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".Activity.ClassInfoActivity">
+
+    <Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/person_profile_back"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/fanhui" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="空闲教室"
+            android:textSize="23sp"
+            android:textStyle="bold" />
+
+    </Toolbar>
+
+    <Button
+        android:id="@+id/class_query_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击"
+        android:background="@drawable/gradient_button_background" />
+
+</LinearLayout>

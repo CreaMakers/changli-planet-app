@@ -16,6 +16,7 @@ import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Cache.ScoreCache
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.R
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
@@ -38,9 +39,15 @@ class PlanetApplication : Application() {
         var isLogin = false
         var deviceId: String = ""
         lateinit var appContext: Context
-//        const val UserIp: String = "http://10.0.2.2:8083/app/users"
+
+        //        const val UserIp: String = "http://10.0.2.2:8083/app/users"
         const val UserIp: String = "http://113.44.47.220:8083/app/users"
         const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
+
+        val preRequestIps = listOf(
+            "http://113.44.47.220:8083",
+            "http://113.44.47.220:8081"
+        )
 
         fun clearCacheAll() {
             CoroutineScope(Dispatchers.IO).launch {
@@ -68,7 +75,12 @@ class PlanetApplication : Application() {
             // 并发执行所有初始化任务
             val tasks = listOf(
                 async { initDNS() },
-                async { preloadImages() }  // 添加图片预加载任务
+                async {
+                    // https预热
+                    preRequestIps.forEach {
+                        OkHttpHelper.preRequest(it)
+                    }
+                }
             )
 
             // 等待所有任务完成

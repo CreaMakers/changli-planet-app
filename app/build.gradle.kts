@@ -88,6 +88,8 @@ dependencies {
     implementation("com.github.Yalantis:uCrop:2.2.8")
 
 
+    implementation ("com.github.gzu-liyujiang.AndroidPicker:Common:4.0.1")
+    implementation ("com.github.gzu-liyujiang.AndroidPicker:WheelPicker:4.0.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
