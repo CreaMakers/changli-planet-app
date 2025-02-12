@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
@@ -35,8 +36,11 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), DrawerController {
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
 
@@ -86,6 +90,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val start = System.currentTimeMillis()
         binding = ActivityMainBinding.inflate(layoutInflater)
         PlanetApplication.startTime = System.currentTimeMillis()
         setContentView(binding.root)
@@ -103,14 +108,26 @@ class MainActivity : AppCompatActivity(), DrawerController {
                 .add(R.id.frag, firstFragment)
                 .commit()
         }
-        store.dispatch(UserAction.GetCurrentUserStats(this))
-        store.dispatch(UserAction.GetCurrentUserProfile(this))
-        drawerUsername.text = UserInfoManager.username
-        observeState();
         setupTabs()
-        setupTabSelectionListener()
-        setupDrawerLayout()
-        initClickListeners()
+        lifecycleScope.launch {
+            // 2. UI相关的初始化放在一组（在主线程执行）
+            launch(Dispatchers.Main) {
+                drawerUsername.text = UserInfoManager.username
+                setupTabSelectionListener()
+            }
+            launch(Dispatchers.IO) {
+                store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
+                store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+            }
+            launch {
+                initClickListeners()
+                setupDrawerLayout()
+            }
+            launch {
+                observeState();
+            }
+        }
+        Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
     }
 
     private fun observeState() {

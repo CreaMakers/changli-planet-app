@@ -9,10 +9,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 /**
@@ -45,20 +47,18 @@ class FeatureFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val start = System.currentTimeMillis()
         binding = FragmentFeatureBinding.inflate(layoutInflater)
         Looper.myQueue().addIdleHandler {
             setIcons()
+            setupClickListeners()
             false
         }
-        setupClickListeners()
         menuButton.setOnClickListener { drawerController?.openDrawer() }
+        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-    }
 
     private fun setupClickListeners() {
 

@@ -22,8 +22,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.Response
 
 class SplashActivity : AppCompatActivity() {
-    private val username: String by lazy { UserInfoManager.username }
-    private val password: String by lazy { UserInfoManager.userPassword }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,56 +37,7 @@ class SplashActivity : AppCompatActivity() {
             delay(200) // 延迟 0.2 秒
             Route.goHome(this@SplashActivity)
             finish()
-//            autoLogin()
         }
     }
 
-    private suspend fun autoLogin() {
-        try {
-            if (username.isEmpty() || password.isEmpty()) {
-                Route.goLogin(this@SplashActivity)
-                finish()
-                return
-            }
-            withContext(Dispatchers.IO) {
-                val userPassword = UserPassword(username, password)
-                val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .post(PlanetApplication.UserIp + "/session")
-                    .header("deviceId", LoginActivity.getDeviceId(this@SplashActivity))
-                    .body(OkHttpHelper.gson.toJson(userPassword))
-                    .build()
-                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-                    override fun onSuccess(response: Response) {
-                        var fromJson = OkHttpHelper.gson.fromJson(
-                            response.body?.string(),
-                            MyResponse::class.java
-                        )
-                        when (fromJson.msg) {
-                            "用户登录成功" -> {
-                                PlanetApplication.accessToken =
-                                    response.header("Authorization", "") ?: ""
-                                Route.goHome(this@SplashActivity)
-                                finish()
-                            }
-
-                            else -> {
-                                Route.goLogin(this@SplashActivity)
-                                finish()
-                            }
-                        }
-                    }
-
-                    override fun onFailure(error: String) {
-                        Route.goLogin(this@SplashActivity)
-                        finish()
-                    }
-
-                })
-            }
-
-        } catch (e: Exception) {
-            Route.goLogin(this@SplashActivity)
-            finish()
-        }
-    }
 }

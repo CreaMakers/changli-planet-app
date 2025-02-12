@@ -114,10 +114,10 @@
         <activity
             android:name=".Activity.SplashActivity"
             android:exported="true"
+            android:theme="@style/SplashTheme"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
