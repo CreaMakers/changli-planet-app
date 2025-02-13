@@ -82,7 +82,6 @@ class PlanetApplication : Application() {
                     }
                 }
             )
-
             // 等待所有任务完成
             tasks.awaitAll()
 
@@ -106,39 +105,6 @@ class PlanetApplication : Application() {
 
     private fun initMMKV() {
         MMKV.initialize(this@PlanetApplication)
-    }
-
-    private suspend fun preloadImages() {
-        // 预加载所有固定图标
-        val iconResources = listOf(
-            R.drawable.planet_logo,
-            R.drawable.ngrade,
-            R.drawable.ncourse,
-            R.drawable.nmap,
-            R.drawable.ncet,
-            R.drawable.ntest,
-            R.drawable.ncalender,
-            R.drawable.nadd,
-            R.drawable.nmande,
-            R.drawable.nlose,
-            R.drawable.nnotice,
-            R.drawable.nelectronic,
-            R.drawable.nrank,
-            R.drawable.nbalance,
-            R.drawable.nclassroom
-        )
-
-        // Glide 需要在主线程初始化
-        withContext(Dispatchers.Main) {
-            iconResources.chunked(4) {
-                it.forEach { resId ->
-                    Glide.with(applicationContext)
-                        .load(resId)
-                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                        .preload()
-                }
-            }
-        }
     }
 
 

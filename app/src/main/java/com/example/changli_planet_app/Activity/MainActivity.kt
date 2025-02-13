@@ -123,10 +123,8 @@ class MainActivity : AppCompatActivity(), DrawerController {
                 initClickListeners()
                 setupDrawerLayout()
             }
-            launch {
-                observeState();
-            }
         }
+        observeState();
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
     }
 

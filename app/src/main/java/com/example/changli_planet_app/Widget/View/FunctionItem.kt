@@ -1,11 +1,15 @@
 package com.example.changli_planet_app.Widget.View
+
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.changli_planet_app.R
 
 class FunctionItem @JvmOverloads constructor(
@@ -15,6 +19,7 @@ class FunctionItem @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr) {
     private val icon: AppCompatImageView
     private val title: AppCompatTextView
+
     init {
         val inflater = LayoutInflater.from(context)
         inflater.inflate(R.layout.item_function, this, true)
@@ -22,7 +27,8 @@ class FunctionItem @JvmOverloads constructor(
         title = findViewById(R.id.title)
         // 获取自定义属性
         attrs?.let {
-            val typedArray: TypedArray = context.obtainStyledAttributes(it, R.styleable.FunctionItemView)
+            val typedArray: TypedArray =
+                context.obtainStyledAttributes(it, R.styleable.FunctionItemView)
             val titleText = typedArray.getString(R.styleable.FunctionItemView_itemTitle)
             if (!titleText.isNullOrEmpty()) {
                 setTitle(titleText)
@@ -30,9 +36,21 @@ class FunctionItem @JvmOverloads constructor(
             typedArray.recycle()
         }
     }
+
     fun setIcon(resId: Int) {
         icon.setImageResource(resId)
     }
+
+    fun setIconWithGlide(
+        @DrawableRes resId: Int,
+        requestOptions: RequestOptions
+    ) {
+        Glide.with(this)
+            .load(resId)
+            .apply(requestOptions)
+            .into(icon)
+    }
+
     private fun setTitle(text: String) {
         title.text = text
     }

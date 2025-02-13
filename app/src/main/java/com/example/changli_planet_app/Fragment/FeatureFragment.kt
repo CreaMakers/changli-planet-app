@@ -9,12 +9,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
-import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 /**
@@ -27,7 +25,7 @@ class FeatureFragment : Fragment() {
     private lateinit var binding: FragmentFeatureBinding
     private val menuButton by lazy { binding.featureMenuButton }
     private var drawerController: DrawerController? = null
-    private var firstLoad = false
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is DrawerController) {
@@ -49,8 +47,8 @@ class FeatureFragment : Fragment() {
     ): View {
         val start = System.currentTimeMillis()
         binding = FragmentFeatureBinding.inflate(layoutInflater)
+        setIcons()
         Looper.myQueue().addIdleHandler {
-            setIcons()
             setupClickListeners()
             false
         }
@@ -99,27 +97,4 @@ class FeatureFragment : Fragment() {
         fun newInstance() = FeatureFragment()
     }
 
-
-    // 动态计算尺寸的核心方法
-    private fun calculateTargetSize(view: View): Pair<Int, Int> {
-        return when {
-            view.width > 0 && view.height > 0 ->
-                Pair(view.width, view.height) // 已测量完成的情况
-
-            view.isLaidOut ->
-                Pair(view.width, view.height) // 已布局完成的情况
-
-            else -> {
-                // 未完成布局时使用屏幕宽高估算
-                val displayMetrics = view.context.resources.displayMetrics
-                val screenWidth = displayMetrics.widthPixels
-                val screenHeight = displayMetrics.heightPixels
-
-                // 根据布局参数动态计算（示例为宽度充满，高度按比例）
-                val targetWidth = screenWidth
-                val targetHeight = (screenWidth * 1f).toInt() // 假设原图是1:1比例
-                Pair(targetWidth, targetHeight)
-            }
-        }
-    }
 }
