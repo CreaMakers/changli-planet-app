@@ -71,25 +71,14 @@ class PlanetApplication : Application() {
         val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initMMKV()
+
         CoroutineScope(Dispatchers.IO).launch {
-            // 并发执行所有初始化任务
-            val tasks = listOf(
-                async { initDNS() },
-                async {
-                    // https预热
-                    preRequestIps.forEach {
-                        OkHttpHelper.preRequest(it)
-                    }
-                }
-            )
-            // 等待所有任务完成
-            tasks.awaitAll()
-
-            val endTime = System.currentTimeMillis()
-            val duration = endTime - startTime
-            Log.d("YourTag", "onCreate 耗时: $duration ms")
+            runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }
+            runCatching { preRequestIps.forEach { OkHttpHelper.preRequest(it) } }.onFailure { Log.e("PreRequestIps", "PreRequestIps, Error") }
         }
-
+        val endTime = System.currentTimeMillis()
+        val duration = endTime - startTime
+        Log.d("YourTag", "onCreate 耗时: $duration ms")
         appContext = applicationContext
     }
 

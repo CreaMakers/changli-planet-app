@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Interface.DrawerController
@@ -34,7 +35,6 @@ class FeatureFragment : Fragment() {
             Log.d(TAG, "DrawerControl,宿主Activity未实现接口")
         }
     }
-
     override fun onDetach() {
         drawerController = null
         super.onDetach()
@@ -75,19 +75,27 @@ class FeatureFragment : Fragment() {
     private fun setIcons() {
         context?.let { ctx ->
             with(binding) {
-                planetLogo.setImageResource(R.drawable.planet_logo)
+                Glide.with(ctx)
+                    .load(R.drawable.planet_logo)
+                    .into(planetLogo)
                 // 设置功能图标
-                ngrade.setIcon(R.drawable.ngrade)
-                ncourse.setIcon(R.drawable.ncourse)
-                nmap.setIcon(R.drawable.nmap)
-                ncet.setIcon(R.drawable.ncet)
-                ntest.setIcon(R.drawable.ntest)
-                ncalender.setIcon(R.drawable.ncalender)
-                nmande.setIcon(R.drawable.nmande)
-                nlose.setIcon(R.drawable.nlose)
-                nelectronic.setIcon(R.drawable.nelectronic)
-                nrank.setIcon(R.drawable.nrank)
-                nclassroom.setIcon(R.drawable.nclassroom)
+                val iconIds = listOf(
+                    ngrade to R.drawable.ngrade,
+                    ncourse to R.drawable.ncourse,
+                    nmap to R.drawable.nmap,
+                    ncet to R.drawable.ncet,
+                    ntest to R.drawable.ntest,
+                    ncalender to R.drawable.ncalender,
+                    nmande to R.drawable.nmande,
+                    nlose to R.drawable.nlose,
+                    nelectronic to R.drawable.nelectronic,
+                    nrank to R.drawable.nrank,
+                    nclassroom to R.drawable.nclassroom
+                )
+
+                iconIds.forEach { (item, resId) ->
+                    item.setIconWithGlide(resId)
+                }
             }
         }
     }
@@ -95,6 +103,9 @@ class FeatureFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() = FeatureFragment()
+
+
+
     }
 
 }

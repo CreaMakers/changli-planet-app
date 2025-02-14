@@ -11,6 +11,7 @@ import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Interceptor.NetworkLogger
+import com.example.changli_planet_app.Network.Interceptor.NoNetworkInterceptor
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.GradeResponse
 import com.example.changli_planet_app.Network.Response.NormalResponse
@@ -31,6 +32,7 @@ import java.lang.reflect.Type
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 object OkHttpHelper {
 
@@ -108,6 +110,7 @@ object OkHttpHelper {
         }
     }
 
+    // 设置缓存
     //懒加载OkhttpClient
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
@@ -188,6 +191,7 @@ object OkHttpHelper {
 //                    response.close()
 //                }
 //            })
+//            .addInterceptor(NoNetworkInterceptor())
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
             .addInterceptor(AuthInterceptor(object : AuthInterceptor.TokenExpiredHandler {
                 override fun onTokenExpired() {

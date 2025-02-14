@@ -303,7 +303,6 @@ class TimeTableActivity : AppCompatActivity() {
                         true // 消费事件
                     }
                 }
-
                 // 使用原本的课程内容视图
                 val courseContentView = super.getScrollView(mInflate)
 

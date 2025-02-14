@@ -37,7 +37,10 @@ import com.google.android.material.tabs.TabLayout.Tab
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 class MainActivity : AppCompatActivity(), DrawerController {
 
@@ -75,6 +78,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
     private val logoutButton: MaterialButton by lazy { binding.logoutButton }
 
 
+    private var isInitialized = false
     private var isDrawerAnimating = false
 
     private val disposables by lazy { CompositeDisposable() }
@@ -95,11 +99,11 @@ class MainActivity : AppCompatActivity(), DrawerController {
         PlanetApplication.startTime = System.currentTimeMillis()
         setContentView(binding.root)
         drawerLayout = binding.drawerLayout
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+//            insets
+//        }
 
         if (savedInstanceState == null) {
             val firstFragment = FeatureFragment.newInstance()
@@ -111,6 +115,10 @@ class MainActivity : AppCompatActivity(), DrawerController {
         setupTabs()
         lifecycleScope.launch {
             // 2. UI相关的初始化放在一组（在主线程执行）
+            launch {
+                delay(200)
+                switchToMainContent()
+            }
             launch(Dispatchers.Main) {
                 drawerUsername.text = UserInfoManager.username
                 setupTabSelectionListener()
@@ -126,6 +134,18 @@ class MainActivity : AppCompatActivity(), DrawerController {
         }
         observeState();
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
+
+    }
+    private fun switchToMainContent() {
+        setTheme(R.style.Theme_Changliplanetapp)
+        enableEdgeToEdge()
+        setContentView(binding.root)
+        // 设置系统栏
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
     }
 
     private fun observeState() {

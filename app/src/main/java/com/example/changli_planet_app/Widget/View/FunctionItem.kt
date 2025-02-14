@@ -42,12 +42,10 @@ class FunctionItem @JvmOverloads constructor(
     }
 
     fun setIconWithGlide(
-        @DrawableRes resId: Int,
-        requestOptions: RequestOptions
+        @DrawableRes resId: Int
     ) {
         Glide.with(this)
             .load(resId)
-            .apply(requestOptions)
             .into(icon)
     }
 

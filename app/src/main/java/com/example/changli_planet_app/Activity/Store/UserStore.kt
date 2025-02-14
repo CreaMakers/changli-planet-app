@@ -48,10 +48,14 @@ class UserStore : Store<UserState, UserAction>() {
                             }
 
                             else -> {
-                                CustomToast.showMessage(action.context, "请求失败, ${fromJson.msg}")
+                                handler.post {
+                                    CustomToast.showMessage(
+                                        action.context,
+                                        "请求失败, ${fromJson.msg}"
+                                    )
+                                }
                             }
                         }
-
                         _state.onNext(currentState)
                     }
 
@@ -88,7 +92,12 @@ class UserStore : Store<UserState, UserAction>() {
                             }
 
                             else -> {
-                                CustomToast.showMessage(action.context, "请求失败, ${fromJson.msg}")
+                                handler.post {
+                                    CustomToast.showMessage(
+                                        action.context,
+                                        "请求失败, ${fromJson.msg}"
+                                    )
+                                }
                             }
                         }
 
