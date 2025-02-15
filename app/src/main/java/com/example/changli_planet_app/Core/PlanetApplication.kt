@@ -40,9 +40,9 @@ class PlanetApplication : Application() {
         var deviceId: String = ""
         lateinit var appContext: Context
 
-        //        const val UserIp: String = "http://10.0.2.2:8083/app/users"
         const val UserIp: String = "http://113.44.47.220:8083/app/users"
-        const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
+//        const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
+        const val ToolIp: String = "http://10.0.2.2:8081/app/tools"
 
         val preRequestIps = listOf(
             "http://113.44.47.220:8083",

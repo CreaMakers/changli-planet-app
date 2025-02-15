@@ -122,7 +122,15 @@ class ScoreInquiryActivity : AppCompatActivity() {
                     score = grade.grade.toIntOrNull() ?: 0,
                     credit = grade.score.toDoubleOrNull() ?: 0.0,
                     earnedCredit = grade.point.toDoubleOrNull() ?: 0.0,
-                    courseType = grade.attribute
+                    courseType = grade.attribute,
+                    pscj = grade.pscj,
+                    pscjBL = grade.pscjBL,
+                    qmcj = grade.qmcj,
+                    qmcjBL = grade.qmcjBL,
+                    qzcj = grade.qzcj,
+                    qzcjBL = grade.qzcjBL,
+                    sjcj = grade.sjcj,
+                    sjcjBL = grade.sjcjBL
                 )
             }
 
