@@ -6,25 +6,27 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.Picker.LessonPicker
 import com.example.changli_planet_app.databinding.ActivityClassInfoBinding
 
-class ClassInfoActivity : AppCompatActivity() {
+class ClassInfoActivity : FullScreenActivity() {
     private lateinit var binding: ActivityClassInfoBinding
     private val query by lazy { binding.classQueryButton }
     private val back by lazy { binding.personProfileBack }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        initView()
+        initListener()
+    }
+
+    private fun initView(){
         binding = ActivityClassInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+    }
 
+    private fun initListener(){
         back.setOnClickListener { finish() }
         query.setOnClickListener {
             val lessonPicker = LessonPicker(this)

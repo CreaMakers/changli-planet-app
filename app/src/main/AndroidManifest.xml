@@ -31,6 +31,9 @@
         tools:replace="android:networkSecurityConfig"
         tools:targetApi="31">
         <activity
+            android:name=".Core.FullScreenActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.ClassInfoActivity"
             android:exported="false" />
         <activity
@@ -114,10 +117,11 @@
         <activity
             android:name=".Activity.SplashActivity"
             android:exported="true"
-            android:theme="@style/SplashTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

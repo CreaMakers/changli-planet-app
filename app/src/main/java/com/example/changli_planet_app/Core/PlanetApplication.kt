@@ -74,15 +74,16 @@ class PlanetApplication : Application() {
 
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }
+            runCatching { initMMKV() }.onFailure { Log.e("MMKV","MMKV init Error") }
             runCatching { preRequestIps.forEach { OkHttpHelper.preRequest(it) } }.onFailure { Log.e("PreRequestIps", "PreRequestIps, Error") }
         }
         val endTime = System.currentTimeMillis()
         val duration = endTime - startTime
-        Log.d("YourTag", "onCreate 耗时: $duration ms")
+
         appContext = applicationContext
     }
 
-    private suspend fun initDNS() {
+    private fun initDNS() {
         val dnsConfigBuilder = DnsConfig.Builder()
             .dnsId("98468")
             .token("884069233")
@@ -95,7 +96,5 @@ class PlanetApplication : Application() {
     private fun initMMKV() {
         MMKV.initialize(this@PlanetApplication)
     }
-
-
 }
 

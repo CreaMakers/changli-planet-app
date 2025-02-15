@@ -36,6 +36,7 @@ import com.example.changli_planet_app.Activity.Store.TimeTableStore
 import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Cache.Room.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
@@ -66,7 +67,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 
 
-class TimeTableActivity : AppCompatActivity() {
+class TimeTableActivity : FullScreenActivity() {
     private val mmkv by lazy { MMKV.defaultMMKV() }
     private val disposables by lazy { CompositeDisposable() }
     private val isCurWeek by lazy { binding.isCurWeek }
@@ -156,13 +157,7 @@ class TimeTableActivity : AppCompatActivity() {
     @SuppressLint("WrongThread")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
         if (studentId.isEmpty() || studentPassword.isEmpty()) {
             showMessage("请先绑定学号和密码")
             Route.goBindingUser(this)

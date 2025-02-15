@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Fragment.FeatureFragment
 import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.Core.PlanetApplication
@@ -42,7 +43,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
-class MainActivity : AppCompatActivity(), DrawerController {
+class MainActivity : FullScreenActivity(), DrawerController {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
@@ -93,18 +94,11 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         val start = System.currentTimeMillis()
         binding = ActivityMainBinding.inflate(layoutInflater)
         PlanetApplication.startTime = System.currentTimeMillis()
         setContentView(binding.root)
         drawerLayout = binding.drawerLayout
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-//            insets
-//        }
-
         if (savedInstanceState == null) {
             val firstFragment = FeatureFragment.newInstance()
             fragments[0] = firstFragment

@@ -58,8 +58,12 @@ object Route {
     }
 
     fun goElectronic(context: Context) {
-        val intent = Intent(context, ElectronicActivity::class.java)
-        context.startActivity(intent)
+        try {
+            val intent = Intent(context, ElectronicActivity::class.java)
+            context.startActivity(intent)
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
     }
 
     fun goHome(context: Context) {

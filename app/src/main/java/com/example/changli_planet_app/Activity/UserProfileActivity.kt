@@ -27,6 +27,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Data.jsonbean.UserProfileRequest
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.View.CustomToast
@@ -50,7 +51,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class UserProfileActivity : AppCompatActivity() {
+class UserProfileActivity : FullScreenActivity() {
 
     companion object {
         private const val REQUEST_CAMERA = 1001
@@ -119,14 +120,8 @@ class UserProfileActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityUserProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         observeState()
         store.dispatch(UserAction.initilaize())

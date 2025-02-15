@@ -17,6 +17,7 @@ import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
 import com.example.changli_planet_app.Adapter.ExamScoreAdapter
 import com.example.changli_planet_app.Cache.ScoreCache
 import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.model.CourseScore
 import com.example.changli_planet_app.Data.model.SemesterGroup
@@ -26,7 +27,7 @@ import com.example.changli_planet_app.databinding.ActivityScoreInquiryBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
-class ScoreInquiryActivity : AppCompatActivity() {
+class ScoreInquiryActivity : FullScreenActivity() {
     private lateinit var binding: ActivityScoreInquiryBinding
     private val recyclerView: RecyclerView by lazy { binding.ScoreRecyclerView }
     private val refresh: ImageView by lazy { binding.refresh }

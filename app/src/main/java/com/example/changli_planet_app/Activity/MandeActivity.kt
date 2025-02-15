@@ -21,11 +21,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityMandeBinding
 import com.google.android.material.snackbar.Snackbar
 
-class MandeActivity : AppCompatActivity() {
+class MandeActivity : FullScreenActivity() {
     private lateinit var binding: ActivityMandeBinding
     private val webView: WebView by lazy { binding.webView }
     private val progressBar: ProgressBar by lazy { binding.progressBar }
@@ -34,14 +35,8 @@ class MandeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityMandeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
         setupWebView()
         onBackPressedDispatcher.addCallback(this) {
             webView.goBack()

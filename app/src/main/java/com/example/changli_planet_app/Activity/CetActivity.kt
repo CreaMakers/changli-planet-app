@@ -1,30 +1,11 @@
 package com.example.changli_planet_app.Activity
 
-import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
-import android.app.DownloadManager
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.graphics.Color
-import android.media.MediaScannerConnection
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.os.StrictMode
-import android.view.GestureDetector
-import android.view.GestureDetector.OnGestureListener
-import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.Gravity
-import android.view.MotionEvent
-import android.view.VelocityTracker
 import android.view.View
-import android.view.ViewConfiguration
-import android.webkit.URLUtil
-import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -32,19 +13,14 @@ import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.activity.addCallback
-import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityCetBinding
 import com.google.android.material.snackbar.Snackbar
 
 
-class CetActivity : AppCompatActivity() {
+class CetActivity : FullScreenActivity() {
     private lateinit var binding: ActivityCetBinding
     private val webView: WebView by lazy { binding.webView }
     private val progressBar: ProgressBar by lazy { binding.progressBar }
@@ -54,14 +30,8 @@ class CetActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityCetBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
         toolBar.setOnClickListener { finish() }
         setupWebView()
     }
@@ -70,7 +40,7 @@ class CetActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 url?.let { view?.loadUrl(it) }
-                return true
+                return false
             }
         }
         webView.webChromeClient = object : WebChromeClient() {

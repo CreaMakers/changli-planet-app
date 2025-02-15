@@ -48,7 +48,7 @@ class WheelBottomDialog(
     }
 
     fun setItem(list: List<String>) {
-        item = list
+        item = list.toList()
     }
 
     fun setTitle(title: String) {

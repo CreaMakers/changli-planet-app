@@ -21,6 +21,7 @@ import com.example.changli_planet_app.Activity.Action.AccountSecurityAction
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
 import com.example.changli_planet_app.Activity.Store.AccountSecurityStore
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.Event.FinishEvent
@@ -30,7 +31,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class AccountSecurityActivity : AppCompatActivity() {
+class AccountSecurityActivity : FullScreenActivity() {
     private lateinit var binding: ActivityAccountSecurityBinding
     private val bindingBack by lazy { binding.bindingBack }
     private val disposables by lazy { CompositeDisposable() }
@@ -45,29 +46,39 @@ class AccountSecurityActivity : AppCompatActivity() {
     private val containBigAndSmallImg by lazy { binding.containBigAndSmallImg }
     private val containNumberIconImg by lazy { binding.containNumberIconImg }
     private val changePasswordBtn by lazy { binding.changePasswordBtn }
-
     private val store = AccountSecurityStore()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        initView()
+        initListener()
+        initObserve()
+    }
+
+    private fun initView(){
+        store.dispatch(AccountSecurityAction.initilaize)
         binding = ActivityAccountSecurityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        bindingBack.setOnClickListener { finish() }
-        store.dispatch(AccountSecurityAction.initilaize)
-
         val passwordTextWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                store.dispatch(AccountSecurityAction.UpdateSafeType(newPasswordEt.text.toString()))
-            }
-
+            override fun afterTextChanged(s: Editable?) { store.dispatch(AccountSecurityAction.UpdateSafeType(newPasswordEt.text.toString())) }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
+        newPasswordEt.addTextChangedListener(passwordTextWatcher)
+        inputFilterPassword(curPasswordEt)
+        inputFilterPassword(newPasswordEt)
+        inputFilterPassword(confirmPasswordEt)
+        EventBus.getDefault().register(this)
+    }
+
+    private fun initListener(){
+        changePasswordBtn.setOnClickListener { changePassword() }
+        curPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("curPasswordImg")) }
+        newPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("newPasswordImg")) }
+        confirmPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("confirmPasswordImg")) }
+        bindingBack.setOnClickListener { finish() }
+    }
+
+    private fun initObserve(){
         disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -93,18 +104,7 @@ class AccountSecurityActivity : AppCompatActivity() {
                     updateProgressBar(state.safeType)
                 }
         )
-
-        newPasswordEt.addTextChangedListener(passwordTextWatcher)
-        inputFilterPassword(curPasswordEt)
-        inputFilterPassword(newPasswordEt)
-        inputFilterPassword(confirmPasswordEt)
-        changePasswordBtn.setOnClickListener { changePassword() }
-        curPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("curPasswordImg")) }
-        newPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("newPasswordImg")) }
-        confirmPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("confirmPasswordImg")) }
-        EventBus.getDefault().register(this)
     }
-
     private fun changePassword() {
         val curPassword = curPasswordEt.text.toString()
         val newPassword = newPasswordEt.text.toString()

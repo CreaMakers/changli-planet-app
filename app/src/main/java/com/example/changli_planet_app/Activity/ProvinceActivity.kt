@@ -8,12 +8,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.changli_planet_app.Adapter.ProvinceAdapter
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Data.model.LocationDataSource
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.View.DividerItemDecoration
 import com.example.changli_planet_app.databinding.ActivityProvinceBinding
 
-class ProvinceActivity : AppCompatActivity() {
+class ProvinceActivity : FullScreenActivity() {
     private lateinit var binding: ActivityProvinceBinding
     private val REQUEST_CITY = 1113
 
@@ -24,14 +25,8 @@ class ProvinceActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityProvinceBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
         recyclerView.adapter =
             ProvinceAdapter(LocationDataSource.getProvinceList(), ::goCityActivity)
         recyclerView.layoutManager = LinearLayoutManager(this)
