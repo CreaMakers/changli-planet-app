@@ -1,16 +1,22 @@
 package com.example.changli_planet_app.Adapter
 
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
 import com.example.changli_planet_app.Adapter.ViewHolder.SemesterViewHolder
 import com.example.changli_planet_app.Data.model.CourseListItem
 import com.example.changli_planet_app.Data.model.SemesterGroup
 import com.example.changli_planet_app.databinding.ScoreItemSemesterBinding
 
-class ExamScoreAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ExamScoreAdapter(
+    private val store: ScoreInquiryStore,
+    private val context: Context
+) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var _items = emptyList<CourseListItem>()
     private val currentList: List<CourseListItem> get() = _items
 
@@ -37,6 +43,7 @@ class ExamScoreAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 return when {
                     oldItem is CourseListItem.SemesterItem && newItem is CourseListItem.SemesterItem ->
                         oldItem.semester.semesterName == newItem.semester.semesterName
+
                     else -> false
                 }
             }
@@ -57,7 +64,7 @@ class ExamScoreAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val binding = ScoreItemSemesterBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        return SemesterViewHolder(binding) { position -> toggleGroup(position) }
+        return SemesterViewHolder(binding, store, context) { position -> toggleGroup(position) }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

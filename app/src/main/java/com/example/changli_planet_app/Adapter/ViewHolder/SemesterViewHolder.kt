@@ -1,9 +1,11 @@
 package com.example.changli_planet_app.Adapter.ViewHolder
 
+import android.content.Context
 import android.view.View
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
 import com.example.changli_planet_app.Adapter.CourseAdapter
 import com.example.changli_planet_app.Data.model.CourseListItem
 import com.example.changli_planet_app.databinding.ScoreItemSemesterBinding
@@ -11,9 +13,11 @@ import com.example.changli_planet_app.databinding.ScoreItemSemesterBinding
 
 class SemesterViewHolder(
     private val binding: ScoreItemSemesterBinding,
-    private val onItemClick: (Int) -> Unit
+    private val store: ScoreInquiryStore,
+    private val context: Context,
+    private val onItemClick: (Int) -> Unit,
 ) : RecyclerView.ViewHolder(binding.root) {
-    private val courseAdapter = CourseAdapter()
+    private val courseAdapter = CourseAdapter(store, context)
 
     init {
         itemView.setOnClickListener {

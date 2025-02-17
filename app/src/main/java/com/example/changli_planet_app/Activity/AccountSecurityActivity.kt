@@ -54,12 +54,15 @@ class AccountSecurityActivity : FullScreenActivity() {
         initObserve()
     }
 
-    private fun initView(){
+    private fun initView() {
         store.dispatch(AccountSecurityAction.initilaize)
         binding = ActivityAccountSecurityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val passwordTextWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { store.dispatch(AccountSecurityAction.UpdateSafeType(newPasswordEt.text.toString())) }
+            override fun afterTextChanged(s: Editable?) {
+                store.dispatch(AccountSecurityAction.UpdateSafeType(newPasswordEt.text.toString()))
+            }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
@@ -70,7 +73,7 @@ class AccountSecurityActivity : FullScreenActivity() {
         EventBus.getDefault().register(this)
     }
 
-    private fun initListener(){
+    private fun initListener() {
         changePasswordBtn.setOnClickListener { changePassword() }
         curPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("curPasswordImg")) }
         newPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("newPasswordImg")) }
@@ -78,7 +81,7 @@ class AccountSecurityActivity : FullScreenActivity() {
         bindingBack.setOnClickListener { finish() }
     }
 
-    private fun initObserve(){
+    private fun initObserve() {
         disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -105,6 +108,7 @@ class AccountSecurityActivity : FullScreenActivity() {
                 }
         )
     }
+
     private fun changePassword() {
         val curPassword = curPasswordEt.text.toString()
         val newPassword = newPasswordEt.text.toString()
@@ -210,6 +214,7 @@ class AccountSecurityActivity : FullScreenActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        EventBus.getDefault().unregister(this)
         disposables.clear()
     }
 

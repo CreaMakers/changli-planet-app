@@ -1,20 +1,25 @@
 package com.example.changli_planet_app.Adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
 import com.example.changli_planet_app.Adapter.ViewHolder.CourseViewHolder
 import com.example.changli_planet_app.Data.model.CourseScore
 import com.example.changli_planet_app.databinding.ScoreItemCourseBinding
 
-class CourseAdapter : ListAdapter<CourseScore, CourseViewHolder>(CourseDiffCallback()) {
+class CourseAdapter(
+    private val store: ScoreInquiryStore,
+    private val context: Context
+) : ListAdapter<CourseScore, CourseViewHolder>(CourseDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CourseViewHolder {
         val binding = ScoreItemCourseBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        return CourseViewHolder(binding)
+        return CourseViewHolder(binding, store, context)
     }
 
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {

@@ -32,7 +32,6 @@ class RegisterActivity : FullScreenActivity() {
     val register: TextView by lazy { binding.register }
     val route: TextView by lazy { binding.routes }
     val account: EditText by lazy { binding.account }
-    val mmkv = MMKV.defaultMMKV()
     val password: EditText by lazy { binding.password }
     val store = LoginAndRegisterStore()
     private val disposables by lazy { CompositeDisposable() }
@@ -147,6 +146,7 @@ class RegisterActivity : FullScreenActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        EventBus.getDefault().unregister(this)
         disposables.clear()
     }
 

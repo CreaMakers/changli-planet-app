@@ -1,13 +1,20 @@
 package com.example.changli_planet_app.Adapter.ViewHolder
 
+import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
+import com.example.changli_planet_app.Activity.Action.ScoreInquiryAction
+import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
+import com.example.changli_planet_app.Cache.ScoreCache
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Data.model.CourseScore
 import com.example.changli_planet_app.Widget.Dialog.ScoreDetailDialog
+import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.databinding.ScoreItemCourseBinding
 
 class CourseViewHolder(
-    private val binding: ScoreItemCourseBinding
+    private val binding: ScoreItemCourseBinding,
+    private val store: ScoreInquiryStore,
+    private val context: Context
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(courseScore: CourseScore) {
@@ -21,26 +28,29 @@ class CourseViewHolder(
         }
 
         binding.scoreItemLayout.setOnClickListener {
-            val sb = StringBuilder()
-            if (!courseScore.pscj.isNullOrEmpty()) {
-                sb.append("平时成绩: ${courseScore.pscj}\n平时成绩比例: ${courseScore.pscjBL}\n")
-            }
-            if (!courseScore.sjcj.isNullOrEmpty()) {
-                sb.append("上机成绩: ${courseScore.sjcj}\n上机成绩比例: ${courseScore.sjcjBL}\n")
-            }
-            if (!courseScore.qzcj.isNullOrEmpty()) {
-                sb.append("期中成绩: ${courseScore.qzcj}\n期中成绩比例: ${courseScore.qzcjBL}\n")
-            }
-            if (!courseScore.qmcj.isNullOrEmpty()) {
-                sb.append("期末成绩: ${courseScore.qmcj}\n期末成绩比例: ${courseScore.qmcjBL}\n")
-            }
-            if (sb.isNotEmpty()) {
-                sb.append("-------------------\n总成绩: ${courseScore.score}")
-            }
-            if (sb.isNotEmpty()) {
-                ScoreDetailDialog(PlanetApplication.appContext, sb.toString(), courseScore.name)
+            if (courseScore.pscjUrl == null) {
+                ScoreDetailDialog(
+                    context = context,
+                    content = "暂无平时成绩",
+                    titleContent = courseScore.name
+                ).show()
             } else {
-                ScoreDetailDialog(PlanetApplication.appContext, "暂无成绩详细", courseScore.name)
+                val cacheDetail = ScoreCache.getGradesDetailByUrl(courseScore.pscjUrl)
+                if (cacheDetail.isEmpty()) {
+                    store.dispatch(
+                        ScoreInquiryAction.GetScoreDetail(
+                            context,
+                            courseScore.pscjUrl,
+                            courseScore.name
+                        )
+                    )
+                } else {
+                    ScoreDetailDialog(
+                        context = context,
+                        content = cacheDetail,
+                        titleContent = courseScore.name
+                    ).show()
+                }
             }
         }
     }

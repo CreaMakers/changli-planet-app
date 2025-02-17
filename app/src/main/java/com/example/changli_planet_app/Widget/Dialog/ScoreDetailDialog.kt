@@ -28,11 +28,10 @@ class ScoreDetailDialog(
         super.onCreate(savedInstanceState)
         setContentView(R.layout.score_details_dialog)
         contents = findViewById(R.id.detail_score_content)
+        title = findViewById(R.id.detail_score_title)
         contents.text = content
         title.text = titleContent
-        title = findViewById(R.id.detail_score_title)
         yes = findViewById(R.id.chosen_yes)
-        no = findViewById(R.id.chosen_no)
         yes.setOnClickListener {
             dismiss()
         }

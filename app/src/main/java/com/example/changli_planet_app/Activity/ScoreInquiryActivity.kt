@@ -31,11 +31,26 @@ class ScoreInquiryActivity : FullScreenActivity() {
     private lateinit var binding: ActivityScoreInquiryBinding
     private val recyclerView: RecyclerView by lazy { binding.ScoreRecyclerView }
     private val refresh: ImageView by lazy { binding.refresh }
-    private val examScoreAdapter = ExamScoreAdapter()
+    private val examScoreAdapter by lazy { ExamScoreAdapter(store, this@ScoreInquiryActivity) }
     private val store = ScoreInquiryStore()
-    private val cache by lazy { ScoreCache(this) }
     private val back by lazy { binding.bindingBack }
     private val disposables by lazy { CompositeDisposable() }
+
+
+    private val studentId by lazy { StudentInfoManager.studentId }
+    private val studentPassword by lazy { StudentInfoManager.studentPassword }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityScoreInquiryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setupToolbar()
+        setupRecyclerView()
+        initListener()
+        loadCachedData()
+        initObserveState()
+    }
+
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
         binding.ScoreRecyclerView.visibility = View.GONE
@@ -46,19 +61,12 @@ class ScoreInquiryActivity : FullScreenActivity() {
         binding.ScoreRecyclerView.visibility = View.VISIBLE
     }
 
-    private val studentId by lazy { StudentInfoManager.studentId }
-    private val studentPassword by lazy { StudentInfoManager.studentPassword }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityScoreInquiryBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setupToolbar()
-        setupRecyclerView()
-
+    private fun initListener() {
+        back.setOnClickListener { finish() }
         refresh.setOnClickListener { refreshData(true) }
-        loadCachedData()
+    }
+
+    private fun initObserveState() {
         disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -67,7 +75,6 @@ class ScoreInquiryActivity : FullScreenActivity() {
                     showInfo(state.grades)
                 }
         )
-        back.setOnClickListener { finish() }
     }
 
     private fun setupToolbar() {
@@ -87,7 +94,7 @@ class ScoreInquiryActivity : FullScreenActivity() {
     }
 
     private fun loadCachedData() {
-        val cachedGrades = cache.getGrades()
+        val cachedGrades = ScoreCache.getGrades()
         if (cachedGrades != null) {
             showInfo(cachedGrades)
         } else {
@@ -103,7 +110,7 @@ class ScoreInquiryActivity : FullScreenActivity() {
             return
         }
 
-        if (forceUpdate || cache.getGrades() == null) {
+        if (forceUpdate || ScoreCache.getGrades() == null) {
             store.dispatch(ScoreInquiryAction.UpdateGrade(this, studentId, studentPassword))
             showLoading()
         }
@@ -113,7 +120,7 @@ class ScoreInquiryActivity : FullScreenActivity() {
         if (rawData.isEmpty()) {
             return
         }
-        cache.saveGrades(rawData)
+        ScoreCache.saveGrades(rawData)
         val groupedData = rawData.groupBy { it.item }.toSortedMap(compareByDescending { it })
         val semesterGroups = groupedData.map { (semester, grades) ->
 
@@ -124,14 +131,8 @@ class ScoreInquiryActivity : FullScreenActivity() {
                     credit = grade.score.toDoubleOrNull() ?: 0.0,
                     earnedCredit = grade.point.toDoubleOrNull() ?: 0.0,
                     courseType = grade.attribute,
-                    pscj = grade.pscj,
-                    pscjBL = grade.pscjBL,
-                    qmcj = grade.qmcj,
-                    qmcjBL = grade.qmcjBL,
-                    qzcj = grade.qzcj,
-                    qzcjBL = grade.qzcjBL,
-                    sjcj = grade.sjcj,
-                    sjcjBL = grade.sjcjBL
+                    pscjUrl = grade.pscjUrl,
+                    cookie = grade.cookie
                 )
             }
 
