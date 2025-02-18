@@ -148,11 +148,11 @@ class UserProfileActivity : FullScreenActivity() {
                 else -> 2
             },
             grade = grade.text.toString(),
-            birthdate = birthday.text.toString(),
+            birthDate = birthday.text.toString(),
             location = location.text.toString(),
             website = website.text.toString()
         )
-        store.dispatch(UserAction.UpdateUserProfile(userProfileRequest,this))
+        store.dispatch(UserAction.UpdateUserProfile(userProfileRequest, this))
     }
 
     private fun observeState() {
@@ -183,7 +183,7 @@ class UserProfileActivity : FullScreenActivity() {
     }
 
     private fun formatDate(year: Int, month: Int, day: Int): String {
-        return "${year}-${String.format(Locale.getDefault(), "%02d-%02d", month, day)}"
+        return "${year}-${String.format(Locale.getDefault(), "%02d-%02d", month + 1, day)}"
     }
 
     private fun setBirthday() {

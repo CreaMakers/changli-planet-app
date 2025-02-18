@@ -6,6 +6,7 @@ import android.os.PersistableBundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -78,8 +79,6 @@ class MainActivity : FullScreenActivity(), DrawerController {
     // 退出登录按钮
     private val logoutButton: MaterialButton by lazy { binding.logoutButton }
 
-
-    private var isInitialized = false
     private var isDrawerAnimating = false
 
     private val disposables by lazy { CompositeDisposable() }
@@ -109,12 +108,9 @@ class MainActivity : FullScreenActivity(), DrawerController {
         setupTabs()
         lifecycleScope.launch {
             // 2. UI相关的初始化放在一组（在主线程执行）
-            launch {
-                delay(200)
-                switchToMainContent()
-            }
             launch(Dispatchers.Main) {
                 drawerUsername.text = UserInfoManager.username
+                initDrawerImages()
                 setupTabSelectionListener()
             }
             launch(Dispatchers.IO) {
@@ -130,16 +126,49 @@ class MainActivity : FullScreenActivity(), DrawerController {
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
 
     }
-    private fun switchToMainContent() {
-        setTheme(R.style.Theme_Changliplanetapp)
-        enableEdgeToEdge()
-        setContentView(binding.root)
-        // 设置系统栏
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+    private fun initDrawerImages() {
+        // 加载功能图标
+        val imageIds = listOf(
+            R.id.notification_img to R.drawable.notification2,
+            R.id.privacy_img to R.drawable.yingsi,
+            R.id.account_img to R.drawable.zhanghao,
+            R.id.clear_cache_img to R.drawable.qingchu,
+            R.id.student_id_img to R.drawable.bianji_,
+            R.id.theme_img to R.drawable.zhuti_tiaosepan,
+            R.id.message_img to R.drawable.xiaoxi,
+            R.id.help_img to R.drawable.bangzhu,
+            R.id.about_img to R.drawable.guanyuwomen,
+            R.id.feedback_img to R.drawable.yijianfankui
+        )
+
+        // 批量加载功能图标
+        imageIds.forEach { (viewId, drawableId) ->
+            Glide.with(this)
+                .load(drawableId)
+                .into(findViewById(viewId))
         }
+
+        val arrowIds = listOf(
+            R.id.notification_arrow,
+            R.id.privacy_arrow,
+            R.id.account_arrow,
+            R.id.clear_cache_arrow,
+            R.id.student_id_arrow,
+            R.id.theme_arrow,
+            R.id.message_arrow,
+            R.id.help_arrow,
+            R.id.about_arrow,
+            R.id.feedback_arrow
+        )
+
+        // 批量加载箭头图标
+        arrowIds.forEach { arrowId ->
+            Glide.with(this)
+                .load(R.drawable.baseline_arrow_forward_ios_24)
+                .into(findViewById(arrowId))
+        }
+
     }
 
     private fun observeState() {
