@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="@color/normal_background"
     tools:context=".Activity.ClassInfoActivity">
 
     <Toolbar
+        android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/white"
-        android:elevation="4dp">
+        android:elevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/person_profile_back"
@@ -32,11 +36,212 @@
 
     </Toolbar>
 
-    <Button
-        android:id="@+id/class_query_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="点击"
-        android:background="@drawable/gradient_button_background" />
 
-</LinearLayout>
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:elevation="12dp"
+        android:background="@color/white"
+        app:cardCornerRadius="9dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar2">
+
+        <LinearLayout
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="30dp"
+            android:layout_marginTop="15dp"
+
+            android:layout_marginHorizontal="10dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grey" />
+
+            <RelativeLayout
+                android:id="@+id/class_info_week_layout"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:paddingVertical="12dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="周次"
+                    android:layout_alignParentStart="true"
+                    android:gravity="center"
+                    android:textSize="19sp"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/text_color" />
+
+                <TextView
+                    android:id="@+id/class_info_week"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="第01周"
+                    android:textSize="19sp"
+                    android:layout_centerVertical="true"
+                    android:layout_centerInParent="true"
+                    android:textColor="@color/text_color" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/baseline_arrow_forward_ios_24"
+                    android:layout_gravity="center" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grey" />
+
+            <RelativeLayout
+                android:id="@+id/class_info_day_layout"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:paddingVertical="12dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="星期"
+                    android:layout_alignParentStart="true"
+                    android:gravity="center"
+                    android:textSize="19sp"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/text_color" />
+
+                <TextView
+                    android:id="@+id/class_info_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="星期三"
+                    android:textSize="19sp"
+                    android:layout_centerInParent="true"
+                    android:textColor="@color/text_color" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/baseline_arrow_forward_ios_24"
+                    android:layout_gravity="center" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grey" />
+
+            <RelativeLayout
+                android:id="@+id/class_info_class_layout"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:paddingVertical="12dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="节次"
+                    android:layout_alignParentStart="true"
+                    android:gravity="center"
+                    android:textSize="19sp"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/text_color" />
+
+                <TextView
+                    android:id="@+id/class_info_class"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="第1节到第3节"
+                    android:textSize="19sp"
+                    android:layout_centerInParent="true"
+                    android:textColor="@color/text_color" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/baseline_arrow_forward_ios_24"
+                    android:layout_gravity="center" />
+            </RelativeLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grey" />
+
+            <RelativeLayout
+                android:id="@+id/class_info_region_layout"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:paddingVertical="12dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="校区"
+                    android:layout_alignParentStart="true"
+                    android:gravity="center"
+                    android:textSize="19sp"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/text_color" />
+
+                <TextView
+                    android:id="@+id/class_info_region"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="金盆岭"
+                    android:textSize="19sp"
+                    android:layout_centerInParent="true"
+                    android:textColor="@color/text_color" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/baseline_arrow_forward_ios_24"
+                    android:layout_gravity="center" />
+            </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grey" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/class_info_query"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/gradient_button_background"
+                android:paddingVertical="10dp"
+                android:text="查询"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

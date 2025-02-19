@@ -32,13 +32,13 @@ class ChatGroupFragment : Fragment() {
     )
 
     private val rightRecyclerData = listOf(
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
-        ChatGroupItem("芙莉莲同人群", "https://qiniu.dcelysia.top/articleCover/Elysia11721746869561904.png", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
+        ChatGroupItem("芙莉莲同人群", "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
+        ChatGroupItem("芙莉莲同人群", "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
+        ChatGroupItem("芙莉莲同人群", "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
+        ChatGroupItem("芙莉莲同人群", "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
+        ChatGroupItem("芙莉莲同人群", "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
+        ChatGroupItem("芙莉莲同人群", "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
+        ChatGroupItem("芙莉莲同人群", "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D", "最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了最喜欢爱莉希雅了"),
 
     )
 
