@@ -27,6 +27,7 @@ import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Fragment.ChatGroupFragment
+import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.Pool.TabAnimationPool
 import com.example.changli_planet_app.R
