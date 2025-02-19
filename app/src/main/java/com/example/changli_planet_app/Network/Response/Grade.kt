@@ -16,7 +16,9 @@ data class Grade(
     val method: String,
     val property: String,
     val attribute: String,
-    val reItem: String
+    val reItem: String,
+    val pscjUrl: String? = null,
+    val cookie: String? = null,
 )
 
 data class GradeResponse(

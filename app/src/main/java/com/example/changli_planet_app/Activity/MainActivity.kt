@@ -1,43 +1,51 @@
 package com.example.changli_planet_app.Activity
 
 import android.animation.LayoutTransition
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.transition.Transition
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Scroller
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.customview.widget.ViewDragHelper
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.CustomTarget
+import com.example.changli_planet_app.Activity.Action.UserAction
+import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Fragment.FeatureFragment
-import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Fragment.ChatGroupFragment
 import com.example.changli_planet_app.Interface.DrawerController
+import com.example.changli_planet_app.Pool.TabAnimationPool
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.NormalChosenDialog
+import com.example.changli_planet_app.Widget.Dialog.NormalChosenDialog
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
-class MainActivity : AppCompatActivity(), DrawerController {
+class MainActivity : FullScreenActivity(), DrawerController {
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
 
@@ -45,6 +53,12 @@ class MainActivity : AppCompatActivity(), DrawerController {
     private var currentTabPosition: Int = 0
 
     private val tabLayout: TabLayout by lazy { binding.tabLayout }
+
+    // 侧边栏头像部分
+    private val mainAvatarLinear: LinearLayout by lazy { binding.mainAvatar }
+    private val drawerUsername: TextView by lazy { binding.drawerUsername }
+    private val drawerAvatar: ShapeableImageView by lazy { binding.drawerAvatar }
+    private val drawerStuNumber: TextView by lazy { binding.mainStuNumber }
 
     // 主要设置
     private val notificationSettings: LinearLayout by lazy { binding.notificationSettings }
@@ -65,22 +79,25 @@ class MainActivity : AppCompatActivity(), DrawerController {
     // 退出登录按钮
     private val logoutButton: MaterialButton by lazy { binding.logoutButton }
 
-
     private var isDrawerAnimating = false
+
+    private val disposables by lazy { CompositeDisposable() }
+
+    private val store by lazy { UserStore() }
+
+
+    override fun onResume() {
+        super.onResume()
+        store.dispatch(UserAction.initilaize())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        val start = System.currentTimeMillis()
         binding = ActivityMainBinding.inflate(layoutInflater)
         PlanetApplication.startTime = System.currentTimeMillis()
         setContentView(binding.root)
         drawerLayout = binding.drawerLayout
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
         if (savedInstanceState == null) {
             val firstFragment = FeatureFragment.newInstance()
             fragments[0] = firstFragment
@@ -89,9 +106,82 @@ class MainActivity : AppCompatActivity(), DrawerController {
                 .commit()
         }
         setupTabs()
-        setupTabSelectionListener()
-        setupDrawerLayout()
-        initClickListeners()
+        lifecycleScope.launch {
+            // 2. UI相关的初始化放在一组（在主线程执行）
+            launch(Dispatchers.Main) {
+                drawerUsername.text = UserInfoManager.username
+                initDrawerImages()
+                setupTabSelectionListener()
+            }
+            launch(Dispatchers.IO) {
+                store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
+                store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+            }
+            launch {
+                initClickListeners()
+                setupDrawerLayout()
+            }
+        }
+        observeState();
+        Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
+
+    }
+
+    private fun initDrawerImages() {
+        // 加载功能图标
+        val imageIds = listOf(
+            R.id.notification_img to R.drawable.notification2,
+            R.id.privacy_img to R.drawable.yingsi,
+            R.id.account_img to R.drawable.zhanghao,
+            R.id.clear_cache_img to R.drawable.qingchu,
+            R.id.student_id_img to R.drawable.bianji_,
+            R.id.theme_img to R.drawable.zhuti_tiaosepan,
+            R.id.message_img to R.drawable.xiaoxi,
+            R.id.help_img to R.drawable.bangzhu,
+            R.id.about_img to R.drawable.guanyuwomen,
+            R.id.feedback_img to R.drawable.yijianfankui
+        )
+
+        // 批量加载功能图标
+        imageIds.forEach { (viewId, drawableId) ->
+            Glide.with(this)
+                .load(drawableId)
+                .into(findViewById(viewId))
+        }
+
+        val arrowIds = listOf(
+            R.id.notification_arrow,
+            R.id.privacy_arrow,
+            R.id.account_arrow,
+            R.id.clear_cache_arrow,
+            R.id.student_id_arrow,
+            R.id.theme_arrow,
+            R.id.message_arrow,
+            R.id.help_arrow,
+            R.id.about_arrow,
+            R.id.feedback_arrow
+        )
+
+        // 批量加载箭头图标
+        arrowIds.forEach { arrowId ->
+            Glide.with(this)
+                .load(R.drawable.baseline_arrow_forward_ios_24)
+                .into(findViewById(arrowId))
+        }
+
+    }
+
+    private fun observeState() {
+        disposables.add(
+            store.state()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { state ->
+                    Glide.with(this)
+                        .load(state.userProfile.avatarUrl)
+                        .into(drawerAvatar)
+                    drawerStuNumber.text = state.userStats.studentNumber
+                }
+        )
     }
 
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
@@ -104,6 +194,10 @@ class MainActivity : AppCompatActivity(), DrawerController {
         currentTabPosition = savedInstanceState.getInt("currentTab")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
+    }
 
     private fun setupDrawerLayout() {
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
@@ -141,6 +235,14 @@ class MainActivity : AppCompatActivity(), DrawerController {
     }
 
     private fun initClickListeners() {
+
+        mainAvatarLinear.setOnClickListener {
+            // 处理点击头像框后逻辑
+            Route.goUserProfile(this@MainActivity)
+        }
+        drawerAvatar.setOnClickListener {
+            Route.goUserProfile(this@MainActivity)
+        }
         notificationSettings.setOnClickListener {
             // 处理通知设置点击
         }
@@ -262,6 +364,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
             transaction.add(R.id.frag, newFragment)
         }
         transaction.commit()
+
     }
 
     private fun initFragment(fragment: Fragment) {
@@ -271,22 +374,19 @@ class MainActivity : AppCompatActivity(), DrawerController {
     }
 
     fun animateTabSelect(tab: Tab) {
-        val tabView = tab.view
-        tabView.animate()
-            .scaleX(0.8f)
-            .scaleY(0.8f)
-            .setDuration(200)
-            .withEndAction {
-                tabView.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(200)
-                    .start()
-            }
-            .start()
+        TabAnimationPool.animateTabSelect(tab)
     }
 
     override fun openDrawer() {
-        drawerLayout.openDrawer(GravityCompat.START)
+        val startTime = System.currentTimeMillis()
+        binding.drawerLayout.openDrawer(GravityCompat.START)
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+            override fun onDrawerOpened(drawerView: View) {
+                val endTime = System.currentTimeMillis()
+                val duration = endTime - startTime
+                Log.d("DrawerPerformance", "Drawer opened in $duration ms")
+                binding.drawerLayout.removeDrawerListener(this)
+            }
+        })
     }
 }

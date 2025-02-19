@@ -2,28 +2,17 @@ package com.example.changli_planet_app.Fragment
 
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
-import android.os.MessageQueue.IdleHandler
-import android.transition.Transition
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.target.Target
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Interface.DrawerController
-import com.example.changli_planet_app.UI.FunctionItem
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -46,7 +35,6 @@ class FeatureFragment : Fragment() {
             Log.d(TAG, "DrawerControl,宿主Activity未实现接口")
         }
     }
-
     override fun onDetach() {
         drawerController = null
         super.onDetach()
@@ -57,18 +45,21 @@ class FeatureFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val start = System.currentTimeMillis()
         binding = FragmentFeatureBinding.inflate(layoutInflater)
-        setupClickListeners()
         setIcons()
-        menuButton.setOnClickListener { drawerController?.openDrawer() }
         Looper.myQueue().addIdleHandler {
-            setIcons()
+            setupClickListeners()
             false
         }
+        menuButton.setOnClickListener { drawerController?.openDrawer() }
+        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
         return binding.root
     }
 
+
     private fun setupClickListeners() {
+
         with(binding) {
             nelectronic.setOnClickListener { activity?.let { Route.goElectronic(it) } }
             ncourse.setOnClickListener { activity?.let { Route.goTimetable(it) } }
@@ -76,27 +67,35 @@ class FeatureFragment : Fragment() {
             ntest.setOnClickListener { activity?.let { Route.goExamArrangement(it) } }
             ncet.setOnClickListener { activity?.let { Route.goCet(it) } }
             nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
+            nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
         }
+
     }
 
     private fun setIcons() {
         context?.let { ctx ->
             with(binding) {
-                planetLogo.setImageResource(R.drawable.planet_logo)
+                Glide.with(ctx)
+                    .load(R.drawable.planet_logo)
+                    .into(planetLogo)
                 // 设置功能图标
-                ngrade.setIcon(R.drawable.ngrade)
-                ncourse.setIcon(R.drawable.ncourse)
-                nmap.setIcon(R.drawable.nmap)
-                ncet.setIcon(R.drawable.ncet)
-                ntest.setIcon(R.drawable.ntest)
-                ncalender.setIcon(R.drawable.ncalender)
-                nmande.setIcon(R.drawable.nmande)
-                nlose.setIcon(R.drawable.nlose)
-                nnotice.setIcon(R.drawable.nnotice)
-                nelectronic.setIcon(R.drawable.nelectronic)
-                nrank.setIcon(R.drawable.nrank)
-                nbalance.setIcon(R.drawable.nbalance)
-                nclassroom.setIcon(R.drawable.nclassroom)
+                val iconIds = listOf(
+                    ngrade to R.drawable.ngrade,
+                    ncourse to R.drawable.ncourse,
+                    nmap to R.drawable.nmap,
+                    ncet to R.drawable.ncet,
+                    ntest to R.drawable.ntest,
+                    ncalender to R.drawable.ncalender,
+                    nmande to R.drawable.nmande,
+                    nlose to R.drawable.nlose,
+                    nelectronic to R.drawable.nelectronic,
+                    nrank to R.drawable.nrank,
+                    nclassroom to R.drawable.nclassroom
+                )
+
+                iconIds.forEach { (item, resId) ->
+                    item.setIconWithGlide(resId)
+                }
             }
         }
     }
@@ -104,28 +103,9 @@ class FeatureFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() = FeatureFragment()
+
+
+
     }
 
-    // 动态计算尺寸的核心方法
-    private fun calculateTargetSize(view: View): Pair<Int, Int> {
-        return when {
-            view.width > 0 && view.height > 0 ->
-                Pair(view.width, view.height) // 已测量完成的情况
-
-            view.isLaidOut ->
-                Pair(view.width, view.height) // 已布局完成的情况
-
-            else -> {
-                // 未完成布局时使用屏幕宽高估算
-                val displayMetrics = view.context.resources.displayMetrics
-                val screenWidth = displayMetrics.widthPixels
-                val screenHeight = displayMetrics.heightPixels
-
-                // 根据布局参数动态计算（示例为宽度充满，高度按比例）
-                val targetWidth = screenWidth
-                val targetHeight = (screenWidth * 1f).toInt() // 假设原图是1:1比例
-                Pair(targetWidth, targetHeight)
-            }
-        }
-    }
 }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/tv_camera"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:paddingVertical="8dp"
+        android:text="拍照"
+        android:textColor="#333333"
+        android:textSize="16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey" />
+
+    <TextView
+        android:id="@+id/tv_gallery"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:paddingVertical="8dp"
+        android:paddingBottom="16dp"
+        android:text="从相册选择"
+        android:textColor="#333333"
+        android:textSize="16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="12dp"
+        android:background="@color/grey" />
+
+
+    <TextView
+        android:id="@+id/tv_dismiss"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="4dp"
+        android:gravity="center"
+        android:layout_marginHorizontal="10dp"
+        android:paddingVertical="8dp"
+        android:text="取消"
+        android:textColor="#333333"
+        android:textSize="16sp" />
+
+</LinearLayout>

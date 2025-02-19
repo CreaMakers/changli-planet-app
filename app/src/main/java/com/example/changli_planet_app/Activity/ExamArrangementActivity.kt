@@ -16,6 +16,7 @@ import com.example.changli_planet_app.Activity.Store.ExamArrangementStore
 import com.example.changli_planet_app.Adapter.ExamArrangementAdapter
 import com.example.changli_planet_app.Cache.ExamArrangementCache
 import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.Exam
 import com.example.changli_planet_app.Network.Response.ExamArrangement
@@ -25,7 +26,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.Calendar
 
-class ExamArrangementActivity : AppCompatActivity() {
+class ExamArrangementActivity : FullScreenActivity() {
     lateinit var binding: ActivityExamArrangementBinding
     private val examRecyclerView: RecyclerView by lazy { binding.recyclerView }
     private val back: ImageView by lazy { binding.bindingBack }

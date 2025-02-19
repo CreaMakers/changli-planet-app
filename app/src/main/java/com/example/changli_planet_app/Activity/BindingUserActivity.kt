@@ -15,6 +15,7 @@ import com.example.changli_planet_app.Activity.Action.BindingUserAction
 import com.example.changli_planet_app.Activity.Store.BindingUserStore
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.Event.FinishEvent
@@ -24,7 +25,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class BindingUserActivity : AppCompatActivity() {
+class BindingUserActivity : FullScreenActivity() {
     private lateinit var binding: ActivityBindingUserBinding
     private val username: TextView by lazy { binding.etStudentId }
     private val password: TextView by lazy { binding.etStudentPassword }
@@ -36,17 +37,18 @@ class BindingUserActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        initView()
+        initListener()
+    }
+
+    private fun initView(){
         binding = ActivityBindingUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        username.setText(StudentInfoManager.studentId)
-
+        username.text = StudentInfoManager.studentId
         EventBus.getDefault().register(this)
+    }
+
+    private fun initListener(){
         save.setOnClickListener { saveUserInfo() }
         back.setOnClickListener { finish() }
     }

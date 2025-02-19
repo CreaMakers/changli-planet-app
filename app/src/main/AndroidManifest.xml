@@ -8,12 +8,17 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 下载管理器权限 -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:name=".Core.PlanetApplication"
-        android:forceDarkAllowed="false"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:forceDarkAllowed="false"
         android:fullBackupContent="@xml/backup_rules"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/logo"
@@ -26,17 +31,47 @@
         tools:replace="android:networkSecurityConfig"
         tools:targetApi="31">
         <activity
-            android:name=".Activity.AccountSecurityActivity"
-            android:screenOrientation="portrait"
+            android:name=".Core.FullScreenActivity"
             android:exported="false" />
+        <activity
+            android:name=".Activity.ClassInfoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.CityActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ProvinceActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" /> <!-- 添加 FileProvider 配置 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity
+            android:name=".Activity.UserProfileActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activity.AccountSecurityActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.TimeTableActivity"
-            android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.AddCourseActivity"
-
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.BindingUserActivity"
             android:exported="false"
@@ -64,8 +99,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.LoseActivity"
-            android:launchMode="singleTask"
             android:exported="false"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.MainActivity"
@@ -82,7 +117,8 @@
         <activity
             android:name=".Activity.SplashActivity"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

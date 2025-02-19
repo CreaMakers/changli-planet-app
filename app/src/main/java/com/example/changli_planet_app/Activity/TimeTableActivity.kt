@@ -11,6 +11,7 @@ import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
@@ -35,12 +36,13 @@ import com.example.changli_planet_app.Activity.Store.TimeTableStore
 import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Cache.Room.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.NormalResponseDialog
-import com.example.changli_planet_app.UI.TimetableWheelBottomDialog
+import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
+import com.example.changli_planet_app.Widget.Dialog.TimetableWheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
 import com.google.android.material.snackbar.Snackbar
@@ -65,7 +67,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 
 
-class TimeTableActivity : AppCompatActivity() {
+class TimeTableActivity : FullScreenActivity() {
     private val mmkv by lazy { MMKV.defaultMMKV() }
     private val disposables by lazy { CompositeDisposable() }
     private val isCurWeek by lazy { binding.isCurWeek }
@@ -80,6 +82,11 @@ class TimeTableActivity : AppCompatActivity() {
         TimeTableStore(dataBase.courseDao())
     }
 
+    private val maxHeight by lazy {
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        displayMetrics.heightPixels / 2
+    }
 
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
@@ -150,13 +157,7 @@ class TimeTableActivity : AppCompatActivity() {
     @SuppressLint("WrongThread")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
         if (studentId.isEmpty() || studentPassword.isEmpty()) {
             showMessage("请先绑定学号和密码")
             Route.goBindingUser(this)
@@ -297,7 +298,6 @@ class TimeTableActivity : AppCompatActivity() {
                         true // 消费事件
                     }
                 }
-
                 // 使用原本的课程内容视图
                 val courseContentView = super.getScrollView(mInflate)
 
@@ -520,7 +520,8 @@ class TimeTableActivity : AppCompatActivity() {
             this@TimeTableActivity,
             studentId,
             studentPassword,
-            timeTableStore
+            timeTableStore,
+            maxHeight
         )
         Wheel.setItem(item)
         Wheel.show(supportFragmentManager, "TimetableWheel")

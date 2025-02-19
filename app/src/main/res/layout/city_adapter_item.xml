@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/location_item_layout"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="12dp"
+
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/location_item_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dp"
+        android:textSize="18sp"
+        android:textColor="@color/text_color"
+        android:layout_centerVertical="true"
+        android:text="广东" />
+
+</RelativeLayout>

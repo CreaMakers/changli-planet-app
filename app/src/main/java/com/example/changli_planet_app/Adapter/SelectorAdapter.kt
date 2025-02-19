@@ -1,6 +1,5 @@
 package com.example.changli_planet_app.Adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +9,8 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.changli_planet_app.Activity.Action.ElectronicAction
 import com.example.changli_planet_app.Activity.Store.ElectronicStore
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.WheelBottomDialog
 import com.example.changli_planet_app.Util.Event.SelectEvent
 import com.example.changli_planet_app.Util.EventBusHelper
-import org.greenrobot.eventbus.EventBus
 
 class SelectorAdapter(private val list: List<String>,val store: ElectronicStore):RecyclerView.Adapter<SelectorAdapter.SelectorViewHodler>() {
     class SelectorViewHodler(item:View):ViewHolder(item){

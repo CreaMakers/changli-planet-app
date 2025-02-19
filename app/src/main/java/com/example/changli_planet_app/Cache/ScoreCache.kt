@@ -6,16 +6,21 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 
-class ScoreCache(private val context: Context) {
-    init {
-        MMKV.initialize(context)
-    }
+object ScoreCache {
 
-    private val mmkv = MMKV.mmkvWithID("content_cache")
+    private val mmkv by lazy { MMKV.mmkvWithID("content_cache") }
     private val gson = Gson()
 
     fun saveGrades(grades: List<Grade>) {
         mmkv.encode("grades", gson.toJson(grades))
+    }
+
+    fun saveGradesDetailByUrl(url: String, details: String) {
+        mmkv.encode(url, details)
+    }
+
+    fun getGradesDetailByUrl(url: String): String {
+        return mmkv.getString(url, "") ?: ""
     }
 
     fun getGrades(): List<Grade>? {

@@ -17,6 +17,7 @@ import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
 import com.example.changli_planet_app.Adapter.ExamScoreAdapter
 import com.example.changli_planet_app.Cache.ScoreCache
 import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.model.CourseScore
 import com.example.changli_planet_app.Data.model.SemesterGroup
@@ -26,15 +27,30 @@ import com.example.changli_planet_app.databinding.ActivityScoreInquiryBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
-class ScoreInquiryActivity : AppCompatActivity() {
+class ScoreInquiryActivity : FullScreenActivity() {
     private lateinit var binding: ActivityScoreInquiryBinding
     private val recyclerView: RecyclerView by lazy { binding.ScoreRecyclerView }
     private val refresh: ImageView by lazy { binding.refresh }
-    private val examScoreAdapter = ExamScoreAdapter()
+    private val examScoreAdapter by lazy { ExamScoreAdapter(store, this@ScoreInquiryActivity) }
     private val store = ScoreInquiryStore()
-    private val cache by lazy { ScoreCache(this) }
     private val back by lazy { binding.bindingBack }
     private val disposables by lazy { CompositeDisposable() }
+
+
+    private val studentId by lazy { StudentInfoManager.studentId }
+    private val studentPassword by lazy { StudentInfoManager.studentPassword }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityScoreInquiryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setupToolbar()
+        setupRecyclerView()
+        initListener()
+        loadCachedData()
+        initObserveState()
+    }
+
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
         binding.ScoreRecyclerView.visibility = View.GONE
@@ -45,19 +61,12 @@ class ScoreInquiryActivity : AppCompatActivity() {
         binding.ScoreRecyclerView.visibility = View.VISIBLE
     }
 
-    private val studentId by lazy { StudentInfoManager.studentId }
-    private val studentPassword by lazy { StudentInfoManager.studentPassword }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityScoreInquiryBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setupToolbar()
-        setupRecyclerView()
-
+    private fun initListener() {
+        back.setOnClickListener { finish() }
         refresh.setOnClickListener { refreshData(true) }
-        loadCachedData()
+    }
+
+    private fun initObserveState() {
         disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -66,7 +75,6 @@ class ScoreInquiryActivity : AppCompatActivity() {
                     showInfo(state.grades)
                 }
         )
-        back.setOnClickListener { finish() }
     }
 
     private fun setupToolbar() {
@@ -86,7 +94,7 @@ class ScoreInquiryActivity : AppCompatActivity() {
     }
 
     private fun loadCachedData() {
-        val cachedGrades = cache.getGrades()
+        val cachedGrades = ScoreCache.getGrades()
         if (cachedGrades != null) {
             showInfo(cachedGrades)
         } else {
@@ -102,7 +110,7 @@ class ScoreInquiryActivity : AppCompatActivity() {
             return
         }
 
-        if (forceUpdate || cache.getGrades() == null) {
+        if (forceUpdate || ScoreCache.getGrades() == null) {
             store.dispatch(ScoreInquiryAction.UpdateGrade(this, studentId, studentPassword))
             showLoading()
         }
@@ -112,7 +120,7 @@ class ScoreInquiryActivity : AppCompatActivity() {
         if (rawData.isEmpty()) {
             return
         }
-        cache.saveGrades(rawData)
+        ScoreCache.saveGrades(rawData)
         val groupedData = rawData.groupBy { it.item }.toSortedMap(compareByDescending { it })
         val semesterGroups = groupedData.map { (semester, grades) ->
 
@@ -122,7 +130,9 @@ class ScoreInquiryActivity : AppCompatActivity() {
                     score = grade.grade.toIntOrNull() ?: 0,
                     credit = grade.score.toDoubleOrNull() ?: 0.0,
                     earnedCredit = grade.point.toDoubleOrNull() ?: 0.0,
-                    courseType = grade.attribute
+                    courseType = grade.attribute,
+                    pscjUrl = grade.pscjUrl,
+                    cookie = grade.cookie
                 )
             }
 

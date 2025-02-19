@@ -54,67 +54,67 @@ class IMFragment : Fragment() {
 
     private val chatList = listOf(
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Haley James",
             lastMessage = "Stand up for what you believe in",
             messageCount = 9
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Nathan Scott",
             lastMessage = "One day you're seventeen and planning for someday. And then quietly and without...",
             messageCount = 0
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Marvin McFadden",
             lastMessage = "Last night in the NBA the Charlotte Bobcats quietly made a move that most sports fans...",
             messageCount = 0
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2
         ),
         ChatListItem(
-            groupAvatar = "https://qiniu.dcelysia.top/articleCover/Elysia11721787964852441.jpg",
+            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2

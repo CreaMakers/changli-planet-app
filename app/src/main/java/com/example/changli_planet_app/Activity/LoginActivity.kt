@@ -1,7 +1,6 @@
 package com.example.changli_planet_app.Activity
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
@@ -11,23 +10,22 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.UnderlineSpan
-import android.util.Log
-import android.view.MotionEvent
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
 import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
-import com.example.changli_planet_app.UI.ExpiredDialog
+import com.example.changli_planet_app.Core.noOpDelegate
+import com.example.changli_planet_app.Widget.Dialog.ExpiredDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -35,7 +33,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : FullScreenActivity() {
     private lateinit var binding: ActivityLoginBinding
     private val Login: TextView by lazy { binding.login }
     private val route: TextView by lazy { binding.route }
@@ -48,15 +46,24 @@ class LoginActivity : AppCompatActivity() {
     val store = LoginAndRegisterStore()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        initView()
+        initListener()
+    }
+
+    private fun initView(){
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)// 设置Button的初始状态
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
         EventBus.getDefault().register(this)
+        if(intent.getBooleanExtra("from_token_expired", false)) {
+            ExpiredDialog(
+                this,
+                "您的登录状态过期啦꒰ঌ( ⌯' '⌯)໒꒱",
+                "登录提示"
+            ).show()
+        }
+    }
+
+    private fun initListener(){
         disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -66,16 +73,9 @@ class LoginActivity : AppCompatActivity() {
                     updateButtonClear(state.isClearPassword)
                 }
         )
-        if(intent.getBooleanExtra("from_token_expired", false)) {
-            ExpiredDialog(
-                this,
-                "您的登录状态过期啦꒰ঌ( ⌯' '⌯)໒꒱",
-                "登录提示"
-            ).show()
-        }
         store.dispatch(LoginAndRegisterAction.initilaize)
         setUnderLine()
-        val accountTextWatcher = object : TextWatcher {
+        val accountTextWatcher = object : TextWatcher by noOpDelegate() {
             override fun afterTextChanged(s: Editable?) {
                 store.dispatch(
                     LoginAndRegisterAction.InputLogin(
@@ -84,11 +84,8 @@ class LoginActivity : AppCompatActivity() {
                     )
                 )
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
-        val passwordTextWatcher = object : TextWatcher {
+        val passwordTextWatcher = object : TextWatcher by noOpDelegate() {
             override fun afterTextChanged(s: Editable?) {
                 store.dispatch(
                     LoginAndRegisterAction.InputLogin(
@@ -97,9 +94,6 @@ class LoginActivity : AppCompatActivity() {
                     )
                 )
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
 
         Login.setOnClickListener {
@@ -134,8 +128,6 @@ class LoginActivity : AppCompatActivity() {
         account.setText(intent.getStringExtra("username") ?: "")
         password.setText(intent.getStringExtra("password") ?: "")
     }
-
-
     private fun inputFilter(editText: EditText) {
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
             // 允许的字符是英文字母和数字

@@ -1,61 +1,44 @@
 package com.example.changli_planet_app.Activity
 
-import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputFilter
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextWatcher
-import android.text.style.ClickableSpan
 import android.text.style.UnderlineSpan
-import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
 import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Data.jsonbean.UserPassword
-import com.example.changli_planet_app.Network.HttpUrlHelper
-import com.example.changli_planet_app.Network.OkHttpHelper
-import com.example.changli_planet_app.Network.RequestCallback
-import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
+import com.example.changli_planet_app.Core.noOpDelegate
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.LoginInformationDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import okhttp3.Response
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : FullScreenActivity() {
     lateinit var binding: ActivityRegisterBinding
     val register: TextView by lazy { binding.register }
     val route: TextView by lazy { binding.routes }
     val account: EditText by lazy { binding.account }
-    val mmkv = MMKV.defaultMMKV()
     val password: EditText by lazy { binding.password }
     val store = LoginAndRegisterStore()
     private val disposables by lazy { CompositeDisposable() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
         disposables.add(
             store.state()
                 .subscribe { state ->
@@ -80,21 +63,15 @@ class RegisterActivity : AppCompatActivity() {
         store.dispatch(LoginAndRegisterAction.input("checked", "checkbox"))
         setUnderLine()
         // 定义TextWatcher，用于监听account和password EditText内容变化
-        val accountTextWatcher = object : TextWatcher {
+        val accountTextWatcher = object : TextWatcher by noOpDelegate() {
             override fun afterTextChanged(s: Editable?) {
                 store.dispatch(LoginAndRegisterAction.input(account.text.toString(), "account"))
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
-        val passwordTextWatcher = object : TextWatcher {
+        val passwordTextWatcher = object : TextWatcher by noOpDelegate() {
             override fun afterTextChanged(s: Editable?) {
                 store.dispatch(LoginAndRegisterAction.input(password.text.toString(), "password"))
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
         register.setOnClickListener {
             store.dispatch(
@@ -169,6 +146,7 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        EventBus.getDefault().unregister(this)
         disposables.clear()
     }
 

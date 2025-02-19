@@ -2,24 +2,19 @@ package com.example.changli_planet_app.Activity.Store
 
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.MainThread
 import com.example.changli_planet_app.Activity.Action.AccountSecurityAction
-import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.State.AccountSecurityState
-import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.Store
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.UI.NormalResponseDialog
+import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.Util.EventBusHelper
 import com.example.changli_planet_app.Util.PlanetConst
 import okhttp3.Response
-import org.greenrobot.eventbus.EventBus
 
 
 class AccountSecurityStore : Store<AccountSecurityState, AccountSecurityAction>() {

@@ -16,6 +16,7 @@ import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Cache.ScoreCache
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.R
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
@@ -38,8 +39,15 @@ class PlanetApplication : Application() {
         var isLogin = false
         var deviceId: String = ""
         lateinit var appContext: Context
+
         const val UserIp: String = "http://113.44.47.220:8083/app/users"
         const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
+//        const val ToolIp: String = "http://10.0.2.2:8081/app/tools"
+
+        val preRequestIps = listOf(
+            "http://113.44.47.220:8083",
+            "http://113.44.47.220:8081"
+        )
 
         fun clearCacheAll() {
             CoroutineScope(Dispatchers.IO).launch {
@@ -62,26 +70,25 @@ class PlanetApplication : Application() {
         super.onCreate()
         val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        initMMKV()
+
         CoroutineScope(Dispatchers.IO).launch {
-            // 并发执行所有初始化任务
-            val tasks = listOf(
-                async { initDNS() },
-                async { initMMKV() },
-                async { preloadImages() }  // 添加图片预加载任务
-            )
-
-            // 等待所有任务完成
-            tasks.awaitAll()
-
-            val endTime = System.currentTimeMillis()
-            val duration = endTime - startTime
-            Log.d("YourTag", "onCreate 耗时: $duration ms")
+            runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }
+            runCatching { initMMKV() }.onFailure { Log.e("MMKV", "MMKV init Error") }
+            runCatching { preRequestIps.forEach { OkHttpHelper.preRequest(it) } }.onFailure {
+                Log.e(
+                    "PreRequestIps",
+                    "PreRequestIps, Error"
+                )
+            }
         }
+        val endTime = System.currentTimeMillis()
+        val duration = endTime - startTime
 
         appContext = applicationContext
     }
 
-    private suspend fun initDNS() {
+    private fun initDNS() {
         val dnsConfigBuilder = DnsConfig.Builder()
             .dnsId("98468")
             .token("884069233")
@@ -91,43 +98,8 @@ class PlanetApplication : Application() {
         MSDKDnsResolver.getInstance().init(applicationContext, dnsConfigBuilder)
     }
 
-    private suspend fun initMMKV() {
+    private fun initMMKV() {
         MMKV.initialize(this@PlanetApplication)
     }
-
-    private suspend fun preloadImages() {
-        // 预加载所有固定图标
-        val iconResources = listOf(
-            R.drawable.planet_logo,
-            R.drawable.ngrade,
-            R.drawable.ncourse,
-            R.drawable.nmap,
-            R.drawable.ncet,
-            R.drawable.ntest,
-            R.drawable.ncalender,
-            R.drawable.nadd,
-            R.drawable.nmande,
-            R.drawable.nlose,
-            R.drawable.nnotice,
-            R.drawable.nelectronic,
-            R.drawable.nrank,
-            R.drawable.nbalance,
-            R.drawable.nclassroom
-        )
-
-        // Glide 需要在主线程初始化
-        withContext(Dispatchers.Main) {
-            iconResources.chunked(4) {
-                it.forEach { resId ->
-                    Glide.with(applicationContext)
-                        .load(resId)
-                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                        .preload()
-                }
-            }
-        }
-    }
-
-
 }
 

@@ -55,7 +55,7 @@
     <!-- 自定义抽屉内容 -->
     <LinearLayout
         android:id="@+id/drawer_content"
-        android:layout_width="300dp"
+        android:layout_width="270dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:animateLayoutChanges="false"
@@ -71,21 +71,22 @@
             android:background="@drawable/drawer_back_blue">
 
             <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/drawer_avatar"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
                 android:layout_gravity="center"
-                android:layout_marginStart="25dp"
+                android:layout_marginStart="15dp"
                 android:layout_marginEnd="15dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
                 android:padding="2dp"
-                android:src="@drawable/fulilian"
                 app:shapeAppearance="@style/CircleStyle"
                 app:strokeColor="@color/white"
                 app:strokeWidth="3dp" />
 
             <LinearLayout
+                android:id="@+id/main_avatar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -93,7 +94,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/user_name"
+                    android:id="@+id/drawer_username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="魏子清"
@@ -115,6 +116,7 @@
                         android:textSize="17sp" />
 
                     <TextView
+                        android:id="@+id/main_stu_number"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="202409030351"
@@ -123,12 +125,9 @@
 
                 </LinearLayout>
 
-
             </LinearLayout>
 
-
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -136,7 +135,6 @@
             android:background="@drawable/snowflakes_background4"
             android:clickable="true"
             android:focusable="true"
-            android:layerType="hardware"
             android:orientation="vertical">
 
             <TextView
@@ -164,11 +162,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/notification_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/notification2" />
+                    android:layout_marginStart="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -185,14 +183,13 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/notification_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp" />
 
             </LinearLayout>
-
 
             <LinearLayout
                 android:id="@+id/privacy_settings"
@@ -208,11 +205,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/privacy_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/yingsi" />
+                    android:layout_marginStart="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -229,14 +226,15 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/privacy_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp"/>
 
             </LinearLayout>
 
+            <!-- 账号安全 -->
             <LinearLayout
                 android:id="@+id/account_security"
                 android:layout_width="match_parent"
@@ -251,11 +249,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/account_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/zhanghao" />
+                    android:layout_marginStart="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -272,11 +270,11 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/account_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp" />
             </LinearLayout>
 
             <TextView
@@ -290,7 +288,7 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-
+            <!-- 清除缓存 -->
             <LinearLayout
                 android:id="@+id/clear_cache"
                 android:layout_width="match_parent"
@@ -305,11 +303,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/clear_cache_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/qingchu" />
+                    android:layout_marginStart="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -326,13 +324,14 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/clear_cache_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp" />
             </LinearLayout>
 
+            <!-- 绑定学号 -->
             <LinearLayout
                 android:id="@+id/change_student_id"
                 android:layout_width="match_parent"
@@ -347,11 +346,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/student_id_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/bianji_" />
+                    android:layout_marginStart="4dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -368,15 +367,15 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/student_id_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp"/>
 
             </LinearLayout>
 
-
+            <!-- 主题设置 -->
             <LinearLayout
                 android:id="@+id/theme_settings"
                 android:layout_width="match_parent"
@@ -391,11 +390,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/theme_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/zhuti_tiaosepan" />
+                    android:layout_marginStart="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -412,15 +411,15 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/theme_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp"/>
 
             </LinearLayout>
 
-
+            <!-- 消息中心 -->
             <LinearLayout
                 android:id="@+id/message_center"
                 android:layout_width="match_parent"
@@ -435,11 +434,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/message_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/xiaoxi" />
+                    android:layout_marginStart="4dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -456,14 +455,13 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/message_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp" />
 
             </LinearLayout>
-
 
             <TextView
                 android:layout_width="match_parent"
@@ -476,7 +474,7 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-
+            <!-- 帮助中心 -->
             <LinearLayout
                 android:id="@+id/help_center"
                 android:layout_width="match_parent"
@@ -491,11 +489,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/help_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/bangzhu" />
+                    android:layout_marginStart="4dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -512,15 +510,15 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/help_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp" />
 
             </LinearLayout>
 
-
+            <!-- 关于我们 -->
             <LinearLayout
                 android:id="@+id/about_us"
                 android:layout_width="match_parent"
@@ -535,11 +533,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/about_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/guanyuwomen" />
+                    android:layout_marginStart="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -556,15 +554,15 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/about_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp" />
 
             </LinearLayout>
 
-
+            <!-- 意见反馈 -->
             <LinearLayout
                 android:id="@+id/feedback"
                 android:layout_width="match_parent"
@@ -579,11 +577,11 @@
                 android:paddingVertical="10dp">
 
                 <ImageView
+                    android:id="@+id/feedback_img"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_gravity="center"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/yijianfankui" />
+                    android:layout_marginStart="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -600,11 +598,11 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/feedback_arrow"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    android:layout_marginEnd="4dp"/>
 
             </LinearLayout>
 
@@ -613,7 +611,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-
+            <!-- 退出登录按钮 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/logout_button"
                 style="@style/Widget.MaterialComponents.Button.TextButton"

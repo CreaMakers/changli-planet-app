@@ -18,13 +18,15 @@ import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Cache.Room.CoursesDataBase
 import com.example.changli_planet_app.Cache.Room.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Core.noOpDelegate
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityAddCourseInTimetableBinding
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
-class AddCourseActivity : AppCompatActivity() {
+class AddCourseActivity :FullScreenActivity() {
     lateinit var coursesDataBase: CoursesDataBase
     lateinit var timeTableStore: TimeTableStore
     private val gson by lazy { Gson() }
@@ -34,6 +36,7 @@ class AddCourseActivity : AppCompatActivity() {
     private val courseTeacher by lazy { binding.customTeacherName }
     private val courseWeek by lazy { binding.customWeekAndDay }
     private val courseStep by lazy { binding.customCourseStep }
+    private var curWeek : Int = 0
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
     private val weekDayMap = mapOf(
@@ -48,124 +51,61 @@ class AddCourseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        supportActionBar?.hide()
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         coursesDataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
         timeTableStore = TimeTableStore(coursesDataBase.courseDao())
-
+    }
+    private fun initView(){
+        setContentView(binding.root)
+        supportActionBar?.hide()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val startCourse = intent.getIntExtra("start", 0)
-        val curWeek = intent.getIntExtra("curWeek", 0)
+        curWeek = intent.getIntExtra("curWeek", 0)
         courseStep.setText("0$startCourse - 0${startCourse + 1} 节")
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
-        }
-
         courseWeek.setText(weekDayMap[intent.getIntExtra("day", 0)])
+    }
+
+    private fun initListener(){
         binding.customCourseName.addTextChangedListener {
-            object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                }
-
+            object : TextWatcher by noOpDelegate() {
                 override fun afterTextChanged(s: Editable?) {
                     lifecycleScope.launch {
                         courseName.setText(it.toString())
-
                     }
-
                 }
-
             }
-
         }
         binding.customCourseRoom.addTextChangedListener {
-            object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                }
-
+            object : TextWatcher by noOpDelegate() {
                 override fun afterTextChanged(s: Editable?) {
                     lifecycleScope.launch {
                         courseRoom.setText(it.toString())
                     }
                 }
-
             }
-
-
         }
         binding.customTeacherName.addTextChangedListener {
-            object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                }
-
+            object : TextWatcher by noOpDelegate() {
                 override fun afterTextChanged(s: Editable?) {
                     lifecycleScope.launch {
                         courseTeacher.setText(it.toString())
                     }
-
                 }
-
             }
-
-
         }
-
-
-
-
 
         binding.addCourseBtn.setOnClickListener {
             val mySubject = MySubject(isCustom = true, studentId = studentId, studentPassword = studentPassword)
-
             if (courseName.text.isNotEmpty()) {
                 mySubject.courseName = courseName.text.toString()
             } else {
                 Toast.makeText(this, "请输入课程名", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             mySubject.apply {
                 term = intent.getStringExtra("curTerm")!!
                 weekday = intent.getIntExtra("day", 0) // 底层的索引从0开始，但计算时却进行了 - 1 ，所以这里要 + 1
                 start = intent.getIntExtra("start", 0)
             }
-
             mySubject.step = 2
             if (courseTeacher.text.isNotEmpty()) {
                 mySubject.teacher = courseTeacher.text.toString()
@@ -192,7 +132,8 @@ class AddCourseActivity : AppCompatActivity() {
             setResult(RESULT_OK, intent)
             finish()
         }
-
+        binding.toolbar.setNavigationOnClickListener {
+            finish()
+        }
     }
-
 }

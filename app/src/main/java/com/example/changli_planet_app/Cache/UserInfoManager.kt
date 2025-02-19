@@ -22,12 +22,6 @@ object UserInfoManager {
             mmkv.putString(KEY_USER_PASSWORD, value)
         }
 
-    var token: String
-        get() = mmkv.getString(KEY_TOKEN, "") ?: ""
-        set(value) {
-            mmkv.putString(KEY_TOKEN, value)
-        }
-
     fun clear() {
         username = ""
         userPassword = ""

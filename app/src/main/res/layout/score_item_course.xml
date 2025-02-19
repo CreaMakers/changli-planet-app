@@ -2,8 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
+    android:background="@drawable/item_ripple_effect"
     android:orientation="horizontal"
+    android:clickable="true"
+    android:focusable="true"
+    android:id="@+id/score_item_layout"
     android:padding="16dp">
     <LinearLayout
         android:layout_width="0dp"

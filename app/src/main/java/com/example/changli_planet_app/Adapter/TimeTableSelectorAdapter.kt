@@ -7,15 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.example.changli_planet_app.Activity.Action.ElectronicAction
 import com.example.changli_planet_app.Activity.Action.TimeTableAction
-import com.example.changli_planet_app.Activity.Store.ElectronicStore
 import com.example.changli_planet_app.Activity.Store.TimeTableStore
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.UI.WheelBottomDialog
 import com.example.changli_planet_app.Util.Event.SelectEvent
 import com.example.changli_planet_app.Util.EventBusHelper
-import org.greenrobot.eventbus.EventBus
 
 class TimeTableSelectorAdapter(
     private val context: Context,

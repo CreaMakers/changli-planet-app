@@ -17,8 +17,8 @@ import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.UI.ErrorStuPasswordResponseDialog
-import com.example.changli_planet_app.UI.NormalResponseDialog
+import com.example.changli_planet_app.Widget.Dialog.ErrorStuPasswordResponseDialog
+import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.google.gson.reflect.TypeToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
