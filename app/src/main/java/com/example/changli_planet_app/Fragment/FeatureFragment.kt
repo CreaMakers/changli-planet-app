@@ -24,7 +24,6 @@ import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 class FeatureFragment : Fragment() {
     private val TAG = "FeatureFragment"
     private lateinit var binding: FragmentFeatureBinding
-    private val menuButton by lazy { binding.featureMenuButton }
     private var drawerController: DrawerController? = null
 
     override fun onAttach(context: Context) {
@@ -52,7 +51,6 @@ class FeatureFragment : Fragment() {
             setupClickListeners()
             false
         }
-        menuButton.setOnClickListener { drawerController?.openDrawer() }
         Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
         return binding.root
     }
@@ -62,8 +60,8 @@ class FeatureFragment : Fragment() {
 
         with(binding) {
             nelectronic.setOnClickListener { activity?.let { Route.goElectronic(it) } }
-            ncourse.setOnClickListener { activity?.let { Route.goTimetable(it) } }
-            ngrade.setOnClickListener { activity?.let { Route.goScoreInquiry(it) } }
+            featureLinear2.setOnClickListener { activity?.let { Route.goTimetable(it) } }
+            featureLinear3.setOnClickListener { activity?.let { Route.goScoreInquiry(it) } }
             ntest.setOnClickListener { activity?.let { Route.goExamArrangement(it) } }
             ncet.setOnClickListener { activity?.let { Route.goCet(it) } }
             nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
@@ -73,15 +71,10 @@ class FeatureFragment : Fragment() {
     }
 
     private fun setIcons() {
-        context?.let { ctx ->
+        context?.let {
             with(binding) {
-                Glide.with(ctx)
-                    .load(R.drawable.planet_logo)
-                    .into(planetLogo)
                 // 设置功能图标
                 val iconIds = listOf(
-                    ngrade to R.drawable.ngrade,
-                    ncourse to R.drawable.ncourse,
                     nmap to R.drawable.nmap,
                     ncet to R.drawable.ncet,
                     ntest to R.drawable.ntest,

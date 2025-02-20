@@ -1,187 +1,216 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/feature"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/feature_white"
+    android:background="#F2F3F9"
     tools:context=".Fragment.FeatureFragment">
 
-    <ImageView
-        android:id="@+id/planet_logo"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:src="@drawable/planet_logo"
-        app:layout_constraintHeight_percent="0.3"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageButton
-        android:id="@+id/feature_menu_button"
-        android:layout_width="50dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:src="@drawable/baseline_menu_24"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/mainfunction"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="15dp"
-        android:background="@drawable/userui"
-        android:baselineAligned="false"
-        android:orientation="vertical"
-        android:padding="15dp"
-        app:layout_constraintTop_toBottomOf="@+id/planet_logo">
-
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/feature_linear"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:layout_width="0dp"
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="常用功能"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="11dp"
+                android:src="@drawable/component1"
+                android:layout_marginStart="11dp" />
+
+            <LinearLayout
+                android:id="@+id/feature_linear2"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_marginHorizontal="10dp"
+                android:background="@drawable/main_search"
+                android:layout_marginTop="7dp"
+                android:layout_height="60dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="15dp"
+                    android:src="@drawable/component2" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="15dp"
+                    android:text="点击搜索想要的群组"
+                    android:textColor="@color/game1_gray"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/feature_linear3"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_height="80dp">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/new_course"
+                    android:layout_weight="10">
+                </View>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/new_grade"
+                    android:layout_weight="10">
+                </View>
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_marginHorizontal="10dp"
+                android:layout_width="match_parent"
+                android:background="@drawable/scroller"
+                android:layout_marginTop="30dp"
+                android:layout_height="110dp">
+
+                <LinearLayout
+                    android:id="@+id/feature_linear4"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/ntest"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="考试安排" />
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/ncalender"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="校历" />
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/nelectronic"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="电费查询" />
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/nmande"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="普通话" />
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/nmap"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="校园地图" />
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/ncet"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="四六级" />
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/nlose"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="失物招领" />
+
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/nrank"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="学霸排行" />
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/nclassroom"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="空闲教室" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:id="@+id/feature_linear5"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="30dp"
+                android:layout_height="150dp">
+
+                <View
+                    android:id="@+id/life"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/life_with_text"
+                    android:layout_weight="10">
+
+                </View>
+
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="match_parent" />
+
+                <View
+                    android:id="@+id/cetzone"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/cet_with_text"
+                    android:layout_weight="10">
+                </View>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/feature_linear6"
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="150dp">
+
+                <View
+                    android:id="@+id/school"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/school_with_text"
+                    android:layout_weight="10">
+                </View>
+
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="match_parent" />
+
+                <View
+                    android:id="@+id/kaoyan"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/kaoyan"
+                    android:layout_weight="10">
+                </View>
+            </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="15dp">
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/ngrade"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="成绩查询" />
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/ncourse"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="课表" />
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/nmap"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="校园地图" />
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/ncet"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="四六级" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="15dp">
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/ntest"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="考试安排" />
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/ncalender"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="校历" />
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/nelectronic"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="电费查询" />
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/nmande"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="普通话" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/help"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="15dp"
-        android:background="@drawable/userui"
-        android:baselineAligned="false"
-        android:orientation="vertical"
-        android:padding="15dp"
-        app:layout_constraintTop_toBottomOf="@+id/mainfunction">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="其他"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="15dp">
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/nlose"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="失物招领" />
-
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/nrank"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="学霸排行" />
-
-            <com.example.changli_planet_app.Widget.View.FunctionItem
-                android:id="@+id/nclassroom"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:itemTitle="空闲教室" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-        </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
 
