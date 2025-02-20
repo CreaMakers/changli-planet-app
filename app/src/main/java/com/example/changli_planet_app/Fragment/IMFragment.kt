@@ -9,17 +9,28 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Adapter.IMChatListAdapter
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Data.jsonbean.ChatListItem
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.databinding.FragmentIMBinding
 import com.google.android.material.imageview.ShapeableImageView
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class IMFragment : Fragment() {
     private lateinit var binding: FragmentIMBinding
     private val TAG = "IMFragment"
+
     private val recyclerView: RecyclerView by lazy { binding.chatListRecycler }
     private val imAvatar: ShapeableImageView by lazy { binding.imAvatar }
+    private val imName by lazy { binding.imName }
+
+    private val disposables by lazy { CompositeDisposable() }
+    private val store by lazy { UserStore() }
+
     private var drawerController: DrawerController? = null
 
     override fun onAttach(context: Context) {
@@ -36,12 +47,19 @@ class IMFragment : Fragment() {
         super.onDetach()
     }
 
+    override fun onResume() {
+        super.onResume()
+        Glide.with(this)
+            .load(UserStore.currentState.userProfile.avatarUrl)
+            .into(imAvatar)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentIMBinding.inflate(layoutInflater)
+        imName.text = UserInfoManager.username
         return binding.root
     }
 
@@ -53,60 +71,6 @@ class IMFragment : Fragment() {
     }
 
     private val chatList = listOf(
-        ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
-            groupName = "Haley James",
-            lastMessage = "Stand up for what you believe in",
-            messageCount = 9
-        ),
-        ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
-            groupName = "Nathan Scott",
-            lastMessage = "One day you're seventeen and planning for someday. And then quietly and without...",
-            messageCount = 0
-        ),
-        ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
-            groupName = "Brooke Davis",
-            lastMessage = "I am who I am. No excuses.",
-            messageCount = 2
-        ),
-        ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
-            groupName = "Brooke Davis",
-            lastMessage = "I am who I am. No excuses.",
-            messageCount = 2
-        ),
-        ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
-            groupName = "Brooke Davis",
-            lastMessage = "I am who I am. No excuses.",
-            messageCount = 2
-        ),
-        ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
-            groupName = "Brooke Davis",
-            lastMessage = "I am who I am. No excuses.",
-            messageCount = 2
-        ),
-        ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
-            groupName = "Marvin McFadden",
-            lastMessage = "Last night in the NBA the Charlotte Bobcats quietly made a move that most sports fans...",
-            messageCount = 0
-        ),
-        ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
-            groupName = "Brooke Davis",
-            lastMessage = "I am who I am. No excuses.",
-            messageCount = 2
-        ),
-        ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
-            groupName = "Brooke Davis",
-            lastMessage = "I am who I am. No excuses.",
-            messageCount = 2
-        ),
         ChatListItem(
             groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
             groupName = "Brooke Davis",

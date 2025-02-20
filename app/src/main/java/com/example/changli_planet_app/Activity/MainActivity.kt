@@ -4,6 +4,7 @@ import android.animation.LayoutTransition
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Looper
 import android.os.PersistableBundle
 import android.util.Log
 import android.view.View
@@ -120,16 +121,6 @@ class MainActivity : AppCompatActivity(), DrawerController {
             launch(Dispatchers.IO) {
                 store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
                 store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
-                val packageManager: PackageManager = this@MainActivity.packageManager
-                val packageInfo: PackageInfo =
-                    packageManager.getPackageInfo(this@MainActivity.packageName, 0)
-                store.dispatch(
-                    UserAction.QueryIsLastedApk(
-                        this@MainActivity,
-                        PackageInfoCompat.getLongVersionCode(packageInfo),
-                        packageInfo.packageName
-                    )
-                )
             }
             launch {
                 initClickListeners()
@@ -139,6 +130,20 @@ class MainActivity : AppCompatActivity(), DrawerController {
         observeState();
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
 
+        // 检查版本更新
+        Looper.myQueue().addIdleHandler {
+            val packageManager: PackageManager = this@MainActivity.packageManager
+            val packageInfo: PackageInfo =
+                packageManager.getPackageInfo(this@MainActivity.packageName, 0)
+            store.dispatch(
+                UserAction.QueryIsLastedApk(
+                    this@MainActivity,
+                    PackageInfoCompat.getLongVersionCode(packageInfo),
+                    packageInfo.packageName
+                )
+            )
+            false
+        }
     }
 
     private fun initDrawerImages() {

@@ -21,12 +21,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/featureAvatar"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:layout_marginTop="11dp"
+                android:padding="2dp"
                 android:src="@drawable/component1"
-                android:layout_marginStart="11dp" />
+                android:layout_marginStart="11dp"
+                app:shapeAppearance="@style/CircleStyle"
+                app:strokeColor="@color/grey"
+                app:strokeWidth="3dp" />
 
             <LinearLayout
                 android:id="@+id/feature_linear2"
@@ -63,11 +68,11 @@
                 android:layout_height="80dp">
 
                 <View
+                    android:id="@+id/feature_timetable"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="@drawable/new_course"
-                    android:layout_weight="10">
-                </View>
+                    android:layout_weight="10"></View>
 
                 <Space
                     android:layout_width="0dp"
@@ -75,11 +80,11 @@
                     android:layout_weight="1" />
 
                 <View
+                    android:id="@+id/feature_grades"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="@drawable/new_grade"
-                    android:layout_weight="10">
-                </View>
+                    android:layout_weight="10"></View>
             </LinearLayout>
 
             <HorizontalScrollView
@@ -132,6 +137,12 @@
                         app:itemTitle="四六级" />
 
                     <com.example.changli_planet_app.Widget.View.FunctionItem
+                        android:id="@+id/nclassroom"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        app:itemTitle="空闲教室" />
+
+                    <com.example.changli_planet_app.Widget.View.FunctionItem
                         android:id="@+id/nlose"
                         android:layout_width="100dp"
                         android:layout_height="match_parent"
@@ -144,11 +155,6 @@
                         android:layout_height="match_parent"
                         app:itemTitle="学霸排行" />
 
-                    <com.example.changli_planet_app.Widget.View.FunctionItem
-                        android:id="@+id/nclassroom"
-                        android:layout_width="100dp"
-                        android:layout_height="match_parent"
-                        app:itemTitle="空闲教室" />
                 </LinearLayout>
             </HorizontalScrollView>
 
@@ -178,8 +184,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="@drawable/cet_with_text"
-                    android:layout_weight="10">
-                </View>
+                    android:layout_weight="10"></View>
             </LinearLayout>
 
             <LinearLayout
@@ -195,8 +200,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="@drawable/school_with_text"
-                    android:layout_weight="10">
-                </View>
+                    android:layout_weight="10"></View>
 
                 <Space
                     android:layout_width="16dp"
@@ -207,8 +211,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="@drawable/kaoyan"
-                    android:layout_weight="10">
-                </View>
+                    android:layout_weight="10"></View>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

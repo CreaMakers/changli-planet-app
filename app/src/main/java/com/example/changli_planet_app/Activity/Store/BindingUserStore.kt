@@ -25,7 +25,6 @@ class BindingUserStore : Store<BindingUserState, BindingUserAction>() {  // ä¿®æ
         val studentNumber: String
     )
 
-
     override fun handleEvent(action: BindingUserAction) {
         currentState = when (action) {
             is BindingUserAction.BindingStudentNumber -> {

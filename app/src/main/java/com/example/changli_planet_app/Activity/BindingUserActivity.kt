@@ -11,8 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
 import com.example.changli_planet_app.Activity.Action.BindingUserAction
+import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.BindingUserStore
+import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.FullScreenActivity
@@ -21,6 +24,7 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityBindingUserBinding
 import com.google.android.material.button.MaterialButton
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -33,22 +37,34 @@ class BindingUserActivity : FullScreenActivity() {
     private val save: MaterialButton by lazy { binding.saveUser }
 
     private val disposables by lazy { CompositeDisposable() }
-    private val store = BindingUserStore()
+    private val store = UserStore()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initView()
         initListener()
+        store.dispatch(UserAction.initilaize())
+        observeState()
     }
 
-    private fun initView(){
+    private fun observeState() {
+        disposables.add(
+            store.state()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { state ->
+                    StudentInfoManager.studentId = state.userStats.studentNumber
+                    username.text = state.userStats.studentNumber
+                }
+        )
+    }
+
+    private fun initView() {
         binding = ActivityBindingUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        username.text = StudentInfoManager.studentId
         EventBus.getDefault().register(this)
     }
 
-    private fun initListener(){
+    private fun initListener() {
         save.setOnClickListener { saveUserInfo() }
         back.setOnClickListener { finish() }
     }
@@ -56,13 +72,12 @@ class BindingUserActivity : FullScreenActivity() {
     private fun saveUserInfo() {
         val studentId = username.text.toString()
         val studentPassword = password.text.toString()
-        if(studentId.isEmpty() || studentPassword.isEmpty()) {
+        if (studentId.isEmpty() || studentPassword.isEmpty()) {
             showMessage("学号和密码不能为空")
             return
         }
-        StudentInfoManager.studentId = studentId
         StudentInfoManager.studentPassword = studentPassword
-        store.dispatch(BindingUserAction.BindingStudentNumber(this, studentId))
+        store.dispatch(UserAction.BindingStudentNumber(this, studentId))
     }
 
     private fun showMessage(message: String) {
@@ -88,6 +103,12 @@ class BindingUserActivity : FullScreenActivity() {
             show()
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
+    }
+
     @Subscribe
     fun onFinish(finishEvent: FinishEvent) {
         if (finishEvent.name.equals("bindingUser")) {
