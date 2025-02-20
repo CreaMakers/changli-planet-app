@@ -9,11 +9,13 @@ import com.example.changli_planet_app.Core.Store
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
+import com.example.changli_planet_app.Network.Response.ApkResponse
 import com.example.changli_planet_app.Network.Response.UploadAvatarResponse
 import com.example.changli_planet_app.Network.Response.UserProfileResponse
 import com.example.changli_planet_app.Network.Response.UserStatsResponse
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.Util.EventBusHelper
+import com.example.changli_planet_app.Widget.Dialog.UpdateDialog
 import com.example.changli_planet_app.Widget.View.CustomToast
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
@@ -198,6 +200,53 @@ class UserStore : Store<UserState, UserAction>() {
                             CustomToast.showMessage(action.context, "获取用户动态信息失败")
                         }
                         _state.onNext(currentState)
+                    }
+                })
+                currentState
+            }
+
+            is UserAction.QueryIsLastedApk -> {
+                val httpUrlHelper = HttpUrlHelper.HttpRequest()
+                    .get(PlanetApplication.UserIp + "/apk")
+                    .addQueryParam("versionCode", action.versionCode.toString())
+                    .addQueryParam("versionName", action.versionName)
+                    .build()
+                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
+                    override fun onSuccess(response: Response) {
+                        val fromJson = OkHttpHelper.gson.fromJson(
+                            response.body?.string(),
+                            ApkResponse::class.java
+                        )
+
+                        when (fromJson.code) {
+                            "200" -> {
+                                if (fromJson.msg == "获取最新apk版本成功") {
+                                    val data = fromJson.data!!
+                                    handler.post {
+                                        UpdateDialog(
+                                            action.context,
+                                            data.updateMessage,
+                                            data.downloadUrl
+                                        ).show()
+                                    }
+                                }
+                            }
+
+                            else -> {
+                                handler.post {
+                                    CustomToast.showMessage(
+                                        action.context,
+                                        "获取最新apk失败, ${fromJson.msg}"
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onFailure(error: String) {
+                        handler.post {
+                            CustomToast.showMessage(action.context, "获取用户动态信息失败")
+                        }
                     }
                 })
                 currentState

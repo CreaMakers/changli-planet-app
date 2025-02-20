@@ -270,7 +270,6 @@ class TimeTableActivity : FullScreenActivity() {
                 )
             )
             timetableView.updateView()
-
         }
         binding.courseWeek.setOnClickListener {
 

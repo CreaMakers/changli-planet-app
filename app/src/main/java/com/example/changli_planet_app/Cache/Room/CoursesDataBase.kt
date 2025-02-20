@@ -9,7 +9,7 @@ import com.example.changli_planet_app.Cache.WeeksTypeConverter
 
 @Database(entities = [MySubject::class], version = 10, exportSchema = true)
 @TypeConverters(WeeksTypeConverter::class)
-abstract class CoursesDataBase() : RoomDatabase() {
+abstract class CoursesDataBase : RoomDatabase() {
     abstract fun courseDao(): CourseDao
 
     companion object {

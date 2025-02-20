@@ -36,7 +36,6 @@ class PlanetApplication : Application() {
                 MMKV.defaultMMKV()?.putString("token", value)
             }
         var startTime: Long = 0
-        var isLogin = false
         var deviceId: String = ""
         lateinit var appContext: Context
 

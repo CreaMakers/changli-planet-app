@@ -29,8 +29,13 @@ class SplashActivity : FullScreenActivity() {
         PlanetApplication.deviceId = LoginActivity.getDeviceId(this)
         // 使用协程来处理延迟任务
         lifecycleScope.launch {
-            delay(200) // 延迟 0.2 秒
-            Route.goHome(this@SplashActivity)
+            if (PlanetApplication.accessToken == null) {
+                delay(400) // 延迟 0.2 秒
+                Route.goLogin(this@SplashActivity)
+            } else {
+                delay(200) // 延迟 0.2 秒
+                Route.goHome(this@SplashActivity)
+            }
             finish()
         }
     }

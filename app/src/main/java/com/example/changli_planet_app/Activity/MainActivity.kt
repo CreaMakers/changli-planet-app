@@ -1,6 +1,8 @@
 package com.example.changli_planet_app.Activity
 
 import android.animation.LayoutTransition
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
@@ -11,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -117,6 +120,16 @@ class MainActivity : FullScreenActivity(), DrawerController {
             launch(Dispatchers.IO) {
                 store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
                 store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+                val packageManager: PackageManager = this@MainActivity.packageManager
+                val packageInfo: PackageInfo =
+                    packageManager.getPackageInfo(this@MainActivity.packageName, 0)
+                store.dispatch(
+                    UserAction.QueryIsLastedApk(
+                        this@MainActivity,
+                        PackageInfoCompat.getLongVersionCode(packageInfo),
+                        packageInfo.packageName
+                    )
+                )
             }
             launch {
                 initClickListeners()

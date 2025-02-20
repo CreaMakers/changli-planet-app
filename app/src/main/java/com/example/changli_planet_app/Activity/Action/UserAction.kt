@@ -9,6 +9,11 @@ sealed class UserAction {
     class GetCurrentUserStats(val context: Context) : UserAction()
     class UpdateAvatar(val uri: String) : UserAction()
     class UploadAvatar(val file: File) : UserAction()
-    class UpdateUserProfile(val userProfileRequest: UserProfileRequest, val context: Context) : UserAction()
-    class initilaize: UserAction()
+    class UpdateUserProfile(val userProfileRequest: UserProfileRequest, val context: Context) :
+        UserAction()
+
+    class QueryIsLastedApk(val context: Context, val versionCode: Long, val versionName: String) :
+        UserAction()
+
+    class initilaize : UserAction()
 }

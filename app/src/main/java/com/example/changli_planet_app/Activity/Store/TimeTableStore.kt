@@ -50,11 +50,20 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                         if (count == 0 || curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
                             // 需要从网络获取数据
                             fetchTimetableFromNetwork(action)
-                                .map { result ->
-                                    (result + curState.subjects)
-                                        .distinctBy { "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}" }
-                                        .filter { it.term == curState.term && it.studentId == studentId && it.studentPassword == studentPassword }
+                                .flatMap { networkResult ->
+                                    courseDao.clearAllCourses()
+                                    val mergedCourses = (networkResult + curState.subjects)
+                                        .distinctBy {
+                                            "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}"
+                                        }
+                                        .filter {
+                                            it.term == curState.term &&
+                                                    it.studentId == studentId &&
+                                                    it.studentPassword == studentPassword
+                                        }
                                         .toMutableList()
+                                    courseDao.insertCourses(mergedCourses)
+                                    Single.just(mergedCourses)
                                 }
                                 .doOnSuccess { Log.d("TimeTableStore", "网络请求获得课表") }
                         } else {
