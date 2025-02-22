@@ -34,6 +34,7 @@ import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.Widget.Dialog.PhotoPickerDialog
 import com.example.changli_planet_app.Widget.Dialog.UserProfileWheelBottomDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
+import com.example.changli_planet_app.Util.GlideUtils
 import com.example.changli_planet_app.databinding.ActivityUserProfileBinding
 import com.yalantis.ucrop.UCrop
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -334,11 +335,7 @@ class UserProfileActivity : FullScreenActivity() {
     }
 
     private fun loadAvatar(uri: String) {
-        Glide.with(this)
-            .load(uri)
-            .override(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(avatar)
+        GlideUtils.loadWithThumbnail(this, avatar, uri)
     }
 
 

@@ -20,9 +20,10 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class ElectronicActivity : FullScreenActivity() {
-    companion object{
+    companion object {
         val ALPHANUMERIC_REGEX = Regex("^[a-zA-Z0-9]*$")
     }
+
     lateinit var binding: ActivityElectronicBinding
     private val mmkv by lazy { MMKV.defaultMMKV() }
     private val back: ImageView by lazy { binding.back }
@@ -34,14 +35,18 @@ class ElectronicActivity : FullScreenActivity() {
     private val queryText: TextView by lazy { viewstub.inflate().findViewById(R.id.tv_result) }
     private val electronicStore = ElectronicStore(this)
     private val disposables by lazy { CompositeDisposable() }
-    private val schoolList: List<String> by lazy { resources.getStringArray(R.array.school_location).toList() }
+    private val schoolList: List<String> by lazy {
+        resources.getStringArray(R.array.school_location).toList()
+    }
     private val maxHeight by lazy {
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         val screenHeight = displayMetrics.heightPixels
         screenHeight / 2
     }
-    private val dorList: List<String> by lazy { resources.getStringArray(R.array.dormitory).toList() }
+    private val dorList: List<String> by lazy {
+        resources.getStringArray(R.array.dormitory).toList()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,14 +55,21 @@ class ElectronicActivity : FullScreenActivity() {
         initObserve()
     }
 
-    private fun initView(){
+    private fun initView() {
         binding = ActivityElectronicBinding.inflate(layoutInflater)
         setContentView(binding.root)
         inputFilter(dor_number)
     }
 
-    private fun initListener(){
-        dor.setOnClickListener { ClickWheel(dorList) }
+    private fun initListener() {
+        dor.setOnClickListener {
+            val filteredList = when (school.text) {
+                "云塘校区" -> dorList.subList(0, 45)
+                "金盆岭校区" -> dorList.subList(45, dorList.size)
+                else -> dorList
+            }
+            ClickWheel(filteredList)
+        }
         school.setOnClickListener { ClickWheel(schoolList) }
         query_ele.setOnClickListener {
             electronicStore.dispatch(
@@ -73,7 +85,7 @@ class ElectronicActivity : FullScreenActivity() {
         back.setOnClickListener { finish() }
     }
 
-    private fun initObserve(){
+    private fun initObserve() {
         disposables.add(electronicStore._state
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { state ->
@@ -92,6 +104,7 @@ class ElectronicActivity : FullScreenActivity() {
                 }
             })
     }
+
     private fun inputFilter(editText: EditText) {
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
             // 允许的字符是英文字母和数字

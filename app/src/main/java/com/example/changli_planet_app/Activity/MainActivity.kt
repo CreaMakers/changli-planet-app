@@ -35,6 +35,7 @@ import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.Pool.TabAnimationPool
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Util.GlideUtils
 import com.example.changli_planet_app.Widget.Dialog.NormalChosenDialog
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
@@ -163,9 +164,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
         // 批量加载功能图标
         imageIds.forEach { (viewId, drawableId) ->
-            Glide.with(this)
-                .load(drawableId)
-                .into(findViewById(viewId))
+            GlideUtils.load(this, findViewById(viewId), drawableId, false)
         }
 
         val arrowIds = listOf(
@@ -183,9 +182,12 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
         // 批量加载箭头图标
         arrowIds.forEach { arrowId ->
-            Glide.with(this)
-                .load(R.drawable.baseline_arrow_forward_ios_24)
-                .into(findViewById(arrowId))
+            GlideUtils.load(
+                this,
+                findViewById(arrowId),
+                R.drawable.baseline_arrow_forward_ios_24,
+                false
+            )
         }
 
     }
@@ -195,9 +197,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->
-                    Glide.with(this)
-                        .load(state.userProfile.avatarUrl)
-                        .into(drawerAvatar)
+                    GlideUtils.loadWithThumbnail(this, drawerAvatar, state.userProfile.avatarUrl)
                     drawerStuNumber.text = state.userStats.studentNumber
                 }
         )

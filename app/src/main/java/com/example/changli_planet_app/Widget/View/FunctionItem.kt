@@ -11,6 +11,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Util.GlideUtils
 
 class FunctionItem @JvmOverloads constructor(
     context: Context,
@@ -44,9 +45,7 @@ class FunctionItem @JvmOverloads constructor(
     fun setIconWithGlide(
         @DrawableRes resId: Int
     ) {
-        Glide.with(this)
-            .load(resId)
-            .into(icon)
+        GlideUtils.load(this, icon, resId, false)
     }
 
     private fun setTitle(text: String) {

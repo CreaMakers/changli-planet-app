@@ -64,6 +64,7 @@ dependencies {
     implementation("com.airbnb.android:lottie:6.6.0")
     //Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
     //MMKV
     implementation("com.tencent:mmkv:1.2.13")
     //腾讯云HTTPDNS
@@ -87,9 +88,12 @@ dependencies {
     // 图片裁剪库
     implementation("com.github.Yalantis:uCrop:2.2.8")
 
+    // SubsamplingScaleImageView
+    implementation("com.davemorrissey.labs:subsampling-scale-image-view:3.10.0")
 
-    implementation ("com.github.gzu-liyujiang.AndroidPicker:Common:4.0.1")
-    implementation ("com.github.gzu-liyujiang.AndroidPicker:WheelPicker:4.0.1")
+
+    implementation("com.github.gzu-liyujiang.AndroidPicker:Common:4.0.1")
+    implementation("com.github.gzu-liyujiang.AndroidPicker:WheelPicker:4.0.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -10,14 +10,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
-import com.example.changli_planet_app.Activity.Action.UserAction
-import com.example.changli_planet_app.Activity.Store.UserStore
+import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.GlideApp
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Interface.DrawerController
+import com.example.changli_planet_app.Util.GlideUtils
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 // TODO: Rename parameter arguments, choose names that match
 /**
@@ -28,12 +27,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 class FeatureFragment : Fragment() {
     private val TAG = "FeatureFragment"
     private lateinit var binding: FragmentFeatureBinding
-    private var drawerController: DrawerController? = null
-
     private val featureAvatar by lazy { binding.featureAvatar }
-
-    private val disposables by lazy { CompositeDisposable() }
-    private val store by lazy { UserStore() }
+    private var drawerController: DrawerController? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -42,7 +37,6 @@ class FeatureFragment : Fragment() {
         } else {
             Log.d(TAG, "DrawerControl,宿主Activity未实现接口")
         }
-
     }
 
     override fun onDetach() {
@@ -58,35 +52,23 @@ class FeatureFragment : Fragment() {
         val start = System.currentTimeMillis()
         binding = FragmentFeatureBinding.inflate(layoutInflater)
         setIcons()
-        observeState()
         Looper.myQueue().addIdleHandler {
             setupClickListeners()
             false
         }
-        store.dispatch(UserAction.GetCurrentUserProfile(requireContext()))
+        featureAvatar.setOnClickListener { drawerController?.openDrawer() }
         Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
         return binding.root
     }
 
-    private fun observeState() {
-        disposables.add(
-            store.state()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { state ->
-                    Glide.with(this)
-                        .load(state.userProfile.avatarUrl)
-                        .into(featureAvatar)
-                }
-        )
-    }
 
     private fun setupClickListeners() {
 
         with(binding) {
-            featureAvatar.setOnClickListener { drawerController?.openDrawer() }
+            nmap.setOnClickListener { activity?.let { Route.goCampusMap(it) } }
             nelectronic.setOnClickListener { activity?.let { Route.goElectronic(it) } }
-            featureTimetable.setOnClickListener { activity?.let { Route.goTimetable(it) } }
-            featureGrades.setOnClickListener { activity?.let { Route.goScoreInquiry(it) } }
+            ncourse.setOnClickListener { activity?.let { Route.goTimetable(it) } }
+            ngrade.setOnClickListener { activity?.let { Route.goScoreInquiry(it) } }
             ntest.setOnClickListener { activity?.let { Route.goExamArrangement(it) } }
             ncet.setOnClickListener { activity?.let { Route.goCet(it) } }
             nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
@@ -96,10 +78,18 @@ class FeatureFragment : Fragment() {
     }
 
     private fun setIcons() {
-        context?.let {
+        context?.let { ctx ->
             with(binding) {
+                GlideUtils.load(
+                    this@FeatureFragment, planetLogo, R.drawable.planet_logo
+                )
+                GlideUtils.load(
+                    this@FeatureFragment, featureAvatar, UserInfoManager.userAvatar
+                )
                 // 设置功能图标
                 val iconIds = listOf(
+                    ngrade to R.drawable.ngrade,
+                    ncourse to R.drawable.ncourse,
                     nmap to R.drawable.nmap,
                     ncet to R.drawable.ncet,
                     ntest to R.drawable.ntest,

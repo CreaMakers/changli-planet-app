@@ -1,13 +1,16 @@
 package com.example.changli_planet_app.Core
 
 import android.content.Context
+import android.util.Log
 import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.bitmap_recycle.LruBitmapPool
+import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory
 import com.bumptech.glide.load.engine.cache.LruResourceCache
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
+import java.io.File
 
 @GlideModule
 class PlanetAppGlideModule : AppGlideModule() {
@@ -24,6 +27,14 @@ class PlanetAppGlideModule : AppGlideModule() {
                     .disallowHardwareConfig()
                     .encodeQuality(85) // JPEG质量
             )
+        val diskCacheSizeBytes: Long = 1024 * 1024 * 500  // 500 MB
+        Log.d("file", "exists")
+        builder.setDiskCache(
+            DiskLruCacheFactory(
+                "${context.cacheDir}/image_cache",
+                diskCacheSizeBytes
+            )
+        )
     }
 
     // 必须重写此方法

@@ -5,6 +5,8 @@ import android.os.Looper
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.State.UserState
 import com.example.changli_planet_app.Activity.Store.BindingUserStore.StudentNumberRequest
+import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Store
 import com.example.changli_planet_app.Network.HttpUrlHelper
@@ -48,8 +50,9 @@ class UserStore : Store<UserState, UserAction>() {
                         when (fromJson.code) {
                             "200" -> {
                                 fromJson.data?.let {
+                                    UserInfoManager.userAvatar = it.avatarUrl
                                     currentState.userProfile = it
-                                    currentState.avatarUri = it.avatarUrl
+//                                    currentState.avatarUri = it.avatarUrl
                                 }
                             }
 
@@ -143,7 +146,8 @@ class UserStore : Store<UserState, UserAction>() {
                         )
                         when (fromJson.code) {
                             "200" -> {
-                                currentState.avatarUri = fromJson.data.toString()
+                                UserInfoManager.userAvatar = fromJson.data.toString()
+//                                currentState.avatarUri = fromJson.data.toString()
                                 currentState.userProfile.avatarUrl = fromJson.data.toString()
                             }
 
@@ -272,6 +276,7 @@ class UserStore : Store<UserState, UserAction>() {
                             when (fromJson.code) {
                                 "200" -> {
                                     currentState.userStats.studentNumber = action.student_number
+                                    StudentInfoManager.studentId = action.student_number
                                     handler.post {
                                         EventBusHelper.post(FinishEvent("bindingUser"))
                                     }

@@ -15,6 +15,7 @@ import com.example.changli_planet_app.Adapter.IMChatListAdapter
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Data.jsonbean.ChatListItem
 import com.example.changli_planet_app.Interface.DrawerController
+import com.example.changli_planet_app.Util.GlideUtils
 import com.example.changli_planet_app.databinding.FragmentIMBinding
 import com.google.android.material.imageview.ShapeableImageView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -27,9 +28,6 @@ class IMFragment : Fragment() {
     private val recyclerView: RecyclerView by lazy { binding.chatListRecycler }
     private val imAvatar: ShapeableImageView by lazy { binding.imAvatar }
     private val imName by lazy { binding.imName }
-
-    private val disposables by lazy { CompositeDisposable() }
-    private val store by lazy { UserStore() }
 
     private var drawerController: DrawerController? = null
 
@@ -49,9 +47,11 @@ class IMFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        Glide.with(this)
-            .load(UserStore.currentState.userProfile.avatarUrl)
-            .into(imAvatar)
+        GlideUtils.loadWithThumbnail(
+            this,
+            imAvatar,
+            UserInfoManager.userAvatar
+        )
     }
 
     override fun onCreateView(
@@ -72,13 +72,13 @@ class IMFragment : Fragment() {
 
     private val chatList = listOf(
         ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
+            groupAvatar = "https://pic.imgdb.cn/item/671e5e17d29ded1a8c5e0dbe.jpg",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2
         ),
         ChatListItem(
-            groupAvatar = "https://csustplant.obs.cn-south-1.myhuaweicloud.com:443/userAvatar/creamaker.png?AccessKeyId=SE9UPDVWGDCZ18BGAEZN&Expires=1739888760&Signature=z6hYk%2F9ek9i4ZqO9CX74GOAZgus%3D",
+            groupAvatar = "https://pic.imgdb.cn/item/671e5e17d29ded1a8c5e0dbe.jpg",
             groupName = "Brooke Davis",
             lastMessage = "I am who I am. No excuses.",
             messageCount = 2

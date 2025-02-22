@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.example.changli_planet_app.Activity.AccountSecurityActivity
 import com.example.changli_planet_app.Activity.BindingUserActivity
+import com.example.changli_planet_app.Activity.CampusMapActivity
 import com.example.changli_planet_app.Activity.CetActivity
 import com.example.changli_planet_app.Activity.CityActivity
 import com.example.changli_planet_app.Activity.ClassInfoActivity
@@ -23,6 +24,11 @@ import com.example.changli_planet_app.Activity.UserProfileActivity
  * 使用方法：Route.goxx()
  */
 object Route {
+
+    fun goCampusMap(context: Context) {
+        val intent = Intent(context, CampusMapActivity::class.java)
+        context.startActivity(intent)
+    }
 
     fun goClassInfo(context: Context) {
         val intent = Intent(context, ClassInfoActivity::class.java)
@@ -61,7 +67,7 @@ object Route {
         try {
             val intent = Intent(context, ElectronicActivity::class.java)
             context.startActivity(intent)
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }

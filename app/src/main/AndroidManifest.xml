@@ -31,16 +31,24 @@
         tools:replace="android:networkSecurityConfig"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.CampusMapActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="fullSensor"
+            android:exported="false" />
+        <activity
             android:name=".Core.FullScreenActivity"
             android:exported="false" />
         <activity
             android:name=".Activity.ClassInfoActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activity.CityActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activity.ProvinceActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

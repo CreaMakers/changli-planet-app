@@ -8,7 +8,7 @@ object UserInfoManager {
 
     private const val KEY_USERNAME = "account"
     private const val KEY_USER_PASSWORD = "user_password"
-    private const val KEY_TOKEN = "user_token"
+    private const val KEY_AVATAR = "user_avatar"
 
     var username: String
         get() = mmkv.getString(KEY_USERNAME, "") ?: ""
@@ -20,6 +20,13 @@ object UserInfoManager {
         get() = mmkv.getString(KEY_USER_PASSWORD, "") ?: ""
         set(value) {
             mmkv.putString(KEY_USER_PASSWORD, value)
+        }
+
+    var userAvatar: String
+        get() = mmkv.getString(KEY_AVATAR, "https://pic.imgdb.cn/item/671e5e17d29ded1a8c5e0dbe.jpg")
+            ?: "https://pic.imgdb.cn/item/671e5e17d29ded1a8c5e0dbe.jpg"
+        set(value) {
+            mmkv.putString(KEY_AVATAR, value)
         }
 
     fun clear() {
