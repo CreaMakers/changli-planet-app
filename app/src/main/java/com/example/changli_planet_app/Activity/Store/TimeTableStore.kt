@@ -20,6 +20,7 @@ import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Widget.Dialog.ErrorStuPasswordResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.google.gson.reflect.TypeToken
+import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -32,6 +33,12 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
     private val handler = Handler(Looper.getMainLooper())
+//    private val mmkv by lazy { MMKV.defaultMMKV() }
+//    private var cacheWeek: String
+//        get() = mmkv.getString("cache_week", "") ?: ""
+//        set(value) {
+//            mmkv.putString("cache_week", value)
+//        }
 
     companion object {
         @JvmStatic
@@ -52,7 +59,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                             fetchTimetableFromNetwork(action)
                                 .flatMap { networkResult ->
                                     courseDao.clearAllCourses()
-                                    val mergedCourses = (networkResult + curState.subjects)
+                                    val mergedCourses = networkResult
                                         .distinctBy {
                                             "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}"
                                         }
@@ -63,12 +70,19 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                         }
                                         .toMutableList()
                                     courseDao.insertCourses(mergedCourses)
+//                                    cacheWeek = action.getCourse.termId
                                     Single.just(mergedCourses)
                                 }
                                 .doOnSuccess { Log.d("TimeTableStore", "网络请求获得课表") }
                         } else {
                             // 从数据库获取数据
                             courseDao.getCoursesByTerm(curState.term, studentId, studentPassword)
+                                .map { dbResult ->
+                                    // 对数据库结果也进行去重
+                                    dbResult.distinctBy {
+                                        "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}"
+                                    }.toMutableList()
+                                }
                                 .doOnSuccess { Log.d("TimeTableStore", "从数据库获得课表") }
                         }
                     }
@@ -139,7 +153,6 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
 
             is TimeTableAction.selectTerm -> {
                 curState.term = action.term
-                _state.onNext(curState)
                 dispatch(
                     TimeTableAction.FetchCourses(
                         action.context,
@@ -148,6 +161,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                         )
                     )
                 )
+                _state.onNext(curState)
             }
 
             is TimeTableAction.DeleteCourse -> {
@@ -165,12 +179,6 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                 }
             }
 
-//            is TimeTableAction.getStartTime -> {
-//                val startTime = fetchCourseByDataFromNetwork(action)
-//                curState.startTime = startTime
-//                _state.onNext(curState)
-//                Log.d("TimeTableStore", "startTime: $startTime")
-//            }
         }
     }
 //    fun extractWeekAndDay(input: String): List<String> {

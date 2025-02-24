@@ -31,7 +31,7 @@ class UserStore : Store<UserState, UserAction>() {
     private val TAG = "UserStore"
 
     companion object {
-        var currentState = UserState()
+        private var currentState = UserState()
     }
 
     private val handler = Handler(Looper.getMainLooper())

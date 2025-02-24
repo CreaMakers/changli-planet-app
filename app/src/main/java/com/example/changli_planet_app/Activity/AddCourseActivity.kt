@@ -26,7 +26,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
-class AddCourseActivity :FullScreenActivity() {
+class AddCourseActivity : FullScreenActivity() {
     lateinit var coursesDataBase: CoursesDataBase
     lateinit var timeTableStore: TimeTableStore
     private val gson by lazy { Gson() }
@@ -36,7 +36,7 @@ class AddCourseActivity :FullScreenActivity() {
     private val courseTeacher by lazy { binding.customTeacherName }
     private val courseWeek by lazy { binding.customWeekAndDay }
     private val courseStep by lazy { binding.customCourseStep }
-    private var curWeek : Int = 0
+    private var curWeek: Int = 0
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
     private val weekDayMap = mapOf(
@@ -53,8 +53,11 @@ class AddCourseActivity :FullScreenActivity() {
         super.onCreate(savedInstanceState)
         coursesDataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
         timeTableStore = TimeTableStore(coursesDataBase.courseDao())
+        initView()
+        initListener()
     }
-    private fun initView(){
+
+    private fun initView() {
         setContentView(binding.root)
         supportActionBar?.hide()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -64,7 +67,7 @@ class AddCourseActivity :FullScreenActivity() {
         courseWeek.setText(weekDayMap[intent.getIntExtra("day", 0)])
     }
 
-    private fun initListener(){
+    private fun initListener() {
         binding.customCourseName.addTextChangedListener {
             object : TextWatcher by noOpDelegate() {
                 override fun afterTextChanged(s: Editable?) {
@@ -94,7 +97,8 @@ class AddCourseActivity :FullScreenActivity() {
         }
 
         binding.addCourseBtn.setOnClickListener {
-            val mySubject = MySubject(isCustom = true, studentId = studentId, studentPassword = studentPassword)
+            val mySubject =
+                MySubject(isCustom = true, studentId = studentId, studentPassword = studentPassword)
             if (courseName.text.isNotEmpty()) {
                 mySubject.courseName = courseName.text.toString()
             } else {

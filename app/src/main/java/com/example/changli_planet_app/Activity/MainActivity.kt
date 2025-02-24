@@ -9,23 +9,17 @@ import android.os.PersistableBundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Cache.UserInfoManager
-import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Fragment.FeatureFragment
 import com.example.changli_planet_app.Fragment.IMFragment
 import com.example.changli_planet_app.Core.PlanetApplication
@@ -45,10 +39,7 @@ import com.google.android.material.tabs.TabLayout.Tab
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 
 class MainActivity : AppCompatActivity(), DrawerController {
 
@@ -128,7 +119,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
                 setupDrawerLayout()
             }
         }
-        observeState();
+        observeState()
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
 
         // 检查版本更新

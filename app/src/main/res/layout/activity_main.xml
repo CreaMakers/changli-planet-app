@@ -27,7 +27,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -65,6 +64,7 @@
         android:hardwareAccelerated="true"
         android:orientation="vertical">
 
+        <!-- 头部用户信息 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -129,505 +129,512 @@
 
         </LinearLayout>
 
-        <LinearLayout
+        <!-- 中间可滑动部分 -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/snowflakes_background4"
-            android:clickable="true"
-            android:focusable="true"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
-            <TextView
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="4dp"
-                android:layout_marginStart="6dp"
-                android:focusable="true"
-                android:text="主要设置"
-                android:textColor="#6C727F"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:layout_height="match_parent"
+                android:scrollbars="none"
+                android:overScrollMode="never"
+                android:fadingEdgeLength="0dp">
 
-            <LinearLayout
-                android:id="@+id/notification_settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
-
-                <ImageView
-                    android:id="@+id/notification_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="通知设置"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                    android:orientation="vertical">
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="4dp"
+                        android:layout_marginStart="6dp"
+                        android:focusable="true"
+                        android:text="主要设置"
+                        android:textColor="#6C727F"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
-                <ImageView
-                    android:id="@+id/notification_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp" />
+                    <LinearLayout
+                        android:id="@+id/notification_settings"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            </LinearLayout>
+                        <ImageView
+                            android:id="@+id/notification_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-            <LinearLayout
-                android:id="@+id/privacy_settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="通知设置"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-                <ImageView
-                    android:id="@+id/privacy_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="隐私设置"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                        <ImageView
+                            android:id="@+id/notification_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/privacy_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"/>
+                    <LinearLayout
+                        android:id="@+id/privacy_settings"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            </LinearLayout>
+                        <ImageView
+                            android:id="@+id/privacy_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-            <!-- 账号安全 -->
-            <LinearLayout
-                android:id="@+id/account_security"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="隐私设置"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-                <ImageView
-                    android:id="@+id/account_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="账号安全"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                        <ImageView
+                            android:id="@+id/privacy_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/account_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp" />
-            </LinearLayout>
+                    <!-- 账号安全 -->
+                    <LinearLayout
+                        android:id="@+id/account_security"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="4dp"
-                android:layout_marginStart="6dp"
-                android:focusable="true"
-                android:text="常用功能"
-                android:textColor="#6C727F"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                        <ImageView
+                            android:id="@+id/account_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-            <!-- 清除缓存 -->
-            <LinearLayout
-                android:id="@+id/clear_cache"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="账号安全"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-                <ImageView
-                    android:id="@+id/clear_cache_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="清除缓存"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                        <ImageView
+                            android:id="@+id/account_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
+                    </LinearLayout>
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="4dp"
+                        android:layout_marginStart="6dp"
+                        android:focusable="true"
+                        android:text="常用功能"
+                        android:textColor="#6C727F"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
-                <ImageView
-                    android:id="@+id/clear_cache_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp" />
-            </LinearLayout>
+                    <!-- 清除缓存 -->
+                    <LinearLayout
+                        android:id="@+id/clear_cache"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            <!-- 绑定学号 -->
-            <LinearLayout
-                android:id="@+id/change_student_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
+                        <ImageView
+                            android:id="@+id/clear_cache_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-                <ImageView
-                    android:id="@+id/student_id_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="清除缓存"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="绑定学号"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                        <ImageView
+                            android:id="@+id/clear_cache_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
+                    </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/student_id_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"/>
+                    <!-- 绑定学号 -->
+                    <LinearLayout
+                        android:id="@+id/change_student_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            </LinearLayout>
+                        <ImageView
+                            android:id="@+id/student_id_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-            <!-- 主题设置 -->
-            <LinearLayout
-                android:id="@+id/theme_settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="绑定学号"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-                <ImageView
-                    android:id="@+id/theme_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="主题设置"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                        <ImageView
+                            android:id="@+id/student_id_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/theme_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"/>
+                    <!-- 主题设置 -->
+                    <LinearLayout
+                        android:id="@+id/theme_settings"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            </LinearLayout>
+                        <ImageView
+                            android:id="@+id/theme_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-            <!-- 消息中心 -->
-            <LinearLayout
-                android:id="@+id/message_center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="主题设置"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-                <ImageView
-                    android:id="@+id/message_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp"/>
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="消息中心"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                        <ImageView
+                            android:id="@+id/theme_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/message_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp" />
+                    <!-- 消息中心 -->
+                    <LinearLayout
+                        android:id="@+id/message_center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            </LinearLayout>
+                        <ImageView
+                            android:id="@+id/message_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="4dp"
-                android:layout_marginStart="6dp"
-                android:focusable="true"
-                android:text="帮助与支持"
-                android:textColor="#6C727F"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="消息中心"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-            <!-- 帮助中心 -->
-            <LinearLayout
-                android:id="@+id/help_center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                <ImageView
-                    android:id="@+id/help_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp"/>
+                        <ImageView
+                            android:id="@+id/message_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="帮助中心"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                    </LinearLayout>
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="4dp"
+                        android:layout_marginStart="6dp"
+                        android:focusable="true"
+                        android:text="帮助与支持"
+                        android:textColor="#6C727F"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
-                <ImageView
-                    android:id="@+id/help_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp" />
+                    <!-- 帮助中心 -->
+                    <LinearLayout
+                        android:id="@+id/help_center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            </LinearLayout>
+                        <ImageView
+                            android:id="@+id/help_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-            <!-- 关于我们 -->
-            <LinearLayout
-                android:id="@+id/about_us"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="帮助中心"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-                <ImageView
-                    android:id="@+id/about_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="关于我们"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                        <ImageView
+                            android:id="@+id/help_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/about_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp" />
+                    <!-- 关于我们 -->
+                    <LinearLayout
+                        android:id="@+id/about_us"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            </LinearLayout>
+                        <ImageView
+                            android:id="@+id/about_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-            <!-- 意见反馈 -->
-            <LinearLayout
-                android:id="@+id/feedback"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:layout_marginVertical="5dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="关于我们"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-                <ImageView
-                    android:id="@+id/feedback_img"
-                    android:layout_width="23dp"
-                    android:layout_height="23dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="4dp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="18dp"
-                    android:text="意见反馈"
-                    android:textColor="#394150"
-                    android:textSize="20sp" />
+                        <ImageView
+                            android:id="@+id/about_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/feedback_arrow"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="4dp"/>
+                    <!-- 意见反馈 -->
+                    <LinearLayout
+                        android:id="@+id/feedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
-            </LinearLayout>
+                        <ImageView
+                            android:id="@+id/feedback_img"
+                            android:layout_width="23dp"
+                            android:layout_height="23dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="4dp" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="18dp"
+                            android:text="意见反馈"
+                            android:textColor="#394150"
+                            android:textSize="20sp" />
 
-            <!-- 退出登录按钮 -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/logout_button"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginBottom="70dp"
-                android:paddingVertical="14dp"
-                android:text="退出登录"
-                android:textColor="#263FA8"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:backgroundTint="#F0F6FE"
-                app:cornerRadius="8dp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/feedback_arrow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="4dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </FrameLayout>
+
+        <!-- 底部退出按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/logout_button"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="16dp"
+            android:paddingVertical="14dp"
+            android:text="退出登录"
+            android:textColor="#263FA8"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:backgroundTint="#F0F6FE"
+            app:cornerRadius="8dp" />
 
     </LinearLayout>
 

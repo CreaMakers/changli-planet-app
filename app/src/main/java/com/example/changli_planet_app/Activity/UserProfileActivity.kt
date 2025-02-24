@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -162,7 +163,7 @@ class UserProfileActivity : FullScreenActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->
                     val userProfile = state.userProfile
-                    loadAvatar(state.avatarUri)
+                    loadAvatar(userProfile.avatarUrl)
                     account.text = UserInfoManager.username
                     bio.setText(userProfile.bio)
                     grade.text = state.userProfile.grade
@@ -211,14 +212,35 @@ class UserProfileActivity : FullScreenActivity() {
 
     private fun checkCameraPermission() {
         when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                    == PackageManager.PERMISSION_GRANTED -> openCamera()
-
-            else -> ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.CAMERA),
-                REQUEST_CAMERA
-            )
+            // Android 10 及以上版本
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                when {
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                            == PackageManager.PERMISSION_GRANTED -> openCamera()
+                    else -> ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.CAMERA),
+                        REQUEST_CAMERA
+                    )
+                }
+            }
+            // Android 10 以下版本可能需要额外的存储权限
+            else -> {
+                when {
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                            == PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            == PackageManager.PERMISSION_GRANTED -> openCamera()
+                    else -> ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ),
+                        REQUEST_CAMERA
+                    )
+                }
+            }
         }
     }
 
@@ -238,16 +260,54 @@ class UserProfileActivity : FullScreenActivity() {
 
     private fun checkGalleryPermission() {
         when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED -> {
-                openGallery()
-            }
+            // 对于 Android 13 (API 33) 及以上版本
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                when {
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+                            == PackageManager.PERMISSION_GRANTED -> openGallery()
 
-            else -> ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                REQUEST_GALLERY
-            )
+                    else -> ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.READ_MEDIA_IMAGES),
+                        REQUEST_GALLERY
+                    )
+                }
+            }
+            // 对于 Android 10 及以上版本
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                when {
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    )
+                            == PackageManager.PERMISSION_GRANTED -> openGallery()
+
+                    else -> ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                        REQUEST_GALLERY
+                    )
+                }
+            }
+            // 对于 Android 10 以下版本
+            else -> {
+                when {
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    )
+                            == PackageManager.PERMISSION_GRANTED -> openGallery()
+
+                    else -> ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ),
+                        REQUEST_GALLERY
+                    )
+                }
+            }
         }
     }
 

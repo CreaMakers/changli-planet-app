@@ -57,7 +57,7 @@ class IMFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentIMBinding.inflate(layoutInflater)
         imName.text = UserInfoManager.username
         return binding.root

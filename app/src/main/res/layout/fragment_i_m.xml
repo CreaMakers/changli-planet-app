@@ -22,7 +22,6 @@
             android:layout_height="42dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="5dp"
-            android:src="@drawable/fulilian"
             app:shapeAppearance="@style/CircleStyle" />
 
         <TextView
@@ -49,17 +48,32 @@
 
     </LinearLayout>
 
-
-    <EditText
-        android:id="@+id/editText"
+    <LinearLayout
+        android:id="@+id/feature_linear2"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="@drawable/im_search"
-        android:gravity="center"
-        android:hint="搜索"
-        android:paddingVertical="4dp"
-        android:textColorHint="@color/seach_gray" />
+        android:layout_marginHorizontal="10dp"
+        android:background="@drawable/main_search"
+        android:layout_marginTop="2dp"
+        android:layout_height="40dp">
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="15dp"
+            android:src="@drawable/component2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="15dp"
+            android:text="点击搜索想要的群组"
+            android:textColor="@color/game1_gray"
+            android:textSize="17sp" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chat_list_recycler"

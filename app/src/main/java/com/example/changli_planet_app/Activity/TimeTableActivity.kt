@@ -82,6 +82,12 @@ class TimeTableActivity : FullScreenActivity() {
         TimeTableStore(dataBase.courseDao())
     }
 
+//    private var preWeek: String
+//        get() = mmkv.getString("pre_week", termList[0]) ?: termList[0]
+//        set(value) {
+//            mmkv.putString("pre_week", value)
+//        }
+
     private val maxHeight by lazy {
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -222,29 +228,10 @@ class TimeTableActivity : FullScreenActivity() {
                 this@TimeTableActivity,
                 studentId,
                 studentPassword,
-                getCurTerm(Calendar.getInstance())
+                courseTerm.text.toString()
             )
         )
-//        timeTableStore.dispatch(
-//            TimeTableAction.getStartTime(
-//                "2024-9-25",
-//                studentId,
-//                studentPassword
-//            )
-//        )
         timeTableStore.dispatch(TimeTableAction.selectWeek("第${timetableView.curWeek()}周"))
-
-//        timeTableStore.dispatch(
-//            TimeTableAction.FetchCourses(
-//                this,
-//                GetCourse(
-//                    studentId,
-//                    studentPassword,
-//                    "",
-//                    courseTerm.text.toString()
-//                )
-//            )
-//        )
 
         timetableView.apply {
             showTime()     //显示侧边栏时间
@@ -272,7 +259,6 @@ class TimeTableActivity : FullScreenActivity() {
             timetableView.updateView()
         }
         binding.courseWeek.setOnClickListener {
-
             ClickWheel(weekList)
         }
         binding.weeksExtendBtn.setOnClickListener {
@@ -472,7 +458,7 @@ class TimeTableActivity : FullScreenActivity() {
         if (resultCode == RESULT_OK && requestCode == 1) {
             val course = Gson().fromJson(data?.getStringExtra("newCourse"), MySubject::class.java)
             course?.let { timeTableStore.dispatch(TimeTableAction.AddCourse(it)) }
-            subjects.add(course)
+//            subjects.add(course)
         }
 
     }
@@ -596,7 +582,7 @@ class TimeTableActivity : FullScreenActivity() {
     }
 
 
-    private fun generateTermsList(yearsBack: Int = 15): List<String> {
+    private fun generateTermsList(yearsBack: Int = 4): List<String> {
         val terms = mutableListOf<String>()
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)
