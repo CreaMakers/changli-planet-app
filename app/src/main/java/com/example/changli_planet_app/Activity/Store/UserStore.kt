@@ -187,7 +187,6 @@ class UserStore : Store<UserState, UserAction>() {
                             "200" -> {
                                 currentState.userProfile = fromJson.data!!
                                 handler.post {
-                                    CustomToast.showMessage(action.context, "更改成功(ฅ′ω`ฅ)")
                                     EventBusHelper.post(FinishEvent("updateUser"))
                                 }
                             }

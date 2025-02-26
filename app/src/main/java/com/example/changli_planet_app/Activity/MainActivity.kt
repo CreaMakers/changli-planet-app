@@ -207,6 +207,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
+        TabAnimationPool.clear()
     }
 
     private fun setupDrawerLayout() {
