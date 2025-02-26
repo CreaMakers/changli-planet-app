@@ -35,9 +35,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                     currentState.account = action.content
                 } else if (action.type == "password") {
                     currentState.password = action.content
-
                     currentState.isLengthValid = action.content.length >= 8
-
                     currentState.hasUpperAndLower = action.content.matches(".*[A-Z].*".toRegex()) &&
                             action.content.matches(".*[a-z].*".toRegex())
 

@@ -52,7 +52,7 @@ class UserStore : Store<UserState, UserAction>() {
                                 fromJson.data?.let {
                                     UserInfoManager.userAvatar = it.avatarUrl
                                     currentState.userProfile = it
-//                                    currentState.avatarUri = it.avatarUrl
+                                    currentState.avatarUri = it.avatarUrl
                                 }
                             }
 
@@ -146,9 +146,10 @@ class UserStore : Store<UserState, UserAction>() {
                         )
                         when (fromJson.code) {
                             "200" -> {
-                                UserInfoManager.userAvatar = fromJson.data.toString()
-//                                currentState.avatarUri = fromJson.data.toString()
-                                currentState.userProfile.avatarUrl = fromJson.data.toString()
+//                                UserInfoManager.userAvatar = fromJson.data.toString()
+                                currentState.avatarUri = fromJson.data.toString()
+//                                currentState.userProfile.avatarUrl = fromJson.data.toString()
+                                _state.onNext(currentState)
                             }
 
                             else -> {
@@ -156,6 +157,7 @@ class UserStore : Store<UserState, UserAction>() {
                                     PlanetApplication.appContext,
                                     "请求失败, ${fromJson.msg}"
                                 )
+                                _state.onNext(currentState)
                             }
                         }
                     }
@@ -164,12 +166,12 @@ class UserStore : Store<UserState, UserAction>() {
                     }
 
                 })
-                _state.onNext(currentState)
+
                 currentState
             }
 
             is UserAction.UpdateUserProfile -> {
-                action.userProfileRequest.avatarUrl = currentState.avatarUri
+                action.userProfileRequest.avatarUrl = currentState.userProfile.avatarUrl
                 action.userProfileRequest.userLevel = currentState.userProfile.userLevel
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .put(PlanetApplication.UserIp + "/me/profile")

@@ -126,7 +126,7 @@ class UserProfileActivity : FullScreenActivity() {
         setContentView(binding.root)
 
         observeState()
-        store.dispatch(UserAction.initilaize())
+        store.dispatch(UserAction.GetCurrentUserProfile(this))
         setAvatar.setOnClickListener { setAvatar() }
         back.setOnClickListener { finish() }
         birthdayLayout.setOnClickListener { setBirthday() }
@@ -163,7 +163,7 @@ class UserProfileActivity : FullScreenActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->
                     val userProfile = state.userProfile
-                    loadAvatar(userProfile.avatarUrl)
+                    loadAvatar(state.avatarUri)
                     account.text = UserInfoManager.username
                     bio.setText(userProfile.bio)
                     grade.text = state.userProfile.grade
@@ -217,6 +217,7 @@ class UserProfileActivity : FullScreenActivity() {
                 when {
                     ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                             == PackageManager.PERMISSION_GRANTED -> openCamera()
+
                     else -> ActivityCompat.requestPermissions(
                         this,
                         arrayOf(Manifest.permission.CAMERA),
@@ -229,8 +230,12 @@ class UserProfileActivity : FullScreenActivity() {
                 when {
                     ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                             == PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            ContextCompat.checkSelfPermission(
+                                this,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            )
                             == PackageManager.PERMISSION_GRANTED -> openCamera()
+
                     else -> ActivityCompat.requestPermissions(
                         this,
                         arrayOf(
@@ -395,7 +400,7 @@ class UserProfileActivity : FullScreenActivity() {
     }
 
     private fun loadAvatar(uri: String) {
-        GlideUtils.loadWithThumbnail(this, avatar, uri)
+        GlideUtils.load(this, avatar, uri)
     }
 
 
@@ -410,11 +415,6 @@ class UserProfileActivity : FullScreenActivity() {
                 try {
                     val compressedFile = compressImage(uri) // 压缩图片
                     withContext(Dispatchers.Main) {
-                        store.dispatch(
-                            UserAction.UpdateAvatar(
-                                compressedFile.toUri().toString()
-                            )
-                        ) // 更新头像
                         store.dispatch(UserAction.UploadAvatar(compressedFile))
                     }
                 } catch (e: Exception) {

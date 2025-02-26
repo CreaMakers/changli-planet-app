@@ -14,8 +14,8 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.0.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -50,7 +50,8 @@ android {
     }
 }
 dependencies {
-
+    // leakcanary
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
     // Material Design
     implementation("com.google.android.material:material:1.11.0")
     // Blurry库
@@ -90,7 +91,16 @@ dependencies {
 
     // SubsamplingScaleImageView
     implementation("com.davemorrissey.labs:subsampling-scale-image-view:3.10.0")
-
+    // Swiperefreshlayout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
+    // PhotoView
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    // Activity KTX for viewModels()
+    implementation("androidx.activity:activity-ktx:1.8.2")
+    // Fragment KTX 提供了 viewModels() 扩展函数
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
 
     implementation("com.github.gzu-liyujiang.AndroidPicker:Common:4.0.1")
     implementation("com.github.gzu-liyujiang.AndroidPicker:WheelPicker:4.0.1")

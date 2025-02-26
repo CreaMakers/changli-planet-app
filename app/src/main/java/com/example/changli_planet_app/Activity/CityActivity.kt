@@ -17,18 +17,20 @@ import com.example.changli_planet_app.databinding.ActivityCityBinding
 class CityActivity : FullScreenActivity() {
     private lateinit var binding: ActivityCityBinding
     private val recyclerView by lazy { binding.cityRecycler }
+    private val back by lazy { binding.cityBack }
     private val province by lazy { intent.getStringExtra("province") }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initView()
     }
 
-    private fun initView(){
+    private fun initView() {
         binding = ActivityCityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         recyclerView.adapter = CityAdapter(LocationDataSource.getCity(province!!), ::clickItem)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.addItemDecoration(DividerItemDecoration())
+        back.setOnClickListener { finish() }
     }
 
     private fun clickItem(city: String) {

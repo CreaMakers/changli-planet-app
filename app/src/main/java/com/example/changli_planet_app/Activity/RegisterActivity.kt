@@ -64,13 +64,23 @@ class RegisterActivity : FullScreenActivity() {
         setUnderLine()
         // 定义TextWatcher，用于监听account和password EditText内容变化
         val accountTextWatcher = object : TextWatcher by noOpDelegate() {
+            private var isUpdating = false
+
             override fun afterTextChanged(s: Editable?) {
+                if (isUpdating) return
+                isUpdating = true
                 store.dispatch(LoginAndRegisterAction.input(account.text.toString(), "account"))
+                isUpdating = false
             }
         }
         val passwordTextWatcher = object : TextWatcher by noOpDelegate() {
+            private var isUpdating = false
+
             override fun afterTextChanged(s: Editable?) {
+                if (isUpdating) return
+                isUpdating = true
                 store.dispatch(LoginAndRegisterAction.input(password.text.toString(), "password"))
+                isUpdating = false
             }
         }
         register.setOnClickListener {
@@ -125,23 +135,35 @@ class RegisterActivity : FullScreenActivity() {
     }
 
     private fun inputFilter(editText: EditText) {
-        val inputFilter = InputFilter { source, _, _, _, _, _ ->
-            // 允许的字符是英文字母和数字
+        val filter = InputFilter { source, _, _, _, _, _ ->
             val regex = Regex("^[a-zA-Z0-9]*$")
-            // 如果输入内容符合正则表达式，则允许输入，否则返回空字符串禁止输入
-            if (regex.matches(source)) source else ""
+            if (source.isEmpty() || regex.matches(source)) {
+                null // 允许输入（包括删除操作）
+            } else {
+                "" // 拒绝非法字符
+            }
         }
-        editText.filters = arrayOf(inputFilter)
+        editText.filters = arrayOf(filter)
     }
 
     private fun inputFilterPassword(editText: EditText) {
-        val inputFilter = InputFilter { source, _, _, _, _, _ ->
-            val regex = Regex("^[a-zA-Z0-9!@#\$%^&*(),.?\":{}|<>]+$")
-            source.toString().filter { char ->
-                regex.matches(char.toString())
+        val filter = InputFilter { source, _, _, _, _, _ ->
+            // 允许：英文、数字、指定特殊字符，禁止中文和全角符号
+            val regex = Regex("^[a-zA-Z0-9!@#\\$%\\^&*(),.?\":{}|<>]+$")
+
+            if (source.isEmpty()) {
+                null // 允许删除操作
+            } else if (regex.matches(source)) {
+                null // 允许合法字符
+            } else {
+                // 过滤掉非法字符（包括中文）
+                val filtered = source.toString().filter { char ->
+                    regex.matches(char.toString())
+                }
+                filtered.ifEmpty { "" } // 如果全被过滤，返回空字符串
             }
         }
-        editText.filters = arrayOf(inputFilter)
+        editText.filters = arrayOf(filter)
     }
 
     override fun onDestroy() {

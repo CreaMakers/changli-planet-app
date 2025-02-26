@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:id="@+id/fragmentContainerChatGroup"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
@@ -12,6 +11,7 @@
         android:background="@color/white"
         android:fitsSystemWindows="false"
         android:orientation="vertical"
+        android:visibility="gone"
         tools:context=".Fragment.ChatGroupFragment">
 
         <LinearLayout
@@ -98,6 +98,7 @@
 
 
     </androidx.appcompat.widget.LinearLayoutCompat>
+
     <ImageView
         android:id="@+id/underConstructionView"
         android:layout_width="match_parent"
@@ -106,5 +107,5 @@
         android:background="@android:color/white"
         android:layout_gravity="center"
         android:padding="50dp"
-        android:clickable="true"/>
+        android:clickable="true" />
 </FrameLayout>

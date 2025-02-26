@@ -22,15 +22,12 @@
         android:id="@+id/featureAvatar"
         android:layout_width="42dp"
         android:layout_height="42dp"
-        android:layout_marginTop="11dp"
-        android:padding="2dp"
+        android:layout_marginTop="10dp"
         android:src="@drawable/component1"
         android:layout_marginStart="11dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearance="@style/CircleStyle"
-        app:strokeColor="@color/white"
-        app:strokeWidth="3dp" />
+        app:shapeAppearance="@style/CircleStyle" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/mainfunction"
