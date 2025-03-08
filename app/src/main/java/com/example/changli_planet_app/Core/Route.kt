@@ -6,6 +6,8 @@ import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
+import com.example.changli_planet_app.Activity.PublishFoundThingActivity
+import com.example.changli_planet_app.Activity.PublishLoseThingActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
 import com.example.changli_planet_app.Activity.ScoreInquiryActivity
 
@@ -41,6 +43,14 @@ object Route {
 
     fun goScoreInquiry(context: Context) {
         val intent = Intent(context, ScoreInquiryActivity::class.java)
+        context.startActivity(intent)
+    }
+    fun goPublishLoseThing(context: Context){
+        val intent=Intent(context, PublishLoseThingActivity::class.java)
+        context.startActivity(intent)
+    }
+    fun goPublishFoundThing(context: Context){
+        val intent=Intent(context, PublishFoundThingActivity::class.java)
         context.startActivity(intent)
     }
 }

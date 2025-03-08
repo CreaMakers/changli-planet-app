@@ -59,6 +59,8 @@ dependencies {
     implementation("org.greenrobot:eventbus:3.3.1")
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
+    //SwipeRefreshLayout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
