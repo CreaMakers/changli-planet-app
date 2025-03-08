@@ -1,21 +1,90 @@
 package com.example.changli_planet_app.Fragment
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.changli_planet_app.Activity.Store.UserStore
+import com.example.changli_planet_app.Adapter.IMChatListAdapter
+import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Data.jsonbean.ChatListItem
+import com.example.changli_planet_app.Interface.DrawerController
+import com.example.changli_planet_app.Util.GlideUtils
 import com.example.changli_planet_app.databinding.FragmentIMBinding
+import com.google.android.material.imageview.ShapeableImageView
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class IMFragment : Fragment() {
     private lateinit var binding: FragmentIMBinding
+    private val TAG = "IMFragment"
+
+    private val recyclerView: RecyclerView by lazy { binding.chatListRecycler }
+    private val imAvatar: ShapeableImageView by lazy { binding.imAvatar }
+    private val imName by lazy { binding.imName }
+
+    private var drawerController: DrawerController? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is DrawerController) {
+            drawerController = context
+        } else {
+            Log.d(TAG, "DrawerControl,宿主Activity未实现接口")
+        }
+    }
+
+    override fun onDetach() {
+        drawerController = null
+        super.onDetach()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        GlideUtils.loadWithThumbnail(
+            this,
+            imAvatar,
+            UserInfoManager.userAvatar
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentIMBinding.inflate(layoutInflater)
+        imName.text = UserInfoManager.username
         return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        imAvatar.setOnClickListener { drawerController?.openDrawer() }
+        recyclerView.adapter = IMChatListAdapter(chatList)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+    }
+
+    private val chatList = listOf(
+        ChatListItem(
+            groupAvatar = "https://pic.imgdb.cn/item/671e5e17d29ded1a8c5e0dbe.jpg",
+            groupName = "Brooke Davis",
+            lastMessage = "I am who I am. No excuses.",
+            messageCount = 2
+        ),
+        ChatListItem(
+            groupAvatar = "https://pic.imgdb.cn/item/671e5e17d29ded1a8c5e0dbe.jpg",
+            groupName = "Brooke Davis",
+            lastMessage = "I am who I am. No excuses.",
+            messageCount = 2
+        )
+    )
+
     companion object {
         // TODO: Rename and change types and number of parameters
         @JvmStatic

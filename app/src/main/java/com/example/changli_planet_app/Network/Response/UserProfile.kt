@@ -1,0 +1,25 @@
+package com.example.changli_planet_app.Network.Response
+
+import java.time.LocalDateTime
+// LocalDateTime 暂时用String替代看看是否产生问题
+data class UserProfile(
+    val userId: Int = -1,
+    var avatarUrl: String = "注册默认头像",
+    val bio: String = "",
+    val description: String = "",
+    val userLevel: Int = -1,
+    val gender: Int = -1,
+    val grade: String = "",
+    val birthDate: String? = null,
+    val location: String = "",
+    val website: String? = "",
+    val createTime: String? = null,
+    val updateTime: String? = null,
+    val isDeleted: Int = -1
+)
+
+data class UserProfileResponse(
+    val code: String,
+    val msg: String,
+    val data: UserProfile?
+)

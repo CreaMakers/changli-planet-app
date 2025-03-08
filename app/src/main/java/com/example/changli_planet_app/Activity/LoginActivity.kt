@@ -1,7 +1,6 @@
 package com.example.changli_planet_app.Activity
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
@@ -11,71 +10,92 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.UnderlineSpan
-import android.view.MotionEvent
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
 import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
+import com.example.changli_planet_app.Core.noOpDelegate
+import com.example.changli_planet_app.Widget.Dialog.ExpiredDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : FullScreenActivity() {
     private lateinit var binding: ActivityLoginBinding
-    val Login: TextView by lazy { binding.login }
-    val route: TextView by lazy { binding.route }
-    val account: EditText by lazy { binding.account }
-    val password: EditText by lazy { binding.password }
-    val iVEye: ImageView by lazy { binding.ivEye }
-    val ivOx: ImageView by lazy { binding.ivOx }
+    private val Login: TextView by lazy { binding.login }
+    private val route: TextView by lazy { binding.route }
+    private val account: EditText by lazy { binding.account }
+    private val password: EditText by lazy { binding.password }
+    private val iVEye: ImageView by lazy { binding.ivEye }
+    private val ivOx: ImageView by lazy { binding.ivOx }
+    private val agreementCheckBox: CheckBox by lazy { binding.agreementCheckbox }
+    private val disposables by lazy { CompositeDisposable() }
     val store = LoginAndRegisterStore()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        initView()
+        initListener()
+    }
+
+    private fun initView(){
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)// 设置Button的初始状态
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        EventBus.getDefault().register(this)
+        if(intent.getBooleanExtra("from_token_expired", false)) {
+            ExpiredDialog(
+                this,
+                "您的登录状态过期啦꒰ঌ( ⌯' '⌯)໒꒱",
+                "登录提示"
+            ).show()
         }
+    }
 
-        store.state()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { state ->
-                updateButtonState(state.isEnable)
-                updatePasswordVisibility(state.isVisibilityPassword)
-                updateButtonClear(state.isClearPassword)
-            }
-
+    private fun initListener(){
+        disposables.add(
+            store.state()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { state ->
+                    updateButtonState(state.isEnable)
+                    updatePasswordVisibility(state.isVisibilityPassword)
+                    updateButtonClear(state.isClearPassword)
+                }
+        )
         store.dispatch(LoginAndRegisterAction.initilaize)
         setUnderLine()
-        val accountTextWatcher = object : TextWatcher {
+        val accountTextWatcher = object : TextWatcher by noOpDelegate() {
             override fun afterTextChanged(s: Editable?) {
-                store.dispatch(LoginAndRegisterAction.input(account.text.toString(), "account"))
+                store.dispatch(
+                    LoginAndRegisterAction.InputLogin(
+                        account.text.toString(),
+                        "account"
+                    )
+                )
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
-        val passwordTextWatcher = object : TextWatcher {
+        val passwordTextWatcher = object : TextWatcher by noOpDelegate() {
             override fun afterTextChanged(s: Editable?) {
-                store.dispatch(LoginAndRegisterAction.input(password.text.toString(), "password"))
+                store.dispatch(
+                    LoginAndRegisterAction.InputLogin(
+                        password.text.toString(),
+                        "password"
+                    )
+                )
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
+
         Login.setOnClickListener {
             store.dispatch(
                 LoginAndRegisterAction.Login
@@ -95,10 +115,19 @@ class LoginActivity : AppCompatActivity() {
         }
         account.addTextChangedListener(accountTextWatcher)
         password.addTextChangedListener(passwordTextWatcher)
-        inputFilter(account)
-        inputFilter(password)
-    }
+        agreementCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                store.dispatch(LoginAndRegisterAction.InputLogin("checked", "checkbox"))
+            } else {
+                store.dispatch(LoginAndRegisterAction.InputLogin("unchecked", "checkbox"))
+            }
 
+        }
+        inputFilter(account)
+        inputFilterPassword(password)
+        account.setText(intent.getStringExtra("username") ?: "")
+        password.setText(intent.getStringExtra("password") ?: "")
+    }
     private fun inputFilter(editText: EditText) {
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
             // 允许的字符是英文字母和数字
@@ -113,7 +142,9 @@ class LoginActivity : AppCompatActivity() {
         var underlinetext = SpannableString(route.text.toString())
         underlinetext.setSpan(UnderlineSpan(), 6, 8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         route.text = underlinetext
-        route.setOnClickListener { Route.goRegister(this) }
+        route.setOnClickListener {
+            Route.goRegister(this)
+        }
     }
 
     private fun clearCurPassword() {
@@ -121,10 +152,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun updateButtonState(isEnable: Boolean) {
-        if (!isEnable) {
-            Login.setBackgroundColor(Color.parseColor("#8E959F"))
-        } else {
+        Login.isEnabled = isEnable
+        if (isEnable) {
             Login.setBackgroundResource(R.drawable.enable_button)
+        } else {
+            Login.setBackgroundResource(R.drawable.disable_button)
         }
     }
 
@@ -147,17 +179,37 @@ class LoginActivity : AppCompatActivity() {
         password.setSelection(password.text.length)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
+    }
 
     @Subscribe
     fun onFinish(finishEvent: FinishEvent) {
-        if (finishEvent.name == "Login") {
+        if (finishEvent.name.equals("Login")) {
             finish()
         }
     }
 
+    private fun inputFilterPassword(editText: EditText) {
+        val inputFilter = InputFilter { source, _, _, _, _, _ ->
+            val regex = Regex("^[a-zA-Z0-9!@#\$%^&*(),.?\":{}|<>]+$")
+            source.toString().filter { char ->
+                regex.matches(char.toString())
+            }
+        }
+        editText.filters = arrayOf(inputFilter)
+    }
+
     companion object {
-        public fun getDeviceId(context: Context): String {
-            return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        fun getDeviceId(context: Context): String {
+            val androidId =
+                Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            return when {
+                androidId.isNullOrEmpty() -> "unknown_device"
+                androidId == "9774d56d682e549c" -> "emulator_device"
+                else -> androidId
+            }
         }
     }
 }

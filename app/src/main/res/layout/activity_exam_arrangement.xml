@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9FAFB"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#E8F3FE"
+        android:elevation="4dp"
+        app:titleTextColor="@android:color/white">
+
+        <ImageView
+            android:id="@+id/binding_back"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/blue_left_back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:text="考试安排"
+            android:textColor="#4C81CE"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/refresh"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center|end"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/shuaxin" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="7dp"
+            android:layout_height="match_parent" />
+
+        <RelativeLayout
+            android:id="@+id/loadingLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80FFFFFF"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminateTintMode="src_atop"
+                android:indeterminateTint="#4C81CE"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/progressBar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dp"
+                android:text="加载中..."
+                android:textColor="#4C81CE"
+                android:textSize="14sp"/>
+
+        </RelativeLayout>
+
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="30dp"
+        android:gravity="center"
+        android:lineSpacingMultiplier="1.1"
+        android:padding="12dp"
+        android:textSize="13sp"
+        android:textColor="#666666"
+        android:background="#F8F8F8"
+        android:text="为防止网络波动优先读取上次查询缓存\n如有需要请及时点击刷新" />
+</LinearLayout>

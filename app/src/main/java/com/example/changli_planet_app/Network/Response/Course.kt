@@ -6,4 +6,6 @@ data class Course(
     val teacher: String,
     val weekday: String,
     val weeks: String
+
+
 )

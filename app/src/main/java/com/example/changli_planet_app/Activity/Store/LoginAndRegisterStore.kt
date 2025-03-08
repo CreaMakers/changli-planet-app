@@ -1,22 +1,19 @@
 package com.example.changli_planet_app.Activity.Store
 
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
 import com.example.changli_planet_app.Activity.LoginActivity
-import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.State.LoginAndRegisterState
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.Store
-import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.UI.LoginInformationDialog
+import com.example.changli_planet_app.Widget.Dialog.LoginInformationDialog
 import com.example.changli_planet_app.Util.Event.FinishEvent
 import com.example.changli_planet_app.Util.EventBusHelper
 import com.tencent.mmkv.MMKV
@@ -32,16 +29,25 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                 _state.onNext(currentState)
                 currentState
             }
+
             is LoginAndRegisterAction.input -> {
                 if (action.type == "account") {
                     currentState.account = action.content
-                } else {
+                } else if (action.type == "password") {
                     currentState.password = action.content
+                    currentState.isLengthValid = action.content.length >= 8
+                    currentState.hasUpperAndLower = action.content.matches(".*[A-Z].*".toRegex()) &&
+                            action.content.matches(".*[a-z].*".toRegex())
+
+                    currentState.hasNumberAndSpecial =
+                        action.content.matches(".*[0-9].*".toRegex()) &&
+                                action.content.matches(".*[^A-Za-z0-9].*".toRegex())
+
                 }
                 if (!currentState.isEnable && checkEnable()) {
                     currentState.isEnable = true
                 }
-                currentState.isClearPassword = currentState.password.isNotEmpty()
+
                 if (!checkEnable()) {
                     currentState.isEnable = false
                 }
@@ -57,25 +63,29 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
-                        var fromJson = OkHttpHelper.gson.fromJson(
+                        val fromJson = OkHttpHelper.gson.fromJson(
                             response.body?.string(),
                             MyResponse::class.java
                         )
                         when (fromJson.msg) {
+
                             "用户登录成功" -> {
-                                mmkv.encode("account", "${action.userPassword.username}")
-                                mmkv.encode("password", "${action.userPassword.password}")
-                                mmkv.encode("token", "${PlanetApplication.accessToken}")
+                                UserInfoManager.username = action.userPassword.username
+                                UserInfoManager.userPassword = action.userPassword.password
+                                PlanetApplication.accessToken = response.header("Authorization", "") ?: ""
                                 handler.post {
-                                    Route.goHome(action.context)
+                                    Route.goHomeForcibly(action.context)
                                     EventBusHelper.post(FinishEvent("Login"))
                                 }
                             }
 
                             else -> {
                                 handler.post {
-                                    var loginInformationDialog =
-                                        LoginInformationDialog(action.context, fromJson.msg).show()
+                                    LoginInformationDialog(
+                                        action.context,
+                                        fromJson.msg,
+                                        "登陆失败"
+                                    ).show()
                                 }
                             }
                         }
@@ -88,7 +98,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
 
             is LoginAndRegisterAction.Register -> {
                 val builder = HttpUrlHelper.HttpRequest()
-                    .post(PlanetApplication.UserIp)
+                    .post(PlanetApplication.UserIp + "/register")
                     .body(OkHttpHelper.gson.toJson(action.userPassword))
                     .build()
                 OkHttpHelper.sendRequest(builder, object : RequestCallback {
@@ -99,13 +109,16 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                         )
                         if (fromJson.msg == "用户注册成功") {
                             handler.post {
-                                Route.goLogin(action.context)
+                                Route.goLoginFromRegister(action.context, action.userPassword.username, action.userPassword.password)
                                 EventBusHelper.post(FinishEvent("Register"))
                             }
                         } else {
                             handler.post {
-                                var loginInformationDialog =
-                                    LoginInformationDialog(action.context, fromJson.msg).show()
+                                LoginInformationDialog(
+                                    action.context,
+                                    fromJson.msg,
+                                    "注册失败"
+                                ).show()
                             }
                         }
                     }
@@ -120,10 +133,34 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                 _state.onNext(currentState)
                 currentState
             }
+
+            is LoginAndRegisterAction.InputLogin -> {
+                if (action.type == "account") {
+                    currentState.account = action.content
+                } else if (action.type == "password") {
+                    currentState.password = action.content
+                } else {
+                    currentState.isCheck = action.content.equals("checked")
+                }
+
+                if (!currentState.isEnable && checkLoginEnable()) {
+                    currentState.isEnable = true
+                }
+                currentState.isClearPassword = currentState.password.isNotEmpty()
+                if (!checkLoginEnable()) {
+                    currentState.isEnable = false
+                }
+                _state.onNext(currentState)
+                currentState
+            }
         }
     }
 
     private fun checkEnable(): Boolean {
-        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty()
+        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty() && currentState.isLengthValid && currentState.hasUpperAndLower && currentState.hasNumberAndSpecial
+    }
+
+    private fun checkLoginEnable(): Boolean {
+        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty() && currentState.isCheck
     }
 }

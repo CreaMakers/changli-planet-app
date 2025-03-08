@@ -1,6 +1,8 @@
 package com.example.changli_planet_app.Network
 
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType
+import java.io.File
 
 class HttpUrlHelper private constructor(
     private val baseUrl: String,
@@ -8,7 +10,9 @@ class HttpUrlHelper private constructor(
     private val queryParams: Map<String, String>,
     val headers: Map<String, String>,
     val requestType: RequestType,
-    val requestBody: String? = null
+    val requestBody: String? = null,
+    val formParams: MutableMap<String, String>,
+    val fileParams: MutableMap<String, Pair<File, MediaType?>>
 ) {
     enum class RequestType {
         GET, POST, PUT, DELETE
@@ -21,6 +25,8 @@ class HttpUrlHelper private constructor(
         private val headers: MutableMap<String, String> = mutableMapOf()
         private var requestBody: String? = null
         private var requestType: RequestType = RequestType.GET
+        private val formParams: MutableMap<String, String> = mutableMapOf()
+        private val fileParams: MutableMap<String, Pair<File, MediaType?>> = mutableMapOf()
         fun get(baseurl: String): HttpRequest {
             url = baseurl
             requestType = RequestType.GET
@@ -45,6 +51,16 @@ class HttpUrlHelper private constructor(
             return this
         }
 
+        fun addFormField(key: String, value: String): HttpRequest {
+            formParams[key] = value
+            return this
+        }
+
+        fun addFieldPart(key: String, file: File, mediaType: MediaType? = null): HttpRequest {
+            fileParams[key] = Pair(file, mediaType)
+            return this
+        }
+
         fun header(key: String, value: String): HttpRequest {
             headers[key] = value
             return this
@@ -59,10 +75,12 @@ class HttpUrlHelper private constructor(
             queryParams[key] = value
             return this
         }
-        fun body(json:String?):HttpRequest{
+
+        fun body(json: String?): HttpRequest {
             requestBody = json
             return this
         }
+
         fun build(): HttpUrlHelper {
             return HttpUrlHelper(
                 url ?: throw IllegalArgumentException("Base URL must not be null"),
@@ -70,10 +88,13 @@ class HttpUrlHelper private constructor(
                 queryParams,
                 headers,
                 requestType,
-                requestBody
+                requestBody,
+                formParams,
+                fileParams
             )
         }
     }
+
     fun buildUrl(): String {
         var finalUrl = baseUrl
         for ((key, value) in pathParams) {

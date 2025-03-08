@@ -5,6 +5,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.changli_planet_app.Core.FullScreenActivity
 import androidx.fragment.app.Fragment
 import com.example.changli_planet_app.Fragment.FoundThingFragment
 import com.example.changli_planet_app.Fragment.LoseThingFragment
@@ -13,7 +14,7 @@ import com.example.changli_planet_app.databinding.ActivityLoseBinding
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 
-class  LoseActivity : AppCompatActivity() {
+class  LoseActivity : FullScreenActivity() {
     private lateinit var binding: ActivityLoseBinding
     private val tabLayout: TabLayout by lazy {binding.mytab}
     override fun onCreate(savedInstanceState: Bundle?) {

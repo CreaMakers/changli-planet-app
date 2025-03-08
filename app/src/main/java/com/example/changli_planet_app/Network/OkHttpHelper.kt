@@ -1,10 +1,21 @@
 package com.example.changli_planet_app.Network
 
+import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import com.example.changli_planet_app.Activity.LoginActivity
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Interceptor.NetworkLogger
+import com.example.changli_planet_app.Network.Interceptor.NoNetworkInterceptor
+import com.example.changli_planet_app.Network.Response.Course
+import com.example.changli_planet_app.Network.Response.GradeResponse
+import com.example.changli_planet_app.Network.Response.NormalResponse
+import com.example.changli_planet_app.Util.PlanetConst
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.msdk.dns.MSDKDnsResolver
@@ -21,8 +32,85 @@ import java.lang.reflect.Type
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 object OkHttpHelper {
+
+    private val TAG = "OkHttpHelper"
+    class AuthInterceptor(private val tokenExpiredHandler: TokenExpiredHandler? = null) :
+        Interceptor {
+        companion object {
+            private const val MAX_RETRY_ATTEMPTS = 2
+            private const val MAX_BACKOFF_DELAY = 200L // 最大延迟0.2秒
+        }
+
+        interface TokenExpiredHandler {
+            fun onTokenExpired()
+        }
+
+        private var retryCount = 0
+
+
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val originalRequest = chain.request()
+
+            // 添加 Authorization 头
+            val requestWithToken = originalRequest.newBuilder()
+                .addHeader("Authorization", PlanetApplication.accessToken ?: "")
+                .addHeader("deviceId", PlanetApplication.deviceId)
+                .build()
+
+            if (originalRequest.url.encodedPath == "/app/users/me/token" && originalRequest.method == "PUT") {
+                return chain.proceed(requestWithToken)
+            }
+
+            var response = chain.proceed(requestWithToken)
+            val responseBody = response.peekBody(Long.MAX_VALUE).string()
+            Log.d(TAG, responseBody)
+            val realResponse = gson.fromJson(responseBody, NormalResponse::class.java)
+            if (realResponse?.code == "401" &&
+                realResponse?.msg == PlanetConst.UNAUTHORIZATION &&
+                retryCount < MAX_RETRY_ATTEMPTS
+            ) {
+                retryCount++
+                synchronized(this) {
+                    try {
+                        // 计算当前重试的延迟时间（指数退避）
+                        val delayMs =
+                            (30L * (1 shl (retryCount - 1))).coerceAtMost(MAX_BACKOFF_DELAY)
+                        Thread.sleep(delayMs)
+
+                        // 刷新 Token
+                        val newToken = refreshTokenSync()
+                        if (newToken != null) {
+                            response.close()
+                            // 使用新 Token 重试请求
+                            val newRequest = originalRequest.newBuilder()
+                                .addHeader("Authorization", newToken)
+                                .addHeader("deviceId", PlanetApplication.deviceId)
+                                .build()
+                            return chain.proceed(newRequest)
+                        } else {
+                        }
+                    } catch (e: Exception) {
+                        Log.e("Token Refresh", "Retry attempt $retryCount failed", e)
+                    }
+                }
+            }
+            // 如果重试次数达到上限，可以触发重新登录
+            if (retryCount >= MAX_RETRY_ATTEMPTS) {
+                Log.w("Token Refresh", "Max retry attempts reached")
+                // 清除token
+                PlanetApplication.clearCacheAll()
+                // 处理token过期操作
+                tokenExpiredHandler?.onTokenExpired()
+            }
+            retryCount = 0
+            return response
+        }
+    }
+
+    // 设置缓存
     //懒加载OkhttpClient
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
@@ -67,7 +155,7 @@ object OkHttpHelper {
                     return try {
                         InetAddress.getAllByName(hostname).toList()
                     } catch (e: UnknownHostException) {
-                        emptyList() // 返回空列表，表示无法解析
+                        emptyList()
                     }
                 }
             })
@@ -103,7 +191,18 @@ object OkHttpHelper {
 //                    response.close()
 //                }
 //            })
+//            .addInterceptor(NoNetworkInterceptor())
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
+            .addInterceptor(AuthInterceptor(object : AuthInterceptor.TokenExpiredHandler {
+                override fun onTokenExpired() {
+                    Handler(Looper.getMainLooper()).post {
+                        val intent = Intent(PlanetApplication.appContext, LoginActivity::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .putExtra("from_token_expired", true)
+                        PlanetApplication.appContext.startActivity(intent)
+                    }
+                }
+            }))
             .build()
     }
 
@@ -118,10 +217,28 @@ object OkHttpHelper {
         val request = when (httpUrlHelper.requestType) {
             HttpUrlHelper.RequestType.GET -> requestBuilder.get().build()
             HttpUrlHelper.RequestType.POST -> {
-                requestBuilder.post(
-                    (httpUrlHelper.requestBody
-                        ?: "").toRequestBody("application/json".toMediaTypeOrNull())
-                ).build()
+                if (httpUrlHelper.fileParams.isNotEmpty() || httpUrlHelper.formParams.isNotEmpty()) {
+                    val multipartBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
+                    httpUrlHelper.formParams.forEach { key, value ->
+                        multipartBuilder.addFormDataPart(key, value)
+                    }
+                    httpUrlHelper.fileParams.forEach { key, value ->
+                        val (file, mediaType) = value
+                        val requestBody = file.asRequestBody(mediaType)
+                        multipartBuilder.addFormDataPart(
+                            key,
+                            file.name,
+                            requestBody
+                        )
+                    }
+                    requestBuilder.post(multipartBuilder.build())
+                } else {
+                    requestBuilder.post(
+                        (httpUrlHelper.requestBody
+                            ?: "").toRequestBody("application/json".toMediaTypeOrNull())
+                    )
+                }
+                requestBuilder.build()
             }
 
             HttpUrlHelper.RequestType.PUT -> {
@@ -153,32 +270,67 @@ object OkHttpHelper {
     }
 
     /**
-     * 刷新AccessToken和RefreshToken
+     * 刷新AccessToken
      */
-    private fun refreshAccessToken() {
-        val json = gson.toJson(PlanetApplication.accessToken)
-        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val request = Request.Builder()
-            .url(PlanetApplication.UserIp + "/me/token")
-            .put(body)
-            .build()
-        // 发送请求
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("API Error", "请求失败: ${e.message}")
-                // 这里可以处理失败逻辑，比如重试或用户提示
-            }
+    private fun refreshTokenSync(): String? {
+        try {
+            val request = Request.Builder()
+                .url("${PlanetApplication.UserIp}/me/token")
+                .addHeader("Authorization", PlanetApplication.accessToken ?: "")
+                .addHeader("deviceId", PlanetApplication.deviceId)
+                .put("".toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
+                .build()
 
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful && response.body != null) {
-                    PlanetApplication.accessToken = response.headers["token"]
-                } else {
-                    Log.e("API Error", "响应错误: ${response.code} - ${response.message}")
-                    // 处理响应不成功的逻辑
+            return client.newCall(request).execute().use { response ->
+                when {
+                    response.isSuccessful -> {
+                        response.headers["Authorization"]?.also { newToken ->
+                            PlanetApplication.accessToken = newToken
+                            Log.d("Token Refresh", "Token refreshed successfully")
+                        }
+                    }
+
+                    else -> {
+                        Log.w("Token Refresh", "Failed to refresh token: ${response.code}")
+                        val errorBody = response.body?.string()
+                        Log.w("Token Refresh", "Error response: $errorBody")
+                    }
                 }
+                response.headers["Authorization"]
             }
-        })
+        } catch (e: Exception) {
+            Log.e("Token Refresh", "Network error during token refresh", e)
+            return null
+        }
     }
+
+//    /**
+//     * 刷新AccessToken和RefreshToken
+//     */
+//    private fun refreshAccessToken() {
+//        val json = gson.toJson(PlanetApplication.accessToken)
+//        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+//        val request = Request.Builder()
+//            .url(PlanetApplication.UserIp + "/me/token")
+//            .put(body)
+//            .build()
+//        // 发送请求
+//        client.newCall(request).enqueue(object : Callback {
+//            override fun onFailure(call: Call, e: IOException) {
+//                Log.e("API Error", "请求失败: ${e.message}")
+//                // 这里可以处理失败逻辑，比如重试或用户提示
+//            }
+//
+//            override fun onResponse(call: Call, response: Response) {
+//                if (response.isSuccessful && response.body != null) {
+//                    PlanetApplication.accessToken = response.headers["Authorization"]
+//                } else {
+//                    Log.e("API Error", "响应错误: ${response.code} - ${response.message}")
+//                    // 处理响应不成功的逻辑
+//                }
+//            }
+//        })
+//    }
 
     //解析返回的Json和发送的Json
     val gson: Gson by lazy { Gson() }

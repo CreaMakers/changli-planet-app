@@ -1,47 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="300dp"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:paddingTop="10dp"
+    android:background="@drawable/dialog_background"
     android:orientation="vertical"
-    android:background="@drawable/dialog_login"
-    android:layout_height="100dp">
+    android:paddingTop="22dp"
+    android:paddingHorizontal="20dp"
+    android:paddingBottom="16dp">
+
+    <!-- 标题 -->
     <TextView
         android:id="@+id/fade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="登录失败"
         android:layout_gravity="center"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="登录失败"
+        android:textColor="#333333"
+        android:textSize="19sp"
+        android:textStyle="bold" />
+
+    <!-- 内容 -->
     <TextView
         android:id="@+id/content"
-        android:layout_marginVertical="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="账号或密码错误，请重新输入"
         android:layout_gravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fade" />
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="0.2dp"
-        android:background="@color/icon_gray"/>
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
+        android:text="账号或密码错误，请重新输入"
+        android:textColor="#666666"
+        android:textSize="15sp" />
 
+    <!-- 分割线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#E5E5E5"/>
+
+    <!-- 确定按钮 -->
     <TextView
         android:id="@+id/yes"
         android:layout_width="match_parent"
-        android:layout_height="27dp"
-        android:layout_weight="1"
-        android:background="@drawable/yes_selector"
+        android:layout_height="44dp"
+        android:background="?attr/selectableItemBackground"
         android:gravity="center"
         android:text="确定"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="#4285F4"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
 </LinearLayout>

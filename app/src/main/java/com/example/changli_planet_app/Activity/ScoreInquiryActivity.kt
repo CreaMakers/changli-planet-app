@@ -1,214 +1,215 @@
 package com.example.changli_planet_app.Activity
 
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Handler
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.PopupWindow
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
+import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Activity.Action.ScoreInquiryAction
-import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
 import com.example.changli_planet_app.Activity.Store.ScoreInquiryStore
 import com.example.changli_planet_app.Adapter.ExamScoreAdapter
-import com.example.changli_planet_app.Data.jsonbean.ExamScore
+import com.example.changli_planet_app.Cache.ScoreCache
+import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Core.Route
+import com.example.changli_planet_app.Data.model.CourseScore
+import com.example.changli_planet_app.Data.model.SemesterGroup
 import com.example.changli_planet_app.Network.Response.Grade
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityScoreInquiryBinding
-import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import jp.wasabeef.blurry.Blurry
-import java.util.Calendar
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
-class ScoreInquiryActivity : AppCompatActivity() {
+class ScoreInquiryActivity : FullScreenActivity() {
     private lateinit var binding: ActivityScoreInquiryBinding
-    private val backgroundLayout: LinearLayout by lazy { binding.mainInfoLayout }
-    private val recyclerView: RecyclerView by lazy { binding.examRecyclerView }
-    private val dataTextView: TextView by lazy { binding.dateText }
-    private val chosenTimeTextView: TextView by lazy { binding.chosenTime }
-    private val downwardImageView: ImageView by lazy { binding.downwardBtn }
-    private val progressBar: ProgressBar by lazy { binding.loadingProgress }
+    private val recyclerView: RecyclerView by lazy { binding.ScoreRecyclerView }
     private val refresh: ImageView by lazy { binding.refresh }
-    private val back: ImageView by lazy { binding.homeBack }
-    val store = ScoreInquiryStore()
-    private var currentPopupWindow: PopupWindow? = null
-    private val terms: List<String> by lazy { generateTermsList() }
-    private var examScoreList: MutableList<ExamScore> = mutableListOf()
+    private val examScoreAdapter by lazy { ExamScoreAdapter(store, this@ScoreInquiryActivity) }
+    private val store = ScoreInquiryStore()
+    private val back by lazy { binding.bindingBack }
+    private val disposables by lazy { CompositeDisposable() }
+
+
+    private val studentId by lazy { StudentInfoManager.studentId }
+    private val studentPassword by lazy { StudentInfoManager.studentPassword }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityScoreInquiryBinding.inflate(layoutInflater)
-        window.statusBarColor = getColor(R.color.score_bar)
-
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            isAppearanceLightStatusBars = true
-        }
-
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        store.state()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { state ->
-                showAllScoreInfo(state.grades)
-            }
-
-        backgroundLayout.post {
-            Blurry.with(this)
-                .radius(25)
-                .sampling(3)
-                .color(Color.parseColor("#9950B4FF"))
-                .async()
-                .onto(backgroundLayout)
-        }
-        listOf(chosenTimeTextView, downwardImageView).forEach {
-            it.setOnClickListener { showTermSelector() }
-        }
-        store.dispatch(ScoreInquiryAction.initilaize)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        back.setOnClickListener {
-            finish()
-        }
-        refresh.setOnClickListener {
-            if (dataTextView.text.equals("日期")) {
-                showMessage("请选择查询时间")
-            } else {
-                progressBar.visibility = View.VISIBLE
-                store.dispatch(ScoreInquiryAction.UpdateGrade(dataTextView.text.toString()))
-            }
-        }
+        setupToolbar()
+        setupRecyclerView()
+        initListener()
+        loadCachedData()
+        initObserveState()
     }
 
-    private fun showAllScoreInfo(grades: List<Grade>) {
-        examScoreList = grades.map { grade ->
-            ExamScore(
-                grade.name,
-                grade.attribute,
-                grade.point,
-                grade.grade
-            )
-        }.toMutableList()
-        recyclerView.adapter = ExamScoreAdapter(examScoreList)
-        if (recyclerView.adapter == null) {
-            recyclerView.adapter = ExamScoreAdapter(examScoreList)
-        } else {
-            (recyclerView.adapter as ExamScoreAdapter).apply {
-                updateData(examScoreList)
-                notifyDataSetChanged()
-            }
-        }
-        progressBar.visibility = View.GONE
+    private fun showLoading() {
+        binding.loadingLayout.visibility = View.VISIBLE
+        binding.ScoreRecyclerView.visibility = View.GONE
     }
 
-    private fun generateTermsList(yearsBack: Int = 15): List<String> {
-        val terms = mutableListOf<String>()
-        val calendar = Calendar.getInstance()
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1
-        val startYear = when {
-            currentMonth >= 9 -> currentYear
-            else -> currentYear - 1
-        }
-        val currentTerm = when {
-            currentMonth >= 9 -> 1
-            currentMonth >= 2 -> 2
-            else -> 1
-        }
-        for (year in startYear downTo (startYear - yearsBack)) {
-            if (year == startYear) {
-                if (currentTerm == 1) {
-                    terms.add("$year-${year + 1}-1")
-                } else {
-                    terms.add("$year-${year + 1}-2")
-                    terms.add("$year-${year + 1}-1")
+    private fun hideLoading() {
+        binding.loadingLayout.visibility = View.GONE
+        binding.ScoreRecyclerView.visibility = View.VISIBLE
+    }
+
+    private fun initListener() {
+        back.setOnClickListener { finish() }
+        refresh.setOnClickListener { refreshData(true) }
+    }
+
+    private fun initObserveState() {
+        disposables.add(
+            store.state()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { state ->
+                    hideLoading()
+                    showInfo(state.grades)
                 }
-            } else {
-                terms.add("$year-${year + 1}-2")
-                terms.add("$year-${year + 1}-1")
+        )
+    }
+
+    private fun setupToolbar() {
+        binding.toolbar.apply {
+            setNavigationOnClickListener { finish() }
+        }
+    }
+
+    private fun setupRecyclerView() {
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@ScoreInquiryActivity)
+            adapter = examScoreAdapter
+            itemAnimator = DefaultItemAnimator().apply {
+                changeDuration = 200
             }
         }
-        return terms
     }
 
-    private fun showMessage(message: String) {
-        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
-            .setBackgroundTint(getColor(R.color.score_bar))
-            .setTextColor(Color.BLACK)
-        val snackerView = snackbar.view
-
-        snackerView.layoutParams = (snackerView.layoutParams as FrameLayout.LayoutParams).apply {
-            width = FrameLayout.LayoutParams.WRAP_CONTENT
-            gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
-            bottomMargin = 70
+    private fun loadCachedData() {
+        val cachedGrades = ScoreCache.getGrades()
+        if (cachedGrades != null) {
+            showInfo(cachedGrades)
+        } else {
+            refreshData(forceUpdate = true)
         }
-
-        snackerView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).apply {
-            textSize = 16f
-            textAlignment = View.TEXT_ALIGNMENT_CENTER
-            setPadding(40, 8, 40, 8)
-        }
-        snackbar.show()
     }
 
-    private fun showTermSelector() {
-
-        if (currentPopupWindow?.isShowing == true) {
-            currentPopupWindow?.dismiss()
-            currentPopupWindow = null
+    private fun refreshData(forceUpdate: Boolean = false) {
+        if (studentId.isEmpty() || studentPassword.isEmpty()) {
+            showMessage("请先绑定学号和密码")
+            Route.goBindingUser(this@ScoreInquiryActivity)
+            finish()
             return
         }
 
-        val popupView = LayoutInflater.from(this).inflate(R.layout.popup_term_selector, null)
-        val popupWindow = PopupWindow(
-            popupView,
-            (200 * resources.displayMetrics.density).toInt(),
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            true
-        )
-        currentPopupWindow = popupWindow
+        if (forceUpdate || ScoreCache.getGrades() == null) {
+            store.dispatch(ScoreInquiryAction.UpdateGrade(this, studentId, studentPassword))
+            showLoading()
+        }
+    }
 
-        popupWindow.setBackgroundDrawable(ColorDrawable(Color.WHITE))
-        popupWindow.elevation = 10f
-        popupWindow.setOnDismissListener {
-            currentPopupWindow = null
+    private fun showInfo(rawData: List<Grade>) {
+        if (rawData.isEmpty()) {
+            return
+        }
+        ScoreCache.saveGrades(rawData)
+        val groupedData = rawData.groupBy { it.item }.toSortedMap(compareByDescending { it })
+        val semesterGroups = groupedData.map { (semester, grades) ->
+
+            val courseScores = grades.map { grade ->
+                CourseScore(
+                    name = grade.name,
+                    score = grade.grade.toIntOrNull() ?: 0,
+                    credit = grade.score.toDoubleOrNull() ?: 0.0,
+                    earnedCredit = grade.point.toDoubleOrNull() ?: 0.0,
+                    courseType = grade.attribute,
+                    pscjUrl = grade.pscjUrl,
+                    cookie = grade.cookie
+                )
+            }
+
+            val semesterGPA = calculateGPA(courseScores)
+
+            SemesterGroup(
+                semesterName = semester,
+                gpa = semesterGPA,
+                cours = courseScores
+            )
         }
 
-        val location = IntArray(2)
-        chosenTimeTextView.getLocationInWindow(location)
-        popupWindow.showAsDropDown(
-            chosenTimeTextView,
-            0,
-            0
-        )
+        val allCourses = rawData.size // 课程总数
+        val totalCredits = rawData.sumOf { it.score.toDoubleOrNull() ?: 0.0 } // 已修总学分
+        val totalGPA = calculateOverallGPA(rawData) // 总体 GPA
+        val averageScore = calculateAverageScore(rawData) // 平均学分绩点
 
-        val termsList = popupView.findViewById<ListView>(R.id.terms_list)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, terms)
-        termsList.adapter = adapter
-        termsList.setOnItemClickListener { _, _, position, _ ->
-            dataTextView.text = terms[position]
-            popupWindow.dismiss()
-            progressBar.visibility = View.VISIBLE
-            store.dispatch(ScoreInquiryAction.UpdateGrade(terms[position]))
+
+        binding.apply {
+            totalGpa.text = String.format("%.2f", totalGPA)
+            avgScore.text = String.format("%.1f", averageScore)
+            totalClass.text = allCourses.toString()
+            totalScore.text = String.format("%.1f", totalCredits)
         }
+
+        examScoreAdapter.submitList(semesterGroups)
+    }
+
+    // 计算单个学期的 GPA
+    private fun calculateGPA(courses: List<CourseScore>): Double {
+        val totalWeightedPoints = courses.sumOf {
+            it.credit * it.earnedCredit
+        }
+        val totalCredits = courses.sumOf { it.credit }
+        return if (totalCredits > 0) totalWeightedPoints / totalCredits else 0.0
+    }
+
+    // 计算总体 GPA
+    private fun calculateOverallGPA(grades: List<Grade>): Double {
+        val totalWeightedPoints = grades.sumOf {
+            (it.score.toDoubleOrNull() ?: 0.0) * (it.point.toDoubleOrNull() ?: 0.0)
+        }
+        val totalCredits = grades.sumOf { it.score.toDoubleOrNull() ?: 0.0 }
+        return if (totalCredits > 0) totalWeightedPoints / totalCredits else 0.0
+    }
+
+    // 计算平均学分绩点
+    private fun calculateAverageScore(grades: List<Grade>): Double {
+        val totalScore = grades.sumOf { it.grade.toDoubleOrNull() ?: 0.0 }
+        return if (grades.isNotEmpty()) totalScore / grades.size else 0.0
+    }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).apply {
+            val cardView = CardView(applicationContext).apply {
+                radius = 25f
+                cardElevation = 8f
+                setCardBackgroundColor(getColor(R.color.score_bar))
+                useCompatPadding = true
+            }
+
+            val textView = TextView(applicationContext).apply {
+                text = message
+                textSize = 17f
+                setTextColor(Color.BLACK)
+                gravity = Gravity.CENTER
+                setPadding(80, 40, 80, 40)
+            }
+            cardView.addView(textView)
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 140)
+            view = cardView
+            show()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
     }
 }

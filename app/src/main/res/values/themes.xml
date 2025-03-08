@@ -8,7 +8,9 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.Changliplanetapp" parent="Base.Theme.Changliplanetapp" />
+    <style name="Theme.Changliplanetapp" parent="Base.Theme.Changliplanetapp">
+    </style>
+
     <!--ShapeableImageView 圆角-->
     <style name="RoundedStyle">
         <item name="cornerFamily">rounded</item>

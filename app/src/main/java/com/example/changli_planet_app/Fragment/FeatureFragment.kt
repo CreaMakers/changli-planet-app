@@ -1,16 +1,25 @@
 package com.example.changli_planet_app.Fragment
 
+
+import android.content.Context
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.GlideApp
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
+import com.example.changli_planet_app.Interface.DrawerController
+import com.example.changli_planet_app.Util.GlideUtils
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 /**
@@ -19,63 +28,105 @@ import com.example.changli_planet_app.databinding.FragmentFeatureBinding
  * create an instance of this fragment.
  */
 class FeatureFragment : Fragment() {
-    lateinit var  binding : FragmentFeatureBinding
-    private val electronic:LinearLayout by lazy { binding.nelectronic }
-    private val grade:LinearLayout by lazy { binding.ngrade }
-    private val lose:LinearLayout by lazy {binding.nlose}
+    private val TAG = "FeatureFragment"
+    private lateinit var binding: FragmentFeatureBinding
+    private val featureAvatar by lazy { binding.featureAvatar }
+    private var drawerController: DrawerController? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is DrawerController) {
+            drawerController = context
+        } else {
+            Log.d(TAG, "DrawerControl,宿主Activity未实现接口")
+        }
+    }
+
+    override fun onDetach() {
+        drawerController = null
+        super.onDetach()
+    }
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
+        val start = System.currentTimeMillis()
         binding = FragmentFeatureBinding.inflate(layoutInflater)
-        electronic.setOnClickListener { activity?.let { it1 -> Route.goElectronic(it1) } }
-        grade.setOnClickListener { activity?.let { it1 -> Route.goScoreInquiry(it1) } }
-        lose.setOnClickListener {activity?.let {it1->Route.goLose(it1)}}
-        // 将设置资源的代码放入 IdleHandler
-        Handler(Looper.getMainLooper()).post {
-            // 注册 IdleHandler
-            Looper.myQueue().addIdleHandler {
-                setUpImageView()
-                false
-            }
+        setIcons()
+        Looper.myQueue().addIdleHandler {
+            setupClickListeners()
+            false
         }
+        lifecycleScope.launch {
+            delay(1200)
+            GlideUtils.load(
+                this@FeatureFragment, featureAvatar, UserInfoManager.userAvatar
+            )
+        }
+        featureAvatar.setOnClickListener { drawerController?.openDrawer() }
+        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
         return binding.root
     }
-    fun setUpImageView(){
-        // 动态设置 ImageView 的资源
-        binding.planetLogo.setImageResource(R.drawable.planet_logo)
-        binding.ngrade.setIcon(R.drawable.ngrade)
-        binding.ncourse.setIcon(R.drawable.ncourse)
-        binding.nmap.setIcon(R.drawable.nmap)
-        binding.ncet.setIcon(R.drawable.ncet)
-        binding.ntest.setIcon(R.drawable.ntest)
-        binding.ncalender.setIcon(R.drawable.ncalender)
-        binding.nadd.setIcon(R.drawable.nadd)
-        binding.nmande.setIcon(R.drawable.nmande)
-        binding.nlose.setIcon(R.drawable.nlose)
-        binding.nnotice.setIcon(R.drawable.nnotice)
-        binding.nelectronic.setIcon(R.drawable.nelectronic)
-        binding.nrank.setIcon(R.drawable.nrank)
-        binding.nbalance.setIcon(R.drawable.nbalance)
-        binding.nclassroom.setIcon(R.drawable.nclassroom)
-    }
-    companion object {
 
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment Myfragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance() =
-            FeatureFragment().apply {
-                arguments = Bundle().apply {
+
+    private fun setupClickListeners() {
+
+        with(binding) {
+            nmap.setOnClickListener { activity?.let { Route.goCampusMap(it) } }
+            nelectronic.setOnClickListener { activity?.let { Route.goElectronic(it) } }
+            ncourse.setOnClickListener { activity?.let { Route.goTimetable(it) } }
+            ngrade.setOnClickListener { activity?.let { Route.goScoreInquiry(it) } }
+            ntest.setOnClickListener { activity?.let { Route.goExamArrangement(it) } }
+            ncet.setOnClickListener { activity?.let { Route.goCet(it) } }
+            nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
+            nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        GlideUtils.load(
+            this@FeatureFragment, featureAvatar, UserInfoManager.userAvatar
+        )
+    }
+
+    private fun setIcons() {
+        context?.let { ctx ->
+            with(binding) {
+                GlideUtils.load(
+                    this@FeatureFragment, planetLogo, R.drawable.planet_logo
+                )
+
+                // 设置功能图标
+                val iconIds = listOf(
+                    ngrade to R.drawable.ngrade,
+                    ncourse to R.drawable.ncourse,
+                    nmap to R.drawable.nmap,
+                    ncet to R.drawable.ncet,
+                    ntest to R.drawable.ntest,
+                    ncalender to R.drawable.ncalender,
+                    nmande to R.drawable.nmande,
+                    nlose to R.drawable.nlose,
+                    nelectronic to R.drawable.nelectronic,
+                    nrank to R.drawable.nrank,
+                    nclassroom to R.drawable.nclassroom
+                )
+
+                iconIds.forEach { (item, resId) ->
+                    item.setIconWithGlide(resId)
                 }
             }
+        }
     }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = FeatureFragment()
+
+
+    }
+
 }

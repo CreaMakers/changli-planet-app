@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="50dp"
+    android:elevation="15dp"
+    android:background="@null"
+    android:id="@+id/cardView"
+
+   >
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+
+        >
+
+        <TextView
+            android:id="@+id/dialog_courseName"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="15dp"
+            android:ellipsize="end"
+            android:paddingHorizontal="50dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:singleLine="true"
+            android:text="体育(三)(23计算机飞盘08)"
+            android:textSize="16sp" />
+
+        <include
+            android:id="@+id/dialog_weekpart"
+            layout="@layout/dialog_weekpart" />
+
+        <include
+            android:id="@+id/dialog_alarmpart"
+            layout="@layout/dialog_alarmpart" />
+
+        <include
+            android:id="@+id/dialog_teacherpart"
+            layout="@layout/dialog_teacherpart" />
+
+        <include
+            android:id="@+id/dialog_placepart"
+            layout="@layout/dialog_placepart" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
