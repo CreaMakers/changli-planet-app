@@ -45,8 +45,10 @@
             android:exported="false" />
         <activity
             android:name=".Activity.CityActivity"
-            android:name=".Activity.PublishFoundThingActivity"
             android:exported="false" />
+        <activity
+            android:name=".Activity.PublishFoundThingActivity"
+            android:exported="false"/>
         <activity
             android:name=".Activity.PublishLoseThingActivity"
             android:exported="false" />

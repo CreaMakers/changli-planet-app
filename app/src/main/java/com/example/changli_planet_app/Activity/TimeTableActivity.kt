@@ -65,6 +65,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.TimeZone
 
 
 class TimeTableActivity : FullScreenActivity() {
@@ -122,7 +123,7 @@ class TimeTableActivity : FullScreenActivity() {
     }
 
     private fun getCurrentTerm(): String {
-        val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH) + 1
         return when {
@@ -584,7 +585,7 @@ class TimeTableActivity : FullScreenActivity() {
 
     private fun generateTermsList(yearsBack: Int = 4): List<String> {
         val terms = mutableListOf<String>()
-        val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH) + 1
         val startYear = when {
@@ -675,7 +676,7 @@ class TimeTableActivity : FullScreenActivity() {
                 val firstView = TextView(this@TimeTableActivity).apply {
                     layoutParams = firstParams
                     gravity = Gravity.CENTER
-                    text = "${Calendar.getInstance().get(Calendar.MONTH) + 1}月"
+                    text = "${Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai")).get(Calendar.MONTH) + 1}月"
                     setTextColor(Color.BLACK)
                     textSize = 14f
                     typeface = Typeface.DEFAULT_BOLD
@@ -728,11 +729,11 @@ class TimeTableActivity : FullScreenActivity() {
                 }
 
                 // 获取当前日期
-                val today = Calendar.getInstance()
+                val today = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
                 val startTime = termMap[courseTerm.text.toString()]
 
                 startTime?.let {
-                    val weekStart = Calendar.getInstance()
+                    val weekStart = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
                     weekStart.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(it)
                     weekStart.add(Calendar.WEEK_OF_YEAR, curDisplayWeek - 1)
                     weekStart.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
