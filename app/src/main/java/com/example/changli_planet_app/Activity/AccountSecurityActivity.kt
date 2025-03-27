@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.setPadding
 import com.example.changli_planet_app.Activity.Action.AccountSecurityAction
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
 import com.example.changli_planet_app.Activity.Store.AccountSecurityStore
@@ -58,6 +59,17 @@ class AccountSecurityActivity : FullScreenActivity() {
         store.dispatch(AccountSecurityAction.initilaize)
         binding = ActivityAccountSecurityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
         val passwordTextWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 store.dispatch(AccountSecurityAction.UpdateSafeType(newPasswordEt.text.toString()))

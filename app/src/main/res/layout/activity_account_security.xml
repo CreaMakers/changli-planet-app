@@ -5,17 +5,20 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9FAFB"
     android:orientation="vertical"
     tools:context=".Activity.AccountSecurityActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
+        android:id="@+id/toolbar_container"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:gravity="center_vertical"
         android:background="#E8F3FE"
-        android:elevation="4dp"
-        app:titleTextColor="@android:color/white">
+        android:elevation="4dp">
 
         <ImageView
             android:id="@+id/binding_back"
@@ -25,16 +28,22 @@
             android:src="@drawable/blue_left_back" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
             android:text="账号安全"
             android:textColor="#4C81CE"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-    </androidx.appcompat.widget.Toolbar>
+        <!-- 添加一个空视图来平衡布局，使标题居中 -->
+        <View
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:visibility="invisible" />
+
+    </LinearLayout>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"

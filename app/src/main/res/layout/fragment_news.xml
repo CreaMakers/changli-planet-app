@@ -1,110 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragmentContainerNews"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:paddingTop="@dimen/dp35"
+    android:layout_height="match_parent"
+    tools:context=".Fragment.NewsFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <LinearLayout
+        android:id="@+id/news_search"
+        android:orientation="horizontal"
+        android:layout_width="0dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/main_search"
+        android:layout_marginTop="10dp"
+        android:layout_height="40dp"
+        app:layout_constraintEnd_toStartOf="@id/news_avatar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="15dp"
+            android:src="@drawable/component2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="15dp"
+            android:text="点击搜索想要的群组"
+            android:textColor="@color/game1_gray"
+            android:textSize="17sp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/news_avatar"
+        android:layout_marginEnd="10dp"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:src="@drawable/fulilian"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/CircleStyle" />
+
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/to"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:background="@color/white"
-        tools:context=".Fragment.NewsFragment">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/news_search"
+        app:layout_constraintWidth_percent="0.5"
+        app:tabIndicatorColor="#4C81CE"
+        app:tabIndicatorFullWidth="false"
+        app:tabIndicatorHeight="2dp"
+        app:tabSelectedTextColor="#4C81CE"
+        app:tabTextAppearance="@style/MyTabLayout"
+        app:tabTextColor="#787878">
 
-        <LinearLayout
-            android:id="@+id/news_search"
-            android:orientation="horizontal"
-            android:layout_width="0dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@drawable/main_search"
-            android:layout_marginTop="10dp"
-            android:layout_height="40dp"
-            app:layout_constraintEnd_toStartOf="@id/news_avatar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="推荐" />
 
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="15dp"
-                android:src="@drawable/component2" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="热门" />
+    </com.google.android.material.tabs.TabLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="15dp"
-                android:text="点击搜索想要的群组"
-                android:textColor="@color/game1_gray"
-                android:textSize="17sp" />
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/login_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/to"
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout_editor_absoluteX="168dp">
 
-        </LinearLayout>
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/news_avatar"
-            android:layout_marginEnd="10dp"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:src="@drawable/fulilian"
-            android:layout_marginTop="10dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="5dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearance="@style/CircleStyle" />
-
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/to"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.05"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/news_search"
-            app:layout_constraintWidth_percent="0.5"
-            app:tabTextAppearance="@style/MyTabLayout"
-            tools:layout_editor_absoluteX="0dp">
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="推荐" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="热门" />
-        </com.google.android.material.tabs.TabLayout>
-
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/news_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@color/login_gray"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/to"
-            app:layout_constraintVertical_bias="1.0"
-            tools:layout_editor_absoluteX="168dp">
+            android:layout_height="match_parent" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/news_recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-    <!--    <ImageView-->
-    <!--        android:id="@+id/underConstructionView"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent"-->
-    <!--        android:src="@drawable/under_construction"-->
-    <!--        android:background="@android:color/white"-->
-    <!--        android:layout_gravity="center"-->
-    <!--        android:padding="50dp"-->
-    <!--        android:clickable="true"/>-->
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

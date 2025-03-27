@@ -1,9 +1,11 @@
 package com.example.changli_planet_app.Network.Response
 
 import java.time.LocalDateTime
+
 // LocalDateTime 暂时用String替代看看是否产生问题
 data class UserProfile(
     val userId: Int = -1,
+    val account: String = "用户名字",
     var avatarUrl: String = "注册默认头像",
     val bio: String = "",
     val description: String = "",

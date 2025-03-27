@@ -3,9 +3,11 @@
     <style name="Base.Theme.Changliplanetapp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="colorPrimary">@color/primary_blue</item>
-        <item name="android:windowBackground">@color/jiemina</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="android:windowBackground">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.Changliplanetapp" parent="Base.Theme.Changliplanetapp">
@@ -19,7 +21,7 @@
     <style name="MyTabLayout">
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textAllCaps">false</item>
+        <item name="android:textAllCaps">true</item>
     </style>
     <style name="CustomButtonStyle">
         <item name="android:background">@drawable/login_button</item>

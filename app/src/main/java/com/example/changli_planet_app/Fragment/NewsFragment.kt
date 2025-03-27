@@ -34,6 +34,7 @@ class NewsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentNewsBinding.inflate(layoutInflater)
+        initObserve()
         return binding.root
     }
 
@@ -42,7 +43,7 @@ class NewsFragment : Fragment() {
 
     }
 
-    private fun observe() {
+    private fun initObserve() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {

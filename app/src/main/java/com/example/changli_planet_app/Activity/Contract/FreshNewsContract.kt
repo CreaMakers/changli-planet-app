@@ -8,6 +8,8 @@ import com.example.changli_planet_app.Network.Response.FreshNewsItem
 
 class FreshNewsContract {
     sealed class Intent : MviIntent {
+        class UpdateTabIndex(val currentIndex: Int) : Intent()
+        class Initialization(): Intent()
     }
 
     data class State(
