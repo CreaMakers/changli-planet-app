@@ -8,33 +8,26 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.changli_planet_app.R
 
-class CustomToast private constructor(context: Context){
+class CustomToast private constructor(context: Context) {
     private val toast: Toast
-    private val layout: View
-    private val textView: TextView
 
     init {
-        toast = Toast(context)
-        layout = LayoutInflater.from(context).inflate(R.layout.custom_toast_layout, null)
-        textView = layout.findViewById(R.id.toast_text)
-        toast.view = layout
-        toast.duration = Toast.LENGTH_SHORT
+        val appContext = context.applicationContext
+        val layout = LayoutInflater.from(appContext).inflate(R.layout.custom_toast_layout, null)
+        toast = Toast(appContext).apply {
+            view = layout
+            duration = Toast.LENGTH_SHORT
+        }
     }
 
     companion object {
-        @SuppressLint("StaticFieldLeak")
-        private var instance: CustomToast? = null
-
         fun showMessage(context: Context, message: String) {
-            if(instance == null) {
-                instance = CustomToast(context.applicationContext)
-            }
-            instance?.show(message)
+            CustomToast(context.applicationContext).show(message)
         }
     }
 
     fun show(message: String) {
-        textView.text = message
+        toast.view?.findViewById<TextView>(R.id.toast_text)?.text = message
         toast.show()
     }
 }

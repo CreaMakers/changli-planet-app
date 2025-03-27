@@ -50,11 +50,11 @@ class LoginActivity : FullScreenActivity() {
         initListener()
     }
 
-    private fun initView(){
+    private fun initView() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)// 设置Button的初始状态
         EventBus.getDefault().register(this)
-        if(intent.getBooleanExtra("from_token_expired", false)) {
+        if (intent.getBooleanExtra("from_token_expired", false)) {
             ExpiredDialog(
                 this,
                 "您的登录状态过期啦꒰ঌ( ⌯' '⌯)໒꒱",
@@ -63,7 +63,7 @@ class LoginActivity : FullScreenActivity() {
         }
     }
 
-    private fun initListener(){
+    private fun initListener() {
         disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -128,6 +128,7 @@ class LoginActivity : FullScreenActivity() {
         account.setText(intent.getStringExtra("username") ?: "")
         password.setText(intent.getStringExtra("password") ?: "")
     }
+
     private fun inputFilter(editText: EditText) {
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
             // 允许的字符是英文字母和数字
@@ -182,6 +183,7 @@ class LoginActivity : FullScreenActivity() {
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
+        EventBus.getDefault().unregister(this)
     }
 
     @Subscribe

@@ -32,6 +32,7 @@ object TabAnimationPool {
 
                 override fun onAnimationEnd(animation: Animator) {
                     startScaleUpAnimation(tabView)
+                    (animation as ObjectAnimator).target = null
                 }
 
                 override fun onAnimationCancel(animation: Animator) {
@@ -56,7 +57,9 @@ object TabAnimationPool {
             addListener(object : AnimatorListener {
                 override fun onAnimationStart(animation: Animator) {}
 
-                override fun onAnimationEnd(animation: Animator) {}
+                override fun onAnimationEnd(animation: Animator) {
+                    (animation as ObjectAnimator).target = null
+                }
 
                 override fun onAnimationCancel(animation: Animator) {
                     view.scaleX = 1f
@@ -73,5 +76,7 @@ object TabAnimationPool {
     fun clear() {
         scaleDownAnimator.cancel()
         scaleUpAnimator.cancel()
+        scaleDownAnimator.removeAllListeners()
+        scaleUpAnimator.removeAllListeners()
     }
 }

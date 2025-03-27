@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 
 import com.example.changli_planet_app.Activity.Contract.FreshNewsContract
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.CoroutineContext.ErrorCoroutineContext
 import com.example.changli_planet_app.Core.MVI.MviViewModel
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Network.HttpUrlHelper
@@ -36,6 +37,7 @@ import okhttp3.Response
 import okio.IOException
 import org.greenrobot.eventbus.EventBus
 import java.io.File
+import kotlinx.coroutines.launch
 
 class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
 
@@ -47,6 +49,13 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.Publish->publish()
             is FreshNewsContract.Intent.ClearAll->clearAll()
             is FreshNewsContract.Intent.Refresh->refresh()
+            is FreshNewsContract.Intent.UpdateTabIndex -> {
+            changeCurrentTab(intent.currentIndex)
+        }
+
+            is FreshNewsContract.Intent.Initialization -> {
+
+            }
         }
 
     }
@@ -62,6 +71,9 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
     )
 
     private fun changeCurrentTab(currentTab: Int) {
+        viewModelScope.launch(ErrorCoroutineContext()) {
+
+        }
         updateState {
             copy(currentTab = currentTab)
         }

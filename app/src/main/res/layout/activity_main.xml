@@ -22,7 +22,6 @@
             android:id="@+id/frag"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/white"
             app:layout_constraintBottom_toTopOf="@+id/tabLayout"
             app:layout_constraintTop_toTopOf="parent" />
 

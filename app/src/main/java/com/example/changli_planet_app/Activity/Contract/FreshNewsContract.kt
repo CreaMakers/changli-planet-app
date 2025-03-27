@@ -17,6 +17,8 @@ class FreshNewsContract {
         class Publish():Intent()
         class ClearAll():Intent()
         class Refresh():Intent()
+        class UpdateTabIndex(val currentIndex: Int) : Intent()
+        class Initialization(): Intent()
     }
 
     data class State(

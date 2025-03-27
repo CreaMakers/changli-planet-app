@@ -10,12 +10,16 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.Activity.Action.ClassInfoAction
 import com.example.changli_planet_app.Activity.Store.ClassInfoStore
+import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.Dialog.ClassInfoBottomDialog
 import com.example.changli_planet_app.Widget.Dialog.EmptyClassroomDialog
 import com.example.changli_planet_app.Widget.Dialog.UserProfileWheelBottomDialog
 import com.example.changli_planet_app.Widget.Picker.LessonPicker
+import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.databinding.ActivityClassInfoBinding
 import com.zhuangfei.timetable.model.ScheduleSupport
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -212,6 +216,12 @@ class ClassInfoActivity : FullScreenActivity() {
             lessonPicker.show()
         }
         query.setOnClickListener {
+            if (StudentInfoManager.studentId.isEmpty() || StudentInfoManager.studentPassword.isEmpty()) {
+                CustomToast.showMessage(this, "请先绑定学号和密码")
+                Route.goBindingUser(this)
+                finish()
+                return@setOnClickListener
+            }
             store.dispatch(
                 ClassInfoAction.QueryEmptyClassInfo(
                     this,

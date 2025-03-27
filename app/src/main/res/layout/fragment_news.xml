@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragmentContainerNews"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        tools:context=".Fragment.NewsFragment">
+    android:paddingTop="@dimen/dp35"
+    android:layout_height="match_parent"
+    tools:context=".Fragment.NewsFragment">
 
         <LinearLayout
             android:id="@+id/news_search"
@@ -103,7 +99,6 @@
                 android:layout_height="wrap_content"/>
         </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
     <ImageView
         android:id="@+id/add"
         android:layout_width="100dp"
@@ -112,4 +107,5 @@
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="15dp"
         android:layout_marginEnd="15dp"/>
-</FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

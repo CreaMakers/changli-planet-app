@@ -6,7 +6,7 @@
     android:id="@+id/feature"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/feature_white"
+    android:paddingTop="@dimen/dp35"
     tools:context=".Fragment.FeatureFragment">
 
     <ImageView

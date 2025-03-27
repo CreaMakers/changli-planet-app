@@ -29,6 +29,7 @@ import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Data.jsonbean.UserProfileRequest
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.View.CustomToast
@@ -504,7 +505,13 @@ class UserProfileActivity : FullScreenActivity() {
     @Subscribe
     fun onFinish(finishEvent: FinishEvent) {
         if (finishEvent.name == "updateUser") {
+            CustomToast.showMessage(PlanetApplication.appContext, "更改成功(ฅ′ω`ฅ)")
             finish()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
     }
 }
