@@ -15,10 +15,14 @@ import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
 import com.example.changli_planet_app.Adapter.FreshNewsAdapter
 import com.example.changli_planet_app.Adapter.ViewHolder.FreshNewsItemViewModel
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.GlideUtils
 import com.example.changli_planet_app.databinding.FragmentNewsBinding
 import com.google.android.material.tabs.TabLayout
+import com.scwang.smart.refresh.layout.api.RefreshLayout
+import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -34,12 +38,25 @@ class NewsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentNewsBinding.inflate(layoutInflater)
+
+        binding.add.setOnClickListener{
+            Route.goPublishFreshNews(requireActivity())
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.refreshLayout.setOnRefreshListener(object : OnRefreshListener {
+            override fun onRefresh(refreshLayout: RefreshLayout) {
 
+            }
+        })
+        binding.refreshLayout.setOnLoadMoreListener(object :OnLoadMoreListener{
+            override fun onLoadMore(refreshLayout: RefreshLayout) {
+
+            }
+        })
     }
 
     private fun observe() {
@@ -77,5 +94,9 @@ class NewsFragment : Fragment() {
             imageUrl,
             false
         )
+    }
+
+    private fun refresh(){
+
     }
 }

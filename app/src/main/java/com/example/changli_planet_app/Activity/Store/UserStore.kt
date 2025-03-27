@@ -51,6 +51,7 @@ class UserStore : Store<UserState, UserAction>() {
                             "200" -> {
                                 fromJson.data?.let {
                                     UserInfoManager.userAvatar = it.avatarUrl
+                                    UserInfoManager.userId=it.userId
                                     currentState.userProfile = it
                                     currentState.avatarUri = it.avatarUrl
                                 }

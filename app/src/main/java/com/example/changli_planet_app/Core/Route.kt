@@ -15,6 +15,7 @@ import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.MandeActivity
 import com.example.changli_planet_app.Activity.PublishFoundThingActivity
+import com.example.changli_planet_app.Activity.PublishFreshNews
 import com.example.changli_planet_app.Activity.PublishLoseThingActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
 import com.example.changli_planet_app.Activity.ScoreInquiryActivity
@@ -133,6 +134,11 @@ object Route {
 
     fun goAccountSecurity(context: Context) {
         val intent = Intent(context, AccountSecurityActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goPublishFreshNews(context: Context){
+        val intent=Intent(context,PublishFreshNews::class.java)
         context.startActivity(intent)
     }
 }

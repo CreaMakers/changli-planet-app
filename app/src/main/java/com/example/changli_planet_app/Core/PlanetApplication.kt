@@ -41,7 +41,7 @@ class PlanetApplication : Application() {
 
         const val UserIp: String = "http://113.44.47.220:8083/app/users"
         const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
-        const val FreshNewsIp: String = "http://113.44.47.220:8081/app/fresh_news"
+        const val FreshNewsIp: String = "http://113.44.47.220:8085/app/fresh_news"
 //        const val ToolIp: String = "http://10.0.2.2:8081/app/tools"
 
         val preRequestIps = listOf(

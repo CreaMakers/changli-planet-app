@@ -18,6 +18,7 @@ class FreshNewsItemViewModel(
             itemView.setOnClickListener { onNewsClick() }
             GlideUtils.load(context, newsItemAvatar, news.authorAvatar)
             newsItemUsername.text = news.authorName
+            newsTitle.text=news.title
             newsItemTime.text = "发布时间: ${news.createTime}"
             newsContent.text = news.content
 

@@ -73,6 +73,9 @@ dependencies {
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.6.1")
+    implementation("com.squareup.retrofit2:converter-gson:2.6.1")
     // EventBus
     implementation("org.greenrobot:eventbus:3.3.1")
     // Gson
@@ -104,6 +107,13 @@ dependencies {
     implementation("com.github.gzu-liyujiang.AndroidPicker:WheelPicker:4.0.1")
     //SwipeRefreshLayout
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    //FlexboxLayout
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+    //SmartRefreshLayout
+    implementation("io.github.scwang90:refresh-layout-kernel:3.0.0-alpha")
+    implementation("io.github.scwang90:refresh-header-radar:3.0.0-alpha")
+    implementation("io.github.scwang90:refresh-footer-classics:3.0.0-alpha")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

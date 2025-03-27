@@ -80,31 +80,36 @@
                 android:text="热门" />
         </com.google.android.material.tabs.TabLayout>
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
+        <com.scwang.smart.refresh.layout.SmartRefreshLayout
+            android:id="@+id/refreshLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/login_gray"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/to"
             app:layout_constraintVertical_bias="1.0"
+            app:srlAccentColor="@color/login_gray"
+            app:srlEnablePreviewInEditMode="true"
             tools:layout_editor_absoluteX="168dp">
-
+            <com.scwang.smart.refresh.header.BezierRadarHeader
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/news_recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            <com.scwang.smart.refresh.footer.ClassicsFooter
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <!--    <ImageView-->
-    <!--        android:id="@+id/underConstructionView"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent"-->
-    <!--        android:src="@drawable/under_construction"-->
-    <!--        android:background="@android:color/white"-->
-    <!--        android:layout_gravity="center"-->
-    <!--        android:padding="50dp"-->
-    <!--        android:clickable="true"/>-->
+    <ImageView
+        android:id="@+id/add"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/add_news"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="15dp"/>
 </FrameLayout>
