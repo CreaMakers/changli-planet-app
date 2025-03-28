@@ -37,6 +37,17 @@ class MandeActivity : FullScreenActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMandeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
+            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
         setupWebView()
         onBackPressedDispatcher.addCallback(this) {
             webView.goBack()

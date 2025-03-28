@@ -126,6 +126,16 @@ class UserProfileActivity : FullScreenActivity() {
         binding = ActivityUserProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
+            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
         observeState()
         store.dispatch(UserAction.GetCurrentUserProfile(this))
         setAvatar.setOnClickListener { setAvatar() }

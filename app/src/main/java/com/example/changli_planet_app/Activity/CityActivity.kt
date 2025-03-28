@@ -27,6 +27,16 @@ class CityActivity : FullScreenActivity() {
     private fun initView() {
         binding = ActivityCityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){view,windowInsets->
+            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
         recyclerView.adapter = CityAdapter(LocationDataSource.getCity(province!!), ::clickItem)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.addItemDecoration(DividerItemDecoration())

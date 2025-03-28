@@ -9,6 +9,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Activity.Action.ExamInquiryAction
@@ -52,6 +54,17 @@ class ExamArrangementActivity : FullScreenActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityExamArrangementBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
+            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
 
         examRecyclerView.layoutManager = LinearLayoutManager(this)
         examRecyclerView.adapter = ExamArrangementAdapter(examList)

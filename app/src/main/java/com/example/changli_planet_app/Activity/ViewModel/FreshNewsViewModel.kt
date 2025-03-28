@@ -49,9 +49,8 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.Publish->publish()
             is FreshNewsContract.Intent.ClearAll->clearAll()
             is FreshNewsContract.Intent.Refresh->refresh()
-            is FreshNewsContract.Intent.UpdateTabIndex -> {
-            changeCurrentTab(intent.currentIndex)
-        }
+            is FreshNewsContract.Intent.UpdateTabIndex -> changeCurrentTab(intent.currentIndex)
+
 
             is FreshNewsContract.Intent.Initialization -> {
 
@@ -111,7 +110,6 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
 
     private fun publish(){
         viewModelScope.launch {
-            //Log.d("FreshNewsViewModel", "Coroutine started")
             state.value.publishNews.user_id=UserInfoManager.userId
             val handler=Handler(Looper.getMainLooper())
             /*val client= OkHttpClient()

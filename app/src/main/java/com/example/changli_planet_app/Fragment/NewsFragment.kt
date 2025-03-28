@@ -40,9 +40,9 @@ class NewsFragment : Fragment() {
         binding = FragmentNewsBinding.inflate(layoutInflater)
         initObserve()
 
-        binding.add.setOnClickListener{
-            Route.goPublishFreshNews(requireActivity())
-        }
+//        binding.add.setOnClickListener{
+//            Route.goPublishFreshNews(requireActivity())
+//        }
         return binding.root
     }
 

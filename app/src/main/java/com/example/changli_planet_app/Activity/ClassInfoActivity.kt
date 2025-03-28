@@ -160,6 +160,16 @@ class ClassInfoActivity : FullScreenActivity() {
         setContentView(binding.root)
         store.dispatch(ClassInfoAction.initilaize)
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar2){view,windowInsets->
+            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
         val calendar=Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
         initWeek(calendar)
         initDay(calendar)

@@ -11,7 +11,7 @@
     <LinearLayout
         android:id="@+id/query"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:background="@color/primary_blue"
         android:padding="10dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +27,7 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="8"
             android:gravity="center"
             android:text="电费查询"

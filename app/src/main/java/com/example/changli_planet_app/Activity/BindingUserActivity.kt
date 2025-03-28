@@ -62,6 +62,17 @@ class BindingUserActivity : FullScreenActivity() {
         binding = ActivityBindingUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
         EventBus.getDefault().register(this)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){view,windowInsets->
+            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
     }
 
     private fun initListener() {

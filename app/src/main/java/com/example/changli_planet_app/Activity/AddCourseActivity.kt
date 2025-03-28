@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.setPadding
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.Activity.Store.TimeTableStore
@@ -65,6 +66,17 @@ class AddCourseActivity : FullScreenActivity() {
         curWeek = intent.getIntExtra("curWeek", 0)
         courseStep.setText("0$startCourse - 0${startCourse + 1} 节")
         courseWeek.setText(weekDayMap[intent.getIntExtra("day", 0)])
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){view,windowInsets->
+            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
     }
 
     private fun initListener() {

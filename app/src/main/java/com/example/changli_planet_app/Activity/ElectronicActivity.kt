@@ -8,6 +8,8 @@ import android.view.ViewStub
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.Activity.Action.ElectronicAction
 import com.example.changli_planet_app.Activity.Store.ElectronicStore
 import com.example.changli_planet_app.Core.FullScreenActivity
@@ -58,6 +60,17 @@ class ElectronicActivity : FullScreenActivity() {
     private fun initView() {
         binding = ActivityElectronicBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.query){ view, windowInsets->
+            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
         inputFilter(dor_number)
     }
 
