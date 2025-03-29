@@ -57,7 +57,6 @@ class ScoreInquiryActivity : FullScreenActivity() {
             )
             WindowInsetsCompat.CONSUMED
         }
-        setupToolbar()
         setupRecyclerView()
         initListener()
         loadCachedData()
@@ -90,11 +89,6 @@ class ScoreInquiryActivity : FullScreenActivity() {
         )
     }
 
-    private fun setupToolbar() {
-        binding.toolbar.apply {
-            setNavigationOnClickListener { finish() }
-        }
-    }
 
     private fun setupRecyclerView() {
         recyclerView.apply {

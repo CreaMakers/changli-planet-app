@@ -11,6 +11,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
@@ -25,8 +26,8 @@ import com.google.android.material.snackbar.Snackbar
 class CetActivity : FullScreenActivity() {
     private lateinit var binding: ActivityCetBinding
     private val webView: WebView by lazy { binding.webView }
+    private val back:ImageView by lazy { binding.back }
     private val progressBar: ProgressBar by lazy { binding.progressBar }
-    private val toolBar: Toolbar by lazy { binding.toolbar }
     private val initialUrl = "https://cjcx.neea.edu.cn/html1/folder/21033/653-1.htm"
 
 
@@ -45,8 +46,7 @@ class CetActivity : FullScreenActivity() {
             )
             WindowInsetsCompat.CONSUMED
         }
-
-        toolBar.setOnClickListener { finish() }
+        back.setOnClickListener{finish()}
         setupWebView()
     }
 

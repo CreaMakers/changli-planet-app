@@ -148,8 +148,5 @@ class AddCourseActivity : FullScreenActivity() {
             setResult(RESULT_OK, intent)
             finish()
         }
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
-        }
     }
 }

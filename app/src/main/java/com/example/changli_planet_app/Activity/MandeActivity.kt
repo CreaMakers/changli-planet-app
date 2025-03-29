@@ -12,6 +12,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.addCallback
@@ -29,8 +30,8 @@ import com.google.android.material.snackbar.Snackbar
 class MandeActivity : FullScreenActivity() {
     private lateinit var binding: ActivityMandeBinding
     private val webView: WebView by lazy { binding.webView }
+    private val back:ImageView by lazy { binding.back }
     private val progressBar: ProgressBar by lazy { binding.progressBar }
-    private val toolBar: Toolbar by lazy { binding.toolbar }
     private val initialUrl = "https://zwfw.moe.gov.cn/mandarin/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +53,7 @@ class MandeActivity : FullScreenActivity() {
         onBackPressedDispatcher.addCallback(this) {
             webView.goBack()
         }
-        toolBar.setOnClickListener { finish() }
+        back.setOnClickListener{finish()}
     }
 
     private fun setupWebView() {

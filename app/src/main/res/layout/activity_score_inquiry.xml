@@ -7,11 +7,15 @@
     android:background="#F9FAFB"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
+    <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:background="#E8F3FE"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:orientation="horizontal"
         android:elevation="4dp"
         app:titleTextColor="@android:color/white">
 
@@ -23,10 +27,11 @@
             android:src="@drawable/blue_left_back" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_gravity="center"
-            android:layout_marginStart="5dp"
+            android:gravity="center"
             android:text="成绩查询"
             android:textColor="#4C81CE"
             android:textSize="24sp"
@@ -36,11 +41,12 @@
             android:id="@+id/refresh"
             android:layout_width="28dp"
             android:layout_height="28dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="4dp"
             android:layout_gravity="center|end"
-            android:layout_marginEnd="20dp"
             android:src="@drawable/shuaxin" />
 
-    </androidx.appcompat.widget.Toolbar>
+    </LinearLayout>
 
 
     <androidx.cardview.widget.CardView

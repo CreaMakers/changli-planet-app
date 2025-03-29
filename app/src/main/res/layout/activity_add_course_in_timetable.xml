@@ -8,10 +8,14 @@
     android:orientation="vertical"
     tools:context=".Activity.AddCourseActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:orientation="horizontal"
         android:background="#93DAED">
 
         <ImageButton
@@ -22,13 +26,20 @@
             android:background="?attr/selectableItemBackground"
             />
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
             android:text="自 定 义 课 表"
             android:textColor="#ffffff"
             android:textSize="22sp" />
-    </androidx.appcompat.widget.Toolbar>
+        <!-- 添加一个空视图来平衡布局，使标题居中 -->
+        <View
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:visibility="invisible" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
