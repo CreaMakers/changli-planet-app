@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.FileProvider
+import com.example.changli_planet_app.Base.BaseDialog
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.View.CustomToast
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +32,7 @@ class UpdateDialog(
     context: Context,
     private val updateContent: String,
     private val apkUrl: String
-) : Dialog(context) {
+) : BaseDialog(context) {
     private lateinit var progressBar: ProgressBar
     private lateinit var progressText: TextView
     private lateinit var progressLayout: LinearLayout
@@ -41,14 +42,10 @@ class UpdateDialog(
     private var downloadJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
 
-    init {
+    override fun init() {
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setWindowAnimations(R.style.DialogAnimation)
-    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.update_dialog)
         findViewById<TextView>(R.id.update_content).text = updateContent
         progressBar = findViewById(R.id.progress_bar)
         progressText = findViewById(R.id.progress_text)
@@ -64,6 +61,8 @@ class UpdateDialog(
             dismiss()
         }
     }
+
+    override fun layoutId(): Int =R.layout.update_dialog
 
     private fun startDownload() {
         progressLayout.visibility = View.VISIBLE

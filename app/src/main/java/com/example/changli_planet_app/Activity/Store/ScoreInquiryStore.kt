@@ -239,21 +239,23 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
 
         if (!flag) {
             handler.post {
-                ScoreDetailDialog(
-                    context = context,
-                    content = "暂无平时成绩",
-                    titleContent = courseName
-                ).show()
+//                ScoreDetailDialog(
+//                    context = context,
+//                    content = "暂无平时成绩",
+//                    titleContent = courseName
+//                ).show()
+                ScoreDetailDialog.showDialog(context,"暂无平时成绩",courseName)
             }
         } else {
             val detailsString = contentBuilder.toString()
             ScoreCache.saveGradesDetailByUrl(pscjUrl, detailsString)
             handler.post {
-                ScoreDetailDialog(
-                    context = context,
-                    content = detailsString,
-                    titleContent = courseName
-                ).show()
+//                ScoreDetailDialog(
+//                    context = context,
+//                    content = detailsString,
+//                    titleContent = courseName
+//                ).show()
+                ScoreDetailDialog.showDialog(context,detailsString,courseName)
             }
         }
     }

@@ -81,11 +81,12 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
 
                             else -> {
                                 handler.post {
-                                    LoginInformationDialog(
-                                        action.context,
-                                        fromJson.msg,
-                                        "登陆失败"
-                                    ).show()
+//                                    LoginInformationDialog(
+//                                        action.context,
+//                                        fromJson.msg,
+//                                        "登陆失败"
+//                                    ).show()
+                                    LoginInformationDialog.showDialog(action.context,fromJson.msg,"登陆失败")
                                 }
                             }
                         }
@@ -114,11 +115,12 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                             }
                         } else {
                             handler.post {
-                                LoginInformationDialog(
-                                    action.context,
-                                    fromJson.msg,
-                                    "注册失败"
-                                ).show()
+//                                LoginInformationDialog(
+//                                    action.context,
+//                                    fromJson.msg,
+//                                    "注册失败"
+//                                ).show()
+                                LoginInformationDialog.showDialog(action.context,fromJson.msg,"注册失败")
                             }
                         }
                     }

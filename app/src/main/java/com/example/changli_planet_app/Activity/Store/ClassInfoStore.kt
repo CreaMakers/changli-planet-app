@@ -89,10 +89,7 @@ class ClassInfoStore : Store<ClassInfoState, ClassInfoAction>() {
                         when (fromJson.code) {
                             "200" -> {
                                 handler.post {
-                                    EmptyClassroomDialog(
-                                        action.context,
-                                        fromJson.data
-                                    ).show()
+                                    EmptyClassroomDialog.showDialog(action.context,fromJson.data)
                                 }
                             }
 

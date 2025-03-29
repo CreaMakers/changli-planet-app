@@ -29,11 +29,12 @@ class CourseViewHolder(
 
         binding.scoreItemLayout.setOnClickListener {
             if (courseScore.pscjUrl == null) {
-                ScoreDetailDialog(
-                    context = context,
-                    content = "暂无平时成绩",
-                    titleContent = courseScore.name
-                ).show()
+//                ScoreDetailDialog(
+//                    context = context,
+//                    content = "暂无平时成绩",
+//                    titleContent = courseScore.name
+//                ).show()
+                ScoreDetailDialog.showDialog(context,"暂无平时成绩",courseScore.name)
             } else {
                 val cacheDetail = ScoreCache.getGradesDetailByUrl(courseScore.pscjUrl)
                 if (cacheDetail.isEmpty()) {
@@ -45,11 +46,12 @@ class CourseViewHolder(
                         )
                     )
                 } else {
-                    ScoreDetailDialog(
-                        context = context,
-                        content = cacheDetail,
-                        titleContent = courseScore.name
-                    ).show()
+//                    ScoreDetailDialog(
+//                        context = context,
+//                        content = cacheDetail,
+//                        titleContent = courseScore.name
+//                    ).show()
+                    ScoreDetailDialog.showDialog(context,cacheDetail,courseScore.name)
                 }
             }
         }

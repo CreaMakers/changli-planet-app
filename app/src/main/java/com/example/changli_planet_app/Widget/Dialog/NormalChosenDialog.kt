@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.TextView
+import com.example.changli_planet_app.Base.BaseDialog
 import com.example.changli_planet_app.R
 
 class NormalChosenDialog(
@@ -13,20 +14,16 @@ class NormalChosenDialog(
     val content: String,
     val type: String, private val onConfirm: () -> Unit
 ) :
-    Dialog(context) {
+    BaseDialog(context) {
     private lateinit var yes: TextView
     private lateinit var no: TextView
     private lateinit var contents: TextView
     private lateinit var fade: TextView
 
-    init {
+    override fun init() {
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setWindowAnimations(R.style.DialogAnimation)
-    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.normal_chosen_dialog)
         contents = findViewById(R.id.content)
         contents.text = content
         yes = findViewById(R.id.chosen_yes)
@@ -41,4 +38,6 @@ class NormalChosenDialog(
         fade = findViewById(R.id.fade)
         fade.text = type
     }
+
+    override fun layoutId(): Int =R.layout.normal_chosen_dialog
 }

@@ -6,7 +6,7 @@ import android.view.View
 import com.github.gzuliyujiang.wheelpicker.LinkagePicker
 import com.github.gzuliyujiang.wheelpicker.contract.LinkageProvider
 
-class LessonPicker(activity: Activity) {
+class LessonPicker(activity: Activity,start: Int,end: Int) {
     private val picker = LinkagePicker(activity)
     private val totalLessons = 10
 
@@ -57,7 +57,7 @@ class LessonPicker(activity: Activity) {
         picker.setData(linkageProvider)
 
         // 设置默认值
-        picker.setDefaultValue("第1节", "第1节", null)
+        picker.setDefaultValue("第${start}节", "第${end}节", null)
 
         // 设置选择监听
         picker.setOnLinkagePickedListener { first, second, _ ->

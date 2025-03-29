@@ -18,7 +18,16 @@ class EmptyClassroomDialog(
     val list: List<String>,
 ) :
     Dialog(context) {
+    companion object{
+        private var currentDialog:EmptyClassroomDialog?=null
 
+        fun showDialog(context: Context,list: List<String>){
+            if(currentDialog==null){                                  //只有当前页面没有Dialog时才创造实例，防止多个实例
+                currentDialog= EmptyClassroomDialog(context,list)
+                currentDialog?.show()
+            }
+        }
+    }
     private lateinit var yes: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: EmptyClassroomAdapter
@@ -43,5 +52,10 @@ class EmptyClassroomDialog(
         yes.setOnClickListener {
             dismiss()
         }
+    }
+
+    override fun dismiss() {
+        super.dismiss()
+        currentDialog=null
     }
 }

@@ -198,12 +198,14 @@ class ClassInfoActivity : FullScreenActivity() {
             val hour2=calendar.get(Calendar.HOUR_OF_DAY)
             val minute2=calendar.get(Calendar.MINUTE)
             if(hour2<hour1||hour2==hour1&&minute2<=minute1){
-                store.dispatch(ClassInfoAction.UpdateStartAndEnd(value.toString(),(value+1).toString()))//如果当前时间在这节大课前面显示这节大课的节次
+                //如果当前时间在这节大课前面显示这节大课的节次
+                store.dispatch(ClassInfoAction.UpdateStartAndEnd(value.toString(),(value+1).toString()))
                 return
             }
         }
         val day=calendar.get(Calendar.DAY_OF_WEEK)
-        val nextDay=dayList[(day+5+1)%7]                //如果在19：30以后就显示明天
+        val nextDay=dayList[(day+5+1)%7]                //如果在最后一节大课19：30以后就显示明天
+        store.dispatch(ClassInfoAction.UpdateStartAndEnd("1","2"))
         store.dispatch(ClassInfoAction.UpdateDay(nextDay))
     }
 
@@ -219,7 +221,10 @@ class ClassInfoActivity : FullScreenActivity() {
             clickWheel(regionList)
         }
         classLayout.setOnClickListener {
-            val lessonPicker = LessonPicker(this)
+            val lesson=classText.text.toString()
+            val startLesson= lesson[1]-'0'
+            val endLesson=lesson[5]-'0'
+            val lessonPicker = LessonPicker(this,startLesson,endLesson)
             lessonPicker.setOnLessonSelectedListener { start, end ->
                 store.dispatch(ClassInfoAction.UpdateStartAndEnd(start.toString(), end.toString()))
             }
