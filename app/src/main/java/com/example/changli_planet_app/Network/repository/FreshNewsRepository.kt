@@ -3,6 +3,8 @@ package com.example.changli_planet_app.Network.repository
 import android.util.Log
 import com.example.changli_planet_app.Network.NetApi.FreshNewsApi
 import com.example.changli_planet_app.Network.NetApi.toImagePart
+import com.example.changli_planet_app.Network.Resource
+import com.example.changli_planet_app.Network.Response.FreshNewsItem
 import com.example.changli_planet_app.Network.Response.FreshNews_Publish
 import com.example.changli_planet_app.Util.RetrofitUtils
 import com.google.gson.Gson
@@ -17,7 +19,7 @@ class FreshNewsRepository private constructor(){
     companion object{
         val instance by lazy {  FreshNewsRepository()}
     }
-    val service= lazy { RetrofitUtils.instance.create(FreshNewsApi::class.java) }
+    private val service= lazy { RetrofitUtils.instanceNewFresh.create(FreshNewsApi::class.java) }
 
     fun postFreshNews(images:List<File>,freshNews: FreshNews_Publish)= flow {
         Log.e("FreshNewsRepository","enter flow")
@@ -32,8 +34,22 @@ class FreshNewsRepository private constructor(){
             val FreshNewsBody= Gson().toJson(freshNews).toRequestBody("application/json".toMediaType())
             emit(service.value.postFreshNews(imagesPart,FreshNewsBody))
         }catch (e:Exception){
-            Log.e("Repository", "Error: ${e.message}")
-            throw e
+            e.printStackTrace()
+        }
+    }
+
+    fun getNewsListByTime(page:Int,pageSize:Int)= flow{
+        val freshNewsResponse=service.value.getNewsListByTime(page,pageSize)
+        when(freshNewsResponse.code){
+            "200"->{
+                val freshNewsList=freshNewsResponse.data
+                freshNewsList?.forEach{freshNews->
+                    emit(freshNews)
+                }
+            }
+            else->{
+                emit(Resource.Error<FreshNewsItem>(freshNewsResponse.msg))
+            }
         }
     }
 }

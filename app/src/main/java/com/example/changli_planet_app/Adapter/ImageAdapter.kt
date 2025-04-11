@@ -1,28 +1,57 @@
 package com.example.changli_planet_app.Adapter
 
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import com.example.changli_planet_app.Core.GlideApp
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.GlideUtils
 
 class ImageAdapter(
-    private val imageList: List<String>,
+    private val imageList: List<String?>,
     private val onImageClick: (String) -> Unit
 ) : RecyclerView.Adapter<ImageAdapter.ViewModel>() {
 
     inner class ViewModel(val view: View) : RecyclerView.ViewHolder(view) {
         private val imageView: ImageView = view.findViewById(R.id.item_image_view)
 
-        fun bind(imageUrl: String) {
-            GlideUtils.load(
-                view,
-                imageView,
-                imageUrl
-            )
-            imageView.setOnClickListener { onImageClick(imageUrl) }
+        fun bind(imageUrl: String?) {
+            imageUrl?.let{
+                GlideApp.with(view)
+                    .load(imageUrl)
+                    .listener(object:RequestListener<Drawable>{
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: Target<Drawable>,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            imageView.visibility=View.GONE
+                            return true    //如果加载的图片已损坏，则不显示图片
+                        }
+
+                        override fun onResourceReady(
+                            resource: Drawable,
+                            model: Any,
+                            target: Target<Drawable>?,
+                            dataSource: DataSource,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            imageView.setOnClickListener { onImageClick(imageUrl) }
+                            return false
+                        }
+                    })
+                    .into(imageView)
+            }
         }
     }
 

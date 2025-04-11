@@ -1,19 +1,19 @@
 package com.example.changli_planet_app.Network.Response
 
 data class FreshNews(
-    val fresh_news_id: Int,
-    val user_id: Int,
+    val freshNewsId: Int,
+    val userId: Int,
     val title: String,
     val content: String,
     val images: List<String>,
     val tags: List<String>,
     val liked: Int,
     val comments: Int,
-    val create_time: String,
-    val update_time: String,
-    val is_deleted: Int,
-    val allow_comments: Int,
-    val favorites_count: Int
+    val createTime: String,
+    val updateTime: String,
+    val isDeleted: Int,
+    val allowComments: Int,
+    val favoritesCount: Int
 )
 
 data class FreshNewsItem(
@@ -22,7 +22,7 @@ data class FreshNewsItem(
     val authorAvatar: String,
     val title: String,
     val content: String,
-    val images: List<String>,
+    val images: List<String?>,
     val tags: List<String>,
     val liked: Int,
     val comments: Int,

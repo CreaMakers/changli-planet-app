@@ -19,7 +19,8 @@ class FreshNewsItemViewModel(
             GlideUtils.load(context, newsItemAvatar, news.authorAvatar)
             newsItemUsername.text = news.authorName
             newsTitle.text=news.title
-            newsItemTime.text = "发布时间: ${news.createTime}"
+            val time=news.createTime.replace("T","   ").replace("Z"," ")
+            newsItemTime.text = "发布时间: $time"
             newsContent.text = news.content
 
             imagesRecyclerView.adapter = ImageAdapter(news.images, onImageClick)

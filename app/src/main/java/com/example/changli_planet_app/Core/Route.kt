@@ -6,7 +6,6 @@ import com.example.changli_planet_app.Activity.AccountSecurityActivity
 import com.example.changli_planet_app.Activity.BindingUserActivity
 import com.example.changli_planet_app.Activity.CampusMapActivity
 import com.example.changli_planet_app.Activity.CetActivity
-import com.example.changli_planet_app.Activity.CityActivity
 import com.example.changli_planet_app.Activity.ClassInfoActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.Activity.ExamArrangementActivity
@@ -15,7 +14,7 @@ import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.MandeActivity
 import com.example.changli_planet_app.Activity.PublishFoundThingActivity
-import com.example.changli_planet_app.Activity.PublishFreshNews
+import com.example.changli_planet_app.Activity.PublishFreshNewsActivity
 import com.example.changli_planet_app.Activity.PublishLoseThingActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
 import com.example.changli_planet_app.Activity.ScoreInquiryActivity
@@ -138,7 +137,7 @@ object Route {
     }
 
     fun goPublishFreshNews(context: Context){
-        val intent=Intent(context,PublishFreshNews::class.java)
+        val intent=Intent(context,PublishFreshNewsActivity::class.java)
         context.startActivity(intent)
     }
 }

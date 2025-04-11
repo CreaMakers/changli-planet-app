@@ -19,18 +19,9 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.view.LayoutInflaterCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.marginBottom
-import androidx.core.view.marginEnd
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -40,16 +31,13 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.changli_planet_app.Activity.Contract.FreshNewsContract
 import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
-import com.example.changli_planet_app.Adapter.ImageAdapter
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.GlideUtils
 import com.example.changli_planet_app.Widget.Dialog.PhotoPickerDialog
 import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.databinding.ActivityPublishFreshNewsBinding
 import com.google.android.flexbox.FlexboxLayout
-import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -62,7 +50,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class PublishFreshNews : FullScreenActivity() {
+class PublishFreshNewsActivity : FullScreenActivity() {
     private lateinit var binding:ActivityPublishFreshNewsBinding
     private lateinit var viewModel:FreshNewsViewModel
     private var currentPhotoUri: Uri? = null

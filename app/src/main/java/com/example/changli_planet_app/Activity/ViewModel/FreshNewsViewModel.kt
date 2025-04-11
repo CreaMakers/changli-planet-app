@@ -2,6 +2,7 @@ package com.example.changli_planet_app.Activity.ViewModel
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 
 import com.example.changli_planet_app.Activity.Contract.FreshNewsContract
@@ -9,35 +10,20 @@ import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.CoroutineContext.ErrorCoroutineContext
 import com.example.changli_planet_app.Core.MVI.MviViewModel
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Network.HttpUrlHelper
-import com.example.changli_planet_app.Network.OkHttpHelper
-import com.example.changli_planet_app.Network.RequestCallback
+import com.example.changli_planet_app.Data.jsonbean.UserDisplayInformation
 import com.example.changli_planet_app.Network.Resource
+import com.example.changli_planet_app.Network.Response.FreshNews
 import com.example.changli_planet_app.Network.Response.FreshNewsItem
-import com.example.changli_planet_app.Network.Response.FreshNewsResponse
 import com.example.changli_planet_app.Network.Response.FreshNews_Publish
-import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.repository.FreshNewsRepository
+import com.example.changli_planet_app.Network.repository.UserProfileRepository
 import com.example.changli_planet_app.Widget.View.CustomToast
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.flow.catch
+import com.example.changli_planet_app.Network.Response.UserProfile
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
-import okio.IOException
 import org.greenrobot.eventbus.EventBus
 import java.io.File
-import kotlinx.coroutines.launch
 
 class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
 
@@ -48,13 +34,11 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.RemoveImage->removeImage(intent.index)
             is FreshNewsContract.Intent.Publish->publish()
             is FreshNewsContract.Intent.ClearAll->clearAll()
-            is FreshNewsContract.Intent.Refresh->refresh()
+            is FreshNewsContract.Intent.RefreshNewsByTime->refreshNewsByTime(intent.page,intent.pageSize)
             is FreshNewsContract.Intent.UpdateTabIndex -> changeCurrentTab(intent.currentIndex)
 
 
-            is FreshNewsContract.Intent.Initialization -> {
-
-            }
+            is FreshNewsContract.Intent.Initialization -> {}
         }
 
     }
@@ -216,32 +200,47 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
         }
     }
 
-    private fun refresh(){
+    private fun refreshNewsByTime(page:Int,pageSize:Int){
         viewModelScope.launch {
-            val httpUrlHelper=HttpUrlHelper.HttpRequest()
-                .get(PlanetApplication.FreshNewsIp+"/all/by_time")
-                .addQueryParam("page",state.value.page++.toString())
-                .build()
-            OkHttpHelper.sendRequest(httpUrlHelper,object :RequestCallback{
-                override fun onSuccess(response: Response) {
-                    val formJson=OkHttpHelper.gson.fromJson(response.body?.string(),FreshNewsResponse::class.java)
-                    when(formJson.code){
-                        "200"->{
-                            updateState {
-                                copy(
-                                    //freshNewsList = Resource.Success(formJson.data)
-                                )
+            val result=FreshNewsRepository.instance.getNewsListByTime(page,pageSize)
+            val freshNewsItemList:MutableList<FreshNewsItem> = mutableListOf()
+            result.collect{response->
+                when(response){
+                    is FreshNews->{
+                        val freshNews=response as FreshNews
+                        val id=freshNews.userId
+                        val userProfile=UserProfileRepository.instance.getUserInformationById(id)
+                        userProfile.collect{userResponse->
+                            when(userResponse.code){
+                                "200"->{
+                                    val profile=userResponse.data
+                                    val freshNewsItem=FreshNewsItem(
+                                        freshNewsId = freshNews.freshNewsId,
+                                        authorName = freshNews.userId.toString(),    //暂时用id代替用户名
+                                        authorAvatar = profile.avatarUrl,
+                                        title = freshNews.title,
+                                        content = freshNews.content,
+                                        images = freshNews.images,
+                                        tags = freshNews.tags,
+                                        liked = freshNews.liked,
+                                        createTime = freshNews.createTime,
+                                        comments = freshNews.comments,
+                                        allowComments = freshNews.allowComments,
+                                        favoritesCount = freshNews.favoritesCount
+                                    )
+                                    freshNewsItemList.add(freshNewsItem)
+                                }
                             }
                         }
                     }
+                    else->CustomToast.showMessage(PlanetApplication.appContext,"刷新失败")
                 }
-
-                override fun onFailure(error: String) {
-
-                }
-
-            })
-
+            }
+            updateState {
+                copy(
+                    freshNewsList = Resource.Success(freshNewsItemList)
+                )
+            }
         }
     }
 

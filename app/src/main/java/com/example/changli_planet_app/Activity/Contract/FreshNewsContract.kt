@@ -16,7 +16,7 @@ class FreshNewsContract {
         class RemoveImage(val index:Int):Intent()
         class Publish():Intent()
         class ClearAll():Intent()
-        class Refresh():Intent()
+        class RefreshNewsByTime(val page: Int,val pageSize:Int):Intent()
         class UpdateTabIndex(val currentIndex: Int) : Intent()
         class Initialization(): Intent()
     }
