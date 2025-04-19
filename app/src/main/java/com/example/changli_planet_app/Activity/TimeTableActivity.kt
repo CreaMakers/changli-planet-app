@@ -40,9 +40,11 @@ import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
+import com.example.changli_planet_app.Interface.ScrollController
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.TimetableWheelBottomDialog
+import com.example.changli_planet_app.Widget.View.ScrollTimeTableView
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.example.changli_planet_app.databinding.CourseinfoDialogBinding
 import com.google.android.material.snackbar.Snackbar
@@ -76,7 +78,7 @@ class TimeTableActivity : FullScreenActivity() {
     private val courseWeek by lazy { binding.courseWeek }
     private var curDisplayWeek = 0
     private val binding by lazy { ActivityTimeTableBinding.inflate(layoutInflater) }
-    private val timetableView: TimetableView by lazy { binding.timetableView }
+    private val timetableView: ScrollTimeTableView by lazy { binding.timetableView }
     private lateinit var dataBase: CoursesDataBase
     private val termList by lazy { generateTermsList() }
     private val timeTableStore: TimeTableStore by lazy {
@@ -240,6 +242,7 @@ class TimeTableActivity : FullScreenActivity() {
             buildItemText()//按要求显示课程信息
             addCourse()    //添加自定义课程
             longClickToDeleteCourse()
+            setScrollListener()//设置左右滑动的监听
         }
 
         findViewById<ImageButton>(R.id.courseRefresh).setOnClickListener {
@@ -269,30 +272,31 @@ class TimeTableActivity : FullScreenActivity() {
 //        binding.courseTerm.setOnClickListener {
 //            ClickWheel(termList)
 //        }
-        timetableView.findViewById<View>(com.zhuangfei.android_timetableview.sample.R.id.contentPanel)
-            .setOnTouchListener { _, event ->
-                gestureDetector.onTouchEvent(event)
-                true
-            }
-        timetableView.callback(object : OnScrollViewBuildAdapter() {
-            override fun getScrollView(mInflate: LayoutInflater?): View {
-                // 创建一个自定义的滚动视图
-                val customScrollView = HorizontalScrollView(timetableView.context).apply {
-                    // 添加触摸事件监听
-                    setOnTouchListener { _, event ->
-                        gestureDetector.onTouchEvent(event) // 将触摸事件传递给 GestureDetector
-                        true // 消费事件
-                    }
-                }
-                // 使用原本的课程内容视图
-                val courseContentView = super.getScrollView(mInflate)
 
-                // 将课程内容视图添加到自定义滚动视图中
-                customScrollView.addView(courseContentView)
-
-                return customScrollView
-            }
-        })
+//        timetableView.findViewById<View>(com.zhuangfei.android_timetableview.sample.R.id.contentPanel)
+//            .setOnTouchListener { _, event ->
+//                gestureDetector.onTouchEvent(event)
+//                true
+//            }
+//        timetableView.callback(object : OnScrollViewBuildAdapter() {
+//            override fun getScrollView(mInflate: LayoutInflater?): View {
+//                // 创建一个自定义的滚动视图
+//                val customScrollView = HorizontalScrollView(timetableView.context).apply {
+//                    // 添加触摸事件监听
+//                    setOnTouchListener { _, event ->
+//                        gestureDetector.onTouchEvent(event) // 将触摸事件传递给 GestureDetector
+//                        true // 消费事件
+//                    }
+//                }
+//                // 使用原本的课程内容视图
+//                val courseContentView = super.getScrollView(mInflate)
+//
+//                // 将课程内容视图添加到自定义滚动视图中
+//                customScrollView.addView(courseContentView)
+//
+//                return customScrollView
+//            }
+//        })
     }
 
     private fun getCurTerm(instance: Calendar): String {
@@ -514,46 +518,46 @@ class TimeTableActivity : FullScreenActivity() {
     }
 
     // 初始化 GestureDetector
-    private val gestureDetector by lazy {
-        GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            private val SWIPE_THRESHOLD = 100 // 最小滑动距离
-            private val SWIPE_VELOCITY_THRESHOLD = 100 // 最小滑动速度
-
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 == null || e2 == null) return false
-
-                val diffX = e2.x - e1.x // 横向滑动距离
-                val diffY = e2.y - e1.y // 纵向滑动距离
-
-                if (Math.abs(diffX) > Math.abs(diffY)) { // 判断是横向滑动
-                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffX > 0) {
-                            if (curDisplayWeek - 1 in 1..20)
-                                timeTableStore.dispatch(
-                                    TimeTableAction.selectWeek(
-                                        "第${curDisplayWeek - 1}周"
-                                    )
-                                ) // 右滑，切换到上一周
-                        } else {
-                            if (curDisplayWeek + 1 in 1..20)
-                                timeTableStore.dispatch(
-                                    TimeTableAction.selectWeek(
-                                        "第${curDisplayWeek + 1}周"
-                                    )
-                                ) // 左滑，切换到下一周
-                        }
-                        return true
-                    }
-                }
-                return false
-            }
-        })
-    }
+//    private val gestureDetector by lazy {
+//        GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+//            private val SWIPE_THRESHOLD = 100 // 最小滑动距离
+//            private val SWIPE_VELOCITY_THRESHOLD = 100 // 最小滑动速度
+//
+//            override fun onFling(
+//                e1: MotionEvent?,
+//                e2: MotionEvent,
+//                velocityX: Float,
+//                velocityY: Float
+//            ): Boolean {
+//                if (e1 == null || e2 == null) return false
+//
+//                val diffX = e2.x - e1.x // 横向滑动距离
+//                val diffY = e2.y - e1.y // 纵向滑动距离
+//
+//                if (Math.abs(diffX) > Math.abs(diffY)) { // 判断是横向滑动
+//                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+//                        if (diffX > 0) {
+//                            if (curDisplayWeek - 1 in 1..20)
+//                                timeTableStore.dispatch(
+//                                    TimeTableAction.selectWeek(
+//                                        "第${curDisplayWeek - 1}周"
+//                                    )
+//                                ) // 右滑，切换到上一周
+//                        } else {
+//                            if (curDisplayWeek + 1 in 1..20)
+//                                timeTableStore.dispatch(
+//                                    TimeTableAction.selectWeek(
+//                                        "第${curDisplayWeek + 1}周"
+//                                    )
+//                                ) // 左滑，切换到下一周
+//                        }
+//                        return true
+//                    }
+//                }
+//                return false
+//            }
+//        })
+//    }
 
     // 判断触摸事件是否在课程区域
     private fun isTouchInCourseArea(event: MotionEvent): Boolean {
@@ -572,15 +576,17 @@ class TimeTableActivity : FullScreenActivity() {
         return x in left..right && y in top..bottom
     }
 
-    // 重写触摸事件分发
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        event?.let {
-            if (isTouchInCourseArea(it)) {
-                gestureDetector.onTouchEvent(it) // 在课程区域时触发手势检测
-            }
-        }
-        return super.onTouchEvent(event)
-    }
+//    // 重写触摸事件分发
+//    override fun onTouchEvent(event: MotionEvent?): Boolean {
+//        event?.let {
+//            if (isTouchInCourseArea(it)) {
+//                if(gestureDetector.onTouchEvent(it)){ // 在课程区域时触发手势检测
+//                    return true
+//                }
+//            }
+//        }
+//        return super.onTouchEvent(event)
+//    }
 
 
     private fun generateTermsList(yearsBack: Int = 4): List<String> {
@@ -813,5 +819,24 @@ class TimeTableActivity : FullScreenActivity() {
         })
     }
 
+    private fun setScrollListener(){
+        timetableView.setScrollInterface(object :ScrollController{
+            override fun onScrollLast() {
+                timeTableStore.dispatch(
+                    TimeTableAction.selectWeek(
+                        "第${curDisplayWeek - 1}周"
+                    )
+                ) // 右滑，切换到上一周
+            }
+
+            override fun onScrollNext() {
+                timeTableStore.dispatch(
+                    TimeTableAction.selectWeek(
+                        "第${curDisplayWeek + 1}周"
+                    )
+                ) // 左滑，切换到下一周
+            }
+        })
+    }
 }
 
