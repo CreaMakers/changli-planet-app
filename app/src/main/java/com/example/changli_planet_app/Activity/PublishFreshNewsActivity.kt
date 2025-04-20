@@ -19,9 +19,11 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -34,6 +36,7 @@ import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Util.singleClick
 import com.example.changli_planet_app.Widget.Dialog.PhotoPickerDialog
 import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.databinding.ActivityPublishFreshNewsBinding
@@ -51,13 +54,13 @@ import java.util.Date
 import java.util.Locale
 
 class PublishFreshNewsActivity : FullScreenActivity() {
-    private lateinit var binding:ActivityPublishFreshNewsBinding
-    private lateinit var viewModel:FreshNewsViewModel
+    private lateinit var binding: ActivityPublishFreshNewsBinding
+    private val viewModel: FreshNewsViewModel by viewModels()
     private var currentPhotoUri: Uri? = null
-    private val maxImagesAll=9
-    private var maxImageSize:Int=-1
+    private val maxImagesAll = 9
+    private var maxImageSize: Int = -1
 
-    companion object{
+    companion object {
         private const val REQUEST_CAMERA = 1001
         private const val REQUEST_GALLERY = 1002
 
@@ -67,23 +70,21 @@ class PublishFreshNewsActivity : FullScreenActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding=ActivityPublishFreshNewsBinding.inflate(layoutInflater)
+        EventBus.getDefault().register(this)
+        binding = ActivityPublishFreshNewsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        viewModel=ViewModelProvider(this).get(FreshNewsViewModel::class.java)
-        maxImageSize=dpToPx(115)          //给maxImageSize赋addImage大小的初值
+        maxImageSize = dpToPx(115)          //给maxImageSize赋addImage大小的初值
 
         setContentMinHeight()
         setTextWatcher()
 
         lifecycleScope.launch {
-            viewModel.state.collect{state->
-                if(!state.isEnable){
+            viewModel.state.collect { state ->
+                if (!state.isEnable) {
                     binding.publish.setOnClickListener(null)
                     binding.publish.setBackgroundResource(R.drawable.un_enable_button)
-                }
-                else{
-                    binding.publish.setOnClickListener{
+                } else {
+                    binding.publish.singleClick(delay = 3000) {
                         viewModel.processIntent(FreshNewsContract.Intent.Publish())
                     }
                     binding.publish.setBackgroundResource(R.drawable.enable_button)
@@ -91,21 +92,16 @@ class PublishFreshNewsActivity : FullScreenActivity() {
             }
         }
 
-        binding.addImage.setOnClickListener{
-            if(binding.flexContainer.childCount-1<maxImagesAll) addImage()
-            else CustomToast.showMessage(PlanetApplication.appContext,"最多只能添加9张图片哦~")
+        binding.addImage.setOnClickListener {
+            if (binding.flexContainer.childCount - 1 < maxImagesAll) addImage()
+            else CustomToast.showMessage(PlanetApplication.appContext, "最多只能添加9张图片哦~")
         }
 
 
-        binding.cancel.setOnClickListener{
+        binding.cancel.setOnClickListener {
             viewModel.processIntent(FreshNewsContract.Intent.ClearAll())
             finish()
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
     }
 
     override fun onStop() {
@@ -114,14 +110,14 @@ class PublishFreshNewsActivity : FullScreenActivity() {
     }
 
     @Subscribe
-    public fun closeActivity(event:FreshNewsContract.Event){
-        when(event){
+    public fun closeActivity(event: FreshNewsContract.Event) {
+        when (event) {
             FreshNewsContract.Event.closePublish -> finish()
-            else->{}
+            else -> {}
         }
     }
 
-    private fun addImage(){
+    private fun addImage() {
         PhotoPickerDialog(
             this,
             onGalleryClick = { checkGalleryPermission() },
@@ -129,28 +125,38 @@ class PublishFreshNewsActivity : FullScreenActivity() {
         ).show()
     }
 
-    private fun setContentMinHeight(){                  //设置内容输入框的最小高度
+    private fun setContentMinHeight() {                  //设置内容输入框的最小高度
         // 获取屏幕高度
         val displayMetrics = resources.displayMetrics
         val screenHeight = displayMetrics.heightPixels
 
-        binding.content.minHeight=screenHeight/3
+        binding.content.minHeight = screenHeight / 3
     }
 
-    private fun setTextWatcher(){
-        val titleTextWatcher=object :TextWatcher{
+    private fun setTextWatcher() {
+        val titleTextWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                viewModel.processIntent(FreshNewsContract.Intent.InputMessage(binding.title.text.toString(),"title"))
+                viewModel.processIntent(
+                    FreshNewsContract.Intent.InputMessage(
+                        binding.title.text.toString(),
+                        "title"
+                    )
+                )
             }
         }
 
-        val contentTextWatcher= object : TextWatcher {
+        val contentTextWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                viewModel.processIntent(FreshNewsContract.Intent.InputMessage(binding.content.text.toString(),"content"))
+                viewModel.processIntent(
+                    FreshNewsContract.Intent.InputMessage(
+                        binding.content.text.toString(),
+                        "content"
+                    )
+                )
             }
         }
         binding.title.addTextChangedListener(titleTextWatcher)
@@ -306,51 +312,57 @@ class PublishFreshNewsActivity : FullScreenActivity() {
         }
     }
 
-    private fun insertImage(sourceUri: Uri){
-        val imageView=createImageView(sourceUri)
-        val insertPosition=binding.flexContainer.indexOfChild(binding.addImage)
-        binding.flexContainer.addView(imageView,insertPosition)
+    private fun insertImage(sourceUri: Uri) {
+        val imageView = createImageView(sourceUri)
+        val insertPosition = binding.flexContainer.indexOfChild(binding.addImage)
+        binding.flexContainer.addView(imageView, insertPosition)
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val compressFile=compressImage(sourceUri)
-            withContext(Dispatchers.Main){
+            val compressFile = compressImage(sourceUri)
+            withContext(Dispatchers.Main) {
                 viewModel.processIntent(FreshNewsContract.Intent.AddImage(compressFile))
             }
         }
     }
 
-    private fun createImageView(uri:Uri): View {
-        return LayoutInflater.from(this).inflate(R.layout.item_image_thumbnail,binding.flexContainer,false).apply {
-            layoutParams=FlexboxLayout.LayoutParams(
-                binding.addImage.layoutParams.width,
-                binding.addImage.layoutParams.height
-            ).apply {
-                //flexBasisPercent=0.3f
-                marginEnd=dpToPx(10)
-                bottomMargin=dpToPx(10)
-            }
+    private fun createImageView(uri: Uri): View {
+        return LayoutInflater.from(this)
+            .inflate(R.layout.item_image_thumbnail, binding.flexContainer, false).apply {
+                layoutParams = FlexboxLayout.LayoutParams(
+                    binding.addImage.layoutParams.width,
+                    binding.addImage.layoutParams.height
+                ).apply {
+                    //flexBasisPercent=0.3f
+                    marginEnd = dpToPx(10)
+                    bottomMargin = dpToPx(10)
+                }
 
 //            findViewById<ImageView>(R.id.ivThumbnail).setImageURI(uri)
-            val progressBar=findViewById<ProgressBar>(R.id.progressBar)
-            val imageView=findViewById<ImageView>(R.id.ivThumbnail)
-            loadImageURI(uri,progressBar,imageView)                             //之前遇到一个bug，加载的图片为null
-            findViewById<ImageButton>(R.id.btnDelete).setOnClickListener{
-                removeImageView(this)
+                val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+                val imageView = findViewById<ImageView>(R.id.ivThumbnail)
+                loadImageURI(
+                    uri,
+                    progressBar,
+                    imageView
+                )                             //之前遇到一个bug，加载的图片为null
+                findViewById<ImageButton>(R.id.btnDelete).setOnClickListener {
+                    removeImageView(this)
+                }
             }
-        }
     }
-    private fun loadImageURI(uri: Uri,progressBar:ProgressBar,imageView: ImageView){
+
+    private fun loadImageURI(uri: Uri, progressBar: ProgressBar, imageView: ImageView) {
         Glide.with(this)
             .load(uri)
-            .listener(object :RequestListener<Drawable>{
+            .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
                     target: Target<Drawable>,
                     isFirstResource: Boolean
                 ): Boolean {
-                    imageView.visibility=View.GONE
-                    progressBar.visibility=View.VISIBLE
+                    imageView.visibility = View.GONE
+                    progressBar.visibility = View.VISIBLE
                     return false
                 }
 
@@ -361,8 +373,8 @@ class PublishFreshNewsActivity : FullScreenActivity() {
                     dataSource: DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
-                    imageView.visibility=View.VISIBLE
-                    progressBar.visibility=View.GONE
+                    imageView.visibility = View.VISIBLE
+                    progressBar.visibility = View.GONE
                     return false
                 }
             })
@@ -370,25 +382,25 @@ class PublishFreshNewsActivity : FullScreenActivity() {
             .into(imageView)
     }
 
-    private fun removeImageView(view:View){
+    private fun removeImageView(view: View) {
         binding.flexContainer.removeView(view)
-        val position=binding.flexContainer.indexOfChild(view)
-        if(position!=-1){
+        val position = binding.flexContainer.indexOfChild(view)
+        if (position != -1) {
             viewModel.processIntent(FreshNewsContract.Intent.RemoveImage(position))
         }
     }
 
-    private fun compressImage(uri: Uri):File{
+    private fun compressImage(uri: Uri): File {
         //获取图片原始尺寸
-        val options=BitmapFactory.Options().apply {
+        val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
         }
         contentResolver.openInputStream(uri)?.use {
-            BitmapFactory.decodeStream(it,null,options)
+            BitmapFactory.decodeStream(it, null, options)
         }
 
         //确实压缩比例
-        val scale=calculateInSampleSize(
+        val scale = calculateInSampleSize(
             options.outWidth,
             options.outHeight,
             maxImageSize,
@@ -397,36 +409,41 @@ class PublishFreshNewsActivity : FullScreenActivity() {
 
         //压缩图片
         options.apply {
-            inJustDecodeBounds=false
-            inSampleSize=scale
+            inJustDecodeBounds = false
+            inSampleSize = scale
         }
-        val bitmap=contentResolver.openInputStream(uri)?.use {
-            BitmapFactory.decodeStream(it,null,options)
-        }?:throw IOException("无法加载图片")
+        val bitmap = contentResolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(it, null, options)
+        } ?: throw IOException("无法加载图片")
 
         //创建临时文件并上传
-        val outputFile=File(cacheDir,"temp_${System.currentTimeMillis()}.png")
-        FileOutputStream(outputFile)?.use{out->
-            bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESS_QUALITY,out)
+        val outputFile = File(cacheDir, "temp_${System.currentTimeMillis()}.png")
+        FileOutputStream(outputFile)?.use { out ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESS_QUALITY, out)
             out.flush()
         }
         return outputFile
     }
 
 
-    private fun calculateInSampleSize(width:Int,height:Int,targetWidth:Int,targetHeight:Int):Int{
-        var scale=1
-        if(width>targetWidth||height>targetHeight){
-            val halfWidth=width/2
-            val halfHeight=height/2
-            while(halfWidth/scale>=targetWidth && halfHeight/scale>=targetHeight){
-                scale*=2
+    private fun calculateInSampleSize(
+        width: Int,
+        height: Int,
+        targetWidth: Int,
+        targetHeight: Int
+    ): Int {
+        var scale = 1
+        if (width > targetWidth || height > targetHeight) {
+            val halfWidth = width / 2
+            val halfHeight = height / 2
+            while (halfWidth / scale >= targetWidth && halfHeight / scale >= targetHeight) {
+                scale *= 2
             }
         }
         return scale
     }
 
-    private fun dpToPx(dp:Int):Int{
-        return (dp*resources.displayMetrics.density).toInt()
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 }

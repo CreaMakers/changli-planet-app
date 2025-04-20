@@ -62,7 +62,7 @@ class UpdateDialog(
         }
     }
 
-    override fun layoutId(): Int =R.layout.update_dialog
+    override fun layoutId(): Int = R.layout.update_dialog
 
     private fun startDownload() {
         progressLayout.visibility = View.VISIBLE

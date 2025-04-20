@@ -28,16 +28,18 @@ import java.io.File
 class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
 
     override fun processIntent(intent: FreshNewsContract.Intent) {
-        when(intent){
-            is FreshNewsContract.Intent.InputMessage -> inputMessage(intent.value,intent.type)
+        when (intent) {
+            is FreshNewsContract.Intent.InputMessage -> inputMessage(intent.value, intent.type)
             is FreshNewsContract.Intent.AddImage -> addImage(intent.file)
-            is FreshNewsContract.Intent.RemoveImage->removeImage(intent.index)
-            is FreshNewsContract.Intent.Publish->publish()
-            is FreshNewsContract.Intent.ClearAll->clearAll()
-            is FreshNewsContract.Intent.RefreshNewsByTime->refreshNewsByTime(intent.page,intent.pageSize)
+            is FreshNewsContract.Intent.RemoveImage -> removeImage(intent.index)
+            is FreshNewsContract.Intent.Publish -> publish()
+            is FreshNewsContract.Intent.ClearAll -> clearAll()
+            is FreshNewsContract.Intent.RefreshNewsByTime -> refreshNewsByTime(
+                intent.page,
+                intent.pageSize
+            )
+
             is FreshNewsContract.Intent.UpdateTabIndex -> changeCurrentTab(intent.currentIndex)
-
-
             is FreshNewsContract.Intent.Initialization -> {}
         }
 
@@ -62,40 +64,40 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
         }
     }
 
-    private fun inputMessage(value:Any,type:String){
+    private fun inputMessage(value: Any, type: String) {
         updateState {
-            when(type){
-                "title"->state.value.publishNews.title=value as String
-                "content"->state.value.publishNews.content=value as String
+            when (type) {
+                "title" -> state.value.publishNews.title = value as String
+                "content" -> state.value.publishNews.content = value as String
             }
             copy(
-                isEnable =checkEnable()
+                isEnable = checkEnable()
             )
         }
     }
 
-    private fun addImage(file:File){
+    private fun addImage(file: File) {
         updateState {
             state.value.images.add(file)
             copy()
         }
     }
 
-    private fun removeImage(index:Int){
+    private fun removeImage(index: Int) {
         updateState {
             state.value.images.removeAt(index)
             copy()
         }
     }
 
-    private fun checkEnable():Boolean= with(state.value.publishNews){
-        title.length>0&&content.length>0
+    private fun checkEnable(): Boolean = with(state.value.publishNews) {
+        title.isNotEmpty() && content.isNotEmpty()
     }
 
-    private fun publish(){
+    private fun publish() {
         viewModelScope.launch {
-            state.value.publishNews.user_id=UserInfoManager.userId
-            val handler=Handler(Looper.getMainLooper())
+            state.value.publishNews.user_id = UserInfoManager.userId
+            val handler = Handler(Looper.getMainLooper())
             /*val client= OkHttpClient()
 
             val requestBody= MultipartBody.Builder()
@@ -160,25 +162,27 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 }
             })
             */*/
-            val result= FreshNewsRepository.instance.postFreshNews(
+            val result = FreshNewsRepository.instance.postFreshNews(
                 state.value.images,
                 state.value.publishNews
             )
-            result.onEach{ response->
-                when(response.code){
-                    "200"->{
+            result.onEach { response ->
+                when (response.code) {
+                    "200" -> {
                         clearAll()
-                        cleanupTempFiles(state.value.images)                                //清理临时压缩文件
+                        cleanupTempFiles(state.value.images) //清理临时压缩文件
+                        EventBus.getDefault().post(FreshNewsContract.Event.RefreshNewsList)
                         EventBus.getDefault().post(FreshNewsContract.Event.closePublish)    //关闭发布界面
-                        handler.post{
+                        handler.post {
                             CustomToast.showMessage(
                                 PlanetApplication.appContext,
                                 "发布成功"
                             )
                         }
                     }
-                    else->{
-                        handler.post{
+
+                    else -> {
+                        handler.post {
                             CustomToast.showMessage(
                                 PlanetApplication.appContext,
                                 "发布失败"
@@ -190,7 +194,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
         }
     }
 
-    private fun clearAll(){
+    private fun clearAll() {
         updateState {
             copy(
                 images = mutableListOf(),
@@ -200,21 +204,21 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
         }
     }
 
-    private fun refreshNewsByTime(page:Int,pageSize:Int){
+    private fun refreshNewsByTime(page: Int, pageSize: Int) {
         viewModelScope.launch {
-            val result=FreshNewsRepository.instance.getNewsListByTime(page,pageSize)
-            val freshNewsItemList:MutableList<FreshNewsItem> = mutableListOf()
-            result.collect{response->
-                when(response){
-                    is FreshNews->{
-                        val freshNews=response as FreshNews
-                        val id=freshNews.userId
-                        val userProfile=UserProfileRepository.instance.getUserInformationById(id)
-                        userProfile.collect{userResponse->
-                            when(userResponse.code){
-                                "200"->{
-                                    val profile=userResponse.data
-                                    val freshNewsItem=FreshNewsItem(
+            val result = FreshNewsRepository.instance.getNewsListByTime(page, pageSize)
+            val freshNewsItemList: MutableList<FreshNewsItem> = mutableListOf()
+            result.collect { response ->
+                when (response) {
+                    is FreshNews -> {
+                        val freshNews = response as FreshNews
+                        val id = freshNews.userId
+                        val userProfile = UserProfileRepository.instance.getUserInformationById(id)
+                        userProfile.collect { userResponse ->
+                            when (userResponse.code) {
+                                "200" -> {
+                                    val profile = userResponse.data
+                                    val freshNewsItem = FreshNewsItem(
                                         freshNewsId = freshNews.freshNewsId,
                                         authorName = freshNews.userId.toString(),    //暂时用id代替用户名
                                         authorAvatar = profile.avatarUrl,
@@ -233,7 +237,8 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                             }
                         }
                     }
-                    else->CustomToast.showMessage(PlanetApplication.appContext,"刷新失败")
+
+                    else -> CustomToast.showMessage(PlanetApplication.appContext, "刷新失败")
                 }
             }
             updateState {

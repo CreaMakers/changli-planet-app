@@ -35,7 +35,7 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    viewBinding{
+    viewBinding {
         enable = true
     }
     packaging {
@@ -102,7 +102,7 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.8.2")
     // Fragment KTX 提供了 viewModels() 扩展函数
     implementation("androidx.fragment:fragment-ktx:1.6.2")
-
+    //滚轮
     implementation("com.github.gzu-liyujiang.AndroidPicker:Common:4.0.1")
     implementation("com.github.gzu-liyujiang.AndroidPicker:WheelPicker:4.0.1")
     //SwipeRefreshLayout
@@ -113,6 +113,11 @@ dependencies {
     implementation("io.github.scwang90:refresh-layout-kernel:3.0.0-alpha")
     implementation("io.github.scwang90:refresh-header-radar:3.0.0-alpha")
     implementation("io.github.scwang90:refresh-footer-classics:3.0.0-alpha")
+    // BRV，尝试一下
+    implementation("com.github.liangjingkanji:BRV:1.6.1")
+
+    // PDF库
+//    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha08")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

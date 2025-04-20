@@ -15,39 +15,46 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 
-class FreshNewsRepository private constructor(){
-    companion object{
-        val instance by lazy {  FreshNewsRepository()}
+class FreshNewsRepository private constructor() {
+    companion object {
+        val instance by lazy { FreshNewsRepository() }
     }
-    private val service= lazy { RetrofitUtils.instanceNewFresh.create(FreshNewsApi::class.java) }
 
-    fun postFreshNews(images:List<File>,freshNews: FreshNews_Publish)= flow {
-        Log.e("FreshNewsRepository","enter flow")
+    private val service = lazy { RetrofitUtils.instanceNewFresh.create(FreshNewsApi::class.java) }
+
+    fun postFreshNews(images: List<File>, freshNews: FreshNews_Publish) = flow {
+        Log.e("FreshNewsRepository", "enter flow")
         try {
-            val imagesPart=if(images.isNotEmpty()){
+            val imagesPart = if (images.isNotEmpty()) {
                 images.map { it.toImagePart("images") }
-            }else{
+            } else {
                 listOf(
-                    MultipartBody.Part.createFormData("images","",ByteArray(0).toRequestBody("application/octet-stream".toMediaType()))
+                    MultipartBody.Part.createFormData(
+                        "images",
+                        "",
+                        ByteArray(0).toRequestBody("application/octet-stream".toMediaType())
+                    )
                 )
             }
-            val FreshNewsBody= Gson().toJson(freshNews).toRequestBody("application/json".toMediaType())
-            emit(service.value.postFreshNews(imagesPart,FreshNewsBody))
-        }catch (e:Exception){
+            val FreshNewsBody =
+                Gson().toJson(freshNews).toRequestBody("application/json".toMediaType())
+            emit(service.value.postFreshNews(imagesPart, FreshNewsBody))
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun getNewsListByTime(page:Int,pageSize:Int)= flow{
-        val freshNewsResponse=service.value.getNewsListByTime(page,pageSize)
-        when(freshNewsResponse.code){
-            "200"->{
-                val freshNewsList=freshNewsResponse.data
-                freshNewsList?.forEach{freshNews->
+    fun getNewsListByTime(page: Int, pageSize: Int) = flow {
+        val freshNewsResponse = service.value.getNewsListByTime(page, pageSize)
+        when (freshNewsResponse.code) {
+            "200" -> {
+                val freshNewsList = freshNewsResponse.data
+                freshNewsList?.forEach { freshNews ->
                     emit(freshNews)
                 }
             }
-            else->{
+
+            else -> {
                 emit(Resource.Error<FreshNewsItem>(freshNewsResponse.msg))
             }
         }

@@ -162,36 +162,6 @@ object OkHttpHelper {
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
-//            .addInterceptor(Interceptor{chain ->
-//                val originalRequest = chain.request()
-//                // 添加Access Token
-//                val requestWithToken = originalRequest.newBuilder()
-//                    .addHeader("Authorization", "Bearer ${PlanetApplication.accessToken}")
-//                    .build()
-//                val response = chain.proceed(requestWithToken)
-//                try {
-//                    //检查是否401 Unauthorized
-//                    if (response.code == 401) {
-//                        synchronized(this) {
-//                            //刷新AccessToken
-//                            refreshAccessToken()
-//                            //重新请求
-//                            val retryRequest = originalRequest.newBuilder()
-//                                .addHeader(
-//                                    "Authorization",
-//                                    "Bearer ${PlanetApplication.accessToken}"
-//                                )
-//                                .build()
-//                            response.close()
-//                            return@Interceptor chain.proceed(retryRequest)
-//                        }
-//                    }
-//                    response
-//                }finally {
-//                    response.close()
-//                }
-//            })
-//            .addInterceptor(NoNetworkInterceptor())
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
             .addInterceptor(AuthInterceptor(object : AuthInterceptor.TokenExpiredHandler {
                 override fun onTokenExpired() {

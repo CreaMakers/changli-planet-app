@@ -25,6 +25,7 @@ import com.example.changli_planet_app.Network.Response.FreshNewsItem
 import com.example.changli_planet_app.Network.repository.FreshNewsRepository
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Util.GlideUtils
+import com.example.changli_planet_app.Widget.Dialog.ShowImageDialog
 import com.example.changli_planet_app.databinding.FragmentNewsBinding
 import com.google.android.material.tabs.TabLayout
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -33,19 +34,26 @@ import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
 class NewsFragment : Fragment() {
     private lateinit var binding: FragmentNewsBinding
-    private val refreshLayout:SmartRefreshLayout by lazy { binding.refreshLayout }
-    private val add:ImageView by lazy { binding.add }
-    private val recyclerView:RecyclerView by lazy { binding.newsRecyclerView }
+    private val refreshLayout: SmartRefreshLayout by lazy { binding.refreshLayout }
+    private val add: ImageView by lazy { binding.add }
+    private val recyclerView: RecyclerView by lazy { binding.newsRecyclerView }
     private val avatar by lazy { binding.newsAvatar }
     private val to: TabLayout by lazy { binding.to }
 
     private val viewModel: FreshNewsViewModel by viewModels()
     private lateinit var adapter: FreshNewsAdapter
-    private var page:Int=1
-    private val pageSize:Int=5
+    private var page: Int = 1
+    private val pageSize: Int = 5
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        EventBus.getDefault().register(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,15 +61,15 @@ class NewsFragment : Fragment() {
     ): View {
         binding = FragmentNewsBinding.inflate(layoutInflater)
         initObserve()
-        adapter=FreshNewsAdapter(
+        adapter = FreshNewsAdapter(
             PlanetApplication.appContext,
-            { imageUrl->showImageDialog(imageUrl) },
+            { imageUrl -> showImageDialog(imageUrl) },
             {}
         )
-        recyclerView.layoutManager=LinearLayoutManager(PlanetApplication.appContext)
-        recyclerView.adapter=adapter
+        recyclerView.layoutManager = LinearLayoutManager(PlanetApplication.appContext)
+        recyclerView.adapter = adapter
 
-        add.setOnClickListener{
+        add.setOnClickListener {
             Route.goPublishFreshNews(requireActivity())
         }
         return binding.root
@@ -74,12 +82,12 @@ class NewsFragment : Fragment() {
 
         refreshLayout.setOnRefreshListener(object : OnRefreshListener {
             override fun onRefresh(refreshLayout: RefreshLayout) {
-                refreshNewsList(page,pageSize)
-                if(refreshLayout.isRefreshing)refreshLayout.finishRefresh(10000)
+                refreshNewsList(page, pageSize)
+                if (refreshLayout.isRefreshing) refreshLayout.finishRefresh(10000)
                 //设置最长刷新时间为10s
             }
         })
-        refreshLayout.setOnLoadMoreListener(object :OnLoadMoreListener{
+        refreshLayout.setOnLoadMoreListener(object : OnLoadMoreListener {
             override fun onLoadMore(refreshLayout: RefreshLayout) {
                 refreshLayout.finishLoadMore(1000)
             }
@@ -91,9 +99,10 @@ class NewsFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.state.collect { state ->
-                        if(state.freshNewsList is Resource.Success<List<FreshNewsItem>>){
+                        if (state.freshNewsList is Resource.Success<List<FreshNewsItem>>) {
                             adapter.updateData((state.freshNewsList as Resource.Success<List<FreshNewsItem>>).data)
-                            if(refreshLayout.isRefreshing)refreshLayout.finishRefresh()
+                            if (refreshLayout.isRefreshing) refreshLayout.finishRefresh()
+                            recyclerView.smoothScrollToPosition(0) // 滚动到顶部
                             //更新完数据后结束刷新动画
                         }
                     }
@@ -114,21 +123,28 @@ class NewsFragment : Fragment() {
             }
     }
 
-    fun showImageDialog(imageUrl: String) {
-        val dialog = Dialog(requireContext())
-        dialog.setContentView(R.layout.dialog_image_preview)
-
-        val imageView = dialog.findViewById<ImageView>(R.id.preview_image_view)
-        GlideUtils.load(
-            this,
-            imageView,
-            imageUrl,
-            false
-        )
-        dialog.show()
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
     }
 
-    private fun refreshNewsList(page:Int,pageSize:Int){
-        viewModel.processIntent(FreshNewsContract.Intent.RefreshNewsByTime(page,pageSize))
+    @Subscribe
+    fun onRefreshEvent(event: FreshNewsContract.Event) {
+        when (event) {
+            is FreshNewsContract.Event.RefreshNewsList -> {
+                page = 1 // 重置页码
+                refreshLayout.autoRefresh() // 自动刷新
+            }
+
+            else -> {}
+        }
+    }
+
+    fun showImageDialog(imageUrl: String) {
+        ShowImageDialog(requireContext(), imageUrl).show()
+    }
+
+    private fun refreshNewsList(page: Int, pageSize: Int) {
+        viewModel.processIntent(FreshNewsContract.Intent.RefreshNewsByTime(page, pageSize))
     }
 }

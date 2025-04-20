@@ -11,27 +11,29 @@ import java.io.File
 
 class FreshNewsContract {
     sealed class Intent : MviIntent {
-        class InputMessage(val value:Any,val type:String):Intent()
-        class AddImage(val file: File):Intent()
-        class RemoveImage(val index:Int):Intent()
-        class Publish():Intent()
-        class ClearAll():Intent()
-        class RefreshNewsByTime(val page: Int,val pageSize:Int):Intent()
+        class InputMessage(val value: Any, val type: String) : Intent()
+        class AddImage(val file: File) : Intent()
+        class RemoveImage(val index: Int) : Intent()
+        class Publish() : Intent()
+        class ClearAll() : Intent()
+        class RefreshNewsByTime(val page: Int, val pageSize: Int) : Intent()
         class UpdateTabIndex(val currentIndex: Int) : Intent()
-        class Initialization(): Intent()
+        class Initialization() : Intent()
     }
 
     data class State(
         var currentTab: Int,
         var freshNewsList: Resource<List<FreshNewsItem>>,
-        var publishNews:FreshNews_Publish,
-        var images:MutableList<File>,
-        var isEnable:Boolean,
-        var page:Int,
+        var publishNews: FreshNews_Publish,
+        var images: MutableList<File>,
+        var isEnable: Boolean,
+        var page: Int,
     ) : MviViewState
 
     sealed class Event {
         object showOverlay : Event()
         object closePublish : Event()
+        object RefreshNewsList : FreshNewsContract.Event()
     }
+
 }
