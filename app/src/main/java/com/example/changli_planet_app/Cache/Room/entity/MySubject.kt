@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.Cache.Room
+package com.example.changli_planet_app.Cache.Room.entity
 
 import androidx.room.Entity
 import androidx.room.Ignore

@@ -1,10 +1,12 @@
-package com.example.changli_planet_app.Cache.Room
+package com.example.changli_planet_app.Cache.Room.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.changli_planet_app.Cache.Room.entity.MySubject
+import com.example.changli_planet_app.Cache.Room.dao.CourseDao
 import com.example.changli_planet_app.Cache.WeeksTypeConverter
 
 @Database(entities = [MySubject::class], version = 10, exportSchema = true)

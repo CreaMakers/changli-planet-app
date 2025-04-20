@@ -203,10 +203,12 @@
                     android:layout_weight="1"
                     app:itemTitle="空闲教室" />
 
-                <Space
+                <com.example.changli_planet_app.Widget.View.FunctionItem
+                    android:id="@+id/ndocument"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    app:itemTitle="文件库" />
             </LinearLayout>
         </LinearLayout>
 

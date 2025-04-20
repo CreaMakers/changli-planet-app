@@ -81,6 +81,7 @@ class UserProfileActivity : FullScreenActivity() {
     private val avatar by lazy { binding.userProfileAvatar }
     private val back by lazy { binding.personProfileBack }
 
+    private val username by lazy { binding.userProfileUsername }
     private val account by lazy { binding.userProfileName }
     private val bio by lazy { binding.userProfileBio }
     private val grade by lazy { binding.userProfileGrade }
@@ -126,8 +127,8 @@ class UserProfileActivity : FullScreenActivity() {
         binding = ActivityUserProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
-            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
                 view.paddingLeft,
                 insets.top,
@@ -155,6 +156,8 @@ class UserProfileActivity : FullScreenActivity() {
         // 头像去store中再填
         val userProfileRequest = UserProfileRequest(
             bio = bio.text.toString(),
+            username = username.text.toString(),
+            account = account.text.toString(),
             gender = when (gender.text.toString()) {
                 "男" -> 0
                 "女" -> 1
@@ -175,7 +178,9 @@ class UserProfileActivity : FullScreenActivity() {
                 .subscribe { state ->
                     val userProfile = state.userProfile
                     loadAvatar(state.avatarUri)
-                    account.text = UserInfoManager.username
+                    username.text = state.userProfile.username
+                    account.setText(state.userProfile.account)
+//                    account.text = UserInfoManager.username
                     bio.setText(userProfile.bio)
                     grade.text = state.userProfile.grade
                     birthday.text = userProfile.birthDate

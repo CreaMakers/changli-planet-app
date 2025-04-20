@@ -8,8 +8,8 @@ import com.example.changli_planet_app.Activity.Action.TimeTableAction
 import com.example.changli_planet_app.Activity.State.TimeTableState
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Store
-import com.example.changli_planet_app.Cache.Room.CourseDao
-import com.example.changli_planet_app.Cache.Room.MySubject
+import com.example.changli_planet_app.Cache.Room.dao.CourseDao
+import com.example.changli_planet_app.Cache.Room.entity.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.Network.HttpUrlHelper
@@ -20,7 +20,6 @@ import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Widget.Dialog.ErrorStuPasswordResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.google.gson.reflect.TypeToken
-import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable

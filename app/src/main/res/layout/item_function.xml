@@ -5,11 +5,14 @@
     android:layout_weight="1"
     android:orientation="vertical"
     android:gravity="center">
+
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:padding="@dimen/dp3"
+        android:layout_width="33dp"
+        android:layout_height="33dp"
         android:layout_gravity="center" />
+
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
