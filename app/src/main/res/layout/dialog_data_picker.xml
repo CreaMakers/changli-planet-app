@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_bottom_dialog"
+    android:paddingHorizontal="20dp">
+
+    <TextView
+        android:id="@+id/dialog_data_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="15dp"
+        android:text="取消"
+        android:textColor="@color/color_777778"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/dialog_data_birthday"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/dialog_data_birthday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="生日"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/dialog_data_confirm"
+        app:layout_constraintStart_toEndOf="@id/dialog_data_cancel"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/dialog_data_confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="确认"
+        android:textColor="@color/color_346EEB"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/dialog_data_birthday"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/dialog_data_birthday">
+
+        <com.github.gzuliyujiang.wheelview.widget.WheelView
+            android:id="@+id/yearWheel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            app:wheel_atmosphericEnabled="true"
+            app:wheel_curvedEnabled="true"
+            app:wheel_curvedIndicatorSpace="4dp"
+            app:wheel_curvedMaxAngle="70"
+            app:wheel_itemSpace="50dp"
+            app:wheel_itemTextColor="@color/color_777778"
+            app:wheel_itemTextColorSelected="@color/black"
+            app:wheel_itemTextSize="20sp" />
+
+        <com.github.gzuliyujiang.wheelview.widget.WheelView
+            android:id="@+id/monthWheel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:wheel_atmosphericEnabled="true"
+            app:wheel_curvedEnabled="true"
+            app:wheel_curvedIndicatorSpace="4dp"
+            app:wheel_curvedMaxAngle="70"
+            app:wheel_itemSpace="50dp"
+            app:wheel_itemTextColor="@color/color_777778"
+            app:wheel_itemTextColorSelected="@color/black"
+            app:wheel_itemTextSize="20sp" />
+
+        <com.github.gzuliyujiang.wheelview.widget.WheelView
+            android:id="@+id/dayWheel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:wheel_atmosphericEnabled="true"
+            app:wheel_curvedEnabled="true"
+            app:wheel_curvedIndicatorSpace="4dp"
+            app:wheel_curvedMaxAngle="70"
+            app:wheel_itemSpace="50dp"
+            app:wheel_itemTextColor="#777778"
+            app:wheel_itemTextColorSelected="@color/black"
+            app:wheel_itemTextSize="20sp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

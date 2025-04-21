@@ -47,6 +47,7 @@ class IMFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        imName.text = UserInfoManager.account
         GlideUtils.loadWithThumbnail(
             this,
             imAvatar,
@@ -59,7 +60,6 @@ class IMFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentIMBinding.inflate(layoutInflater)
-        imName.text = UserInfoManager.username
         return binding.root
     }
 

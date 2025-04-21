@@ -6,21 +6,28 @@ import com.tencent.mmkv.MMKV
 object UserInfoManager {
     private val mmkv by lazy { MMKV.mmkvWithID("import_cache") }
 
-    private const val KEY_USERID="user_id"
+    private const val KEY_USERID = "user_id"
     private const val KEY_USERNAME = "account"
     private const val KEY_USER_PASSWORD = "user_password"
     private const val KEY_AVATAR = "user_avatar"
 
-    var userId:Int
-        get() = mmkv.getInt(KEY_USERID,-1)
-        set(value){
-            mmkv.putInt(KEY_USERID,value)
+    private const val KEY_USER_ACCOUNT = "user_account"
+    var userId: Int
+        get() = mmkv.getInt(KEY_USERID, -1)
+        set(value) {
+            mmkv.putInt(KEY_USERID, value)
         }
 
     var username: String
         get() = mmkv.getString(KEY_USERNAME, "") ?: ""
         set(value) {
             mmkv.putString(KEY_USERNAME, value)
+        }
+
+    var account: String
+        get() = mmkv.getString(KEY_USER_ACCOUNT, "") ?: ""
+        set(value) {
+            mmkv.putString(KEY_USER_ACCOUNT, value)
         }
 
     var userPassword: String

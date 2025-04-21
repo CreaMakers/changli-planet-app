@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import java.io.File
 
-class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
+class   FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
 
     override fun processIntent(intent: FreshNewsContract.Intent) {
         when (intent) {
@@ -211,7 +211,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             result.collect { response ->
                 when (response) {
                     is FreshNews -> {
-                        val freshNews = response as FreshNews
+                        val freshNews = response
                         val id = freshNews.userId
                         val userProfile = UserProfileRepository.instance.getUserInformationById(id)
                         userProfile.collect { userResponse ->
@@ -220,7 +220,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                                     val profile = userResponse.data
                                     val freshNewsItem = FreshNewsItem(
                                         freshNewsId = freshNews.freshNewsId,
-                                        authorName = freshNews.userId.toString(),    //暂时用id代替用户名
+                                        authorName = profile.account,    //暂时用id代替用户名
                                         authorAvatar = profile.avatarUrl,
                                         title = freshNews.title,
                                         content = freshNews.content,

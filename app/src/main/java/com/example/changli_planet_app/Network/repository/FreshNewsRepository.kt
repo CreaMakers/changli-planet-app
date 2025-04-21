@@ -45,18 +45,23 @@ class FreshNewsRepository private constructor() {
     }
 
     fun getNewsListByTime(page: Int, pageSize: Int) = flow {
-        val freshNewsResponse = service.value.getNewsListByTime(page, pageSize)
-        when (freshNewsResponse.code) {
-            "200" -> {
-                val freshNewsList = freshNewsResponse.data
-                freshNewsList?.forEach { freshNews ->
-                    emit(freshNews)
+        try {
+            val freshNewsResponse = service.value.getNewsListByTime(page, pageSize)
+            when (freshNewsResponse.code) {
+                "200" -> {
+                    val freshNewsList = freshNewsResponse.data
+                    freshNewsList?.forEach { freshNews ->
+                        emit(freshNews)
+                    }
+                }
+
+                else -> {
+                    emit(Resource.Error<FreshNewsItem>(freshNewsResponse.msg))
                 }
             }
-
-            else -> {
-                emit(Resource.Error<FreshNewsItem>(freshNewsResponse.msg))
-            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.d("FreshNews", e.message.toString())
         }
     }
 }

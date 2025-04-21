@@ -50,8 +50,9 @@ class UserStore : Store<UserState, UserAction>() {
                         when (fromJson.code) {
                             "200" -> {
                                 fromJson.data?.let {
+                                    UserInfoManager.account = it.account
                                     UserInfoManager.userAvatar = it.avatarUrl
-                                    UserInfoManager.userId=it.userId
+                                    UserInfoManager.userId = it.userId
                                     currentState.userProfile = it
                                     currentState.avatarUri = it.avatarUrl
                                 }
@@ -187,6 +188,7 @@ class UserStore : Store<UserState, UserAction>() {
                         when (fromJson.code) {
                             "200" -> {
                                 currentState.userProfile = fromJson.data!!
+                                UserInfoManager.account = fromJson.data.account
                                 handler.post {
                                     EventBusHelper.post(FinishEvent("updateUser"))
                                 }

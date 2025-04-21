@@ -14,11 +14,11 @@ class FreshNewsContract {
         class InputMessage(val value: Any, val type: String) : Intent()
         class AddImage(val file: File) : Intent()
         class RemoveImage(val index: Int) : Intent()
-        class Publish() : Intent()
-        class ClearAll() : Intent()
+        class Publish : Intent()
+        class ClearAll : Intent()
         class RefreshNewsByTime(val page: Int, val pageSize: Int) : Intent()
         class UpdateTabIndex(val currentIndex: Int) : Intent()
-        class Initialization() : Intent()
+        class Initialization : Intent()
     }
 
     data class State(
