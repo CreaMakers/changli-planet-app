@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -38,6 +39,7 @@ class UpdateDialog(
     private lateinit var progressLayout: LinearLayout
     private lateinit var btnUpdate: TextView
     private lateinit var btnCancel: TextView
+    private lateinit var tvUpdateContent: TextView
 
     private var downloadJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
@@ -45,8 +47,9 @@ class UpdateDialog(
     override fun init() {
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setWindowAnimations(R.style.DialogAnimation)
-
-        findViewById<TextView>(R.id.update_content).text = updateContent
+        tvUpdateContent = findViewById(R.id.update_content)
+        tvUpdateContent.text = updateContent
+        tvUpdateContent.movementMethod = ScrollingMovementMethod()
         progressBar = findViewById(R.id.progress_bar)
         progressText = findViewById(R.id.progress_text)
         progressLayout = findViewById(R.id.progress_layout)

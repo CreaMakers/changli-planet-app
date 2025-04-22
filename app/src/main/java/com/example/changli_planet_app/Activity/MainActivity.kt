@@ -32,6 +32,7 @@ import com.example.changli_planet_app.Pool.TabAnimationPool
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.Widget.Dialog.NormalChosenDialog
+import com.example.changli_planet_app.Widget.Dialog.UpdateDialog
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
