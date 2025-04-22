@@ -19,6 +19,7 @@ class FreshNewsContract {
         class RefreshNewsByTime(val page: Int, val pageSize: Int) : Intent()
         class UpdateTabIndex(val currentIndex: Int) : Intent()
         class Initialization : Intent()
+        class UpdateUserProfile(val userId: Int) : Intent()
     }
 
     data class State(

@@ -15,7 +15,7 @@ import com.example.changli_planet_app.databinding.LoadingViewBinding
 class FreshNewsAdapter(
     val context: Context,
     private val onImageClick: (String) -> Unit,
-    private val onNewsClick: () -> Unit
+    private val onNewsClick: (userId: Int) -> Unit
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {

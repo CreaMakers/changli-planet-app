@@ -147,9 +147,9 @@ class UserStore : Store<UserState, UserAction>() {
                         )
                         when (fromJson.code) {
                             "200" -> {
-//                                UserInfoManager.userAvatar = fromJson.data.toString()
+                                UserInfoManager.userAvatar = fromJson.data.toString()
                                 currentState.avatarUri = fromJson.data.toString()
-//                                currentState.userProfile.avatarUrl = fromJson.data.toString()
+                                currentState.userProfile.avatarUrl = fromJson.data.toString()
                                 _state.onNext(currentState)
                             }
 

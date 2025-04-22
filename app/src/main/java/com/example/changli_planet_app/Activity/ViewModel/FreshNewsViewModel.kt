@@ -42,6 +42,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 intent.pageSize
             )
 
+            is FreshNewsContract.Intent.UpdateUserProfile -> refreshUserProfileByNetwork(intent.userId)
             is FreshNewsContract.Intent.UpdateTabIndex -> changeCurrentTab(intent.currentIndex)
             is FreshNewsContract.Intent.Initialization -> {}
         }
@@ -231,6 +232,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
 
                                 val freshNewsItem = FreshNewsItem(
                                     freshNewsId = freshNews.freshNewsId,
+                                    userId = profile?.userId ?: -1,
                                     authorName = profile?.account ?: "未知用户",
                                     authorAvatar = profile?.avatarUrl ?: "",
                                     title = freshNews.title,
@@ -266,6 +268,12 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                     }
                 }
             }
+        }
+    }
+
+    private fun refreshUserProfileByNetwork(userId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            UserProfileRepository.instance.getUserInFormationNoCache(userId)
         }
     }
 

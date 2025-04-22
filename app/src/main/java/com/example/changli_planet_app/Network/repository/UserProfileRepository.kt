@@ -18,13 +18,12 @@ class UserProfileRepository private constructor() {
     companion object {
         val instance by lazy { UserProfileRepository() }
         val cache by lazy { UserDataBase.getInstance(PlanetApplication.appContext).itemDao() }
-        private const val CACHE_DURATION = 24 * 60 * 60 * 1000L
+        private const val CACHE_DURATION = 3 * 60 * 60 * 1000L
     }
 
     private val service by lazy { RetrofitUtils.instanceUser.create(UserProfileApi::class.java) }
 
     fun getUserInformationById(userId: Int) = flow {
-
         val cacheUser = withContext(Dispatchers.IO) {
             cache.getUserById(userId)
         }
@@ -54,6 +53,22 @@ class UserProfileRepository private constructor() {
             if (cacheUser != null) {
                 emit(Resource.Success(cacheUser.toProfile()))
             }
+        }
+    }
+
+    fun getUserInFormationNoCache(userId: Int) = flow {
+        try {
+            emit(Resource.Loading())
+            val result = service.getUserInformationById(userId)
+            if (result.code == "200" && result.data != null) {
+                val userEntity = result.data.toEntity()
+                cache.insertUser(userEntity)
+                emit(Resource.Success(result.data))
+            } else {
+                emit(Resource.Error(result.msg))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message ?: "网络错误"))
         }
     }
 
