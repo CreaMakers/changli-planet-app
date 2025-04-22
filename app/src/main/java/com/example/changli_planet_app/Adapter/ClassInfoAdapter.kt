@@ -6,12 +6,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.example.changli_planet_app.Activity.Store.ClassInfoStore
-import com.example.changli_planet_app.Activity.Store.UserStore
-import com.example.changli_planet_app.Adapter.UserProfileSelectorAdapter.UserProfileViewHodler
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.Event.SelectEvent
-import com.example.changli_planet_app.Util.EventBusHelper
+import com.example.changli_planet_app.Utils.Event.SelectEvent
+import com.example.changli_planet_app.Utils.EventBusHelper
 
 class ClassInfoAdapter(
     val list: List<String>,

@@ -68,6 +68,12 @@ class FreshNewsAdapter(
         diffResult.dispatchUpdatesTo(this)
     }
 
+    fun addData(newItems: List<FreshNewsItem>) {
+        val startPosition = newsList.size
+        newsList.addAll(newItems)
+        notifyItemRangeInserted(startPosition, newItems.size)
+    }
+
     fun setLoading(loading: Boolean) {
         isLoading = loading
         notifyItemChanged(itemCount - 1)

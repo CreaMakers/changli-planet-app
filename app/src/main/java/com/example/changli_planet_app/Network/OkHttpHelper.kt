@@ -5,19 +5,11 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.example.changli_planet_app.Activity.LoginActivity
-import com.example.changli_planet_app.Cache.UserInfoManager
-import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Interceptor.NetworkLogger
-import com.example.changli_planet_app.Network.Interceptor.NoNetworkInterceptor
-import com.example.changli_planet_app.Network.Response.Course
-import com.example.changli_planet_app.Network.Response.GradeResponse
 import com.example.changli_planet_app.Network.Response.NormalResponse
-import com.example.changli_planet_app.Util.PlanetConst
+import com.example.changli_planet_app.Utils.PlanetConst
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.tencent.msdk.dns.MSDKDnsResolver
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -32,7 +24,6 @@ import java.lang.reflect.Type
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
-import kotlin.math.max
 
 object OkHttpHelper {
 

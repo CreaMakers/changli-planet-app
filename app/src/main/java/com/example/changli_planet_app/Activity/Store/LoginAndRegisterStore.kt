@@ -14,8 +14,8 @@ import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Widget.Dialog.LoginInformationDialog
-import com.example.changli_planet_app.Util.Event.FinishEvent
-import com.example.changli_planet_app.Util.EventBusHelper
+import com.example.changli_planet_app.Utils.Event.FinishEvent
+import com.example.changli_planet_app.Utils.EventBusHelper
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
 

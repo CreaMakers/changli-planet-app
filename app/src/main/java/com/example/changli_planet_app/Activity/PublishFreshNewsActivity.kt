@@ -23,8 +23,6 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -36,7 +34,7 @@ import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.singleClick
+import com.example.changli_planet_app.Utils.singleClick
 import com.example.changli_planet_app.Widget.Dialog.PhotoPickerDialog
 import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.databinding.ActivityPublishFreshNewsBinding
@@ -104,9 +102,9 @@ class PublishFreshNewsActivity : FullScreenActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
         EventBus.getDefault().unregister(this)
+        super.onDestroy()
     }
 
     @Subscribe

@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Adapter.ImageAdapter
 import com.example.changli_planet_app.Network.Response.FreshNewsItem
-import com.example.changli_planet_app.Util.GlideUtils
+import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.databinding.FreshNewsItemBinding
 
 class FreshNewsItemViewModel(

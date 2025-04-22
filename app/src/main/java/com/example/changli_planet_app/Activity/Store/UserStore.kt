@@ -17,9 +17,8 @@ import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.UploadAvatarResponse
 import com.example.changli_planet_app.Network.Response.UserProfileResponse
 import com.example.changli_planet_app.Network.Response.UserStatsResponse
-import com.example.changli_planet_app.Util.Event.FinishEvent
-import com.example.changli_planet_app.Util.EventBusHelper
-import com.example.changli_planet_app.Util.PlanetConst
+import com.example.changli_planet_app.Utils.Event.FinishEvent
+import com.example.changli_planet_app.Utils.EventBusHelper
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.UpdateDialog
 import com.example.changli_planet_app.Widget.View.CustomToast

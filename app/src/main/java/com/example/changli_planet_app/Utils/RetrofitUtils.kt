@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.Util
+package com.example.changli_planet_app.Utils
 
 import android.content.Intent
 import android.os.Handler
@@ -11,7 +11,6 @@ import com.example.changli_planet_app.Network.OkHttpHelper.AuthInterceptor
 import com.tencent.msdk.dns.MSDKDnsResolver
 import okhttp3.Dns
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.InetAddress

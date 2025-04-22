@@ -1,16 +1,14 @@
 package com.example.changli_planet_app.Adapter
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.changli_planet_app.Data.jsonbean.ChatGroupItem
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.GlideUtils
+import com.example.changli_planet_app.Utils.GlideUtils
 
 class ChatGroupRightAdapter(val data: List<ChatGroupItem>) :
     RecyclerView.Adapter<ChatGroupRightAdapter.ViewHolder>() {

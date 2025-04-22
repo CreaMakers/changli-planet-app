@@ -4,9 +4,10 @@ import android.util.Log
 import com.example.changli_planet_app.Network.NetApi.FreshNewsApi
 import com.example.changli_planet_app.Network.NetApi.toImagePart
 import com.example.changli_planet_app.Network.Resource
+import com.example.changli_planet_app.Network.Response.FreshNews
 import com.example.changli_planet_app.Network.Response.FreshNewsItem
 import com.example.changli_planet_app.Network.Response.FreshNews_Publish
-import com.example.changli_planet_app.Util.RetrofitUtils
+import com.example.changli_planet_app.Utils.RetrofitUtils
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaType
@@ -45,23 +46,24 @@ class FreshNewsRepository private constructor() {
     }
 
     fun getNewsListByTime(page: Int, pageSize: Int) = flow {
+        emit(Resource.Loading())
         try {
             val freshNewsResponse = service.value.getNewsListByTime(page, pageSize)
+
             when (freshNewsResponse.code) {
                 "200" -> {
-                    val freshNewsList = freshNewsResponse.data
-                    freshNewsList?.forEach { freshNews ->
-                        emit(freshNews)
-                    }
+                    val freshNewsList = freshNewsResponse.data ?: emptyList()
+                    emit(Resource.Success(freshNewsList))
                 }
 
                 else -> {
-                    emit(Resource.Error<FreshNewsItem>(freshNewsResponse.msg))
+                    emit(Resource.Error(freshNewsResponse.msg ?: "获取新闻列表失败"))
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
             Log.d("FreshNews", e.message.toString())
+            emit(Resource.Error(e.message ?: "网络错误"))
         }
     }
 }

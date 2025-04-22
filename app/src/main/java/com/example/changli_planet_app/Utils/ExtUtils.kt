@@ -1,11 +1,10 @@
-package com.example.changli_planet_app.Util
+package com.example.changli_planet_app.Utils
 
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
-import androidx.core.content.ContextCompat
 import com.example.changli_planet_app.R
 
 val Float.dp: Float

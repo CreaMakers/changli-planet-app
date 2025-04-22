@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Activity.Store.ElectronicStore
 import com.example.changli_planet_app.Adapter.SelectorAdapter
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.Event.SelectEvent
-import com.example.changli_planet_app.Util.EventBusLifecycleObserver
+import com.example.changli_planet_app.Utils.Event.SelectEvent
+import com.example.changli_planet_app.Utils.EventBusLifecycleObserver
 import com.example.changli_planet_app.Widget.View.DividerItemDecoration
 import com.example.changli_planet_app.Widget.View.MaxHeightLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

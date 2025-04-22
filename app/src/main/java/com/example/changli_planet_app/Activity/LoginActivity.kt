@@ -14,10 +14,6 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
 import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
 import com.example.changli_planet_app.Core.FullScreenActivity
@@ -26,7 +22,7 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.noOpDelegate
 import com.example.changli_planet_app.Widget.Dialog.ExpiredDialog
-import com.example.changli_planet_app.Util.Event.FinishEvent
+import com.example.changli_planet_app.Utils.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable

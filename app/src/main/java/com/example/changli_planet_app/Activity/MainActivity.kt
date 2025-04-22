@@ -15,8 +15,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +30,7 @@ import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.Pool.TabAnimationPool
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.GlideUtils
+import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.Widget.Dialog.NormalChosenDialog
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton

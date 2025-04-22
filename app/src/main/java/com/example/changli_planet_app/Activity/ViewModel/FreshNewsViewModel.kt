@@ -19,14 +19,17 @@ import com.example.changli_planet_app.Network.repository.FreshNewsRepository
 import com.example.changli_planet_app.Network.repository.UserProfileRepository
 import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.Network.Response.UserProfile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
 import java.io.File
 
-class   FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
-
+class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
+    private val handler = Handler(Looper.getMainLooper())
     override fun processIntent(intent: FreshNewsContract.Intent) {
         when (intent) {
             is FreshNewsContract.Intent.InputMessage -> inputMessage(intent.value, intent.type)
@@ -97,7 +100,6 @@ class   FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsCon
     private fun publish() {
         viewModelScope.launch {
             state.value.publishNews.user_id = UserInfoManager.userId
-            val handler = Handler(Looper.getMainLooper())
             /*val client= OkHttpClient()
 
             val requestBody= MultipartBody.Builder()
@@ -171,7 +173,6 @@ class   FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsCon
                     "200" -> {
                         clearAll()
                         cleanupTempFiles(state.value.images) //清理临时压缩文件
-                        EventBus.getDefault().post(FreshNewsContract.Event.RefreshNewsList)
                         EventBus.getDefault().post(FreshNewsContract.Event.closePublish)    //关闭发布界面
                         handler.post {
                             CustomToast.showMessage(
@@ -206,45 +207,64 @@ class   FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsCon
 
     private fun refreshNewsByTime(page: Int, pageSize: Int) {
         viewModelScope.launch {
-            val result = FreshNewsRepository.instance.getNewsListByTime(page, pageSize)
-            val freshNewsItemList: MutableList<FreshNewsItem> = mutableListOf()
-            result.collect { response ->
-                when (response) {
-                    is FreshNews -> {
-                        val freshNews = response
-                        val id = freshNews.userId
-                        val userProfile = UserProfileRepository.instance.getUserInformationById(id)
-                        userProfile.collect { userResponse ->
-                            when (userResponse.code) {
-                                "200" -> {
-                                    val profile = userResponse.data
-                                    val freshNewsItem = FreshNewsItem(
-                                        freshNewsId = freshNews.freshNewsId,
-                                        authorName = profile.account,    //暂时用id代替用户名
-                                        authorAvatar = profile.avatarUrl,
-                                        title = freshNews.title,
-                                        content = freshNews.content,
-                                        images = freshNews.images,
-                                        tags = freshNews.tags,
-                                        liked = freshNews.liked,
-                                        createTime = freshNews.createTime,
-                                        comments = freshNews.comments,
-                                        allowComments = freshNews.allowComments,
-                                        favoritesCount = freshNews.favoritesCount
-                                    )
-                                    freshNewsItemList.add(freshNewsItem)
-                                }
-                            }
-                        }
+            updateState { copy(freshNewsList = Resource.Loading()) }
+            val newsResult = FreshNewsRepository.instance.getNewsListByTime(page, pageSize)
+            newsResult.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> {
                     }
 
-                    else -> CustomToast.showMessage(PlanetApplication.appContext, "刷新失败")
+                    is Resource.Success -> {
+                        val freshNewsItems = mutableListOf<FreshNewsItem>()
+                        resource.data.forEach { freshNews ->
+                            try {
+                                val userResource = withContext(Dispatchers.IO) {
+                                    UserProfileRepository.instance
+                                        .getUserInformationById(freshNews.userId)
+                                        .first { it is Resource.Success || it is Resource.Error }
+                                }
+
+                                val profile = when (userResource) {
+                                    is Resource.Success -> userResource.data
+                                    else -> null
+                                }
+
+                                val freshNewsItem = FreshNewsItem(
+                                    freshNewsId = freshNews.freshNewsId,
+                                    authorName = profile?.account ?: "未知用户",
+                                    authorAvatar = profile?.avatarUrl ?: "",
+                                    title = freshNews.title,
+                                    content = freshNews.content,
+                                    images = freshNews.images,
+                                    tags = freshNews.tags,
+                                    liked = freshNews.liked,
+                                    createTime = freshNews.createTime,
+                                    comments = freshNews.comments,
+                                    allowComments = freshNews.allowComments,
+                                    favoritesCount = freshNews.favoritesCount
+                                )
+
+                                freshNewsItems.add(freshNewsItem)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                Log.e("FreshNews", "Error processing news item: ${e.message}")
+                            }
+                        }
+                        updateState { copy(freshNewsList = Resource.Success(freshNewsItems)) }
+                    }
+
+                    is Resource.Error -> {
+                        updateState { copy(freshNewsList = Resource.Error(resource.msg)) }
+                        handler.post {
+                            CustomToast.showMessage(
+                                PlanetApplication.appContext,
+                                "刷新失败: ${
+                                    resource.msg
+                                }"
+                            )
+                        }
+                    }
                 }
-            }
-            updateState {
-                copy(
-                    freshNewsList = Resource.Success(freshNewsItemList)
-                )
             }
         }
     }
