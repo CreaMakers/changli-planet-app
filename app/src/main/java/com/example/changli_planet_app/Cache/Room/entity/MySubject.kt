@@ -9,11 +9,10 @@ import com.example.changli_planet_app.Cache.WeeksTypeConverter
 import com.zhuangfei.timetable.model.Schedule
 import com.zhuangfei.timetable.model.ScheduleEnable
 
-
 @Entity(
     tableName = "courses",
     indices = [Index(
-        value = ["courseName", "classroom", "teacher", "start", "step", "weekday","term"],
+        value = ["courseName", "classroom", "teacher", "start", "step", "weekday", "term"],
         unique = true
     )]
 )

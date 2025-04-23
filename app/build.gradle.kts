@@ -119,6 +119,8 @@ dependencies {
     // PDF库
 //    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha08")
 
+    //lottie
+    implementation("com.airbnb.android:lottie:6.0.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

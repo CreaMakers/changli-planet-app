@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.AccountBookActivity">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_marginVertical="@dimen/dp10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp10"
+            android:paddingHorizontal="@dimen/dp15"
+            android:paddingVertical="@dimen/dp16"
+            android:background="@drawable/account_book_background">
+
+            <TextView
+                android:id="@+id/my_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="我的资产"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="@dimen/dp25"
+                android:layout_marginStart="@dimen/dp10"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/all_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8/0"
+                android:textColor="#BECEF0"
+                android:textSize="@dimen/dp18"
+                android:layout_marginStart="@dimen/dp10"
+                app:layout_constraintBottom_toBottomOf="@id/my_value"
+                app:layout_constraintStart_toEndOf="@id/my_value" />
+
+
+            <TextView
+                android:id="@+id/all_money"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp10"
+                android:text="总资产"
+                android:textColor="#C1D1F5"
+                android:textSize="@dimen/dp16"
+                app:layout_constraintEnd_toEndOf="@id/zhongfen"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/my_value" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="总日均"
+                android:textColor="#C1D1F5"
+                android:textSize="@dimen/dp16"
+                android:layout_marginTop="@dimen/dp10"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/zhongfen"
+                app:layout_constraintTop_toBottomOf="@id/my_value" />
+
+            <TextView
+                android:id="@+id/all_money_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="￥24907.56"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp25"
+                android:layout_marginTop="@dimen/dp5"
+                app:layout_constraintEnd_toEndOf="@id/zhongfen"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/all_money" />
+
+            <TextView
+                android:id="@+id/daily_cost_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="￥213.58"
+                android:textSize="@dimen/dp25"
+                android:textColor="@color/white"
+                android:layout_marginTop="@dimen/dp5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/zhongfen"
+                app:layout_constraintTop_toBottomOf="@id/all_money" />
+
+            <TextView
+                android:id="@+id/zhongfen"
+                android:layout_width="1dp"
+                android:layout_height="50dp"
+                android:background="#6BA0FF"
+                android:layout_marginTop="@dimen/dp15"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/my_value" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/something_vlume"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/card"
+
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/card">
+
+        <!-- Lottie 动画视图 -->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_animation"
+            android:layout_marginTop="@dimen/dp40"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/empty_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/star" />
+
+        <!-- 提示文本 -->
+        <TextView
+            android:id="@+id/empty_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingVertical="@dimen/dp8"
+            android:text="添加资产"
+            android:background="@drawable/blue_rounded_button"
+            android:layout_marginHorizontal="@dimen/dp120"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lottie_animation" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
