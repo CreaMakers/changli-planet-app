@@ -112,8 +112,8 @@ class FeatureFragment : Fragment() {
                     nelectronic to R.drawable.nelectronic,
                     nrank to R.drawable.nrank,
                     nclassroom to R.drawable.nclassroom,
-                    accountbook to R.drawable.account_book
-                    ndocument to R.drawable.ic_document
+                    accountbook to R.drawable.account_book,
+                    ndocument to R.drawable.ic_document,
                 )
 
                 iconIds.forEach { (item, resId) ->
