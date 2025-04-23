@@ -114,6 +114,8 @@ dependencies {
     implementation("io.github.scwang90:refresh-header-radar:3.0.0-alpha")
     implementation("io.github.scwang90:refresh-footer-classics:3.0.0-alpha")
 
+    //lottie
+    implementation("com.airbnb.android:lottie:6.0.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

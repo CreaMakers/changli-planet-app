@@ -16,8 +16,8 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.Activity.Store.TimeTableStore
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Cache.Room.CoursesDataBase
-import com.example.changli_planet_app.Cache.Room.MySubject
+import com.example.changli_planet_app.Cache.Room.database.CoursesDataBase
+import com.example.changli_planet_app.Cache.Room.entity.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.noOpDelegate

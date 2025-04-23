@@ -36,8 +36,6 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.ClearAll->clearAll()
             is FreshNewsContract.Intent.RefreshNewsByTime->refreshNewsByTime(intent.page,intent.pageSize)
             is FreshNewsContract.Intent.UpdateTabIndex -> changeCurrentTab(intent.currentIndex)
-
-
             is FreshNewsContract.Intent.Initialization -> {}
         }
 

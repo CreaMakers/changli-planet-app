@@ -1,15 +1,11 @@
-package com.example.changli_planet_app.Cache.Room
+package com.example.changli_planet_app.Cache.Room.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Update
-import io.reactivex.rxjava3.core.Completable
+import com.example.changli_planet_app.Cache.Room.entity.MySubject
 import io.reactivex.rxjava3.core.Single
-
 
 @Dao
 interface CourseDao {
@@ -23,10 +19,10 @@ interface CourseDao {
         studentPassword: String
     ): Single<MutableList<MySubject>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)
     fun insertCourse(subject: MySubject): Long
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)
     fun insertCourses(subjects: MutableList<MySubject>): List<Long>
 
     @Query("DELETE FROM courses")

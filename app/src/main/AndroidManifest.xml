@@ -32,6 +32,15 @@
         tools:replace="android:networkSecurityConfig"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.FixSomethingAccountActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.AddSomethingAccountActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.AccountBookActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.PublishFreshNewsActivity"
             android:exported="false" />
         <activity

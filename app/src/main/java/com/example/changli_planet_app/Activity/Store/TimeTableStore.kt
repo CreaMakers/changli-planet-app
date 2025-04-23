@@ -8,8 +8,8 @@ import com.example.changli_planet_app.Activity.Action.TimeTableAction
 import com.example.changli_planet_app.Activity.State.TimeTableState
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Store
-import com.example.changli_planet_app.Cache.Room.CourseDao
-import com.example.changli_planet_app.Cache.Room.MySubject
+import com.example.changli_planet_app.Cache.Room.dao.CourseDao
+import com.example.changli_planet_app.Cache.Room.entity.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.Network.HttpUrlHelper

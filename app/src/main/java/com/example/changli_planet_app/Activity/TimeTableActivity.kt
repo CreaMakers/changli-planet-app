@@ -33,8 +33,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.Activity.Action.TimeTableAction
 import com.example.changli_planet_app.Activity.Store.TimeTableStore
-import com.example.changli_planet_app.Cache.Room.CoursesDataBase
-import com.example.changli_planet_app.Cache.Room.MySubject
+import com.example.changli_planet_app.Cache.Room.database.CoursesDataBase
+import com.example.changli_planet_app.Cache.Room.entity.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication

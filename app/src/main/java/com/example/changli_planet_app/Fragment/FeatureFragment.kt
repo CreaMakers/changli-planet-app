@@ -82,6 +82,7 @@ class FeatureFragment : Fragment() {
             ncet.setOnClickListener { activity?.let { Route.goCet(it) } }
             nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
             nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
+            accountbook.setOnClickListener { activity?.let { Route.goAccountBook(it) } }
         }
 
     }
@@ -112,7 +113,8 @@ class FeatureFragment : Fragment() {
                     nlose to R.drawable.nlose,
                     nelectronic to R.drawable.nelectronic,
                     nrank to R.drawable.nrank,
-                    nclassroom to R.drawable.nclassroom
+                    nclassroom to R.drawable.nclassroom,
+                    accountbook to R.drawable.account_book
                 )
 
                 iconIds.forEach { (item, resId) ->

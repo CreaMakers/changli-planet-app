@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FBFBFD"
+    tools:context=".Activity.AddSomethingAccountActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/add_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_blue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="@dimen/dp28"
+            android:layout_height="@dimen/dp28"
+            android:src="@drawable/back"
+            android:layout_marginStart="@dimen/dp5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="添加"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:paddingVertical="@dimen/dp10"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/something_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/dp16"
+        android:layout_marginHorizontal="@dimen/dp10"
+        app:cardCornerRadius="@dimen/dp10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/add_top">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/dp5"
+            android:paddingHorizontal="@dimen/dp10"
+            android:text="商品名称"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/something_name_edit"
+            android:paddingVertical="@dimen/dp5"
+            android:paddingHorizontal="@dimen/dp10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp40"
+            android:minHeight="48dp"
+            android:minWidth="48dp"
+            android:background="@null"
+            android:hint="物品名称"
+            android:textSize="18sp"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/something_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/dp10"
+        android:layout_marginHorizontal="@dimen/dp10"
+        app:cardCornerRadius="@dimen/dp10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/something_name">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/text1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/dp5"
+                android:paddingHorizontal="@dimen/dp10"
+                android:text="商品分类"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/tv_category"
+                android:paddingHorizontal="@dimen/dp10"
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text1"
+                android:background="@android:color/transparent"
+                android:minHeight="48dp"
+                android:hint="请选择商品分类"
+                android:textSize="18sp"/>
+
+            <ImageView
+                android:id="@+id/iv_expand"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="@dimen/dp10"
+                android:src="@drawable/ic_expand"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text1"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/something_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/dp10"
+        android:layout_marginHorizontal="@dimen/dp10"
+        app:cardCornerRadius="@dimen/dp10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/something_type">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/dp5"
+            android:paddingHorizontal="@dimen/dp10"
+            android:text="购买价格"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/something_price_edit"
+            android:paddingVertical="@dimen/dp5"
+            android:paddingHorizontal="@dimen/dp10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp40"
+            android:background="@null"
+            android:minHeight="48dp"
+            android:minWidth="48dp"
+            android:hint="价格" />
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/buy_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/dp10"
+        android:layout_marginHorizontal="@dimen/dp10"
+        app:cardCornerRadius="@dimen/dp10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/something_price">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/dp5"
+            android:paddingHorizontal="@dimen/dp10"
+            android:text="购买时间"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/buy_time_edit"
+            android:paddingHorizontal="@dimen/dp10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginTop="@dimen/dp35"
+            android:backgroundTint="#D6E2FB"
+            android:minHeight="48dp"
+            android:minWidth="48dp"
+            android:hint="请选择购买时间" />
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/dp10"
+        android:layout_marginHorizontal="@dimen/dp10"
+        app:cardCornerRadius="@dimen/dp10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buy_time">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/dp5"
+            android:paddingHorizontal="@dimen/dp10"
+            android:text="备注信息"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/add_message"
+            android:paddingHorizontal="@dimen/dp10"
+            android:paddingBottom="@dimen/dp10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp35"
+            android:background="@null"
+            android:hint="请输入备注信息（选填）"
+            android:scrollbars="vertical"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:lines="7"
+            android:minLines="7"
+            android:maxLines="7"
+            android:scrollbarStyle="insideInset" />
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/save_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="保存"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:background="@drawable/blue_rounded_button"
+        android:paddingVertical="@dimen/dp8"
+        android:layout_marginHorizontal="@dimen/dp45"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/note" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
