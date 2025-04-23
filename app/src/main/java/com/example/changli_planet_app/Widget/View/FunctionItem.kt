@@ -8,10 +8,8 @@ import android.widget.LinearLayout
 import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.GlideUtils
+import com.example.changli_planet_app.Utils.GlideUtils
 
 class FunctionItem @JvmOverloads constructor(
     context: Context,

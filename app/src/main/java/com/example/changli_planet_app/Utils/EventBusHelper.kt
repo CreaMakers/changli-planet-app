@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.Util
+package com.example.changli_planet_app.Utils
 import org.greenrobot.eventbus.EventBus
 
 object EventBusHelper {

@@ -13,21 +13,14 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.DisplayMetrics
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
-import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Data.jsonbean.UserProfileRequest
@@ -35,8 +28,8 @@ import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.Widget.Dialog.PhotoPickerDialog
 import com.example.changli_planet_app.Widget.Dialog.UserProfileWheelBottomDialog
-import com.example.changli_planet_app.Util.Event.FinishEvent
-import com.example.changli_planet_app.Util.GlideUtils
+import com.example.changli_planet_app.Utils.Event.FinishEvent
+import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.databinding.ActivityUserProfileBinding
 import com.yalantis.ucrop.UCrop
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -81,6 +74,7 @@ class UserProfileActivity : FullScreenActivity() {
     private val avatar by lazy { binding.userProfileAvatar }
     private val back by lazy { binding.personProfileBack }
 
+    private val username by lazy { binding.userProfileUsername }
     private val account by lazy { binding.userProfileName }
     private val bio by lazy { binding.userProfileBio }
     private val grade by lazy { binding.userProfileGrade }
@@ -126,8 +120,8 @@ class UserProfileActivity : FullScreenActivity() {
         binding = ActivityUserProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
-            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
                 view.paddingLeft,
                 insets.top,
@@ -155,6 +149,8 @@ class UserProfileActivity : FullScreenActivity() {
         // 头像去store中再填
         val userProfileRequest = UserProfileRequest(
             bio = bio.text.toString(),
+            username = username.text.toString(),
+            account = account.text.toString(),
             gender = when (gender.text.toString()) {
                 "男" -> 0
                 "女" -> 1
@@ -175,7 +171,9 @@ class UserProfileActivity : FullScreenActivity() {
                 .subscribe { state ->
                     val userProfile = state.userProfile
                     loadAvatar(state.avatarUri)
-                    account.text = UserInfoManager.username
+                    username.text = state.userProfile.username
+                    account.setText(state.userProfile.account)
+//                    account.text = UserInfoManager.username
                     bio.setText(userProfile.bio)
                     grade.text = state.userProfile.grade
                     birthday.text = userProfile.birthDate

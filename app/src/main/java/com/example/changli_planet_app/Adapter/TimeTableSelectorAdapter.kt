@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.changli_planet_app.Activity.Action.TimeTableAction
 import com.example.changli_planet_app.Activity.Store.TimeTableStore
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.Event.SelectEvent
-import com.example.changli_planet_app.Util.EventBusHelper
+import com.example.changli_planet_app.Utils.Event.SelectEvent
+import com.example.changli_planet_app.Utils.EventBusHelper
 
 class TimeTableSelectorAdapter(
     private val context: Context,

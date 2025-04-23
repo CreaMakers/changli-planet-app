@@ -18,6 +18,7 @@ data class FreshNews(
 
 data class FreshNewsItem(
     val freshNewsId: Int,
+    val userId: Int,
     val authorName: String,
     val authorAvatar: String,
     val title: String,
@@ -32,11 +33,11 @@ data class FreshNewsItem(
 )
 
 data class FreshNews_Publish(
-    var user_id: Int=-1,
-    var title: String="",
-    var content: String="",
-    var tags: String="",
-    var allow_comments: Int=1
+    var user_id: Int = -1,
+    var title: String = "",
+    var content: String = "",
+    var tags: String = "",
+    var allow_comments: Int = 1
 )
 
 

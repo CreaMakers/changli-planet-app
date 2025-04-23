@@ -1,10 +1,12 @@
 package com.example.changli_planet_app.Network.Response
 
+import com.example.changli_planet_app.Cache.Room.entity.UserEntity
 import java.time.LocalDateTime
 
 // LocalDateTime 暂时用String替代看看是否产生问题
 data class UserProfile(
     val userId: Int = -1,
+    val username: String = "",
     val account: String = "用户名字",
     var avatarUrl: String = "注册默认头像",
     val bio: String = "",
@@ -19,6 +21,8 @@ data class UserProfile(
     val updateTime: String? = null,
     val isDeleted: Int = -1
 )
+
+
 
 data class UserProfileResponse(
     val code: String,

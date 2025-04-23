@@ -15,8 +15,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -32,8 +30,9 @@ import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.Pool.TabAnimationPool
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.GlideUtils
+import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.Widget.Dialog.NormalChosenDialog
+import com.example.changli_planet_app.Widget.Dialog.UpdateDialog
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
@@ -56,7 +55,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     // 侧边栏头像部分
     private val mainAvatarLinear: LinearLayout by lazy { binding.mainAvatar }
-    private val drawerUsername: TextView by lazy { binding.drawerUsername }
+    private val drawerAccount: TextView by lazy { binding.drawerAccount }
     private val drawerAvatar: ShapeableImageView by lazy { binding.drawerAvatar }
     private val drawerStuNumber: TextView by lazy { binding.mainStuNumber }
 
@@ -89,6 +88,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
     override fun onResume() {
         super.onResume()
         store.dispatch(UserAction.initilaize())
+        drawerAccount.text = UserInfoManager.account
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
         lifecycleScope.launch {
             // 2. UI相关的初始化放在一组（在主线程执行）
             launch(Dispatchers.Main) {
-                drawerUsername.text = UserInfoManager.username
+                drawerAccount.text = UserInfoManager.account
                 initDrawerImages()
                 setupTabSelectionListener()
             }
@@ -192,6 +192,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->
+                    drawerAccount.text = state.userProfile.account
                     GlideUtils.loadWithThumbnail(this, drawerAvatar, state.userProfile.avatarUrl)
                     drawerStuNumber.text = state.userStats.studentNumber
                 }

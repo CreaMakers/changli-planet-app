@@ -10,13 +10,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
 import com.example.changli_planet_app.Cache.UserInfoManager
-import com.example.changli_planet_app.Core.GlideApp
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Interface.DrawerController
-import com.example.changli_planet_app.Util.GlideUtils
+import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -115,6 +113,7 @@ class FeatureFragment : Fragment() {
                     nrank to R.drawable.nrank,
                     nclassroom to R.drawable.nclassroom,
                     accountbook to R.drawable.account_book
+                    ndocument to R.drawable.ic_document
                 )
 
                 iconIds.forEach { (item, resId) ->

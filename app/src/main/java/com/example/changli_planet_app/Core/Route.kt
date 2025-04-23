@@ -105,12 +105,14 @@ object Route {
         val intent = Intent(context, ScoreInquiryActivity::class.java)
         context.startActivity(intent)
     }
-    fun goPublishLoseThing(context: Context){
-        val intent=Intent(context, PublishLoseThingActivity::class.java)
+
+    fun goPublishLoseThing(context: Context) {
+        val intent = Intent(context, PublishLoseThingActivity::class.java)
         context.startActivity(intent)
     }
-    fun goPublishFoundThing(context: Context){
-        val intent=Intent(context, PublishFoundThingActivity::class.java)
+
+    fun goPublishFoundThing(context: Context) {
+        val intent = Intent(context, PublishFoundThingActivity::class.java)
         context.startActivity(intent)
     }
 
@@ -139,8 +141,8 @@ object Route {
         context.startActivity(intent)
     }
 
-    fun goPublishFreshNews(context: Context){
-        val intent=Intent(context,PublishFreshNewsActivity::class.java)
+    fun goPublishFreshNews(context: Context) {
+        val intent = Intent(context, PublishFreshNewsActivity::class.java)
         context.startActivity(intent)
     }
 

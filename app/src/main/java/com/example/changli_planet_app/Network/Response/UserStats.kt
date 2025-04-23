@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 data class UserStats(
     val userId: Int = 0,
+    val account: String = "",
     var studentNumber: String = "",
     val articleCount: Int = 0,
     val commentCount: Int = 0,

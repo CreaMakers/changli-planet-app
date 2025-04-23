@@ -8,10 +8,12 @@
     android:orientation="vertical"
     android:background="@color/white"
     tools:context=".Activity.PublishFreshNewsActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/dp35">
+        android:paddingTop="@dimen/dp45">
+
         <TextView
             android:id="@+id/cancel"
             android:layout_width="0dp"
@@ -23,32 +25,38 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:layout_marginStart="10dp"/>
+            android:layout_marginStart="10dp" />
+
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3" />
+
         <TextView
             android:id="@+id/publish"
             android:layout_width="0dp"
+            android:paddingVertical="@dimen/dp4"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/enable_button"
             android:text="发布"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:textSize="17sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:layout_marginEnd="10dp"/>
+            android:layout_marginEnd="10dp" />
     </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+
             <EditText
                 android:id="@+id/title"
                 android:layout_width="match_parent"
@@ -57,6 +65,14 @@
                 android:layout_margin="10dp"
                 android:gravity="top"
                 android:backgroundTint="@android:color/transparent" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider_color_grey"
+                android:layout_marginBottom="10dp"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <EditText
                 android:id="@+id/content"
                 android:layout_width="match_parent"
@@ -64,20 +80,22 @@
                 android:hint="分享你的新鲜事..."
                 android:backgroundTint="@android:color/transparent"
                 android:layout_margin="10dp"
-                android:gravity="top"/>
+                android:gravity="top" />
+
             <com.google.android.flexbox.FlexboxLayout
                 android:id="@+id/flexContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10dp"
-                app:flexWrap="wrap"
-                app:alignItems="stretch">
+                app:alignItems="stretch"
+                app:flexWrap="wrap">
+
                 <ImageView
                     android:id="@+id/add_image"
                     android:layout_width="115dp"
                     android:layout_height="115dp"
                     android:layout_marginBottom="10dp"
-                    android:src="@drawable/add_picture"/>
+                    android:src="@drawable/add_picture" />
             </com.google.android.flexbox.FlexboxLayout>
 
         </LinearLayout>

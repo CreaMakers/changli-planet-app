@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.changli_planet_app.Activity.Action.ElectronicAction
 import com.example.changli_planet_app.Activity.Store.ElectronicStore
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Util.Event.SelectEvent
-import com.example.changli_planet_app.Util.EventBusHelper
+import com.example.changli_planet_app.Utils.Event.SelectEvent
+import com.example.changli_planet_app.Utils.EventBusHelper
 
 class SelectorAdapter(private val list: List<String>,val store: ElectronicStore):RecyclerView.Adapter<SelectorAdapter.SelectorViewHodler>() {
     class SelectorViewHodler(item:View):ViewHolder(item){

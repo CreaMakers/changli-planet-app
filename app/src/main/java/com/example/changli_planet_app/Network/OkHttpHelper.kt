@@ -5,19 +5,11 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.example.changli_planet_app.Activity.LoginActivity
-import com.example.changli_planet_app.Cache.UserInfoManager
-import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.Network.Response.RefreshToken
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Interceptor.NetworkLogger
-import com.example.changli_planet_app.Network.Interceptor.NoNetworkInterceptor
-import com.example.changli_planet_app.Network.Response.Course
-import com.example.changli_planet_app.Network.Response.GradeResponse
 import com.example.changli_planet_app.Network.Response.NormalResponse
-import com.example.changli_planet_app.Util.PlanetConst
+import com.example.changli_planet_app.Utils.PlanetConst
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.tencent.msdk.dns.MSDKDnsResolver
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -32,7 +24,6 @@ import java.lang.reflect.Type
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
-import kotlin.math.max
 
 object OkHttpHelper {
 
@@ -162,36 +153,6 @@ object OkHttpHelper {
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
-//            .addInterceptor(Interceptor{chain ->
-//                val originalRequest = chain.request()
-//                // 添加Access Token
-//                val requestWithToken = originalRequest.newBuilder()
-//                    .addHeader("Authorization", "Bearer ${PlanetApplication.accessToken}")
-//                    .build()
-//                val response = chain.proceed(requestWithToken)
-//                try {
-//                    //检查是否401 Unauthorized
-//                    if (response.code == 401) {
-//                        synchronized(this) {
-//                            //刷新AccessToken
-//                            refreshAccessToken()
-//                            //重新请求
-//                            val retryRequest = originalRequest.newBuilder()
-//                                .addHeader(
-//                                    "Authorization",
-//                                    "Bearer ${PlanetApplication.accessToken}"
-//                                )
-//                                .build()
-//                            response.close()
-//                            return@Interceptor chain.proceed(retryRequest)
-//                        }
-//                    }
-//                    response
-//                }finally {
-//                    response.close()
-//                }
-//            })
-//            .addInterceptor(NoNetworkInterceptor())
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
             .addInterceptor(AuthInterceptor(object : AuthInterceptor.TokenExpiredHandler {
                 override fun onTokenExpired() {

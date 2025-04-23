@@ -4,29 +4,14 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
-import com.bumptech.glide.Glide
-import com.bumptech.glide.GlideBuilder
-import com.bumptech.glide.annotation.GlideModule
-import com.bumptech.glide.load.DecodeFormat
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.module.AppGlideModule
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
 import com.example.changli_planet_app.Cache.Room.database.CoursesDataBase
-import com.example.changli_planet_app.Cache.ScoreCache
-import com.example.changli_planet_app.Cache.StudentInfoManager
-import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Network.OkHttpHelper
-import com.example.changli_planet_app.R
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
 import com.tencent.msdk.dns.MSDKDnsResolver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class PlanetApplication : Application() {
     companion object {

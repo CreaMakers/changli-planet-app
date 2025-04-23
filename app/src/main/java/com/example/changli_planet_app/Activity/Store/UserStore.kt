@@ -17,9 +17,8 @@ import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Network.Response.UploadAvatarResponse
 import com.example.changli_planet_app.Network.Response.UserProfileResponse
 import com.example.changli_planet_app.Network.Response.UserStatsResponse
-import com.example.changli_planet_app.Util.Event.FinishEvent
-import com.example.changli_planet_app.Util.EventBusHelper
-import com.example.changli_planet_app.Util.PlanetConst
+import com.example.changli_planet_app.Utils.Event.FinishEvent
+import com.example.changli_planet_app.Utils.EventBusHelper
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.UpdateDialog
 import com.example.changli_planet_app.Widget.View.CustomToast
@@ -50,8 +49,9 @@ class UserStore : Store<UserState, UserAction>() {
                         when (fromJson.code) {
                             "200" -> {
                                 fromJson.data?.let {
+                                    UserInfoManager.account = it.account
                                     UserInfoManager.userAvatar = it.avatarUrl
-                                    UserInfoManager.userId=it.userId
+                                    UserInfoManager.userId = it.userId
                                     currentState.userProfile = it
                                     currentState.avatarUri = it.avatarUrl
                                 }
@@ -147,9 +147,9 @@ class UserStore : Store<UserState, UserAction>() {
                         )
                         when (fromJson.code) {
                             "200" -> {
-//                                UserInfoManager.userAvatar = fromJson.data.toString()
+                                UserInfoManager.userAvatar = fromJson.data.toString()
                                 currentState.avatarUri = fromJson.data.toString()
-//                                currentState.userProfile.avatarUrl = fromJson.data.toString()
+                                currentState.userProfile.avatarUrl = fromJson.data.toString()
                                 _state.onNext(currentState)
                             }
 
@@ -187,6 +187,7 @@ class UserStore : Store<UserState, UserAction>() {
                         when (fromJson.code) {
                             "200" -> {
                                 currentState.userProfile = fromJson.data!!
+                                UserInfoManager.account = fromJson.data.account
                                 handler.post {
                                     EventBusHelper.post(FinishEvent("updateUser"))
                                 }

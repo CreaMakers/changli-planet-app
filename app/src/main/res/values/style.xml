@@ -45,5 +45,7 @@
         <item name="android:windowIsFloating">true</item>
         <!--是否模糊-->
         <item name="android:backgroundDimEnabled">true</item>
+        <!--波纹点击设置-->
+        <item name="android:selectableItemBackground">@drawable/ripple_gray</item>
     </style>
 </resources>
