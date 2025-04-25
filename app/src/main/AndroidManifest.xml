@@ -41,6 +41,15 @@
             android:name=".Activity.ContractActivity"
             android:exported="false" />
         <activity
+            android:name=".Activity.FixSomethingAccountActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.AddSomethingAccountActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.AccountBookActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.PublishFreshNewsActivity"
             android:exported="false" />
         <activity

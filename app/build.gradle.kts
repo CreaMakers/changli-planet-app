@@ -119,6 +119,8 @@ dependencies {
     // PDF库 尝试一下
     //implementation("com.github.barteksc:android-pdf-viewer:2.8.2")
 
+    //lottie
+    implementation("com.airbnb.android:lottie:6.0.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -2,7 +2,9 @@ package com.example.changli_planet_app.Core
 
 import android.content.Context
 import android.content.Intent
+import com.example.changli_planet_app.Activity.AccountBookActivity
 import com.example.changli_planet_app.Activity.AccountSecurityActivity
+import com.example.changli_planet_app.Activity.AddSomethingAccountActivity
 import com.example.changli_planet_app.Activity.BindEmailActivity
 import com.example.changli_planet_app.Activity.BindingUserActivity
 import com.example.changli_planet_app.Activity.CampusMapActivity
@@ -11,6 +13,7 @@ import com.example.changli_planet_app.Activity.ClassInfoActivity
 import com.example.changli_planet_app.Activity.ContractActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.Activity.ExamArrangementActivity
+import com.example.changli_planet_app.Activity.FixSomethingAccountActivity
 import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.LoginByEmailActivity
 import com.example.changli_planet_app.Activity.LoseActivity
@@ -164,5 +167,25 @@ object Route {
         val intent=Intent(context,ContractActivity::class.java)
         context.startActivity(intent)
     }
+
+
+    fun goAccountBook(context: Context){
+        val intent = Intent(context, AccountBookActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goAddSomethingAccount(context: Context){
+        val intent = Intent(context, AddSomethingAccountActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goFixSomethingAccount(context: Context){
+        val intent = Intent(context, FixSomethingAccountActivity::class.java)
+        context.startActivity(intent)
+    }
+
+
+
+
 
 }

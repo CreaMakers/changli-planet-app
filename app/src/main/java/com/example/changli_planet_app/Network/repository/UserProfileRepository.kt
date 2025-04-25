@@ -18,6 +18,7 @@ class UserProfileRepository private constructor() {
     companion object {
         val instance by lazy { UserProfileRepository() }
         val cache by lazy { UserDataBase.getInstance(PlanetApplication.appContext).itemDao() }
+        // 缓存时间暂时为3小时
         private const val CACHE_DURATION = 3 * 60 * 60 * 1000L
     }
 

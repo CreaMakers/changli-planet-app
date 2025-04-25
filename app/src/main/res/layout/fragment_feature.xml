@@ -204,11 +204,47 @@
                     app:itemTitle="空闲教室" />
 
                 <com.example.changli_planet_app.Widget.View.FunctionItem
-                    android:id="@+id/ncontract"
+                    android:id="@+id/accountbook"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:itemTitle="记帐本" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="15dp">
+
+                <com.example.changli_planet_app.Widget.View.FunctionItem
+                    android:id="@+id/ndocument"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="文件库" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+
+
+
+
             </LinearLayout>
         </LinearLayout>
 
