@@ -204,7 +204,7 @@
                     app:itemTitle="空闲教室" />
 
                 <com.example.changli_planet_app.Widget.View.FunctionItem
-                    android:id="@+id/ndocument"
+                    android:id="@+id/ncontract"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"

@@ -12,6 +12,8 @@ object UserInfoManager {
     private const val KEY_AVATAR = "user_avatar"
 
     private const val KEY_USER_ACCOUNT = "user_account"
+    private const val KEY_EMAIL = "user_email"
+
     var userId: Int
         get() = mmkv.getInt(KEY_USERID, -1)
         set(value) {
@@ -41,6 +43,12 @@ object UserInfoManager {
             ?: "https://pic.imgdb.cn/item/671e5e17d29ded1a8c5e0dbe.jpg"
         set(value) {
             mmkv.putString(KEY_AVATAR, value)
+        }
+
+    var userEmail:String
+        get() = mmkv.getString(KEY_EMAIL,"")?:""
+        set(value){
+            mmkv.putString(KEY_EMAIL,value)
         }
 
     fun clear() {

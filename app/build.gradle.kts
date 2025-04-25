@@ -116,8 +116,8 @@ dependencies {
     // BRV，尝试一下
     implementation("com.github.liangjingkanji:BRV:1.6.1")
 
-    // PDF库
-//    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha08")
+    // PDF库 尝试一下
+    //implementation("com.github.barteksc:android-pdf-viewer:2.8.2")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

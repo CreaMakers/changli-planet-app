@@ -6,24 +6,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/login_background"
-    tools:context=".Activity.RegisterActivity">
-
+    tools:context=".Activity.LoginByEmailActivity">
     <Space
         android:id="@+id/space"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.10"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHeight_percent="0.1"/>
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="10dp"
-        android:src="@drawable/turn"
-        app:layout_constraintHeight_percent="0.10"
-        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/email"
         app:layout_constraintTop_toBottomOf="@+id/space"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHeight_percent="0.1"
         app:layout_constraintWidth_percent="0.28" />
 
     <TextView
@@ -32,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:gravity="center"
-        android:text="账户登录"
+        android:text="邮箱登录"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,13 +39,14 @@
         app:layout_constraintWidth_percent="0.30" />
 
     <EditText
-        android:id="@+id/account"
+        android:id="@+id/email"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:background="@drawable/login_edit_shape"
         android:gravity="center"
-        android:hint="请输入账号"
+        android:hint="请输入邮箱"
         android:singleLine="true"
+        android:inputType="textEmailAddress"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,53 +54,37 @@
         app:layout_constraintVertical_bias="0.1"
         app:layout_constraintWidth_percent="0.8" />
 
-
-    <LinearLayout
-        android:id="@+id/password_content"
+    <FrameLayout
+        android:id="@+id/line1"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/login_edit_shape"
-        android:orientation="horizontal"
+        android:layout_height="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/account"
+        app:layout_constraintTop_toBottomOf="@+id/email"
         app:layout_constraintVertical_bias="0.1"
         app:layout_constraintWidth_percent="0.8">
-
-        <ImageView
-            android:id="@+id/iv_eye"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="5sp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:src="@drawable/line_invisible2" />
-
         <EditText
-            android:id="@+id/password"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="10"
+            android:id="@+id/captcha"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:background="@drawable/login_edit_shape"
+            android:gravity="start|center"
+            android:paddingStart="15dp"
+            android:hint="请输入验证码"
+            android:singleLine="true"
+            android:maxLength="6"
+            android:inputType="number" />
+        <TextView
+            android:id="@+id/get_captcha"
+            android:layout_width="100dp"
+            android:layout_gravity="end"
+            android:textSize="15sp"
             android:gravity="center"
-            android:hint="请输入密码"
-            android:inputType="textPassword"
-            android:singleLine="true"/>
-
-        <ImageView
-            android:id="@+id/iv_ox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginRight="5sp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:src="@drawable/dialog_login" />
-
-    </LinearLayout>
-
+            android:text="获取验证码"
+            android:textColor="@color/primary_blue"
+            android:layout_height="match_parent"/>
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/agreement_layout"
@@ -112,7 +96,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.341"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password_content"
+        app:layout_constraintTop_toBottomOf="@+id/line1"
         app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_percent="0.8">
 
@@ -151,8 +135,9 @@
         app:cornerRadius="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.512"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password_content"
+        app:layout_constraintTop_toBottomOf="@+id/line1"
         app:layout_constraintVertical_bias="0.162"
         app:layout_constraintWidth_percent="0.8" />
 
@@ -172,13 +157,13 @@
         tools:layout_editor_absoluteX="0dp" />
 
     <TextView
-        android:id="@+id/login_email"
+        android:id="@+id/login_account"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:gravity="center"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="100dp"
-        android:text="邮箱登录"
+        android:text="账户登录"
         android:textColor="@color/primary_blue"
         android:textSize="15sp"
         app:layout_constraintTop_toBottomOf="@id/login"
@@ -190,8 +175,8 @@
         android:id="@+id/regicremaker"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="25dp"
         android:src="@drawable/creamaker"
+        android:layout_marginTop="25dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.30"
         app:layout_constraintStart_toStartOf="parent"

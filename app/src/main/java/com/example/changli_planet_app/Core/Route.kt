@@ -3,13 +3,16 @@ package com.example.changli_planet_app.Core
 import android.content.Context
 import android.content.Intent
 import com.example.changli_planet_app.Activity.AccountSecurityActivity
+import com.example.changli_planet_app.Activity.BindEmailActivity
 import com.example.changli_planet_app.Activity.BindingUserActivity
 import com.example.changli_planet_app.Activity.CampusMapActivity
 import com.example.changli_planet_app.Activity.CetActivity
 import com.example.changli_planet_app.Activity.ClassInfoActivity
+import com.example.changli_planet_app.Activity.ContractActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.Activity.ExamArrangementActivity
 import com.example.changli_planet_app.Activity.LoginActivity
+import com.example.changli_planet_app.Activity.LoginByEmailActivity
 import com.example.changli_planet_app.Activity.LoseActivity
 import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.MandeActivity
@@ -49,6 +52,7 @@ object Route {
 
     fun goLoginFromRegister(context: Context, name: String, password: String) {
         val intent = Intent(context, LoginActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         intent.putExtra("username", name)
         intent.putExtra("password", password)
         context.startActivity(intent)
@@ -60,8 +64,21 @@ object Route {
         context.startActivity(intent)
     }
 
+    fun goLoginByEmailForcibly(context: Context){
+        val intent = Intent(context, LoginByEmailActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        context.startActivity(intent)
+    }
+
     fun goRegister(context: Context) {
         val intent = Intent(context, RegisterActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goBindEmailFromRegister(context: Context,name: String,password: String){
+        val intent=Intent(context,BindEmailActivity::class.java)
+        intent.putExtra("username",name)
+        intent.putExtra("password",password)
         context.startActivity(intent)
     }
 
@@ -142,4 +159,10 @@ object Route {
         val intent = Intent(context, PublishFreshNewsActivity::class.java)
         context.startActivity(intent)
     }
+
+    fun goContract(context: Context){
+        val intent=Intent(context,ContractActivity::class.java)
+        context.startActivity(intent)
+    }
+
 }

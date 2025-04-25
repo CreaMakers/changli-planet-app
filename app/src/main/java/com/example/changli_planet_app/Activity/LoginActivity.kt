@@ -35,6 +35,8 @@ class LoginActivity : FullScreenActivity() {
     private val route: TextView by lazy { binding.route }
     private val account: EditText by lazy { binding.account }
     private val password: EditText by lazy { binding.password }
+    private val forgetPassword:TextView by lazy { binding.forget }
+    private val loginByEmail:TextView by lazy { binding.loginEmail }
     private val iVEye: ImageView by lazy { binding.ivEye }
     private val ivOx: ImageView by lazy { binding.ivOx }
     private val agreementCheckBox: CheckBox by lazy { binding.agreementCheckbox }
@@ -136,11 +138,14 @@ class LoginActivity : FullScreenActivity() {
     }
 
     private fun setUnderLine() {
-        var underlinetext = SpannableString(route.text.toString())
-        underlinetext.setSpan(UnderlineSpan(), 6, 8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        route.text = underlinetext
+        getUnderLineScope(route,6,8)
+        getUnderLineScope(forgetPassword,0,4)
+        getUnderLineScope(loginByEmail,0,4)
         route.setOnClickListener {
             Route.goRegister(this)
+        }
+        loginByEmail.setOnClickListener{
+            Route.goLoginByEmailForcibly(this)
         }
     }
 
@@ -197,6 +202,12 @@ class LoginActivity : FullScreenActivity() {
             }
         }
         editText.filters = arrayOf(inputFilter)
+    }
+
+    private fun getUnderLineScope(view: TextView,start:Int,end:Int){
+        var underlinetext = SpannableString(view.text.toString())
+        underlinetext.setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        view.text = underlinetext
     }
 
     companion object {
