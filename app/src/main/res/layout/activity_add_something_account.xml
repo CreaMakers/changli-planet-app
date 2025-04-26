@@ -17,6 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
+            android:id="@+id/backBtn"
             android:layout_width="@dimen/dp28"
             android:layout_height="@dimen/dp28"
             android:src="@drawable/back"
@@ -232,7 +233,7 @@
         android:textSize="20sp"
         android:textColor="@color/white"
         android:gravity="center"
-        android:background="@drawable/blue_rounded_button"
+        android:background="@drawable/shape_blue_rounded_button"
         android:paddingVertical="@dimen/dp8"
         android:layout_marginHorizontal="@dimen/dp45"
         app:layout_constraintBottom_toBottomOf="parent"

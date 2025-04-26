@@ -101,19 +101,20 @@ class FeatureFragment : Fragment() {
 
                 // 设置功能图标
                 val iconIds = listOf(
-                    ngrade to R.drawable.ngrade,
-                    ncourse to R.drawable.ncourse,
-                    nmap to R.drawable.nmap,
-                    ncet to R.drawable.ncet,
-                    ntest to R.drawable.ntest,
-                    ncalender to R.drawable.ncalender,
-                    nmande to R.drawable.nmande,
-                    nlose to R.drawable.nlose,
-                    nelectronic to R.drawable.nelectronic,
-                    nrank to R.drawable.nrank,
-                    nclassroom to R.drawable.nclassroom,
+                    ngrade to R.drawable.ic_exam,
+                    ncourse to R.drawable.ic_timetable,
+                    nmap to R.drawable.ic_map,
+                    ncet to R.drawable.ic_essay,
+                    ntest to R.drawable.ic_schedule,
+                    ncalender to R.drawable.ic_calendar,
+                    nmande to R.drawable.ic_talking,
+                    nlose to R.drawable.ic_lost_and_found,
+                    nelectronic to R.drawable.ic_bill,
+                    nrank to R.drawable.ic_rank,
+                    nclassroom to R.drawable.ic_classroom,
                     accountbook to R.drawable.account_book,
-                    ndocument to R.drawable.ic_document,
+                    ndocument to R.drawable.ic_document
+
                 )
 
                 iconIds.forEach { (item, resId) ->

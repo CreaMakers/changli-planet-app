@@ -3,6 +3,7 @@ package com.example.changli_planet_app.Activity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,13 +11,19 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.Activity.ViewModel.AccountBookViewModel
+import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Widget.Picker.ProductCategoryPicker
+import com.example.changli_planet_app.Widget.View.DatePickerDialog
 import com.example.changli_planet_app.databinding.ActivityAddSomethingAccountBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.getValue
 
-class AddSomethingAccountActivity : AppCompatActivity() {
+class AddSomethingAccountActivity : FullScreenActivity() {
     private val binding by lazy { ActivityAddSomethingAccountBinding.inflate(layoutInflater) }
     private val viewModel: AccountBookViewModel by viewModels()
     private val somethingName by lazy { binding.somethingNameEdit }
@@ -40,6 +47,8 @@ class AddSomethingAccountActivity : AppCompatActivity() {
             WindowInsetsCompat.CONSUMED
         }
         back()
+        save()
+        initMessage()
     }
 
     private fun initMessage() {
@@ -84,49 +93,83 @@ class AddSomethingAccountActivity : AppCompatActivity() {
             }
 
             override fun afterTextChanged(p0: Editable?) {
-                p0?.let { viewModel.updateItemPrice(p0.toString().toDouble()) }
+
+                p0?.let {
+                    if (p0.isNotEmpty()) {
+                        try {
+                            viewModel.updateItemPrice(p0.toString().toDouble())
+                        } catch (e: NumberFormatException) {
+                            // 可以显示错误提示
+                            Toast.makeText(
+                                this@AddSomethingAccountActivity,
+                                "请输入有效价格",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+
             }
 
         })
+        somethingType.setOnClickListener {
+            showTypePicker()
+        }
+        binding.ivExpand.setOnClickListener {
+            showTypePicker()
+        }
         buyTime.setOnClickListener {
+            showDatePicker()
+        }
+
+    }
+
+    private fun showTypePicker() {
+        var productCategoryPicker = ProductCategoryPicker(this, "", "")
+        productCategoryPicker.setOnCategorySelectedListener { categories, subcategories ->
+            val tpye = String.format("%s--%s", categories, subcategories)
+            somethingType.text = tpye
+            lifecycleScope.launch {
+                viewModel.updateItemType(subcategories)
+            }
+        }
+        productCategoryPicker.show()
+    }
+
+
+    private fun showDatePicker() {
+        val dialog = DatePickerDialog(this)
+        dialog.setDate(2023, 3, 9)
+        dialog.setOnDateSelectedListener { year, month, day ->
+            val date = String.format("%d-%02d-%02d", year, month, day)
+            buyTime.text = date
+            lifecycleScope.launch {
+                viewModel.updateItemStartTime(date)
+            }
 
         }
+        dialog.show()
     }
-//
-//    private fun showDatePicker() {
-//        val dialog = DatePickerDialog(this)
-//
-//        dialog.setDate(2023, 3, 9)
-//        dialog.setOnDateSelectedListener { year, month, day ->
-//            val date = String.format("%d-%02d-%02d", year, month, day)
-//            birthdayTextView.text = date
-//        }
-//
-//
-//        dialog.show()
-//    }
-//
+
     private fun back() {
-        binding.ivExpand.setOnClickListener {
+        binding.backBtn.setOnClickListener {
             Route.goAccountBook(this@AddSomethingAccountActivity)
             finish()
         }
     }
 
-    private fun save() {
+    private  fun save() {
         binding.saveButton.setOnClickListener {
             lifecycleScope.launch {
-                viewModel.addSomethingItem(
-                    somethingName.text.toString(),
-                    somethingPrice.text.toString().toDouble(),
-                    somethingType.text.toString(),
-                    buyTime.text.toString()
-                )
+                withContext(Dispatchers.IO) {
+                    viewModel.addSomethingItem()
+                }
+                Toast.makeText(applicationContext, "添加成功", Toast.LENGTH_SHORT).show()
+                delay(800)
+                Route.goAccountBook(this@AddSomethingAccountActivity)
+                finish()
             }
-            Route.goAccountBook(this@AddSomethingAccountActivity)
-            finish()
         }
     }
-
 
 }

@@ -27,6 +27,9 @@ interface AccountBookDao {
     @Query("SELECT totalMoney FROM something_items WHERE id = :itemId")
     fun findPriceById(itemId: Int): Double?
 
+    @Query("SELECT * FROM something_items WHERE id = :itemId")
+    fun findItemById(itemId: Int):SomethingItemEntity?
+
     @Query("SELECT * FROM something_items")
     fun getAllSomethingItems(): List<SomethingItemEntity>
 

@@ -8,5 +8,5 @@ data class TopCardEntity(
     @PrimaryKey val id: Int = 1,
     val allNumber: Int,
     val totalMoney: Double,
-    val dailyAverage: Double
+    val dailyAverage: Double,
 )

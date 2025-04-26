@@ -156,8 +156,10 @@ object Route {
         context.startActivity(intent)
     }
 
-    fun goFixSomethingAccount(context: Context){
-        val intent = Intent(context, FixSomethingAccountActivity::class.java)
+    fun goFixSomethingAccount(context: Context,itemId: Int){
+        val intent = Intent(context, FixSomethingAccountActivity::class.java).apply {
+            putExtra("ITEM_ID", itemId)
+        }
         context.startActivity(intent)
     }
 

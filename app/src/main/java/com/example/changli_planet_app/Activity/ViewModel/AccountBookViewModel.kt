@@ -1,14 +1,19 @@
 package com.example.changli_planet_app.Activity.ViewModel
 
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.changli_planet_app.Cache.Room.dao.AccountBookDao
 import com.example.changli_planet_app.Cache.Room.database.AccountBookDatabase
 import com.example.changli_planet_app.Cache.Room.entity.SomethingItemEntity
 import com.example.changli_planet_app.Cache.Room.entity.TopCardEntity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -27,7 +32,30 @@ class AccountBookViewModel : ViewModel() {
     val itemName = _itemName.asSharedFlow()
     val _itemPrice = MutableStateFlow(0.0)
     val itemPrice = _itemPrice.asSharedFlow()
+    val _itemTpye = MutableStateFlow("")
+    val itemType = _itemTpye.asSharedFlow()
     val accountBookDao = AccountBookDatabase.getInstance(PlanetApplication.appContext)
+    private val _topCard = MutableStateFlow<TopCardEntity?>(null)
+    val topCard = _topCard.asSharedFlow()
+
+    private val _items = MutableStateFlow<List<SomethingItemEntity>>(emptyList())
+    val items = _items.asSharedFlow()
+
+    fun refreshData() {
+        viewModelScope.launch {
+
+            val topCard = withContext(Dispatchers.IO) {
+                accountBookDao.accountBookDao().getTopCard()
+            }
+            _topCard.value = topCard
+
+            val items = withContext(Dispatchers.IO) {
+                accountBookDao.accountBookDao().getAllSomethingItems()
+            }
+            _items.value = items
+        }
+    }
+
 
     fun updateItemName(name: String) {
         _itemName.value = name
@@ -37,22 +65,20 @@ class AccountBookViewModel : ViewModel() {
         _itemPrice.value = price
     }
 
+    fun updateItemType(type: String) {
+        _itemTpye.value = type
+    }
 
     fun updateItemStartTime(startTime: String) {
         _itemStartTime.value = startTime
     }
 
-    fun loadTopCard(): TopCardEntity? {
-        return accountBookDao.accountBookDao().getTopCard()
-    }
 
-    fun loadItems(): List<SomethingItemEntity>? {
-        return accountBookDao.accountBookDao().getAllSomethingItems()
-    }
-
-
-    fun addSomethingItem(name: String, price: Double, type: String, buyTime: String) {
-
+    fun addSomethingItem() {
+        val name = _itemName.value
+        val price = _itemPrice.value
+        val type = _itemTpye.value
+        val buyTime = _itemStartTime.value
         val itemIconResId: Int = when (type) {
             "手机" -> R.drawable.iphone
             "电脑" -> R.drawable.laptop
@@ -65,20 +91,35 @@ class AccountBookViewModel : ViewModel() {
             else -> R.drawable.nfeature
         }
         val sdf = SimpleDateFormat("yyyy-M-d", Locale.getDefault())
-        val days = (sdf.parse(buyTime).time - Date().time) / 1000 / 60 / 60 / 24
+        val days = Math.max((Date().time - sdf.parse(buyTime).time) / 1000 / 60 / 60 / 24, 1)
         val newItem = SomethingItemEntity(0, name, price, price / days, buyTime, itemIconResId)
         accountBookDao.accountBookDao().insertOrUpdateSomethingItems(newItem)
         updateTopCardByAdd(buyTime, price)
     }
 
-    fun findItemId(name: String, totalMoney: Double, startTime: String): Int? {
-        return accountBookDao.accountBookDao().findIdByAttributes(name, totalMoney, startTime)
+
+    fun deleteSomethingItem(itemId: Int) {
+        val item = accountBookDao.accountBookDao().findItemById(itemId)!!
+        accountBookDao.accountBookDao().deleteSomethingItem(itemId)
+        var topCard = accountBookDao.accountBookDao().getTopCard()!!
+        val newTopCardEntity = TopCardEntity(
+            1,
+            topCard.allNumber - 1,
+            topCard.totalMoney - item.totalMoney,
+            topCard.dailyAverage - item.dailyAverage
+        )
+        accountBookDao.accountBookDao().insertOrUpdateTopCard(newTopCardEntity)
     }
 
-    fun fixSomethingItem(name: String, price: Double, type: String, buyTime: String, oldId: Int) {
+    fun fixSomethingItem(oldId: Int) {
+        val name = _itemName.value
+        val price = _itemPrice.value
+        val type = _itemTpye.value
+        val buyTime = _itemStartTime.value
         val itemIconResId: Int = when (type) {
             "手机" -> R.drawable.iphone
-            "电脑" -> R.drawable.laptop
+            "笔记本电脑" -> R.drawable.laptop
+            "平板电脑" ->R.drawable.ic_tablet_pc
             "耳机" -> R.drawable.earphone
             "自行车" -> R.drawable.bicycle
             "游戏" -> R.drawable.game
@@ -88,7 +129,7 @@ class AccountBookViewModel : ViewModel() {
             else -> R.drawable.nfeature
         }
         val sdf = SimpleDateFormat("yyyy-M-d", Locale.getDefault())
-        val days = (sdf.parse(buyTime).time - Date().time) / 1000 / 60 / 60 / 24
+        val days = (Date().time - sdf.parse(buyTime).time) / 1000 / 60 / 60 / 24
         val newItem = SomethingItemEntity(oldId, name, price, price / days, buyTime, itemIconResId)
         accountBookDao.accountBookDao().insertOrUpdateSomethingItems(newItem)
         updateTopCardByFix()
@@ -99,7 +140,7 @@ class AccountBookViewModel : ViewModel() {
             val sdf = SimpleDateFormat("yyyy-M-d", Locale.getDefault());
             val lastTime = sdf.parse(startTime)
             val now = Date()
-            val days = (lastTime.time - now.time) / 1000 / 60 / 60 / 24;
+            val days = Math.max(1, (now.time - lastTime.time) / 1000 / 60 / 60 / 24)
             val newTopCard = TopCardEntity(
                 1,
                 1,
@@ -130,11 +171,13 @@ class AccountBookViewModel : ViewModel() {
         var newTotalMoney: Double = 0.0
         var newDailyAverage: Double = 0.0
         var itemSize = 0
+
         for (entity in accountBookDao.accountBookDao().getAllSomethingItems()) {
             newDailyAverage = entity.dailyAverage + newDailyAverage
             newTotalMoney = entity.totalMoney + newTotalMoney
             itemSize++
         }
+
         val newTopCard = TopCardEntity(
             1,
             itemSize,
@@ -143,5 +186,6 @@ class AccountBookViewModel : ViewModel() {
         )
         accountBookDao.accountBookDao().insertOrUpdateTopCard(newTopCard)
     }
+
 }
 

@@ -14,6 +14,7 @@ class ProductCategoryPicker(activity: Activity, defaultCategory: String = "数�
 
     private val subcategories = mapOf(
         "数码产品" to listOf("手机", "平板电脑", "笔记本电脑", "智能手表", "耳机", "相机"),
+        "娱乐" to listOf("游戏","游戏设备"),
         "家用电器" to listOf("电视", "冰箱", "洗衣机", "空调", "微波炉", "电饭煲"),
         "服装" to listOf("上衣", "裤子", "裙子", "鞋子", "配饰", "内衣"),
         "美妆护肤" to listOf("面部护理", "彩妆", "香水", "洗护", "工具", "防晒"),
@@ -28,7 +29,7 @@ class ProductCategoryPicker(activity: Activity, defaultCategory: String = "数�
             }
 
             override fun thirdLevelVisible(): Boolean {
-                return false // 不显示第三级选择器
+                return false
             }
 
             override fun provideFirstData(): List<String> {

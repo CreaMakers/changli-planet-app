@@ -2,9 +2,10 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    app:cardCornerRadius="@dimen/dp12"
     android:elevation="@dimen/dp10"
-    android:layout_marginVertical="@dimen/dp10"
-    android:layout_marginHorizontal="@dimen/dp15"
+   android:layout_marginTop="@dimen/dp10"
+    android:layout_marginHorizontal="@dimen/dp12"
     android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,7 +29,7 @@
             android:layout_height="wrap_content"
             android:text="自行车"
             android:textColor="@color/white"
-            android:textSize="@dimen/dp20"
+            android:textSize="18sp"
             android:layout_marginStart="@dimen/dp15"
             app:layout_constraintStart_toEndOf="@id/picture"
             app:layout_constraintTop_toTopOf="@id/picture" />
@@ -39,7 +40,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:text="¥123"
-            android:textSize="@dimen/dp13"
+            android:textSize="16sp"
             android:layout_marginTop="@dimen/dp10"
             app:layout_constraintStart_toStartOf="@id/name"
             app:layout_constraintTop_toBottomOf="@id/name" />
@@ -49,9 +50,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="¥4.6/天"
+            android:textSize="15sp"
             android:textColor="@color/white"
             android:layout_marginStart="@dimen/dp20"
             app:layout_constraintBottom_toBottomOf="@id/all_money"
+            app:layout_constraintTop_toTopOf="@id/all_money"
             app:layout_constraintStart_toEndOf="@id/all_money" />
 
         <TextView
@@ -60,7 +63,7 @@
             android:layout_height="wrap_content"
             android:text="55"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="25sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tian"
             app:layout_constraintTop_toTopOf="parent" />
