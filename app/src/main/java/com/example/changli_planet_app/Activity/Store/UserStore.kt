@@ -224,34 +224,42 @@ class UserStore : Store<UserState, UserAction>() {
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
-                        val fromJson = OkHttpHelper.gson.fromJson(
-                            response.body?.string(),
-                            ApkResponse::class.java
-                        )
+                        try{
+                            val fromJson = OkHttpHelper.gson.fromJson(
+                                response.body?.string(),
+                                ApkResponse::class.java
+                            )
 
-                        when (fromJson.code) {
-                            "200" -> {
-                                if (fromJson.msg == "获取最新apk版本成功") {
-                                    val data = fromJson.data!!
+                            when (fromJson.code) {
+                                "200" -> {
+                                    if (fromJson.msg == "获取最新apk版本成功") {
+                                        val data = fromJson.data!!
+                                        handler.post {
+                                            UpdateDialog(
+                                                action.context,
+                                                data.updateMessage,
+                                                data.downloadUrl
+                                            ).show()
+                                        }
+                                    }
+                                }
+
+                                else -> {
                                     handler.post {
-                                        UpdateDialog(
+                                        CustomToast.showMessage(
                                             action.context,
-                                            data.updateMessage,
-                                            data.downloadUrl
-                                        ).show()
+                                            "获取最新apk失败, ${fromJson.msg}"
+                                        )
                                     }
                                 }
                             }
-
-                            else -> {
-                                handler.post {
-                                    CustomToast.showMessage(
-                                        action.context,
-                                        "获取最新apk失败, ${fromJson.msg}"
-                                    )
-                                }
+                        }catch (e:Exception){
+                            e.printStackTrace()
+                            handler.post {
+                                CustomToast.showMessage(action.context,"获取新版本失败")
                             }
                         }
+
                     }
 
                     override fun onFailure(error: String) {

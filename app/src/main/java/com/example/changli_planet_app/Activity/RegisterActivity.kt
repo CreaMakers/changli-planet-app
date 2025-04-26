@@ -10,13 +10,14 @@ import android.text.style.UnderlineSpan
 import android.widget.EditText
 import android.widget.TextView
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
+import com.example.changli_planet_app.Activity.State.LoginAndRegisterState
 import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
 import com.example.changli_planet_app.Core.FullScreenActivity
-import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.noOpDelegate
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.Event.FinishEvent
+import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
@@ -44,6 +45,7 @@ class RegisterActivity : FullScreenActivity() {
                         register.isEnabled = state.isEnable
                         register.setBackgroundResource(R.drawable.enable_button)
                     }
+                    //checkNameFlat(state)
                     binding.apply {
                         lengthIcon.setImageResource(if (state.isLengthValid) R.drawable.dui else R.drawable.cuo)
                         upperLowerIcon.setImageResource(if (state.hasUpperAndLower) R.drawable.dui else R.drawable.cuo)
@@ -78,28 +80,33 @@ class RegisterActivity : FullScreenActivity() {
                 isUpdating = false
             }
         }
-        register.setOnClickListener {
-            store.dispatch(
-                LoginAndRegisterAction.Login
-                    (
-                    UserPassword(account.text.toString(), password.text.toString()),
-                    this
-                )
-            )
-        }
+//        register.setOnClickListener {
+//            store.dispatch(
+//                LoginAndRegisterAction.Login
+//                    (
+//                    UserPassword(account.text.toString(), password.text.toString()),
+//                    this
+//                )
+//            )
+//        }
         account.addTextChangedListener(accountTextWatcher)
         password.addTextChangedListener(passwordTextWatcher)
         inputFilter(account)
         inputFilterPassword(password)
         register.setOnClickListener {
-            store.dispatch(
-                LoginAndRegisterAction.Register
-                    (
-                    UserPassword(account.text.toString(), password.text.toString()),
-                    this
-                )
-            )
+            store.dispatch(LoginAndRegisterAction.CheckName(this,account.text.toString(),password.text.toString()))
         }
+    }
+
+
+    private fun checkNameFlat(state: LoginAndRegisterState){
+//        if(state.checkNameFlat==1){
+//            Route.goBindEmailFromRegister(this,account.text.toString(), password.text.toString())
+//        }
+//        else if(state.checkNameFlat==-1){
+//            CustomToast.showMessage(this,"账号已被注册，请换一个吧~")
+//            store.dispatch(LoginAndRegisterAction.input(0.toString(),"checkNameFlat")) //恢复默认状态，防止一直发消息
+//        }
     }
 
     private fun validatePassword(password: String) {

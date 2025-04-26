@@ -325,6 +325,12 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     override fun onStart() {
         super.onStart()
+        lifecycleScope.launch {
+            launch(Dispatchers.IO) {
+                store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
+                store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+            }
+        }
     }
 
     private fun setupTabs() {

@@ -33,7 +33,7 @@ class FreshNewsContract {
 
     sealed class Event {
         object showOverlay : Event()
-        object closePublish : Event()
+        object closePublish : FreshNewsContract.Event()
         object RefreshNewsList : FreshNewsContract.Event()
     }
 
