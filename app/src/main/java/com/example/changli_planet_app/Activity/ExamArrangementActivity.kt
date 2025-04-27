@@ -100,7 +100,8 @@ class ExamArrangementActivity : FullScreenActivity() {
                     this,
                     studentId,
                     studentPassword,
-                    getCurrentTerm()
+                    getCurrentTerm(),
+                    refresh = {refreshData()}
                 )
             )
         } else {

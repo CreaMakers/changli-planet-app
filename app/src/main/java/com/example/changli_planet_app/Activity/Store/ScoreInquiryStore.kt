@@ -3,6 +3,7 @@ package com.example.changli_planet_app.Activity.Store
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.example.changli_planet_app.Activity.Action.ScoreInquiryAction
 import com.example.changli_planet_app.Activity.State.ScoreInquiryState
 import com.example.changli_planet_app.Cache.ScoreCache
@@ -50,6 +51,12 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
                             when (gradeResponse.code) {
                                 "200" -> {
                                     currentState.grades = gradeResponse.data
+                                    currentState.grades.forEach{grade ->
+                                        if(grade.point==null) {
+                                            Log.d("ScoreInquiryStore","point is null")
+                                        }
+
+                                    }
                                     _state.onNext(currentState)
                                 }
 
@@ -60,7 +67,8 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
                                             ErrorStuPasswordResponseDialog(
                                                 action.context,
                                                 "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
-                                                "查询失败"
+                                                "查询失败",
+                                                action.refresh
                                             ).show()
                                         } catch (e: Exception) {
                                             e.printStackTrace()

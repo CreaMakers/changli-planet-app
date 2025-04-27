@@ -1,7 +1,10 @@
 package com.example.changli_planet_app.Activity
 
 import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Looper
 import android.provider.Settings
 import android.text.Editable
 import android.text.InputFilter
@@ -14,8 +17,11 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.pm.PackageInfoCompat
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
+import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
+import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.R
@@ -42,12 +48,30 @@ class LoginActivity : FullScreenActivity() {
     private val agreementCheckBox: CheckBox by lazy { binding.agreementCheckbox }
     private val disposables by lazy { CompositeDisposable() }
     val store = LoginAndRegisterStore()
+    val UserStore=UserStore()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initView()
         initListener()
+        checkUpdate()
     }
 
+    private fun checkUpdate(){
+        // 检查版本更新
+        Looper.myQueue().addIdleHandler {
+            val packageManager: PackageManager = this@LoginActivity.packageManager
+            val packageInfo: PackageInfo =
+                packageManager.getPackageInfo(this@LoginActivity.packageName, 0)
+            UserStore.dispatch(
+                UserAction.QueryIsLastedApk(
+                    this@LoginActivity,
+                    PackageInfoCompat.getLongVersionCode(packageInfo),
+                    packageInfo.packageName
+                )
+            )
+            false
+        }
+    }
     private fun initView() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)// 设置Button的初始状态

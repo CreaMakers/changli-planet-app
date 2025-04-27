@@ -157,7 +157,8 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                         action.context,
                         GetCourse(
                             action.stuNum, action.password, "", action.term
-                        )
+                        ),
+                        action.refresh
                     )
                 )
                 _state.onNext(curState)
@@ -284,7 +285,8 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                         ErrorStuPasswordResponseDialog(
                                             action.context,
                                             "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
-                                            "查询失败"
+                                            "查询失败",
+                                            action.refresh
                                         ).show()
                                     } catch (e: Exception) {
                                         e.printStackTrace()

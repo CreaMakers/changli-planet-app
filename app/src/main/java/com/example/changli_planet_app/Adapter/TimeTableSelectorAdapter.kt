@@ -18,7 +18,8 @@ class TimeTableSelectorAdapter(
     private val stuNum: String,
     private val stuPassword: String,
     val list: List<String>,
-    val store: TimeTableStore
+    val store: TimeTableStore,
+    val refresh:()->Unit
 ) :
     RecyclerView.Adapter<TimeTableSelectorAdapter.TimeTableViewHodler>() {
     class TimeTableViewHodler(item: View) : ViewHolder(item) {
@@ -45,7 +46,8 @@ class TimeTableSelectorAdapter(
                         context,
                         stuNum,
                         stuPassword,
-                        list[position]
+                        list[position],
+                        refresh
                     )
                 )
                 EventBusHelper.post(SelectEvent(1))

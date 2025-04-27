@@ -20,9 +20,11 @@ import com.example.changli_planet_app.Adapter.SomethingItemAdapter
 import com.example.changli_planet_app.Cache.Room.database.AccountBookDatabase
 import com.example.changli_planet_app.Cache.Room.entity.SomethingItemEntity
 import com.example.changli_planet_app.Cache.Room.entity.TopCardEntity
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.Widget.View.AddItemFloatView
 import com.example.changli_planet_app.databinding.ActivityAccountBookBinding
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +41,7 @@ class AccountBookActivity : FullScreenActivity() {
     private val binding by lazy { ActivityAccountBookBinding.inflate(layoutInflater) }
     private val viewModel: AccountBookViewModel by viewModels()
     private var mFloatView: AddItemFloatView? = null
-
+    private val avatar by lazy { binding.avatar }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +52,7 @@ class AccountBookActivity : FullScreenActivity() {
             insets
         }
         setContentView(binding.root)
+        GlideUtils.load(this,avatar,UserInfoManager.userAvatar,false) //加载用户头像
         handleEvents()
         showCatLoading()
         object : CountDownTimer(1 * 1000L, 12312L) {

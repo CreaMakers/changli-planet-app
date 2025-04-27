@@ -8,7 +8,7 @@ import okhttp3.Cookie
 sealed class ScoreInquiryAction {
     object ShowData : ScoreInquiryAction()
     object initilaize : ScoreInquiryAction()
-    data class UpdateGrade(val context: Context, val studentId: String, val password: String) :
+    data class UpdateGrade(val context: Context, val studentId: String, val password: String,val refresh:()->Unit) :
         ScoreInquiryAction()
 
     data class GetScoreDetail(val context: Context, val pscjUrl: String, val courseName: String) :

@@ -118,7 +118,12 @@ class ScoreInquiryActivity : FullScreenActivity() {
         }
 
         if (forceUpdate || ScoreCache.getGrades() == null) {
-            store.dispatch(ScoreInquiryAction.UpdateGrade(this, studentId, studentPassword))
+            store.dispatch(ScoreInquiryAction.UpdateGrade(
+                this,
+                studentId,
+                studentPassword,
+                refresh = {refreshData(true)}
+            ))
             showLoading()
         }
     }

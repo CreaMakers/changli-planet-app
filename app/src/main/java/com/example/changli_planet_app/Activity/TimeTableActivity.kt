@@ -224,7 +224,8 @@ class TimeTableActivity : FullScreenActivity() {
                 this@TimeTableActivity,
                 studentId,
                 studentPassword,
-                courseTerm.text.toString()
+                courseTerm.text.toString(),
+                refresh = { upDateTimeTable() }
             )
         )
         timeTableStore.dispatch(TimeTableAction.selectWeek("第${timetableView.curWeek()}周"))
@@ -239,21 +240,7 @@ class TimeTableActivity : FullScreenActivity() {
         }
 
         findViewById<ImageButton>(R.id.courseRefresh).setOnClickListener {
-            TimeTableStore.curState.lastUpdate = 0
-            hideLoading()
-            showLoading()
-            timeTableStore.dispatch(
-                TimeTableAction.FetchCourses(
-                    this,
-                    GetCourse(
-                        studentId,
-                        studentPassword,
-                        "",
-                        courseTerm.text.toString()
-                    )
-                )
-            )
-            timetableView.updateView()
+            upDateTimeTable()
         }
         binding.courseWeek.setOnClickListener {
             ClickWheel(weekList)
@@ -493,6 +480,25 @@ class TimeTableActivity : FullScreenActivity() {
         disposables.dispose()
     }
 
+    private fun upDateTimeTable(){
+        TimeTableStore.curState.lastUpdate = 0
+        hideLoading()
+        showLoading()
+        timeTableStore.dispatch(
+            TimeTableAction.FetchCourses(
+                this,
+                GetCourse(
+                    studentId,
+                    studentPassword,
+                    "",
+                    courseTerm.text.toString()
+                ),
+                refresh = { upDateTimeTable() }
+            )
+        )
+        timetableView.updateView()
+    }
+
     private fun storeInMMKV(key: String, value: Long) = mmkv.encode(key, value)
 
 
@@ -504,7 +510,8 @@ class TimeTableActivity : FullScreenActivity() {
             studentId,
             studentPassword,
             timeTableStore,
-            maxHeight
+            maxHeight,
+            refresh = { upDateTimeTable() }
         )
         Wheel.setItem(item)
         Wheel.show(supportFragmentManager, "TimetableWheel")
