@@ -9,12 +9,14 @@ import com.example.changli_planet_app.Cache.Room.entity.SomethingItemEntity
 import com.example.changli_planet_app.Cache.Room.entity.TopCardEntity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -71,6 +73,24 @@ class AccountBookViewModel : ViewModel() {
 
     fun updateItemStartTime(startTime: String) {
         _itemStartTime.value = startTime
+    }
+
+    fun checkIfNeedRefresh(){
+        val kv = MMKV.defaultMMKV()
+        val lastRefreshTime = kv.decodeLong("last_refresh_time", 0)
+        val currentTime = System.currentTimeMillis()
+
+        val lastRefreshDate = Calendar.getInstance().apply { timeInMillis = lastRefreshTime }
+        val currentDate = Calendar.getInstance().apply { timeInMillis = currentTime }
+
+        val lastRefreshDay = lastRefreshDate.get(Calendar.DAY_OF_YEAR)
+        val currentDay = currentDate.get(Calendar.DAY_OF_YEAR)
+        val lastRefreshYear = lastRefreshDate.get(Calendar.YEAR)
+        val currentYear = currentDate.get(Calendar.YEAR)
+        if (lastRefreshDay != currentDay || lastRefreshYear != currentYear) {
+            refreshData()
+            kv.encode("last_refresh_time", currentTime)
+        }
     }
 
 

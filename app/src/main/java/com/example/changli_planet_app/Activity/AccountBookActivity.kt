@@ -62,6 +62,7 @@ class AccountBookActivity : FullScreenActivity() {
 
         }.start()
         observeViewModel()
+        viewModel.checkIfNeedRefresh()
     }
 
     override fun onResume() {

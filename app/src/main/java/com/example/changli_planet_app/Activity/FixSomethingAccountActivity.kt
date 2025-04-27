@@ -57,6 +57,8 @@ class FixSomethingAccountActivity : FullScreenActivity() {
         delete()
         loadItemData()
     }
+
+
     private fun loadItemData() {
         lifecycleScope.launch {
             val item = withContext(Dispatchers.IO) {
