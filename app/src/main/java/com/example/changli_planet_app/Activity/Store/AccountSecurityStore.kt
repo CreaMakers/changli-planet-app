@@ -5,7 +5,9 @@ import android.os.Looper
 import com.example.changli_planet_app.Activity.Action.AccountSecurityAction
 import com.example.changli_planet_app.Activity.State.AccountSecurityState
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.Store
+import com.example.changli_planet_app.Data.jsonbean.Email
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
@@ -14,6 +16,11 @@ import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.Utils.Event.FinishEvent
 import com.example.changli_planet_app.Utils.EventBusHelper
 import com.example.changli_planet_app.Utils.PlanetConst
+import com.example.changli_planet_app.Widget.Dialog.LoginInformationDialog
+import com.example.changli_planet_app.Widget.View.CustomToast
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.Response
 
 
@@ -109,9 +116,126 @@ class AccountSecurityStore : Store<AccountSecurityState, AccountSecurityAction>(
                 _state.onNext(currentState)
                 currentState
             }
+
+            is AccountSecurityAction.Input->{
+                when(action.type){
+                    "email"->currentState.email=action.content
+                    "captcha"->currentState.captcha=action.content
+                    "password"->{
+                        currentState.password=action.content
+                        dispatch(AccountSecurityAction.UpdateSafeType(action.content))
+                    }
+                    "confirmPassword"->currentState.confirmPassword=action.content
+                }
+                currentState.isEnable=checkEnable()
+                _state.onNext(currentState)
+                currentState
+            }
+
+            is AccountSecurityAction.ChangeByEmail->{
+                val json=ChangePasswordByEmail(
+                    currentState.email,
+                    currentState.captcha,
+                    currentState.password,
+                    currentState.confirmPassword
+                )
+                val builder=HttpUrlHelper.HttpRequest()
+                    .put(PlanetApplication.UserIp+"/password/reset")
+                    .body(OkHttpHelper.gson.toJson(json))
+                    .build()
+                OkHttpHelper.sendRequest(builder,object :RequestCallback{
+                    override fun onSuccess(response: Response) {
+                        val formJson=OkHttpHelper.gson.fromJson(
+                            response.body?.string(),
+                            MyResponse::class.java
+                        )
+                        when(formJson.msg){
+                            "用户信息更新成功"->{
+                                handler.post{
+                                    CustomToast.showMessage(action.context,"密码更改成功")
+                                    Route.goLoginForcibly(action.context)
+                                    EventBusHelper.post(FinishEvent("changePasswordByEmail"))
+                                }
+                            }
+                            else->{
+                                handler.post{
+                                    LoginInformationDialog.showDialog(action.context,formJson.msg,"更改失败")
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onFailure(error: String) {
+                    }
+
+                })
+                currentState
+            }
+
+            is AccountSecurityAction.GetCaptcha->{
+                val builder=HttpUrlHelper.HttpRequest()
+                    .post(PlanetApplication.UserIp+"/auth/verification-code/forget-password")
+                    .body(OkHttpHelper.gson.toJson(Email(currentState.email)))
+                    .build()
+                OkHttpHelper.sendRequest(builder,object :RequestCallback{
+                    override fun onSuccess(response: Response) {
+                        val fromJson=OkHttpHelper.gson.fromJson(
+                            response.body?.string(),
+                            MyResponse::class.java
+                        )
+                        if(fromJson.msg=="验证码已发送"){
+                            startCountDown()
+                        }else{
+                            handler.post{
+                                CustomToast.showMessage(PlanetApplication.appContext,"发送失败")
+                            }
+                        }
+                    }
+
+                    override fun onFailure(error: String) {
+                    }
+                })
+                _state.onNext(currentState)
+                currentState
+            }
+        }
+    }
+
+    private fun checkEnable():Boolean{
+        return currentState.email.isNotEmpty()&&
+                currentState.captcha.isNotEmpty()&&
+                currentState.password.isNotEmpty()&&
+                currentState.confirmPassword.isNotEmpty()&&
+                currentState.isLengthValid&&
+                currentState.hasUpperAndLower&&
+                currentState.hasNumberAndSpecial
+    }
+
+    private fun startCountDown(){
+        currentState.isCountDown=true
+        val job= GlobalScope.launch {
+            val totalTime=60
+            for(i in 0..totalTime-1) {
+                currentState.countDown = totalTime - i
+                _state.onNext(currentState)
+                delay(1000)
+            }
+            currentState.countDown=0
+            currentState.isCountDown=false
+            _state.onNext(currentState)
+        }
+        job.invokeOnCompletion {
+            job.cancel()
         }
     }
 }
+
+data class ChangePasswordByEmail(
+    val email:String,
+    val verification_code:String,
+    val new_password:String,
+    val confirm_password:String
+)
 
 data class ChangePasswordJson(
     val new_password: String,

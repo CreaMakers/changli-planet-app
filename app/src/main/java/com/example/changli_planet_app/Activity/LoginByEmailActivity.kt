@@ -132,6 +132,9 @@ class LoginByEmailActivity : FullScreenActivity() {
         loginByAccount.setOnClickListener{
             Route.goLoginForcibly(this)
         }
+        forgetPassword.setOnClickListener{
+            Route.goForgetPassword(this)
+        }
     }
 
     private fun getUnderLineScope(view: TextView,start:Int,end:Int){

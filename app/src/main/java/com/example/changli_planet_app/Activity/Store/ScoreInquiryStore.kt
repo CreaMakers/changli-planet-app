@@ -51,12 +51,6 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
                             when (gradeResponse.code) {
                                 "200" -> {
                                     currentState.grades = gradeResponse.data
-                                    currentState.grades.forEach{grade ->
-                                        if(grade.point==null) {
-                                            Log.d("ScoreInquiryStore","point is null")
-                                        }
-
-                                    }
                                     _state.onNext(currentState)
                                 }
 

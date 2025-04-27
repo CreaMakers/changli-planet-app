@@ -171,6 +171,9 @@ class LoginActivity : FullScreenActivity() {
         loginByEmail.setOnClickListener{
             Route.goLoginByEmailForcibly(this)
         }
+        forgetPassword.setOnClickListener{
+            Route.goForgetPassword(this)
+        }
     }
 
     private fun clearCurPassword() {

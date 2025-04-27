@@ -14,6 +14,7 @@ import com.example.changli_planet_app.Activity.ContractActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
 import com.example.changli_planet_app.Activity.ExamArrangementActivity
 import com.example.changli_planet_app.Activity.FixSomethingAccountActivity
+import com.example.changli_planet_app.Activity.ForgetPasswordActivity
 import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.LoginByEmailActivity
 import com.example.changli_planet_app.Activity.LoseActivity
@@ -186,7 +187,10 @@ object Route {
         context.startActivity(intent)
     }
 
-
+    fun goForgetPassword(context: Context){
+        val intent=Intent(context,ForgetPasswordActivity::class.java)
+        context.startActivity(intent)
+    }
 
 
 
