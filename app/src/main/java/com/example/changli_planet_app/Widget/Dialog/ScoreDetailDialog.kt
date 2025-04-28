@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.widget.TextView
 import com.example.changli_planet_app.Base.BaseDialog
 import com.example.changli_planet_app.R
+import java.lang.ref.WeakReference
 
 class ScoreDetailDialog(
     context: Context,
@@ -16,13 +17,16 @@ class ScoreDetailDialog(
 ) :
     BaseDialog(context) {
     companion object{
-        private var currentDialog:ScoreDetailDialog?=null
+        private fun getDialog(context: Context,content: String,titleContent: String)=
+            ScoreDetailDialog(
+                context,
+                content,
+                titleContent
+            )
 
         fun showDialog(context: Context,content: String,titleContent: String){
-            if(currentDialog==null){                                  //只有当前页面没有Dialog时才创造实例，防止多个实例
-                currentDialog= ScoreDetailDialog(context,content,titleContent)
-                currentDialog?.show()
-            }
+            val dialog= WeakReference(getDialog(context,content,titleContent))
+            dialog.get()?.show()
         }
     }
     private lateinit var yes: TextView
@@ -30,7 +34,12 @@ class ScoreDetailDialog(
     private lateinit var contents: TextView
     private lateinit var title: TextView
 
-
+    private fun getDialog(context: Context,content: String,titleContent: String)=
+        ScoreDetailDialog(
+            context,
+            content,
+            titleContent
+        )
     override fun init() {
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setWindowAnimations(R.style.DialogAnimation)
@@ -46,9 +55,4 @@ class ScoreDetailDialog(
     }
 
     override fun layoutId(): Int =R.layout.score_details_dialog
-
-    override fun dismiss() {
-        super.dismiss()
-        currentDialog=null
-    }
 }
