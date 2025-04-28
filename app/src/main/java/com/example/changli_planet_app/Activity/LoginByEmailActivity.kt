@@ -104,7 +104,7 @@ class LoginByEmailActivity : FullScreenActivity() {
             override fun afterTextChanged(s: Editable?) {
                 if(isUpdating)return
                 isUpdating=true
-                store.dispatch(LoginAndRegisterAction.input(email.text.toString(),"email"))
+                store.dispatch(LoginAndRegisterAction.InputLoginByEmail(email.text.toString(),"email"))
                 isUpdating=false
             }
         }
@@ -114,7 +114,7 @@ class LoginByEmailActivity : FullScreenActivity() {
             override fun afterTextChanged(s: Editable?) {
                 if(isUpdating)return
                 isUpdating=true
-                store.dispatch(LoginAndRegisterAction.input(captcha.text.toString(),"captcha"))
+                store.dispatch(LoginAndRegisterAction.InputLoginByEmail(captcha.text.toString(),"captcha"))
                 isUpdating=false
             }
         }
