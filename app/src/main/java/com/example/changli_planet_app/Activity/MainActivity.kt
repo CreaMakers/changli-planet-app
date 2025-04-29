@@ -199,14 +199,27 @@ class MainActivity : AppCompatActivity(), DrawerController {
         )
     }
 
-    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-        super.onSaveInstanceState(outState, outPersistentState)
-        outState.putInt("currentTab", currentTabPosition)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("currentTab", currentTabPosition)  //保存最后的tab下标
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        currentTabPosition = savedInstanceState.getInt("currentTab")
+        currentTabPosition = savedInstanceState.getInt("currentTab") //恢复最后的tab下标
+
+        supportFragmentManager.fragments.forEach{fragment ->
+            val key=when(fragment){
+                is FeatureFragment->0
+                is ChatGroupFragment->1
+                is NewsFragment->2
+                is IMFragment->3
+                else->throw IllegalStateException("Invalid fragment")
+            }
+            fragments.put(key,fragment)     //重新添加fragment
+        }
+
+        tabLayout.selectTab(tabLayout.getTabAt(currentTabPosition)) //恢复tabLayout
     }
 
     override fun onDestroy() {
