@@ -52,6 +52,9 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
                                 "200" -> {
                                     currentState.grades = gradeResponse.data
                                     _state.onNext(currentState)
+                                    handler.post{
+                                        CustomToast.showMessage(PlanetApplication.appContext,"刷新成功")
+                                    }
                                 }
 
                                 "403" -> {

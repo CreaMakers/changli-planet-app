@@ -13,6 +13,7 @@ import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.ExamArrangementResponse
 import com.example.changli_planet_app.Widget.Dialog.ErrorStuPasswordResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
+import com.example.changli_planet_app.Widget.View.CustomToast
 import okhttp3.Response
 
 class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
@@ -48,6 +49,9 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
                 )
                 currentState.exams = when (examArrangementResponse.code) {
                     "200" -> {
+                        handler.post{
+                            CustomToast.showMessage(PlanetApplication.appContext,"刷新成功")
+                        }
                         examArrangementResponse.data
                     }
                     "403" -> {

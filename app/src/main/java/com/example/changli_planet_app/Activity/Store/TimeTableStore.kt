@@ -19,6 +19,7 @@ import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.example.changli_planet_app.Widget.Dialog.ErrorStuPasswordResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
+import com.example.changli_planet_app.Widget.View.CustomToast
 import com.google.gson.reflect.TypeToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -277,6 +278,9 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                             "200" -> {
                                 subjects.addAll(generateSubjects(fromJson.data))
                                 emitter.onSuccess(subjects)
+                                handler.post{
+                                    CustomToast.showMessage(PlanetApplication.appContext,"刷新成功")
+                                }
                             }
 
                             "403" -> {

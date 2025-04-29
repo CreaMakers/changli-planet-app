@@ -70,11 +70,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/login_edit_shape"
-            android:gravity="start|center"
-            android:paddingStart="15dp"
+            android:gravity="center"
             android:hint="请输入验证码"
             android:singleLine="true"
-            android:maxLength="6"
+            android:maxLength="4"
             android:inputType="number" />
         <TextView
             android:id="@+id/get_captcha"
