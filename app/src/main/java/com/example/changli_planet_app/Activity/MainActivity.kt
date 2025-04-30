@@ -15,6 +15,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.setPadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -99,6 +102,27 @@ class MainActivity : AppCompatActivity(), DrawerController {
         PlanetApplication.startTime = System.currentTimeMillis()
         setContentView(binding.root)
         drawerLayout = binding.drawerLayout
+
+        ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // 主内容避开导航栏
+            binding.main.setPadding(
+                binding.main.paddingLeft,
+                binding.main.top,
+                binding.main.paddingRight,
+                systemBars.bottom
+            )
+
+            // 抽屉导航避开导航栏
+            binding.drawerContent.setPadding(
+                binding.drawerContent.paddingLeft,
+                binding.drawerContent.paddingTop,
+                binding.drawerContent.paddingRight,
+                systemBars.bottom
+            )
+            insets
+        }
+
         if (savedInstanceState == null) {
             val firstFragment = FeatureFragment.newInstance()
             fragments[0] = firstFragment

@@ -134,7 +134,7 @@ class AccountSecurityActivity : FullScreenActivity() {
             showMessage("新密码不满足要求，请重新输入")
             return
         }
-        store.dispatch(AccountSecurityAction.ChangePassword(this, newPassword, confirmPassword))
+        store.dispatch(AccountSecurityAction.ChangePassword(this,curPasswordEt.text.toString(),newPassword, confirmPassword))
     }
 
     fun updatePasswordVisibility(isVisible: Boolean, et: EditText, img: ImageView) {

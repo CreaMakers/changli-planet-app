@@ -32,6 +32,9 @@
         tools:replace="android:networkSecurityConfig"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.ChangeEmailActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.ForgetPasswordActivity"
             android:exported="false" />
         <activity

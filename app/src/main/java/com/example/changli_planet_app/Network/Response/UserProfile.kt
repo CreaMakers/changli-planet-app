@@ -9,6 +9,7 @@ data class UserProfile(
     val username: String = "",
     val account: String = "用户名字",
     var avatarUrl: String = "注册默认头像",
+    var emailbox:String?="",
     val bio: String = "",
     val description: String = "",
     val userLevel: Int = -1,

@@ -74,7 +74,7 @@ class AccountSecurityStore : Store<AccountSecurityState, AccountSecurityAction>(
             is AccountSecurityAction.ChangePassword -> {
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .put(PlanetApplication.UserIp + "/me/password")
-                    .body(OkHttpHelper.gson.toJson(ChangePasswordJson(action.newPassword, action.confirmPassword)))
+                    .body(OkHttpHelper.gson.toJson(ChangePasswordJson(action.oldPassword,action.newPassword, action.confirmPassword)))
                     .build()
 
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
@@ -187,7 +187,7 @@ class AccountSecurityStore : Store<AccountSecurityState, AccountSecurityAction>(
                             startCountDown()
                         }else{
                             handler.post{
-                                CustomToast.showMessage(PlanetApplication.appContext,"发送失败")
+                                CustomToast.showMessage(PlanetApplication.appContext,fromJson.msg)
                             }
                         }
                     }
@@ -238,6 +238,7 @@ data class ChangePasswordByEmail(
 )
 
 data class ChangePasswordJson(
+    val old_password:String,
     val new_password: String,
     val confirm_password: String
 )

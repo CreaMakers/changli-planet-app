@@ -7,6 +7,7 @@ data class AccountSecurityState (
     var isCountDown:Boolean=false,
     var isEnable:Boolean=false,
     var safeType: Int = 0,
+
     var password: String = "",
     var confirmPassword: String="",
     var newPasswordVisible: Boolean = false,

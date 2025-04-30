@@ -9,6 +9,7 @@ import com.example.changli_planet_app.Activity.BindEmailActivity
 import com.example.changli_planet_app.Activity.BindingUserActivity
 import com.example.changli_planet_app.Activity.CampusMapActivity
 import com.example.changli_planet_app.Activity.CetActivity
+import com.example.changli_planet_app.Activity.ChangeEmailActivity
 import com.example.changli_planet_app.Activity.ClassInfoActivity
 import com.example.changli_planet_app.Activity.ContractActivity
 import com.example.changli_planet_app.Activity.ElectronicActivity
@@ -192,6 +193,9 @@ object Route {
         context.startActivity(intent)
     }
 
-
+    fun goChangeEmail(context: Context){
+        val intent=Intent(context,ChangeEmailActivity::class.java)
+        context.startActivity(intent)
+    }
 
 }

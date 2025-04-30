@@ -23,6 +23,7 @@ import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.UserProfileRequest
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.View.CustomToast
@@ -77,6 +78,7 @@ class UserProfileActivity : FullScreenActivity() {
     private val username by lazy { binding.userProfileUsername }
     private val account by lazy { binding.userProfileName }
     private val bio by lazy { binding.userProfileBio }
+    private val email by lazy { binding.userProfileEmail }
     private val grade by lazy { binding.userProfileGrade }
     private val gender by lazy { binding.userProfileGender }
     private val birthday by lazy { binding.userProfileBirthday }
@@ -131,7 +133,7 @@ class UserProfileActivity : FullScreenActivity() {
             WindowInsetsCompat.CONSUMED
         }
         observeState()
-        store.dispatch(UserAction.GetCurrentUserProfile(this))
+        //store.dispatch(UserAction.GetCurrentUserProfile(this))
         setAvatar.setOnClickListener { setAvatar() }
         back.setOnClickListener { finish() }
         birthdayLayout.setOnClickListener { setBirthday() }
@@ -142,7 +144,13 @@ class UserProfileActivity : FullScreenActivity() {
             startActivityForResult(intent, REQUEST_PROVINCE)
         }
         submit.setOnClickListener { updateUserProfile() }
+        email.setOnClickListener{ Route.goChangeEmail(this) }
         EventBus.getDefault().register(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        store.dispatch(UserAction.GetCurrentUserProfile(this))  //每次界面出现就获取最新的profile
     }
 
     private fun updateUserProfile() {
@@ -180,6 +188,7 @@ class UserProfileActivity : FullScreenActivity() {
                     gender.text = genderList[state.userProfile.gender]
                     location.text = state.userProfile.location
                     website.setText(userProfile.website)
+                    email.text=userProfile.emailbox?:"待绑定"
                 }
         )
     }

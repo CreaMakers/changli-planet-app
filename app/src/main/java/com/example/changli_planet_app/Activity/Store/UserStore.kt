@@ -52,6 +52,7 @@ class UserStore : Store<UserState, UserAction>() {
                                     UserInfoManager.account = it.account
                                     UserInfoManager.userAvatar = it.avatarUrl
                                     UserInfoManager.userId = it.userId
+                                    UserInfoManager.userEmail=it.emailbox?:"待绑定"
                                     currentState.userProfile = it
                                     currentState.avatarUri = it.avatarUrl
                                 }
