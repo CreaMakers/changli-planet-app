@@ -15,8 +15,12 @@ interface AccountBookDao {
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     fun insertOrUpdateTopCard(topCard: TopCardEntity)
 
-    @Query("SELECT * FROM top_card WHERE id = 1")
-    fun getTopCard(): TopCardEntity?
+
+    @Query("SELECT * FROM top_card WHERE username = :username")
+    fun getTopCardByUserName(username: String): TopCardEntity?
+
+    @Query("SELECT * FROM something_items WHERE username = :username")
+    fun getSomethingItemsByUsername(username: String): List<SomethingItemEntity>
 
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     fun insertOrUpdateSomethingItems(items: SomethingItemEntity)

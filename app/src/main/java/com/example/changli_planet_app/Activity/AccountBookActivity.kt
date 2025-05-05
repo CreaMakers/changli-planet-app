@@ -85,7 +85,7 @@ class AccountBookActivity : FullScreenActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.topCard.collect { topCard ->
-                        val cardData = topCard ?: TopCardEntity(1, 0, 0.0, 0.0)
+                        val cardData = topCard ?: TopCardEntity(UserInfoManager.username, 0, 0.0, 0.0)
                         binding.allMoneyNumber.text = String.format("¥%.2f", cardData.totalMoney)
                         binding.dailyCostNumber.text = String.format("¥%.2f", cardData.dailyAverage)
                     }

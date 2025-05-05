@@ -9,5 +9,6 @@ data class SomethingItemEntity(
     val totalMoney: Double,
     val dailyAverage: Double,
     val startTime : String,
-    val picture : Int
+    val picture : Int,
+    val username: String
 )
