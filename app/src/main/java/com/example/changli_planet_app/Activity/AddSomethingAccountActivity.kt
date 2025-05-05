@@ -153,7 +153,7 @@ class AddSomethingAccountActivity : FullScreenActivity() {
 
     private fun back() {
         binding.backBtn.setOnClickListener {
-            Route.goAccountBook(this@AddSomethingAccountActivity)
+            //Route.goAccountBook(this@AddSomethingAccountActivity)
             finish()
         }
     }
@@ -166,7 +166,7 @@ class AddSomethingAccountActivity : FullScreenActivity() {
                 }
                 Toast.makeText(applicationContext, "添加成功", Toast.LENGTH_SHORT).show()
                 delay(800)
-                Route.goAccountBook(this@AddSomethingAccountActivity)
+                //Route.goAccountBook(this@AddSomethingAccountActivity)
                 finish()
             }
         }

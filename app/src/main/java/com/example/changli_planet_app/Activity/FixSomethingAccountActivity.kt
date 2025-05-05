@@ -193,7 +193,7 @@ class FixSomethingAccountActivity : FullScreenActivity() {
 
     private fun back() {
         binding.backBtn.setOnClickListener {
-            Route.goAccountBook(this@FixSomethingAccountActivity)
+            //Route.goAccountBook(this@FixSomethingAccountActivity)
             finish()
         }
     }
@@ -206,7 +206,7 @@ class FixSomethingAccountActivity : FullScreenActivity() {
                 }
                 Toast.makeText(applicationContext, "修改成功", Toast.LENGTH_SHORT).show()
                 delay(300)
-                Route.goAccountBook(this@FixSomethingAccountActivity)
+               // Route.goAccountBook(this@FixSomethingAccountActivity)
                 finish()
             }
         }
