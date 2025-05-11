@@ -34,8 +34,10 @@ import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.Pool.TabAnimationPool
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.GlideUtils
+import com.example.changli_planet_app.Utils.NetworkUtil
 import com.example.changli_planet_app.Widget.Dialog.NormalChosenDialog
 import com.example.changli_planet_app.Widget.Dialog.UpdateDialog
+import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
@@ -291,10 +293,18 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
         mainAvatarLinear.setOnClickListener {
             // 处理点击头像框后逻辑
-            Route.goUserProfile(this@MainActivity)
+            if(NetworkUtil.getNetworkType(this)!=NetworkUtil.NetworkType.None) { //检查网络是否连接
+                Route.goUserProfile(this@MainActivity)
+            }else{
+                CustomToast.showMessage(this,"网络未连接")
+            }
         }
         drawerAvatar.setOnClickListener {
-            Route.goUserProfile(this@MainActivity)
+            if(NetworkUtil.getNetworkType(this)!=NetworkUtil.NetworkType.None){ //检查网络是否连接
+                Route.goUserProfile(this@MainActivity)
+            }else{
+                CustomToast.showMessage(this,"网络未连接")
+            }
         }
         notificationSettings.setOnClickListener {
             // 处理通知设置点击

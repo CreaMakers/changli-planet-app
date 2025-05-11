@@ -116,8 +116,6 @@ dependencies {
     // BRV，尝试一下
     implementation("com.github.liangjingkanji:BRV:1.6.1")
 
-    // PDF库 尝试一下
-    //implementation("com.github.barteksc:android-pdf-viewer:2.8.2")
 
     //lottie
     implementation("com.airbnb.android:lottie:6.0.0")

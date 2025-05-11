@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.changli_planet_app.Widget.View.PdfView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pdfView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="2dp">
+
+</com.example.changli_planet_app.Widget.View.PdfView>

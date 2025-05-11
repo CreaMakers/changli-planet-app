@@ -49,7 +49,7 @@ class UpdateDialog(
         window?.setWindowAnimations(R.style.DialogAnimation)
         tvUpdateContent = findViewById(R.id.update_content)
 
-//        tvUpdateContent.text = updateContent.replace("\\n", "\n")
+        tvUpdateContent.text = updateContent
         tvUpdateContent.movementMethod = ScrollingMovementMethod()
         progressBar = findViewById(R.id.progress_bar)
         progressText = findViewById(R.id.progress_text)

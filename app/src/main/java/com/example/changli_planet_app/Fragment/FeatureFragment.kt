@@ -81,6 +81,7 @@ class FeatureFragment : Fragment() {
             nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
             nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
             accountbook.setOnClickListener { activity?.let { Route.goAccountBook(it) } }
+            ndocument.setOnClickListener {activity?.let { Route.goContract(it) }}
         }
 
     }
