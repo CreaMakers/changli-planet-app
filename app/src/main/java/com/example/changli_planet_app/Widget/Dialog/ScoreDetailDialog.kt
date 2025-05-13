@@ -16,30 +16,32 @@ class ScoreDetailDialog(
     val titleContent: String,
 ) :
     BaseDialog(context) {
-    companion object{
-        private fun getDialog(context: Context,content: String,titleContent: String)=
+    companion object {
+        private fun getDialog(context: Context, content: String, titleContent: String) =
             ScoreDetailDialog(
                 context,
                 content,
                 titleContent
             )
 
-        fun showDialog(context: Context,content: String,titleContent: String){
-            val dialog= WeakReference(getDialog(context,content,titleContent))
+        fun showDialog(context: Context, content: String, titleContent: String) {
+            val dialog = WeakReference(getDialog(context, content, titleContent))
             dialog.get()?.show()
         }
     }
+
     private lateinit var yes: TextView
     private lateinit var no: TextView
     private lateinit var contents: TextView
     private lateinit var title: TextView
 
-    private fun getDialog(context: Context,content: String,titleContent: String)=
+    private fun getDialog(context: Context, content: String, titleContent: String) =
         ScoreDetailDialog(
             context,
             content,
             titleContent
         )
+
     override fun init() {
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setWindowAnimations(R.style.DialogAnimation)
@@ -54,5 +56,5 @@ class ScoreDetailDialog(
         }
     }
 
-    override fun layoutId(): Int =R.layout.score_details_dialog
+    override fun layoutId(): Int = R.layout.score_details_dialog
 }

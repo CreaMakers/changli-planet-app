@@ -17,6 +17,13 @@ android {
         versionCode = 6
         versionName = "1.1.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            // 设置支持的SO库架构
+            abiFilters.add("armeabi") //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+            abiFilters.add("arm64-v8a")
+            abiFilters.add("x86")
+            abiFilters.add("armeabi-v7a")
+        }
     }
 
     buildTypes {
@@ -121,6 +128,8 @@ dependencies {
 
     //lottie
     implementation("com.airbnb.android:lottie:6.0.0")
+    //bugly
+    implementation("com.tencent.bugly:crashreport:4.1.9.3")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
