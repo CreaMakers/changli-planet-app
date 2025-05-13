@@ -130,6 +130,8 @@ dependencies {
     implementation("com.airbnb.android:lottie:6.0.0")
     //bugly
     implementation("com.tencent.bugly:crashreport:4.1.9.3")
+    // 缺省页
+    implementation("com.github.liangjingkanji:StateLayout:1.4.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

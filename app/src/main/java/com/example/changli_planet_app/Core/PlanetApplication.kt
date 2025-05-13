@@ -63,7 +63,7 @@ class PlanetApplication : Application() {
         val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initMMKV()
-        CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
+//        CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }
             runCatching { initMMKV() }.onFailure { Log.e("MMKV", "MMKV init Error") }

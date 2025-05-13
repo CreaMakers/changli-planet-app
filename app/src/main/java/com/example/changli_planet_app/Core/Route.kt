@@ -27,6 +27,7 @@ import com.example.changli_planet_app.Activity.PublishLoseThingActivity
 import com.example.changli_planet_app.Activity.RegisterActivity
 import com.example.changli_planet_app.Activity.ScoreInquiryActivity
 import com.example.changli_planet_app.Activity.TimeTableActivity
+import com.example.changli_planet_app.Activity.UserHomeActivity
 import com.example.changli_planet_app.Activity.UserProfileActivity
 
 /**
@@ -39,6 +40,18 @@ object Route {
         val intent = Intent(context, CampusMapActivity::class.java)
         context.startActivity(intent)
     }
+
+    fun goUserHomeActivity(context: Context) {
+        val intent = Intent(context, UserHomeActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goUserHomeActivity(context: Context, userId: Int) {
+        val intent = Intent(context, UserHomeActivity::class.java)
+        intent.putExtra("userId", userId)
+        context.startActivity(intent)
+    }
+
 
     fun goClassInfo(context: Context) {
         val intent = Intent(context, ClassInfoActivity::class.java)
@@ -69,7 +82,7 @@ object Route {
         context.startActivity(intent)
     }
 
-    fun goLoginByEmailForcibly(context: Context){
+    fun goLoginByEmailForcibly(context: Context) {
         val intent = Intent(context, LoginByEmailActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         context.startActivity(intent)
@@ -80,10 +93,10 @@ object Route {
         context.startActivity(intent)
     }
 
-    fun goBindEmailFromRegister(context: Context,name: String,password: String){
-        val intent=Intent(context,BindEmailActivity::class.java)
-        intent.putExtra("username",name)
-        intent.putExtra("password",password)
+    fun goBindEmailFromRegister(context: Context, name: String, password: String) {
+        val intent = Intent(context, BindEmailActivity::class.java)
+        intent.putExtra("username", name)
+        intent.putExtra("password", password)
         context.startActivity(intent)
     }
 
@@ -165,36 +178,36 @@ object Route {
         context.startActivity(intent)
     }
 
-    fun goContract(context: Context){
-        val intent=Intent(context,ContractActivity::class.java)
+    fun goContract(context: Context) {
+        val intent = Intent(context, ContractActivity::class.java)
         context.startActivity(intent)
     }
 
 
-    fun goAccountBook(context: Context){
+    fun goAccountBook(context: Context) {
         val intent = Intent(context, AccountBookActivity::class.java)
         context.startActivity(intent)
     }
 
-    fun goAddSomethingAccount(context: Context){
+    fun goAddSomethingAccount(context: Context) {
         val intent = Intent(context, AddSomethingAccountActivity::class.java)
         context.startActivity(intent)
     }
 
-    fun goFixSomethingAccount(context: Context,itemId: Int){
+    fun goFixSomethingAccount(context: Context, itemId: Int) {
         val intent = Intent(context, FixSomethingAccountActivity::class.java).apply {
             putExtra("ITEM_ID", itemId)
         }
         context.startActivity(intent)
     }
 
-    fun goForgetPassword(context: Context){
-        val intent=Intent(context,ForgetPasswordActivity::class.java)
+    fun goForgetPassword(context: Context) {
+        val intent = Intent(context, ForgetPasswordActivity::class.java)
         context.startActivity(intent)
     }
 
-    fun goChangeEmail(context: Context){
-        val intent=Intent(context,ChangeEmailActivity::class.java)
+    fun goChangeEmail(context: Context) {
+        val intent = Intent(context, ChangeEmailActivity::class.java)
         context.startActivity(intent)
     }
 
