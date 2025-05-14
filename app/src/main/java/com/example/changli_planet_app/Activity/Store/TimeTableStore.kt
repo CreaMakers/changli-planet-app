@@ -77,7 +77,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                 .doOnSuccess { Log.d("TimeTableStore", "网络请求获得课表") }
                         } else {
                             // 从数据库获取数据
-                            courseDao.getCoursesByTerm(curState.term, studentId, studentPassword)
+                            courseDao.getCoursesByTerm(action.getCourse.termId, studentId, studentPassword)
                                 .map { dbResult ->
                                     // 对数据库结果也进行去重
                                     dbResult.distinctBy {
@@ -86,10 +86,6 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                 }
                                 .doOnSuccess { Log.d("TimeTableStore", "从数据库获得课表") }
                         }
-                    }
-                    .doOnError { e->
-                        Log.d("TimeTableStore", e.message?:"")
-                        return@doOnError
                     }
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -103,6 +99,8 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                 _state.onNext(curState)
                             }
                         } else {
+                            curState.term=action.getCourse.termId
+                            _state.onNext(curState)             //
                             Log.w("Debug", "No courses found")
                         }
                     }, { error ->
