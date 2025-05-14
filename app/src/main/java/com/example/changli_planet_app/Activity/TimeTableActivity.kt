@@ -73,7 +73,7 @@ class TimeTableActivity : FullScreenActivity() {
     private val binding by lazy { ActivityTimeTableBinding.inflate(layoutInflater) }
     private val timetableView: ScrollTimeTableView by lazy { binding.timetableView }
     private lateinit var dataBase: CoursesDataBase
-    private val termList by lazy { generateTermsList() }
+//    private val termList by lazy { generateTermsList() }
     private val timeTableStore: TimeTableStore by lazy {
         TimeTableStore(dataBase.courseDao())
     }
@@ -102,6 +102,7 @@ class TimeTableActivity : FullScreenActivity() {
 
     private val termMap by lazy {
         mapOf(
+            "2025-2026-1" to "2025-09-07 00:00:00",
             "2024-2025-2" to "2025-02-24 00:00:00",
             "2024-2025-1" to "2024-09-02 00:00:00",
             "2023-2024-2" to "2024-02-26 00:00:00",
@@ -116,6 +117,8 @@ class TimeTableActivity : FullScreenActivity() {
             "2019-2020-1" to "2019-09-02 00:00:00",
         )
     }
+
+    private lateinit var termList:List<String>
 
     private fun getCurrentTerm(): String {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
@@ -185,6 +188,7 @@ class TimeTableActivity : FullScreenActivity() {
             ).show()
             mmkv.encode("isFirstDialog", false)
         }
+        setTermListById(studentId)
         courseTerm.text = getCurrentTerm()
         timetableView.setCurWeek(termMap[courseTerm.text])
         timetableView
@@ -203,6 +207,7 @@ class TimeTableActivity : FullScreenActivity() {
                 subjects = curState.subjects
                 timetableView.source(subjects)
                 timetableView.updateView()
+                courseTerm.text = curState.term
                 courseWeek.text = curState.weekInfo
                 timetableView.changeWeekOnly(extractWeekNumber(courseWeek.text.toString()))
                 curDisplayWeek = extractWeekNumber(courseWeek.text.toString())
@@ -247,6 +252,9 @@ class TimeTableActivity : FullScreenActivity() {
         }
         binding.weeksExtendBtn.setOnClickListener {
             ClickWheel(weekList)
+        }
+        binding.courseTerm.setOnClickListener{
+            ClickWheel(termList)
         }
         // 暂时关闭选择学期
 //        binding.courseTerm.setOnClickListener {
@@ -822,21 +830,36 @@ class TimeTableActivity : FullScreenActivity() {
     private fun setScrollListener(){
         timetableView.setScrollInterface(object :ScrollController{
             override fun onScrollLast() {
-                timeTableStore.dispatch(
-                    TimeTableAction.selectWeek(
-                        "第${curDisplayWeek - 1}周"
-                    )
-                ) // 右滑，切换到上一周
+                if(curDisplayWeek>1){
+                    timeTableStore.dispatch(
+                        TimeTableAction.selectWeek(
+                            "第${curDisplayWeek - 1}周"
+                        )
+                    ) // 右滑，切换到上一周
+                }
             }
 
             override fun onScrollNext() {
-                timeTableStore.dispatch(
-                    TimeTableAction.selectWeek(
-                        "第${curDisplayWeek + 1}周"
-                    )
-                ) // 左滑，切换到下一周
+                if(curDisplayWeek<20){
+                    timeTableStore.dispatch(
+                        TimeTableAction.selectWeek(
+                            "第${curDisplayWeek + 1}周"
+                        )
+                    ) // 左滑，切换到下一周
+                }
             }
         })
+    }
+
+    private fun setTermListById(studentId:String){
+        val list= mutableListOf<String>()
+        val startYear=studentId.substring(0,4).toInt()
+
+        for(i in 0..3){
+            list.add("${startYear+i}-${startYear+i+1}-1")
+            list.add("${startYear+i}-${startYear+i+1}-2")
+        }
+        termList=list
     }
 }
 

@@ -34,4 +34,6 @@ interface CourseDao {
     @Query("SELECT COUNT(*) FROM courses")
     fun getAllCourseCount(): Single<Int>
 
+    @Query("SELECT COUNT(*) FROM courses WHERE term = :term")
+    fun getCoursesCountByTerm(term: String):Single<Int>
 }

@@ -51,7 +51,8 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
             is TimeTableAction.FetchCourses -> {
                 val cur = System.currentTimeMillis()
 
-                courseDao.getAllCourseCount()
+                //courseDao.getAllCourseCount()
+                courseDao.getCoursesCountByTerm(action.getCourse.termId)     //根据学期获取课程
                     .subscribeOn(Schedulers.io())
                     .flatMap { count ->
                         if (count == 0 || curState.lastUpdate - cur > 1000 * 60 * 60 * 24 || curState.lastUpdate == 0.toLong()) {
@@ -86,11 +87,16 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                 .doOnSuccess { Log.d("TimeTableStore", "从数据库获得课表") }
                         }
                     }
+                    .doOnError { e->
+                        Log.d("TimeTableStore", e.message?:"")
+                        return@doOnError
+                    }
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ result ->
                         if (result.isNotEmpty()) {
                             if (action is TimeTableAction.FetchCourses) {
+                                curState.term=action.getCourse.termId    //成功获取课程后更新term
                                 handleEvent(TimeTableAction.UpdateCourses(result))
                             } else {
                                 curState.subjects = result
@@ -152,7 +158,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
             }
 
             is TimeTableAction.selectTerm -> {
-                curState.term = action.term
+                //curState.term = action.term    //不直接更新curState.term 在获取课程数据成功后更新
                 dispatch(
                     TimeTableAction.FetchCourses(
                         action.context,
@@ -162,7 +168,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                         action.refresh
                     )
                 )
-                _state.onNext(curState)
+                //_state.onNext(curState)
             }
 
             is TimeTableAction.DeleteCourse -> {
@@ -309,6 +315,13 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                     } catch (e: Exception) {
                                         e.printStackTrace()
                                     }
+                                }
+                            }
+
+                            else ->{
+                                emitter.onError(Exception("数据错误"))
+                                handler.post{
+                                    CustomToast.showMessage(PlanetApplication.appContext,"暂时没有该学期的数据哦")
                                 }
                             }
                         }
