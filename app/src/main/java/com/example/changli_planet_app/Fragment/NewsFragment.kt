@@ -67,9 +67,8 @@ class NewsFragment : Fragment() {
     private fun initView() {
         adapter = FreshNewsAdapter(
             PlanetApplication.appContext,
-            { imageUrl -> showImageDialog(imageUrl) }, {
-//                viewModel.processIntent(FreshNewsContract.Intent.)
-            }
+            { imageUrl -> showImageDialog(imageUrl) },
+            { Route.goUserHomeActivity(requireContext(), it) }
         )
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.apply {

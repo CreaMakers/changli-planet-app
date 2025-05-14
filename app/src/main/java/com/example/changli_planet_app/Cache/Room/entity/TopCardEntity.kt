@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "top_card")
 data class TopCardEntity(
-    @PrimaryKey val id: Int = 1,
+    @PrimaryKey val username: String,
     val allNumber: Int,
     val totalMoney: Double,
-    val dailyAverage: Double,
+    val dailyAverage: Double
 )

@@ -1,17 +1,24 @@
 package com.example.changli_planet_app.Core
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.Application
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.os.Process
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.changli_planet_app.Cache.Room.database.CoursesDataBase
 import com.example.changli_planet_app.Network.OkHttpHelper
+import com.tencent.bugly.crashreport.CrashReport
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
 import com.tencent.msdk.dns.MSDKDnsResolver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
 
 class PlanetApplication : Application() {
     companion object {
@@ -56,7 +63,7 @@ class PlanetApplication : Application() {
         val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initMMKV()
-
+//        CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }
             runCatching { initMMKV() }.onFailure { Log.e("MMKV", "MMKV init Error") }
@@ -88,3 +95,47 @@ class PlanetApplication : Application() {
     }
 }
 
+
+//@SuppressLint("StaticFieldLeak")
+//object CrashHandler : Thread.UncaughtExceptionHandler {
+//
+//    private lateinit var myContext: Context
+//    private var defaultHandler: Thread.UncaughtExceptionHandler? = null
+//
+//    fun init(context: Context) {
+//        this.myContext = context.applicationContext
+//        defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+//        Thread.setDefaultUncaughtExceptionHandler(this)
+//    }
+//
+//    override fun uncaughtException(t: Thread, e: Throwable) {
+//        try {
+//            // 记录崩溃日志 可加入后端
+//            Log.e("CrashHandler", "App crashed: ", e)
+//
+//            val intent = myContext.packageManager.getLaunchIntentForPackage(myContext.packageName)
+//            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+//
+//            val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+//                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+//            } else {
+//                PendingIntent.FLAG_ONE_SHOT
+//            }
+//
+//            val pendingIntent = PendingIntent.getActivity(
+//                myContext,
+//                0,
+//                intent,
+//                flags
+//            )
+//
+//            val alarmManager = myContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//            alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, pendingIntent)
+//        } catch (e: Exception) {
+//            Log.e("CrashHandler", "Error in crash handler", e)
+//        } finally {
+//            Process.killProcess(Process.myPid())
+//            exitProcess(1)
+//        }
+//    }
+//}
