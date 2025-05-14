@@ -10,7 +10,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.changli_planet_app.Activity.ViewModel.UserHomeViewModel
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Network.Resource
@@ -71,28 +73,30 @@ class UserHomeActivity : FullScreenActivity() {
     private fun initListener() {
         back.setOnClickListener { finish() }
         lifecycleScope.launch {
-            launch {
-                viewModel.userProfile.collect { result ->
-                    with(binding) {
-                        when (result) {
-                            is Resource.Error -> {}
-                            is Resource.Loading -> {}
-                            is Resource.Success -> {
-                                val userProfile = result.data
-                                GlideUtils.load(
-                                    this@UserHomeActivity,
-                                    ivHead,
-                                    userProfile.avatarUrl,
-                                )
-                                GlideUtils.load(
-                                    this@UserHomeActivity,
-                                    igSmallAvatar,
-                                    userProfile.avatarUrl,
-                                )
-                                authorName.text = userProfile.account
-                                tvSmallName.text = userProfile.account
-                                tvDescription.text = userProfile.bio
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.userProfile.collect { result ->
+                        with(binding) {
+                            when (result) {
+                                is Resource.Error -> {}
+                                is Resource.Loading -> {}
+                                is Resource.Success -> {
+                                    val userProfile = result.data
+                                    GlideUtils.load(
+                                        this@UserHomeActivity,
+                                        ivHead,
+                                        userProfile.avatarUrl,
+                                    )
+                                    GlideUtils.load(
+                                        this@UserHomeActivity,
+                                        igSmallAvatar,
+                                        userProfile.avatarUrl,
+                                    )
+                                    authorName.text = userProfile.account
+                                    tvSmallName.text = userProfile.account
+                                    tvDescription.text = userProfile.bio
 
+                                }
                             }
                         }
                     }
