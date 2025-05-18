@@ -30,6 +30,7 @@ import java.io.File
 
 class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
     private val handler = Handler(Looper.getMainLooper())
+
     override fun processIntent(intent: FreshNewsContract.Intent) {
         when (intent) {
             is FreshNewsContract.Intent.InputMessage -> inputMessage(intent.value, intent.type)
@@ -45,6 +46,9 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.UpdateUserProfile -> refreshUserProfileByNetwork(intent.userId)
             is FreshNewsContract.Intent.UpdateTabIndex -> changeCurrentTab(intent.currentIndex)
             is FreshNewsContract.Intent.Initialization -> {}
+
+            is FreshNewsContract.Intent.LikeNews -> likeNewsItem(intent.freshNewsItem)
+            is FreshNewsContract.Intent.FavoriteNews -> favoriteNewsItem(intent.freshNewsItem)
         }
 
     }
@@ -209,6 +213,13 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
     private fun refreshNewsByTime(page: Int, pageSize: Int) {
         viewModelScope.launch {
             updateState { copy(freshNewsList = Resource.Loading()) }
+
+            // 保存当前的收藏状态
+            val currentList = (state.value.freshNewsList as? Resource.Success)?.data
+            val favoriteStates = currentList?.associate {
+                it.freshNewsId to it.isFavorited
+            } ?: emptyMap()
+
             val newsResult = FreshNewsRepository.instance.getNewsListByTime(page, pageSize)
             newsResult.collect { resource ->
                 when (resource) {
@@ -243,8 +254,12 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                                     createTime = freshNews.createTime,
                                     comments = freshNews.comments,
                                     allowComments = freshNews.allowComments,
-                                    favoritesCount = freshNews.favoritesCount
-                                )
+                                    favoritesCount = freshNews.favoritesCount,
+                                    location = "北京"
+                                ).apply {
+                                    // 恢复之前的收藏状态
+                                    isFavorited = favoriteStates[freshNewsId] ?: false
+                                }
 
                                 freshNewsItems.add(freshNewsItem)
                             } catch (e: Exception) {
@@ -280,6 +295,127 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
     private fun cleanupTempFiles(files: List<File>) {
         files.forEach { file ->
             if (file.exists()) file.delete()
+        }
+    }
+
+
+    // 点赞 -
+    private fun likeNewsItem(freshNewsItem: FreshNewsItem) {
+        viewModelScope.launch {
+            try {
+                // 获取当前状态
+                val currentLikeCount = freshNewsItem.liked ?: 0
+                val isCurrentlyLiked = freshNewsItem.isLiked
+                // 发送网络请求(网络操作在IO线程)
+                withContext(Dispatchers.IO) {
+                    Log.d("FreshNewsVM", "发送网络请求: id=${freshNewsItem.freshNewsId}")
+                    val result = FreshNewsRepository.instance.likeNews(freshNewsItem.freshNewsId)
+
+                    result.collect { resource ->
+                        withContext(Dispatchers.Main) {
+                            when (resource) {
+                                is Resource.Success -> {
+                                }
+                                is Resource.Error -> {
+                                    // 请求失败，回滚UI状态
+                                    Log.d("FreshNewsVM", "请求失败，回滚UI: id=${freshNewsItem.freshNewsId}")
+                                    updateNewsItemInList(freshNewsItem.freshNewsId) { item ->
+                                        val updated = item.copy(
+                                            liked = currentLikeCount
+                                        )
+                                        updated.isLiked = isCurrentlyLiked
+                                        updated
+                                    }
+
+                                    CustomToast.showMessage(
+                                        PlanetApplication.appContext,
+                                        "操作失败: ${resource.msg}"
+                                    )
+                                }
+                                else -> {}
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("FreshNewsVM", "点赞操作异常: ${e.message}", e)
+                // 确保异常处理也在主线程
+                withContext(Dispatchers.Main) {
+                    CustomToast.showMessage(
+                        PlanetApplication.appContext,
+                        "操作出错: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    // 收藏
+    private fun favoriteNewsItem(freshNewsItem: FreshNewsItem) {
+        viewModelScope.launch {
+            val currentFavoriteCount = freshNewsItem.favoritesCount ?: 0
+            val isCurrentlyFavorited = freshNewsItem.isFavorited
+
+            // 计算新状态
+            val newFavoriteCount = if (isCurrentlyFavorited) currentFavoriteCount - 1 else currentFavoriteCount + 1
+            val newFavoriteState = !isCurrentlyFavorited
+
+            // 立即更新UI (乐观更新)
+            updateNewsItemInList(freshNewsItem.freshNewsId) { item ->
+                item.copy(
+                    favoritesCount = newFavoriteCount,
+                    isFavorited = newFavoriteState
+                )
+            }
+
+            val result = FreshNewsRepository.instance.favoriteNews(freshNewsItem.freshNewsId)
+
+            result.onEach { resource ->
+                when (resource) {
+                    is Resource.Success -> {
+                        val actionText = if (newFavoriteState) "已收藏" else "已取消收藏"
+                        handler.post {
+                            CustomToast.showMessage(
+                                PlanetApplication.appContext,
+                                actionText
+                            )
+                        }
+                    }
+                    is Resource.Error -> {
+                        updateNewsItemInList(freshNewsItem.freshNewsId) { item ->
+                            item.copy(
+                                favoritesCount = currentFavoriteCount,
+                                isFavorited = isCurrentlyFavorited
+                            )
+                        }
+                        handler.post {
+                            CustomToast.showMessage(
+                                PlanetApplication.appContext,
+                                "操作失败: ${resource.msg}"
+                            )
+                        }
+                    }
+                    else -> {}
+                }
+            }.launchIn(viewModelScope)
+        }
+    }
+    private fun updateNewsItemInList(
+        freshNewsId: Int,
+        updateFunction: (FreshNewsItem) -> FreshNewsItem
+    ) {
+        val currentState = state.value
+        val freshNewsList =
+            (currentState.freshNewsList as? Resource.Success)?.data?.toMutableList() ?: return
+
+        val index = freshNewsList.indexOfFirst { it.freshNewsId == freshNewsId }
+        if (index != -1) {
+            val item = freshNewsList[index]
+            freshNewsList[index] = updateFunction(item)
+
+            updateState {
+                copy(freshNewsList = Resource.Success(freshNewsList))
+            }
         }
     }
 }

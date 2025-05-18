@@ -1,6 +1,7 @@
 package com.example.changli_planet_app.Network.repository
 
 import android.util.Log
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Network.NetApi.FreshNewsApi
 import com.example.changli_planet_app.Network.NetApi.toImagePart
 import com.example.changli_planet_app.Network.Resource
@@ -66,4 +67,49 @@ class FreshNewsRepository private constructor() {
             emit(Resource.Error(e.message ?: "网络错误"))
         }
     }
+    //喜欢新鲜事
+    fun likeNews(freshNewsId: Int) = flow {
+        emit(Resource.Loading())
+        try {
+            // 直接使用当前登录用户ID
+            val currentUserId = UserInfoManager.userId
+
+            val result = service.value.likeNews(freshNewsId, currentUserId)
+            when {
+                result.code == "200" -> {
+                    emit(Resource.Success(true))
+                }
+                else -> {
+                    emit(Resource.Error(result.msg ?: "点赞失败"))
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("FreshNews", "点赞失败: ${e.message}")
+            emit(Resource.Error(e.message ?: "网络错误"))
+        }
+    }
+    //收藏新鲜事
+    fun favoriteNews(freshNewsId: Int) = flow {
+        emit(Resource.Loading())
+        try {
+            val currentUserId = UserInfoManager.userId
+
+            val result = service.value.favoriteNews(currentUserId, freshNewsId)
+            when {
+                result.code == "200" -> {
+                    emit(Resource.Success(true))
+                }
+                else -> {
+                    emit(Resource.Error(result.msg ?: "收藏失败"))
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("FreshNews", "收藏失败: ${e.message}")
+            emit(Resource.Error(e.message ?: "网络错误"))
+        }
+    }
+
+
 }

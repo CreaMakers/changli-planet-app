@@ -98,6 +98,8 @@ dependencies {
 
     // 图片裁剪库
     implementation("com.github.Yalantis:uCrop:2.2.8")
+   // PhotoView
+    implementation ("com.github.chrisbanes:PhotoView:2.3.0")
 
     // SubsamplingScaleImageView
     implementation("com.davemorrissey.labs:subsampling-scale-image-view:3.10.0")

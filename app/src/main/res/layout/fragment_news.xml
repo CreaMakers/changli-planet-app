@@ -88,6 +88,7 @@
         app:layout_constraintTop_toBottomOf="@+id/to"
         app:layout_constraintVertical_bias="1.0"
         app:srlAccentColor="@color/login_gray"
+        app:srlEnableOverScrollDrag="false"
         app:srlEnablePreviewInEditMode="true"
         tools:layout_editor_absoluteX="168dp">
 
@@ -106,15 +107,9 @@
             android:layout_height="wrap_content" />
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
-    <ImageView
-        android:id="@+id/add"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:src="@drawable/add_news"
-        android:layout_marginBottom="30dp"
-        android:layout_marginEnd="30dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+    <FrameLayout
+        android:id="@+id/floatViewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

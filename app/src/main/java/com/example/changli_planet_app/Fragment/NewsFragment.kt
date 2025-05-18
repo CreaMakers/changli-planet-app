@@ -1,11 +1,11 @@
 package com.example.changli_planet_app.Fragment
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,30 +15,28 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Activity.Contract.FreshNewsContract
 import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
 import com.example.changli_planet_app.Adapter.FreshNewsAdapter
+import com.example.changli_planet_app.Adapter.ViewHolder.FreshNewsItemViewHolder
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Resource
-import com.example.changli_planet_app.Network.Response.FreshNewsItem
 import com.example.changli_planet_app.Utils.GlideUtils
+import com.example.changli_planet_app.Widget.Dialog.ImageSliderDialog
 import com.example.changli_planet_app.Widget.Dialog.ShowImageDialog
+import com.example.changli_planet_app.Widget.View.AddNewsFloats
+import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.databinding.FragmentNewsBinding
 import com.google.android.material.tabs.TabLayout
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
-import com.scwang.smart.refresh.layout.api.RefreshLayout
-import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
-import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 
 class NewsFragment : Fragment() {
     private lateinit var binding: FragmentNewsBinding
     private val refreshLayout: SmartRefreshLayout by lazy { binding.refreshLayout }
-    private val add: ImageView by lazy { binding.add }
     private val recyclerView: RecyclerView by lazy { binding.newsRecyclerView }
     private val avatar by lazy { binding.newsAvatar }
     private val to: TabLayout by lazy { binding.to }
+    private var mFloatView: AddNewsFloats? = null
 
     private val viewModel: FreshNewsViewModel by viewModels()
     private lateinit var adapter: FreshNewsAdapter
@@ -58,17 +56,60 @@ class NewsFragment : Fragment() {
         binding = FragmentNewsBinding.inflate(layoutInflater)
         initObserve()
         initView()
-        add.setOnClickListener {
-            Route.goPublishFreshNews(requireActivity())
-        }
+
         return binding.root
     }
 
     private fun initView() {
         adapter = FreshNewsAdapter(
             PlanetApplication.appContext,
-            { imageUrl -> showImageDialog(imageUrl) },
-            { Route.goUserHomeActivity(requireContext(), it) }
+            onImageClick = { imageList, position ->
+                ImageSliderDialog(requireContext(), imageList, position).show()
+            },
+            onUserClick = { userId ->
+                Route.goUserHomeActivity(requireContext(),userId)
+            },
+            onMenuClick = { newsItem ->
+                // 处理菜单点击事件（三个点的菜单）
+                // 可以弹出菜单选项等
+            },
+            onLikeClick = { newsItem ->
+                try {
+                    // 1. 获取当前状态
+                    val isCurrentlyLiked = newsItem.isLiked
+                    val currentLikeCount = newsItem.liked ?: 0
+
+                    // 2. 计算新状态
+                    val newLikeCount = if (isCurrentlyLiked) currentLikeCount - 1 else currentLikeCount + 1
+
+                    // 3. 手动更新列表项
+                    val position = adapter.getCurrentPosition(newsItem)
+                    if (position != -1) {
+                        // 创建更新后的项目
+                        val updatedItem = newsItem.copy(
+                            liked = newLikeCount
+                        ).apply {
+                            isLiked = !isCurrentlyLiked
+                        }
+
+                        // 更新适配器中的数据
+                        adapter.updateItem(position, updatedItem)
+                    }
+
+                    // 4. 发送请求到ViewModel处理业务逻辑和网络请求
+                    viewModel.processIntent(FreshNewsContract.Intent.LikeNews(newsItem))
+                } catch (e: Exception) {
+                    Log.e("NewsFragment", "点赞UI更新出错: ${e.message}", e)
+                    CustomToast.showMessage(requireContext(), "操作失败")
+                }
+            },
+            onCommentClick = { newsItem ->
+                // 处理评论按钮点击
+                // Route.goNewsDetail(requireContext(), newsItem.freshNewsId)
+            },
+            onCollectClick = { newsItem ->
+                viewModel.processIntent(FreshNewsContract.Intent.FavoriteNews(newsItem))
+            }
         )
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.apply {
@@ -93,6 +134,7 @@ class NewsFragment : Fragment() {
                 }
             })
         }
+        addFloatView()
     }
 
 
@@ -155,6 +197,7 @@ class NewsFragment : Fragment() {
                                 isLoading = true
                             }
                         }
+                        addFloatView()
                     }
                 }
             }
@@ -185,5 +228,23 @@ class NewsFragment : Fragment() {
 
     private fun refreshNewsList(page: Int, pageSize: Int) {
         viewModel.processIntent(FreshNewsContract.Intent.RefreshNewsByTime(page, pageSize))
+    }
+
+    private fun addFloatView() {
+        if (mFloatView != null) {
+            (mFloatView?.parent as? ViewGroup)?.removeView(mFloatView)
+        }
+        // 创建新的悬浮窗
+        mFloatView = AddNewsFloats(requireContext())
+
+        mFloatView?.setOnFloatClickListener { view ->
+            Route.goPublishFreshNews(requireContext())
+        }
+
+        // 设置初始位置 (右下角)
+        mFloatView?.x = resources.displayMetrics.widthPixels - 200f
+        mFloatView?.y = resources.displayMetrics.heightPixels - 500f
+        mFloatView?.elevation = 100f
+        binding.root.addView(mFloatView)
     }
 }

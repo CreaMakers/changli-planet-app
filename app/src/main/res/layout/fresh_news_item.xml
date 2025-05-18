@@ -1,118 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="15dp"
-    android:background="@color/white">
+    android:layout_margin="6dp"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="6dp">
 
-    <View
-        android:id="@+id/top_view"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider_color_grey"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/news_item_avatar"
-        android:layout_marginEnd="10dp"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/fulilian"
-        android:layout_marginTop="10dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginStart="5dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/top_view"
-        app:shapeAppearance="@style/CircleStyle" />
-
-    <TextView
-        android:id="@+id/news_item_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="用户id"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="10dp"
-        app:layout_constraintStart_toEndOf="@id/news_item_avatar"
-        app:layout_constraintTop_toTopOf="@id/top_view" />
-
-    <TextView
-        android:id="@+id/news_item_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="时间:"
-        android:layout_marginLeft="10dp"
-        app:layout_constraintStart_toEndOf="@id/news_item_avatar"
-        app:layout_constraintTop_toBottomOf="@id/news_item_username" />
-
-    <TextView
-        android:id="@+id/news_title"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="标题"
-        android:textStyle="bold"
-        android:textSize="17sp"
-        android:layout_marginStart="10dp"
-        app:layout_constraintTop_toBottomOf="@id/news_item_avatar" />
+        android:paddingVertical="15dp"
+        android:background="@color/white">
 
-    <TextView
-        android:id="@+id/news_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="正文正文正文正文正文正文正文正文正文正文正文正文正文正文正文"
-        android:paddingVertical="5dp"
-        android:textSize="16sp"
-        android:layout_marginHorizontal="10dp"
-        app:layout_constraintTop_toBottomOf="@id/news_title" />
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/news_item_avatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:elevation="2dp"
+            android:src="@drawable/fulilian"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/CircleStyle" />
 
+        <TextView
+            android:id="@+id/news_item_username"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="5dp"
+            android:text="用户id"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="@id/news_item_avatar"
+            app:layout_constraintEnd_toStartOf="@id/btn_menu"
+            app:layout_constraintStart_toEndOf="@id/news_item_avatar" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/images_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/news_content"
-        app:spanCount="3" />
+        <ImageView
+            android:id="@+id/btn_menu"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="15dp"
+            android:src="@drawable/ic_more"
+            android:contentDescription="更多选项"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/news_item_username"
+            app:layout_constraintBottom_toBottomOf="@id/news_item_username"
+            tools:src="@drawable/ic_more" />
 
+        <TextView
+            android:id="@+id/news_item_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="时间: "
+            app:layout_constraintStart_toEndOf="@id/news_item_avatar"
+            app:layout_constraintTop_toBottomOf="@id/news_item_username" />
 
-    <ImageView
-        android:id="@+id/news_share"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:src="@drawable/share"
-        app:layout_constraintEnd_toStartOf="@id/news_comment"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/images_recycler_view" />
+        <ImageView
+            android:id="@+id/dot_separator"
+            android:layout_width="@dimen/dp10"
+            android:layout_height="@dimen/dp10"
+            android:src="@drawable/ic_one_point"
+            app:layout_constraintStart_toEndOf="@id/news_item_time"
+            app:layout_constraintEnd_toStartOf="@id/news_item_location"
+            app:layout_constraintTop_toTopOf="@id/news_item_time"
+            app:layout_constraintBottom_toBottomOf="@id/news_item_time"/>
 
-    <ImageView
-        android:id="@+id/news_comment"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:src="@drawable/comment"
-        app:layout_constraintEnd_toEndOf="@id/news_favor"
-        app:layout_constraintStart_toStartOf="@id/news_share"
-        app:layout_constraintTop_toBottomOf="@id/images_recycler_view" />
+        <TextView
+            android:id="@+id/news_item_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp12"
+            android:text="北京"
+            android:drawablePadding="4dp"
+            app:layout_constraintStart_toEndOf="@id/news_item_time"
+            app:layout_constraintTop_toTopOf="@id/news_item_time"
+            app:layout_constraintBottom_toBottomOf="@id/news_item_time" />
 
-    <ImageView
-        android:id="@+id/news_favor"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:src="@drawable/favor_none"
-        android:layout_marginStart="25dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@id/news_comment"
-        app:layout_constraintTop_toBottomOf="@id/images_recycler_view" />
+        <TextView
+            android:id="@+id/news_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="6dp"
+            android:text="标题"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/news_item_avatar" />
 
-    <View
-        android:id="@+id/bottom_view"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider_color_grey"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="parent" />
+        <TextView
+            android:id="@+id/news_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:paddingVertical="3dp"
+            android:text="正文正文正文正文正文正文正文正文正文正文正文正文正文正文正文"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/news_title" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/images_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:padding="5dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/news_content"
+            app:spanCount="3" />
+
+        <View
+            android:id="@+id/middle_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="3dp"
+            android:background="@color/divider_color_grey"
+            app:layout_constraintTop_toBottomOf="@id/images_recycler_view" />
+
+        <LinearLayout
+            android:id="@+id/interaction_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="36dp"
+            android:paddingVertical="6dp"
+            android:weightSum="3"
+            app:layout_constraintTop_toBottomOf="@id/middle_divider">
+
+            <LinearLayout
+                android:id="@+id/favor_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/news_favor"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_like" />
+
+                <TextView
+                    android:id="@+id/news_favor_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="0"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/comment_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/news_comment"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_comment" />
+
+                <TextView
+                    android:id="@+id/news_comment_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="0"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/share_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/news_share"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_un_collect" />
+
+                <TextView
+                    android:id="@+id/news_share_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="0"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/bottom_view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="15dp"
+            android:background="@color/divider_color_grey"
+            app:layout_constraintTop_toBottomOf="@id/interaction_layout" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

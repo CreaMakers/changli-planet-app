@@ -20,6 +20,9 @@ class FreshNewsContract {
         class UpdateTabIndex(val currentIndex: Int) : Intent()
         class Initialization : Intent()
         class UpdateUserProfile(val userId: Int) : Intent()
+
+        class LikeNews(val freshNewsItem: FreshNewsItem) : Intent()
+        class FavoriteNews(val freshNewsItem: FreshNewsItem) : Intent()
     }
 
     data class State(

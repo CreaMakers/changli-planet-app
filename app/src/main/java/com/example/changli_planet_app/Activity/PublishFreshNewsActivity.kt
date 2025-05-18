@@ -80,12 +80,10 @@ class PublishFreshNewsActivity : FullScreenActivity() {
             viewModel.state.collect { state ->
                 if (!state.isEnable) {
                     binding.publish.setOnClickListener(null)
-                    binding.publish.setBackgroundResource(R.drawable.un_enable_button)
                 } else {
                     binding.publish.singleClick(delay = 3000) {
                         viewModel.processIntent(FreshNewsContract.Intent.Publish())
                     }
-                    binding.publish.setBackgroundResource(R.drawable.enable_button)
                 }
             }
         }
@@ -127,8 +125,7 @@ class PublishFreshNewsActivity : FullScreenActivity() {
         // 获取屏幕高度
         val displayMetrics = resources.displayMetrics
         val screenHeight = displayMetrics.heightPixels
-
-        binding.content.minHeight = screenHeight / 3
+        binding.content.minHeight = screenHeight / 6
     }
 
     private fun setTextWatcher() {
@@ -323,31 +320,6 @@ class PublishFreshNewsActivity : FullScreenActivity() {
         }
     }
 
-    private fun createImageView(uri: Uri): View {
-        return LayoutInflater.from(this)
-            .inflate(R.layout.item_image_thumbnail, binding.flexContainer, false).apply {
-                layoutParams = FlexboxLayout.LayoutParams(
-                    binding.addImage.layoutParams.width,
-                    binding.addImage.layoutParams.height
-                ).apply {
-                    //flexBasisPercent=0.3f
-                    marginEnd = dpToPx(10)
-                    bottomMargin = dpToPx(10)
-                }
-
-//            findViewById<ImageView>(R.id.ivThumbnail).setImageURI(uri)
-                val progressBar = findViewById<ProgressBar>(R.id.progressBar)
-                val imageView = findViewById<ImageView>(R.id.ivThumbnail)
-                loadImageURI(
-                    uri,
-                    progressBar,
-                    imageView
-                )                             //之前遇到一个bug，加载的图片为null
-                findViewById<ImageButton>(R.id.btnDelete).setOnClickListener {
-                    removeImageView(this)
-                }
-            }
-    }
 
     private fun loadImageURI(uri: Uri, progressBar: ProgressBar, imageView: ImageView) {
         Glide.with(this)
@@ -421,6 +393,40 @@ class PublishFreshNewsActivity : FullScreenActivity() {
             out.flush()
         }
         return outputFile
+    }
+
+    private fun calculateImageSize(): Int {
+        // 获取屏幕宽度
+        val screenWidth = resources.displayMetrics.widthPixels
+        // 设置图片之间的间距
+        val spacing = dpToPx(4)  // 间距设为4dp
+        // 计算每个图片的大小：(屏幕宽度 - 两个边距 - 两个图片间距) / 3
+        return (screenWidth - dpToPx(16) * 2 - spacing * 2) / 3
+    }
+
+    private fun createImageView(uri: Uri): View {
+        val imageSize = calculateImageSize()
+
+        return LayoutInflater.from(this)
+            .inflate(R.layout.item_image_thumbnail, binding.flexContainer, false).apply {
+                layoutParams = FlexboxLayout.LayoutParams(imageSize, imageSize).apply {
+                    marginEnd = dpToPx(4)    // 横向间距4dp
+                    bottomMargin = dpToPx(4) // 纵向间距4dp
+                }
+
+                val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+                val imageView = findViewById<ImageView>(R.id.ivThumbnail)
+                imageView.layoutParams = imageView.layoutParams.apply {
+                    width = imageSize
+                    height = imageSize
+                }
+
+                loadImageURI(uri, progressBar, imageView)
+
+                findViewById<ImageButton>(R.id.btnDelete).setOnClickListener {
+                    removeImageView(this)
+                }
+            }
     }
 
 

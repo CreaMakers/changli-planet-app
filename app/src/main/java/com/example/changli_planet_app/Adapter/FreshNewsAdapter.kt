@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Adapter.DiffUtils.NewsDiffCallback
-import com.example.changli_planet_app.Adapter.ViewHolder.FreshNewsItemViewModel
+import com.example.changli_planet_app.Adapter.ViewHolder.FreshNewsItemViewHolder
 import com.example.changli_planet_app.Adapter.ViewHolder.LoadingViewHolder
 import com.example.changli_planet_app.Network.Response.FreshNewsItem
 import com.example.changli_planet_app.databinding.FreshNewsItemBinding
@@ -14,10 +14,13 @@ import com.example.changli_planet_app.databinding.LoadingViewBinding
 
 class FreshNewsAdapter(
     val context: Context,
-    private val onImageClick: (String) -> Unit,
-    private val onNewsClick: (userId: Int) -> Unit
-) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val onImageClick: (List<String?>, Int) -> Unit,
+    private val onUserClick: (userId: Int) -> Unit,
+    private val onMenuClick: (FreshNewsItem) -> Unit = {},
+    private val onLikeClick: (FreshNewsItem) -> Unit = {},
+    private val onCommentClick: (FreshNewsItem) -> Unit = {},
+    private val onCollectClick: (FreshNewsItem) -> Unit = {}
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val VIEW_TYPE_ITEM = 0
         private const val VIEW_TYPE_LOADING = 1
@@ -31,7 +34,16 @@ class FreshNewsAdapter(
                 val binding = FreshNewsItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
-                FreshNewsItemViewModel(binding, context, onImageClick, onNewsClick)
+                FreshNewsItemViewHolder(
+                    binding,
+                    context,
+                    onImageClick,
+                    onUserClick,
+                    onMenuClick,
+                    onLikeClick,
+                    onCommentClick,
+                    onCollectClick
+                )
             }
 
             else -> {
@@ -51,7 +63,7 @@ class FreshNewsAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is FreshNewsItemViewModel -> {
+            is FreshNewsItemViewHolder -> {
                 holder.bind(newsList[position])
             }
 
@@ -79,4 +91,30 @@ class FreshNewsAdapter(
         notifyItemChanged(itemCount - 1)
     }
 
+    // 获取指定FreshNewsItem的位置
+    fun getCurrentPosition(item: FreshNewsItem): Int {
+        return newsList.indexOfFirst { it.freshNewsId == item.freshNewsId }
+    }
+
+    // 更新指定位置的项目
+    fun updateItem(position: Int, item: FreshNewsItem) {
+        if (position in 0 until newsList.size) {
+            newsList[position] = item
+            notifyItemChanged(position)
+        }
+    }
+
+    // 可选：直接通过ID更新项目
+    fun updateItemById(freshNewsId: Int, updater: (FreshNewsItem) -> FreshNewsItem) {
+        val position = newsList.indexOfFirst { it.freshNewsId == freshNewsId }
+        if (position != -1) {
+            val oldItem = newsList[position]
+            val newItem = updater(oldItem)
+            newsList[position] = newItem
+            notifyItemChanged(position)
+        }
+    }
+
+    // 获取当前数据列表（只读）
+    fun getData(): List<FreshNewsItem> = newsList.toList()
 }

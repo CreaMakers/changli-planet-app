@@ -12,6 +12,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/topBar"
         android:paddingTop="@dimen/dp45">
 
         <TextView
@@ -21,16 +22,22 @@
             android:layout_weight="1"
             android:backgroundTint="@android:color/transparent"
             android:text="取消"
+            android:gravity="center_vertical"
             android:textColor="#C1424242"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:gravity="center"
+            android:paddingStart="@dimen/dp5"
             android:layout_marginStart="10dp" />
 
-        <Space
+        <TextView
+            android:id="@+id/title1"
             android:layout_width="0dp"
+            android:layout_weight="3"
             android:layout_height="match_parent"
-            android:layout_weight="3" />
+            android:text="写新鲜事"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:gravity="center"/>
 
         <TextView
             android:id="@+id/publish"
@@ -38,10 +45,9 @@
             android:paddingVertical="@dimen/dp4"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/enable_button"
             android:text="发布"
-            android:textColor="@color/white"
-            android:textSize="17sp"
+            android:textColor="#32A0F4"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginEnd="10dp" />
@@ -52,53 +58,66 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <EditText
                 android:id="@+id/title"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:hint="标题"
-                android:layout_margin="10dp"
+                android:layout_marginHorizontal="@dimen/dp10"
                 android:gravity="top"
                 android:backgroundTint="@android:color/transparent" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/divider_color_grey"
-                android:layout_marginBottom="10dp"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:background="#7E7E7E"
+                app:layout_constraintTop_toBottomOf="@id/title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginHorizontal="@dimen/dp10" />
 
             <EditText
                 android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/title"
                 android:hint="分享你的新鲜事..."
+                android:textSize="16sp"
                 android:backgroundTint="@android:color/transparent"
-                android:layout_margin="10dp"
+                android:layout_marginHorizontal="@dimen/dp10"
+                android:layout_marginTop="@dimen/dp5"
                 android:gravity="top" />
 
             <com.google.android.flexbox.FlexboxLayout
                 android:id="@+id/flexContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
+                app:layout_constraintTop_toBottomOf="@id/content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginStart="@dimen/dp5"
                 app:alignItems="stretch"
-                app:flexWrap="wrap">
+                app:flexWrap="wrap"
+                app:justifyContent="flex_start"
+                app:alignContent="flex_start">
 
                 <ImageView
                     android:id="@+id/add_image"
                     android:layout_width="115dp"
                     android:layout_height="115dp"
                     android:layout_marginBottom="10dp"
-                    android:src="@drawable/add_picture" />
+                    android:src="@drawable/ic_add_image" />
             </com.google.android.flexbox.FlexboxLayout>
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
 </LinearLayout>

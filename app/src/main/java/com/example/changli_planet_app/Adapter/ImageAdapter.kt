@@ -15,13 +15,13 @@ import com.example.changli_planet_app.R
 
 class ImageAdapter(
     private val imageList: List<String?>,
-    private val onImageClick: (String) -> Unit
+    private val onImageClick: (String?, Int) -> Unit
 ) : RecyclerView.Adapter<ImageAdapter.ViewModel>() {
 
     inner class ViewModel(val view: View) : RecyclerView.ViewHolder(view) {
         private val imageView: ImageView = view.findViewById(R.id.item_image_view)
 
-        fun bind(imageUrl: String?) {
+        fun bind(imageUrl: String?, position: Int) {
             imageUrl?.let{
                 GlideApp.with(view)
                     .load(imageUrl)
@@ -43,7 +43,9 @@ class ImageAdapter(
                             dataSource: DataSource,
                             isFirstResource: Boolean
                         ): Boolean {
-                            imageView.setOnClickListener { onImageClick(imageUrl) }
+                            imageView.setOnClickListener {
+                                onImageClick(imageUrl, position)
+                            }
                             return false
                         }
                     })
@@ -60,7 +62,6 @@ class ImageAdapter(
     override fun getItemCount(): Int = imageList.size
 
     override fun onBindViewHolder(holder: ViewModel, position: Int) {
-        holder.bind(imageList[position])
+        holder.bind(imageList[position], position)
     }
-
 }

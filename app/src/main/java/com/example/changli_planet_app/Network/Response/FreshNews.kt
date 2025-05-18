@@ -29,7 +29,14 @@ data class FreshNewsItem(
     val comments: Int,
     val createTime: String,
     val allowComments: Int,
-    val favoritesCount: Int
+    val favoritesCount: Int,
+
+    @Transient
+    val location: String,
+    @Transient
+    var isLiked: Boolean = false,
+    @Transient
+    var isFavorited: Boolean = false
 )
 
 data class FreshNews_Publish(
