@@ -31,17 +31,27 @@
 
                     <ImageView
                         android:layout_width="match_parent"
-                        android:layout_height="160dp"
+                        android:layout_height="150dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/bg_user_home_header" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="@dimen/dp10">
+
+                    </androidx.cardview.widget.CardView>
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivHead"
                         android:layout_width="65dp"
+                        android:background="@color/white"
                         android:layout_height="65dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="125dp"
-                        app:shapeAppearance="@style/CircleStyle" />
+                        app:shapeAppearance="@style/CircleStyle"
+                        app:strokeColor="@color/white"
+                        app:strokeWidth="@dimen/dp2" />
 
                     <LinearLayout
                         android:id="@+id/llAuthor"
@@ -80,10 +90,9 @@
                         android:textColor="@android:color/darker_gray"
                         android:textSize="13sp" />
 
-
                     <TextView
                         android:id="@+id/tv_edit"
-                        android:visibility="invisible"
+                        android:visibility="visible"
                         android:layout_width="80dp"
                         android:layout_height="35dp"
                         android:layout_alignTop="@+id/llAuthor"
@@ -172,7 +181,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_height="3dp"
                 android:background="@color/grey" />
 
 

@@ -25,15 +25,15 @@ class ImageAdapter(
             imageUrl?.let{
                 GlideApp.with(view)
                     .load(imageUrl)
-                    .listener(object:RequestListener<Drawable>{
+                    .listener(object : RequestListener<Drawable> {
                         override fun onLoadFailed(
                             e: GlideException?,
                             model: Any?,
                             target: Target<Drawable>,
                             isFirstResource: Boolean
                         ): Boolean {
-                            imageView.visibility=View.GONE
-                            return true    //如果加载的图片已损坏，则不显示图片
+                            imageView.visibility = View.GONE
+                            return true
                         }
 
                         override fun onResourceReady(

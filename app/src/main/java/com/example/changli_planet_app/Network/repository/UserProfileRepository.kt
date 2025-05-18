@@ -8,6 +8,8 @@ import com.example.changli_planet_app.Network.NetApi.UserProfileApi
 import com.example.changli_planet_app.Network.Resource
 import com.example.changli_planet_app.Network.Response.UserProfile
 import com.example.changli_planet_app.Utils.RetrofitUtils
+import com.example.changli_planet_app.Utils.toEntity
+import com.example.changli_planet_app.Utils.toProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -21,7 +23,7 @@ class UserProfileRepository private constructor() {
         val cache by lazy { UserDataBase.getInstance(PlanetApplication.appContext).itemDao() }
 
         // 缓存时间暂时为3小时
-        private const val CACHE_DURATION = 3 * 60 * 60 * 1000L
+        private const val CACHE_DURATION = 14 * 60 * 1000L
     }
 
     private val service by lazy { RetrofitUtils.instanceUser.create(UserProfileApi::class.java) }
@@ -68,44 +70,4 @@ class UserProfileRepository private constructor() {
         emit(Resource.Error(e.message ?: "网络错误"))
     }
 
-    fun UserProfile.toEntity(cacheTime: Long = System.currentTimeMillis()): UserEntity {
-        return UserEntity(
-            userId = this.userId,
-            username = this.username,
-            account = this.account,
-            avatarUrl = this.avatarUrl,
-            bio = this.bio,
-            description = this.description,
-            userLevel = this.userLevel,
-            gender = this.gender,
-            grade = this.grade,
-            birthDate = this.birthDate,
-            location = this.location,
-            website = this.website,
-            createTime = this.createTime,
-            updateTime = this.updateTime,
-            deleted = this.isDeleted,
-            cacheTime = cacheTime
-        )
-    }
-
-    fun UserEntity.toProfile(): UserProfile {
-        return UserProfile(
-            userId = this.userId,
-            username = this.username,
-            account = this.account,
-            avatarUrl = this.avatarUrl,
-            bio = this.bio,
-            description = this.description,
-            userLevel = this.userLevel,
-            gender = this.gender,
-            grade = this.grade,
-            birthDate = this.birthDate,
-            location = this.location,
-            website = this.website,
-            createTime = this.createTime,
-            updateTime = this.updateTime,
-            isDeleted = this.deleted
-        )
-    }
 }

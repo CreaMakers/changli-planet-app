@@ -177,7 +177,6 @@ object Route {
         val intent = Intent(context, PublishFreshNewsActivity::class.java)
         context.startActivity(intent)
     }
-
     fun goContract(context: Context) {
         val intent = Intent(context, ContractActivity::class.java)
         context.startActivity(intent)

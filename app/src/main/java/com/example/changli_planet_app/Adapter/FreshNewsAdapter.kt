@@ -55,12 +55,6 @@ class FreshNewsAdapter(
         }
     }
 
-    override fun getItemCount(): Int = newsList.size + if (isLoading) 1 else 0
-
-    override fun getItemViewType(position: Int): Int {
-        return if (position == newsList.size) VIEW_TYPE_LOADING else VIEW_TYPE_ITEM
-    }
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is FreshNewsItemViewHolder -> {
@@ -70,6 +64,31 @@ class FreshNewsAdapter(
             is LoadingViewHolder -> {
                 holder.bind(isLoading)
             }
+        }
+    }
+
+    override fun getItemCount(): Int = newsList.size + if (isLoading) 1 else 0
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position == newsList.size) VIEW_TYPE_LOADING else VIEW_TYPE_ITEM
+    }
+
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isNotEmpty()) {
+            when (holder) {
+                is FreshNewsItemViewModel -> {
+                    val item = newsList[position]
+                    holder.updateAccountAndAvatar(item.authorName, item.authorAvatar)
+                }
+
+                else -> super.onBindViewHolder(holder, position, payloads)
+            }
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
         }
     }
 
@@ -86,9 +105,17 @@ class FreshNewsAdapter(
         notifyItemRangeInserted(startPosition, newItems.size)
     }
 
-    fun setLoading(loading: Boolean) {
-        isLoading = loading
-        notifyItemChanged(itemCount - 1)
+    fun updateDataByUserId(userId: Int, newAccount: String, newAvatarUrl: String) {
+        for ((index, item) in newsList.withIndex()) {
+            if (item.userId == userId) {
+                if (item.authorName == newAccount && item.authorAvatar == newAvatarUrl) {
+                    continue
+                }
+                item.authorName = newAccount
+                item.authorAvatar = newAvatarUrl
+            }
+            notifyItemChanged(index, "UPDATE_AVATAR_AND_NAME")
+        }
     }
 
     // 获取指定FreshNewsItem的位置

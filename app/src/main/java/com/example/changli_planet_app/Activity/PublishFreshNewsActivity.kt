@@ -34,6 +34,7 @@ import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Utils.PlanetConst
 import com.example.changli_planet_app.Utils.singleClick
 import com.example.changli_planet_app.Widget.Dialog.PhotoPickerDialog
 import com.example.changli_planet_app.Widget.View.CustomToast
@@ -61,8 +62,6 @@ class PublishFreshNewsActivity : FullScreenActivity() {
     companion object {
         private const val REQUEST_CAMERA = 1001
         private const val REQUEST_GALLERY = 1002
-
-        // 将质量压缩到85%左右
         private const val COMPRESS_QUALITY = 85
     }
 
@@ -108,7 +107,10 @@ class PublishFreshNewsActivity : FullScreenActivity() {
     @Subscribe
     public fun closeActivity(event: FreshNewsContract.Event) {
         when (event) {
-            FreshNewsContract.Event.closePublish -> finish()
+            FreshNewsContract.Event.closePublish -> {
+                setResult(PlanetConst.RESULT_OK)
+                finish()
+            }
             else -> {}
         }
     }
@@ -353,8 +355,8 @@ class PublishFreshNewsActivity : FullScreenActivity() {
     }
 
     private fun removeImageView(view: View) {
-        binding.flexContainer.removeView(view)
         val position = binding.flexContainer.indexOfChild(view)
+        binding.flexContainer.removeView(view)
         if (position != -1) {
             viewModel.processIntent(FreshNewsContract.Intent.RemoveImage(position))
         }

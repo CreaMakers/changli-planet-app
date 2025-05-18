@@ -92,7 +92,7 @@
         app:srlEnablePreviewInEditMode="true"
         tools:layout_editor_absoluteX="168dp">
 
-        <com.scwang.smart.refresh.header.BezierRadarHeader
+        <com.scwang.smart.refresh.header.MaterialHeader
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:srlDrawableSize="20dp" />

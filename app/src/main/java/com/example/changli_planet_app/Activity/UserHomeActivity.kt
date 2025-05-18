@@ -1,10 +1,13 @@
 package com.example.changli_planet_app.Activity
 
 import android.animation.ObjectAnimator
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AccelerateInterpolator
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +21,7 @@ import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Network.Resource
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.GlideUtils
+import com.example.changli_planet_app.Utils.PlanetConst
 import com.example.changli_planet_app.Widget.View.NestCollapsingToolbarLayout
 import com.example.changli_planet_app.databinding.ActivityUserHomeBinding
 import kotlinx.coroutines.launch
@@ -39,6 +43,10 @@ class UserHomeActivity : FullScreenActivity() {
 
     private val viewModel: UserHomeViewModel by viewModels()
 
+    private var curAccount: String = ""
+    private var curAvatarUrl: String = ""
+    private var userId: Int = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -46,10 +54,16 @@ class UserHomeActivity : FullScreenActivity() {
         initView()
         initAnimator()
         initListener()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                returnWithData()
+            }
+        })
     }
 
     private fun initData() {
-        val userId = intent.getIntExtra("userId", -1)
+        userId = intent.getIntExtra("userId", -1)
         if (userId != -1) {
             viewModel.getUserProfile(userId)
         }
@@ -71,7 +85,7 @@ class UserHomeActivity : FullScreenActivity() {
     }
 
     private fun initListener() {
-        back.setOnClickListener { finish() }
+        back.setOnClickListener { returnWithData() }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -82,6 +96,8 @@ class UserHomeActivity : FullScreenActivity() {
                                 is Resource.Loading -> {}
                                 is Resource.Success -> {
                                     val userProfile = result.data
+                                    curAccount = userProfile.account
+                                    curAvatarUrl = userProfile.avatarUrl
                                     GlideUtils.load(
                                         this@UserHomeActivity,
                                         ivHead,
@@ -131,4 +147,16 @@ class UserHomeActivity : FullScreenActivity() {
         llSmallAuthor.visibility = View.VISIBLE
         objectAnimator.start()
     }
+
+    private fun returnWithData() {
+        Intent().apply {
+            putExtra("account", curAccount)
+            putExtra("avatarUrl", curAvatarUrl)
+            putExtra("userId", userId)
+        }.also { intent ->
+            setResult(PlanetConst.RESULT_OK_NEWS_REFRESH, intent)
+        }
+        finish()
+    }
+
 }

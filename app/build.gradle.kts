@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -121,6 +122,7 @@ dependencies {
     //SmartRefreshLayout
     implementation("io.github.scwang90:refresh-layout-kernel:3.0.0-alpha")
     implementation("io.github.scwang90:refresh-header-radar:3.0.0-alpha")
+    implementation("io.github.scwang90:refresh-header-material:3.0.0-alpha")
     implementation("io.github.scwang90:refresh-footer-classics:3.0.0-alpha")
     // BRV，尝试一下
     implementation("com.github.liangjingkanji:BRV:1.6.1")
