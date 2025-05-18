@@ -15,7 +15,9 @@ class FreshNewsItemViewModel(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(news: FreshNewsItem) {
         with(binding) {
-            itemView.setOnClickListener { onNewsClick(news.userId) }
+            itemView.setOnClickListener {
+                onNewsClick(news.userId)
+            }
             GlideUtils.load(context, newsItemAvatar, news.authorAvatar)
             newsItemUsername.text = news.authorName
             newsTitle.text = news.title
@@ -23,6 +25,13 @@ class FreshNewsItemViewModel(
             newsItemTime.text = "发布时间: $time"
             newsContent.text = news.content
             imagesRecyclerView.adapter = ImageAdapter(news.images, onImageClick)
+        }
+    }
+
+    fun updateAccountAndAvatar(account: String, avatarUrl: String) {
+        with(binding) {
+            GlideUtils.load(context, newsItemAvatar, avatarUrl)
+            newsItemUsername.text = account
         }
     }
 }

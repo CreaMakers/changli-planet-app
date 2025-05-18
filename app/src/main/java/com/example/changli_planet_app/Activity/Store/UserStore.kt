@@ -5,6 +5,7 @@ import android.os.Looper
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.State.UserState
 import com.example.changli_planet_app.Activity.Store.BindingUserStore.StudentNumberRequest
+import com.example.changli_planet_app.Cache.Room.database.UserDataBase
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.PlanetApplication
@@ -19,9 +20,14 @@ import com.example.changli_planet_app.Network.Response.UserProfileResponse
 import com.example.changli_planet_app.Network.Response.UserStatsResponse
 import com.example.changli_planet_app.Utils.Event.FinishEvent
 import com.example.changli_planet_app.Utils.EventBusHelper
+import com.example.changli_planet_app.Utils.toEntity
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.UpdateDialog
 import com.example.changli_planet_app.Widget.View.CustomToast
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
 
@@ -32,6 +38,8 @@ class UserStore : Store<UserState, UserAction>() {
     companion object {
         private var currentState = UserState()
     }
+
+    val cache by lazy { UserDataBase.getInstance(PlanetApplication.appContext).itemDao() }
 
     private val handler = Handler(Looper.getMainLooper())
     override fun handleEvent(action: UserAction) {
@@ -49,10 +57,13 @@ class UserStore : Store<UserState, UserAction>() {
                         when (fromJson.code) {
                             "200" -> {
                                 fromJson.data?.let {
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        cache.insertUser(it.toEntity())
+                                    }
                                     UserInfoManager.account = it.account
                                     UserInfoManager.userAvatar = it.avatarUrl
                                     UserInfoManager.userId = it.userId
-                                    UserInfoManager.userEmail=it.emailbox?:"待绑定"
+                                    UserInfoManager.userEmail = it.emailbox ?: "待绑定"
                                     currentState.userProfile = it
                                     currentState.avatarUri = it.avatarUrl
                                 }
@@ -225,7 +236,7 @@ class UserStore : Store<UserState, UserAction>() {
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
-                        try{
+                        try {
                             val fromJson = OkHttpHelper.gson.fromJson(
                                 response.body?.string(),
                                 ApkResponse::class.java
@@ -254,10 +265,10 @@ class UserStore : Store<UserState, UserAction>() {
                                     }
                                 }
                             }
-                        }catch (e:Exception){
+                        } catch (e: Exception) {
                             e.printStackTrace()
                             handler.post {
-                                CustomToast.showMessage(action.context,"获取新版本失败")
+                                CustomToast.showMessage(action.context, "获取新版本失败")
                             }
                         }
 

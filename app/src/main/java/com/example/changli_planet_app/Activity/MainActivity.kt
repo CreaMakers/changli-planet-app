@@ -234,15 +234,15 @@ class MainActivity : AppCompatActivity(), DrawerController {
         super.onRestoreInstanceState(savedInstanceState)
         currentTabPosition = savedInstanceState.getInt("currentTab") //恢复最后的tab下标
 
-        supportFragmentManager.fragments.forEach{fragment ->
-            val key=when(fragment){
-                is FeatureFragment->0
-                is ChatGroupFragment->1
-                is NewsFragment->2
-                is IMFragment->3
-                else->throw IllegalStateException("Invalid fragment")
+        supportFragmentManager.fragments.forEach { fragment ->
+            val key = when (fragment) {
+                is FeatureFragment -> 0
+                is ChatGroupFragment -> 1
+                is NewsFragment -> 2
+                is IMFragment -> 3
+                else -> throw IllegalStateException("Invalid fragment")
             }
-            fragments.put(key,fragment)     //重新添加fragment
+            fragments.put(key, fragment)     //重新添加fragment
         }
 
         tabLayout.selectTab(tabLayout.getTabAt(currentTabPosition)) //恢复tabLayout
@@ -293,17 +293,17 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
         mainAvatarLinear.setOnClickListener {
             // 处理点击头像框后逻辑
-            if(NetworkUtil.getNetworkType(this)!=NetworkUtil.NetworkType.None) { //检查网络是否连接
+            if (NetworkUtil.getNetworkType(this) != NetworkUtil.NetworkType.None) { //检查网络是否连接
                 Route.goUserProfile(this@MainActivity)
-            }else{
-                CustomToast.showMessage(this,"网络未连接")
+            } else {
+                CustomToast.showMessage(this, "网络未连接")
             }
         }
         drawerAvatar.setOnClickListener {
-            if(NetworkUtil.getNetworkType(this)!=NetworkUtil.NetworkType.None){ //检查网络是否连接
+            if (NetworkUtil.getNetworkType(this) != NetworkUtil.NetworkType.None) { //检查网络是否连接
                 Route.goUserProfile(this@MainActivity)
-            }else{
-                CustomToast.showMessage(this,"网络未连接")
+            } else {
+                CustomToast.showMessage(this, "网络未连接")
             }
         }
         notificationSettings.setOnClickListener {

@@ -19,8 +19,8 @@ data class FreshNews(
 data class FreshNewsItem(
     val freshNewsId: Int,
     val userId: Int,
-    val authorName: String,
-    val authorAvatar: String,
+    var authorName: String,
+    var authorAvatar: String,
     val title: String,
     val content: String,
     val images: List<String?>,

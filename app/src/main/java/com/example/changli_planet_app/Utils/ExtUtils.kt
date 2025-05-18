@@ -5,6 +5,8 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
+import com.example.changli_planet_app.Cache.Room.entity.UserEntity
+import com.example.changli_planet_app.Network.Response.UserProfile
 import com.example.changli_planet_app.R
 
 val Float.dp: Float
@@ -77,4 +79,45 @@ fun View.singleClick(delay: Long = 1000, click: () -> Unit) {
             click()
         }
     }
+}
+
+fun UserProfile.toEntity(cacheTime: Long = System.currentTimeMillis()): UserEntity {
+    return UserEntity(
+        userId = this.userId,
+        username = this.username,
+        account = this.account,
+        avatarUrl = this.avatarUrl,
+        bio = this.bio,
+        description = this.description,
+        userLevel = this.userLevel,
+        gender = this.gender,
+        grade = this.grade,
+        birthDate = this.birthDate,
+        location = this.location,
+        website = this.website,
+        createTime = this.createTime,
+        updateTime = this.updateTime,
+        deleted = this.isDeleted,
+        cacheTime = cacheTime
+    )
+}
+
+fun UserEntity.toProfile(): UserProfile {
+    return UserProfile(
+        userId = this.userId,
+        username = this.username,
+        account = this.account,
+        avatarUrl = this.avatarUrl,
+        bio = this.bio,
+        description = this.description,
+        userLevel = this.userLevel,
+        gender = this.gender,
+        grade = this.grade,
+        birthDate = this.birthDate,
+        location = this.location,
+        website = this.website,
+        createTime = this.createTime,
+        updateTime = this.updateTime,
+        isDeleted = this.deleted
+    )
 }

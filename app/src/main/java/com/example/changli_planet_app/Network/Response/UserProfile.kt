@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Network.Response
 
+import android.os.Parcelable
 import com.example.changli_planet_app.Cache.Room.entity.UserEntity
 import java.time.LocalDateTime
 
@@ -9,7 +10,7 @@ data class UserProfile(
     val username: String = "",
     val account: String = "用户名字",
     var avatarUrl: String = "注册默认头像",
-    var emailbox:String?="",
+    var emailbox: String? = "",
     val bio: String = "",
     val description: String = "",
     val userLevel: Int = -1,
@@ -22,7 +23,6 @@ data class UserProfile(
     val updateTime: String? = null,
     val isDeleted: Int = -1
 )
-
 
 
 data class UserProfileResponse(

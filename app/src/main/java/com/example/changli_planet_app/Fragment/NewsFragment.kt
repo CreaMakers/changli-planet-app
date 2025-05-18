@@ -1,11 +1,14 @@
 package com.example.changli_planet_app.Fragment
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -13,6 +16,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Activity.Contract.FreshNewsContract
+import com.example.changli_planet_app.Activity.PublishFreshNewsActivity
+import com.example.changli_planet_app.Activity.UserHomeActivity
 import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
 import com.example.changli_planet_app.Adapter.FreshNewsAdapter
 import com.example.changli_planet_app.Cache.UserInfoManager
@@ -21,6 +26,8 @@ import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Resource
 import com.example.changli_planet_app.Network.Response.FreshNewsItem
 import com.example.changli_planet_app.Utils.GlideUtils
+import com.example.changli_planet_app.Utils.PlanetConst
+import com.example.changli_planet_app.Utils.PlanetConst.RESULT_OK
 import com.example.changli_planet_app.Widget.Dialog.ShowImageDialog
 import com.example.changli_planet_app.databinding.FragmentNewsBinding
 import com.google.android.material.tabs.TabLayout
@@ -43,13 +50,33 @@ class NewsFragment : Fragment() {
     private val viewModel: FreshNewsViewModel by viewModels()
     private lateinit var adapter: FreshNewsAdapter
     private var page: Int = 1
-    private val pageSize: Int = 7
+    private val pageSize: Int = 10
     private var isLoading = false
     private var hasMoreData = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    // 前往addActivity后的返回调用
+    private val startForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            when (result.resultCode) {
+                RESULT_OK -> {
+                    refreshLayout.autoRefresh()
+                }
+
+                PlanetConst.RESULT_OK_NEWS_REFRESH -> {
+                    val data: Intent? = result.data
+                    data?.let {
+                        val newAccount = it.getStringExtra("account")
+                        val newAvatarUrl = it.getStringExtra("avatarUrl")
+                        val userId = it.getIntExtra("userId", -1)
+                        if (userId != -1 && newAccount != null && newAvatarUrl != null
+                            && !TextUtils.isEmpty(newAccount) && !TextUtils.isEmpty(newAvatarUrl)
+                        ) {
+                            adapter.updateDataByUserId(userId, newAccount, newAvatarUrl)
+                        }
+                    }
+                }
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,7 +86,8 @@ class NewsFragment : Fragment() {
         initObserve()
         initView()
         add.setOnClickListener {
-            Route.goPublishFreshNews(requireActivity())
+            val intent = Intent(requireContext(), PublishFreshNewsActivity::class.java)
+            startForResult.launch(intent)
         }
         return binding.root
     }
@@ -68,7 +96,11 @@ class NewsFragment : Fragment() {
         adapter = FreshNewsAdapter(
             PlanetApplication.appContext,
             { imageUrl -> showImageDialog(imageUrl) },
-            { Route.goUserHomeActivity(requireContext(), it) }
+            {
+                startForResult.launch(Intent(requireContext(), UserHomeActivity::class.java).apply {
+                    putExtra("userId", it)
+                })
+            }
         )
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.apply {
@@ -83,7 +115,7 @@ class NewsFragment : Fragment() {
                     val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
                     if (!isLoading && hasMoreData) {
-                        if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 4
+                        if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
                             && firstVisibleItemPosition >= 0
                             && totalItemCount >= pageSize
                         ) {
@@ -93,6 +125,7 @@ class NewsFragment : Fragment() {
                 }
             })
         }
+        refreshLayout.autoRefresh()
     }
 
 
@@ -164,11 +197,6 @@ class NewsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         GlideUtils.load(this, avatar, UserInfoManager.userAvatar)
-    }
-
-    override fun onStart() {
-        refreshLayout.autoRefresh()
-        super.onStart()
     }
 
     companion object {

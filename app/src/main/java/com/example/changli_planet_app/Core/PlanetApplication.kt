@@ -63,6 +63,7 @@ class PlanetApplication : Application() {
         val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initMMKV()
+        // 提包开，开发不开
 //        CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }

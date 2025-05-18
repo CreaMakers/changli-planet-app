@@ -21,10 +21,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.UserStore
+import com.example.changli_planet_app.Cache.Room.database.UserDataBase
+import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.UserProfileRequest
+import com.example.changli_planet_app.Network.repository.UserProfileRepository
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.Widget.Dialog.PhotoPickerDialog
@@ -144,7 +147,7 @@ class UserProfileActivity : FullScreenActivity() {
             startActivityForResult(intent, REQUEST_PROVINCE)
         }
         submit.setOnClickListener { updateUserProfile() }
-        email.setOnClickListener{ Route.goChangeEmail(this) }
+        email.setOnClickListener { Route.goChangeEmail(this) }
         EventBus.getDefault().register(this)
     }
 
@@ -188,7 +191,7 @@ class UserProfileActivity : FullScreenActivity() {
                     gender.text = genderList[state.userProfile.gender]
                     location.text = state.userProfile.location
                     website.setText(userProfile.website)
-                    email.text=userProfile.emailbox?:"待绑定"
+                    email.text = userProfile.emailbox ?: "待绑定"
                 }
         )
     }
