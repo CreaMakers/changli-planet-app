@@ -25,7 +25,7 @@ data class FreshNewsItem(
     val content: String,
     val images: List<String?>,
     val tags: List<String>,
-    val liked: Int,
+    var liked: Int,
     val comments: Int,
     val createTime: String,
     val allowComments: Int,

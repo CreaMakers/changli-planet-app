@@ -20,6 +20,24 @@ class FreshNewsItemViewHolder(
     private val onCollectClick: (FreshNewsItem) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
+    fun updateAccountAndAvatar(account: String, avatarUrl: String) {
+        with(binding) {
+            GlideUtils.load(context, newsItemAvatar, avatarUrl)
+            newsItemUsername.text = account
+        }
+    }
+
+    fun updateIsLike(liked: Int, isLiked: Boolean) {
+        with(binding) {
+            if (isLiked) {
+                newsFavor.setImageResource(R.drawable.ic_news_liked)
+            } else {
+                newsFavor.setImageResource(R.drawable.ic_like)
+            }
+            newsFavorCount.text = liked.toString()
+        }
+    }
+
     fun bind(news: FreshNewsItem) {
         with(binding) {
             GlideUtils.load(context, newsItemAvatar, news.authorAvatar)
@@ -35,23 +53,19 @@ class FreshNewsItemViewHolder(
             )
 
             newsItemLocation.text = news.location ?: "未知"
-            newsFavorCount.text = (news.liked ?: 0).toString()
+            newsFavorCount.text = news.liked.toString()
             newsCommentCount.text = (news.comments ?: 0).toString()
             newsShareCount.text = (news.favoritesCount ?: 0).toString()
 
             if (news.images.isNullOrEmpty()) {
                 imagesRecyclerView.visibility = android.view.View.GONE
-                middleDivider.visibility = android.view.View.GONE
             } else {
                 imagesRecyclerView.visibility = android.view.View.VISIBLE
-                middleDivider.visibility = android.view.View.VISIBLE
             }
 
-            //点用户头像和名字，跳转用户信息页
             newsItemAvatar.setOnClickListener { onUserClick(news.userId) }
             newsItemUsername.setOnClickListener { onUserClick(news.userId) }
 
-            //点标题和内容点击进入详情页
             val contentClickArea = listOf(newsTitle, newsContent)
             contentClickArea.forEach { view ->
                 view.setOnClickListener { onNewsDetailClick(news) }
@@ -69,7 +83,6 @@ class FreshNewsItemViewHolder(
                 newsShare.setImageResource(R.drawable.ic_un_collect)
             }
 
-            //点赞、评论、收藏的点击事件
             favorContainer.setOnClickListener { onLikeClick(news) }
             commentContainer.setOnClickListener { onCommentClick(news) }
             shareContainer.setOnClickListener { onCollectClick(news) }

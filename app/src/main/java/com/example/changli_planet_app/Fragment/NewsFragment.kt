@@ -88,42 +88,33 @@ class NewsFragment : Fragment() {
     }
 
     private fun initView() {
+        addFloatView()
+        mFloatView?.setOnClickListener {
+            val intent = Intent(requireContext(), PublishFreshNewsActivity::class.java)
+            startForResult.launch(intent)
+        }
         adapter = FreshNewsAdapter(
             PlanetApplication.appContext,
             onImageClick = { imageList, position ->
                 ImageSliderDialog(requireContext(), imageList, position).show()
             },
             onUserClick = { userId ->
-                Route.goUserHomeActivity(requireContext(),userId)
+                startForResult.launch(Intent(requireContext(), UserHomeActivity::class.java).apply {
+                    putExtra("userId", userId)
+                })
             },
             onMenuClick = { newsItem ->
-                // 处理菜单点击事件（三个点的菜单）
-                // 可以弹出菜单选项等
             },
             onLikeClick = { newsItem ->
                 try {
-                    // 1. 获取当前状态
                     val isCurrentlyLiked = newsItem.isLiked
-                    val currentLikeCount = newsItem.liked ?: 0
+                    val currentLikeCount = newsItem.liked
 
-                    // 2. 计算新状态
-                    val newLikeCount = if (isCurrentlyLiked) currentLikeCount - 1 else currentLikeCount + 1
+                    val newLikeCount =
+                        if (isCurrentlyLiked) currentLikeCount - 1 else currentLikeCount + 1
 
-                    // 3. 手动更新列表项
-                    val position = adapter.getCurrentPosition(newsItem)
-                    if (position != -1) {
-                        // 创建更新后的项目
-                        val updatedItem = newsItem.copy(
-                            liked = newLikeCount
-                        ).apply {
-                            isLiked = !isCurrentlyLiked
-                        }
+                    adapter.updateIsLiked(newsItem, newLikeCount, !isCurrentlyLiked)
 
-                        // 更新适配器中的数据
-                        adapter.updateItem(position, updatedItem)
-                    }
-
-                    // 4. 发送请求到ViewModel处理业务逻辑和网络请求
                     viewModel.processIntent(FreshNewsContract.Intent.LikeNews(newsItem))
                 } catch (e: Exception) {
                     Log.e("NewsFragment", "点赞UI更新出错: ${e.message}", e)
@@ -131,11 +122,10 @@ class NewsFragment : Fragment() {
                 }
             },
             onCommentClick = { newsItem ->
-                // 处理评论按钮点击
-                // Route.goNewsDetail(requireContext(), newsItem.freshNewsId)
+
             },
             onCollectClick = { newsItem ->
-                viewModel.processIntent(FreshNewsContract.Intent.FavoriteNews(newsItem))
+//                viewModel.processIntent(FreshNewsContract.Intent.FavoriteNews(newsItem))
             }
         )
         val layoutManager = LinearLayoutManager(requireContext())
@@ -161,7 +151,7 @@ class NewsFragment : Fragment() {
                 }
             })
         }
-        addFloatView()
+        refreshLayout.autoRefresh()
     }
 
 

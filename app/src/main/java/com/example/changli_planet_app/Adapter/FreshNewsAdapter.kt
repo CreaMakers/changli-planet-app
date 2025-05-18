@@ -79,10 +79,15 @@ class FreshNewsAdapter(
         payloads: MutableList<Any>
     ) {
         if (payloads.isNotEmpty()) {
+            val changePart = payloads[0] as String
             when (holder) {
-                is FreshNewsItemViewModel -> {
+                is FreshNewsItemViewHolder -> {
                     val item = newsList[position]
-                    holder.updateAccountAndAvatar(item.authorName, item.authorAvatar)
+                    if (changePart == "UPDATE_AVATAR_AND_NAME") {
+                        holder.updateAccountAndAvatar(item.authorName, item.authorAvatar)
+                    } else if (changePart == "UPDATE_isLIKED") {
+                        holder.updateIsLike(item.liked, item.isLiked)
+                    }
                 }
 
                 else -> super.onBindViewHolder(holder, position, payloads)
@@ -118,12 +123,17 @@ class FreshNewsAdapter(
         }
     }
 
-    // 获取指定FreshNewsItem的位置
     fun getCurrentPosition(item: FreshNewsItem): Int {
         return newsList.indexOfFirst { it.freshNewsId == item.freshNewsId }
     }
 
-    // 更新指定位置的项目
+    fun updateIsLiked(item: FreshNewsItem, currentLikeCount: Int, isLiked: Boolean) {
+        val position = getCurrentPosition(item)
+        newsList[position].liked = currentLikeCount
+        newsList[position].isLiked = isLiked
+        notifyItemChanged(position, "UPDATE_isLIKED")
+    }
+
     fun updateItem(position: Int, item: FreshNewsItem) {
         if (position in 0 until newsList.size) {
             newsList[position] = item
@@ -131,7 +141,6 @@ class FreshNewsAdapter(
         }
     }
 
-    // 可选：直接通过ID更新项目
     fun updateItemById(freshNewsId: Int, updater: (FreshNewsItem) -> FreshNewsItem) {
         val position = newsList.indexOfFirst { it.freshNewsId == freshNewsId }
         if (position != -1) {
@@ -142,6 +151,5 @@ class FreshNewsAdapter(
         }
     }
 
-    // 获取当前数据列表（只读）
     fun getData(): List<FreshNewsItem> = newsList.toList()
 }

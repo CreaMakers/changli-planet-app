@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
     app:cardCornerRadius="6dp"
+    android:layout_marginTop="@dimen/dp1"
     app:cardElevation="6dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -113,14 +113,6 @@
             app:layout_constraintTop_toBottomOf="@id/news_content"
             app:spanCount="3" />
 
-        <View
-            android:id="@+id/middle_divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="15dp"
-            android:layout_marginTop="3dp"
-            android:background="@color/divider_color_grey"
-            app:layout_constraintTop_toBottomOf="@id/images_recycler_view" />
 
         <LinearLayout
             android:id="@+id/interaction_layout"
@@ -131,7 +123,7 @@
             android:paddingHorizontal="36dp"
             android:paddingVertical="6dp"
             android:weightSum="3"
-            app:layout_constraintTop_toBottomOf="@id/middle_divider">
+            app:layout_constraintTop_toBottomOf="@id/images_recycler_view">
 
             <LinearLayout
                 android:id="@+id/favor_container"
@@ -140,7 +132,6 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="?attr/selectableItemBackground"
                 android:gravity="center">
 
                 <ImageView
@@ -165,7 +156,6 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="?attr/selectableItemBackground"
                 android:gravity="center">
 
                 <ImageView
@@ -190,7 +180,6 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="?attr/selectableItemBackground"
                 android:gravity="center">
 
                 <ImageView
@@ -209,13 +198,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <View
-            android:id="@+id/bottom_view"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="15dp"
-            android:background="@color/divider_color_grey"
-            app:layout_constraintTop_toBottomOf="@id/interaction_layout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -350,17 +350,14 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
         }
     }
 
-    // 收藏
     private fun favoriteNewsItem(freshNewsItem: FreshNewsItem) {
         viewModelScope.launch {
-            val currentFavoriteCount = freshNewsItem.favoritesCount ?: 0
+            val currentFavoriteCount = freshNewsItem.favoritesCount
             val isCurrentlyFavorited = freshNewsItem.isFavorited
 
-            // 计算新状态
             val newFavoriteCount = if (isCurrentlyFavorited) currentFavoriteCount - 1 else currentFavoriteCount + 1
             val newFavoriteState = !isCurrentlyFavorited
 
-            // 立即更新UI (乐观更新)
             updateNewsItemInList(freshNewsItem.freshNewsId) { item ->
                 item.copy(
                     favoritesCount = newFavoriteCount,
