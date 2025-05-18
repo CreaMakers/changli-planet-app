@@ -48,7 +48,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
     @SuppressLint("CheckResult")
     override fun handleEvent(action: TimeTableAction) {
         when (action) {
-            is TimeTableAction.FetchCourses -> {
+            is TimeTableAction.FetchCourses -> {   //在该函数中目标学期是action.getCourse.termId，本学期是curState.term，注意二者不相等
                 val cur = System.currentTimeMillis()
 
                 //courseDao.getAllCourseCount()
@@ -65,7 +65,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                             "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}"
                                         }
                                         .filter {
-                                            it.term == curState.term &&
+                                            it.term == action.getCourse.termId &&
                                                     it.studentId == studentId &&
                                                     it.studentPassword == studentPassword
                                         }
@@ -280,7 +280,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
 
                         when (fromJson.code) {
                             "200" -> {
-                                subjects.addAll(generateSubjects(fromJson.data))
+                                subjects.addAll(generateSubjects(fromJson.data,action.getCourse.termId))
                                 emitter.onSuccess(subjects)
                                 handler.post{
                                     CustomToast.showMessage(PlanetApplication.appContext,"刷新成功")
@@ -408,7 +408,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
     // 数据类
     data class weekJsonInfo(val weeks: List<Int>, val start: Int, val step: Int)
 
-    private fun generateSubjects(courses: List<Course>): MutableList<MySubject> {
+    private fun generateSubjects(courses: List<Course>,newTerm:String): MutableList<MySubject> {
         val subjects = mutableListOf<MySubject>()
         courses.forEach {
             val weeks = parseWeeks(it.weeks).weeks
@@ -423,7 +423,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                     start = start,
                     step = step,
                     weekday = it.weekday.toInt(),
-                    term = curState.term,
+                    term = newTerm,
                     studentId = studentId,
                     studentPassword = studentPassword
                 )
