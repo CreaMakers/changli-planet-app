@@ -34,6 +34,9 @@
         tools:replace="android:networkSecurityConfig"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.NewsDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.UserHomeActivity"
             android:exported="false" />
         <activity
