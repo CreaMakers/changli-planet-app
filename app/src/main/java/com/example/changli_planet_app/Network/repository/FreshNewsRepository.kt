@@ -3,6 +3,7 @@ package com.example.changli_planet_app.Network.repository
 import android.util.Log
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Network.NetApi.FreshNewsApi
+import com.example.changli_planet_app.Network.NetApi.IpService
 import com.example.changli_planet_app.Network.NetApi.toImagePart
 import com.example.changli_planet_app.Network.Resource
 import com.example.changli_planet_app.Network.Response.FreshNews
@@ -15,6 +16,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.net.InetAddress
 
 
 class FreshNewsRepository private constructor() {
@@ -23,10 +25,14 @@ class FreshNewsRepository private constructor() {
     }
 
     private val service = lazy { RetrofitUtils.instanceNewFresh.create(FreshNewsApi::class.java) }
+    private val ipService by lazy {
+        RetrofitUtils.instanceIP.create(IpService::class.java)
+    }
 
     fun postFreshNews(images: List<File>, freshNews: FreshNews_Publish) = flow {
         Log.e("FreshNewsRepository", "enter flow")
         try {
+
             val imagesPart = if (images.isNotEmpty()) {
                 images.map { it.toImagePart("images") }
             } else {
@@ -38,6 +44,16 @@ class FreshNewsRepository private constructor() {
                     )
                 )
             }
+            //解析IP
+            val ipResponse = ipService.getLocation()
+            if (ipResponse.code =="200" && ipResponse.data?.status == "success") {
+                val city = ipResponse.data!!.city
+                freshNews.address = city
+                Log.d("FreshNewsRepository", "发布城市: $city")
+            } else {
+                freshNews.address = "未知"
+            }
+
             val FreshNewsBody =
                 Gson().toJson(freshNews).toRequestBody("application/json".toMediaType())
             emit(service.value.postFreshNews(imagesPart, FreshNewsBody))
@@ -71,7 +87,6 @@ class FreshNewsRepository private constructor() {
     fun likeNews(freshNewsId: Int) = flow {
         emit(Resource.Loading())
         try {
-            // 直接使用当前登录用户ID
             val currentUserId = UserInfoManager.userId
 
             val result = service.value.likeNews(freshNewsId, currentUserId)
@@ -110,6 +125,7 @@ class FreshNewsRepository private constructor() {
             emit(Resource.Error(e.message ?: "网络错误"))
         }
     }
+
 
 
 }

@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitUtils {
     private const val FreshNewsIp = "http://113.44.47.220:8085/app/"
     private const val UserIp = "http://113.44.47.220:8083/app/users/"
+    private const val IpLocation ="http://ip-api.com/json/"
 
     //添加公共请求头
     private val client: OkHttpClient by lazy {
@@ -97,6 +98,14 @@ object RetrofitUtils {
     val instanceUser: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(UserIp)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val instanceIP: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(IpLocation)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

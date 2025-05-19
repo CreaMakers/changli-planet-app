@@ -106,26 +106,13 @@ class NewsFragment : Fragment() {
             onMenuClick = { newsItem ->
             },
             onLikeClick = { newsItem ->
-                try {
-                    val isCurrentlyLiked = newsItem.isLiked
-                    val currentLikeCount = newsItem.liked
-
-                    val newLikeCount =
-                        if (isCurrentlyLiked) currentLikeCount - 1 else currentLikeCount + 1
-
-                    adapter.updateIsLiked(newsItem, newLikeCount, !isCurrentlyLiked)
-
-                    viewModel.processIntent(FreshNewsContract.Intent.LikeNews(newsItem))
-                } catch (e: Exception) {
-                    Log.e("NewsFragment", "点赞UI更新出错: ${e.message}", e)
-                    CustomToast.showMessage(requireContext(), "操作失败")
-                }
+                viewModel.processIntent(FreshNewsContract.Intent.LikeNews(newsItem))
             },
             onCommentClick = { newsItem ->
 
             },
             onCollectClick = { newsItem ->
-//                viewModel.processIntent(FreshNewsContract.Intent.FavoriteNews(newsItem))
+                viewModel.processIntent(FreshNewsContract.Intent.FavoriteNews(newsItem))
             }
         )
         val layoutManager = LinearLayoutManager(requireContext())
