@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.Activity
 
+import android.Manifest
 import android.animation.LayoutTransition
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -13,6 +14,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
@@ -104,7 +107,6 @@ class MainActivity : AppCompatActivity(), DrawerController {
         PlanetApplication.startTime = System.currentTimeMillis()
         setContentView(binding.root)
         drawerLayout = binding.drawerLayout
-
         ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             // 主内容避开导航栏
@@ -293,6 +295,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
         mainAvatarLinear.setOnClickListener {
             // 处理点击头像框后逻辑
+            getNetPermissions()
             if (NetworkUtil.getNetworkType(this) != NetworkUtil.NetworkType.None) { //检查网络是否连接
                 Route.goUserProfile(this@MainActivity)
             } else {
@@ -300,6 +303,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
             }
         }
         drawerAvatar.setOnClickListener {
+            getNetPermissions()
             if (NetworkUtil.getNetworkType(this) != NetworkUtil.NetworkType.None) { //检查网络是否连接
                 Route.goUserProfile(this@MainActivity)
             } else {
@@ -392,6 +396,29 @@ class MainActivity : AppCompatActivity(), DrawerController {
         tabLayout.addTab(imTab)
     }
 
+    private fun getNetPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
+        ){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE),REQUEST_READ_TELEPHONE)
+        }else {
+            return
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode){
+            REQUEST_READ_TELEPHONE ->
+                if (grantResults.isNotEmpty()&&grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getNetPermissions()
+                }
+        }
+    }
+
     private fun setupTabSelectionListener() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
@@ -457,5 +484,9 @@ class MainActivity : AppCompatActivity(), DrawerController {
                 binding.drawerLayout.removeDrawerListener(this)
             }
         })
+    }
+
+    companion object {
+        private const val  REQUEST_READ_TELEPHONE = 1001
     }
 }

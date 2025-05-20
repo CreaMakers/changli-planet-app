@@ -1,15 +1,26 @@
 package com.example.changli_planet_app.Utils
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.telephony.TelephonyManager
+import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import com.example.changli_planet_app.Core.PlanetApplication
+import kotlin.text.Typography.tm
 
 class NetworkUtil {
 
 
     sealed class NetworkType {
+
+
         object None : NetworkType()
         object Wifi : NetworkType()
         object Mobile2G : NetworkType()
@@ -17,6 +28,7 @@ class NetworkUtil {
         object Mobile4G : NetworkType()
         object Mobile5G : NetworkType()
         object MobileUnknown : NetworkType()
+
     }
 
     companion object {
@@ -35,7 +47,13 @@ class NetworkUtil {
                     actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
                         // 获取电话服务
                         val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-                        when (telephonyManager?.dataNetworkType) {
+                        //电话权限由调用方获取，在调用该方法前确保电话权限获取
+                        val tm = try {
+                            telephonyManager?.dataNetworkType
+                        }catch (e:SecurityException){
+                            Log.w("NetworkUtil","缺少权限，请在调用页面请求")
+                        }
+                        when (tm) {
                             TelephonyManager.NETWORK_TYPE_NR -> NetworkType.Mobile5G // 5G
                             TelephonyManager.NETWORK_TYPE_LTE -> NetworkType.Mobile4G // 4G
                             TelephonyManager.NETWORK_TYPE_UMTS,
@@ -93,5 +111,9 @@ class NetworkUtil {
                 }
             }
         }
+
+
+
+
     }
 }

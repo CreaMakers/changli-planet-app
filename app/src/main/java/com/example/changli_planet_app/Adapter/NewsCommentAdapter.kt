@@ -47,7 +47,7 @@ class NewsCommentAdapter(
         isExpanded: Boolean,
         convertView: View?,
         parent: ViewGroup?
-    ): View {
+    ): View? {
         val holder: GroupViewHolder
         var view = convertView
 
@@ -95,7 +95,7 @@ class NewsCommentAdapter(
         isLastChild: Boolean,
         convertView: View?,
         parent: ViewGroup?
-    ): View {
+    ): View? {
         val holder: ChildViewHolder
         var view = convertView
 
