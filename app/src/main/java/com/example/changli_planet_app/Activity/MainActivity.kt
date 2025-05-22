@@ -2,8 +2,12 @@ package com.example.changli_planet_app.Activity
 
 import android.Manifest
 import android.animation.LayoutTransition
+import android.app.Activity
+import android.app.Application
+import android.content.ComponentCallbacks
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Looper
 import android.os.PersistableBundle
@@ -93,6 +97,37 @@ class MainActivity : AppCompatActivity(), DrawerController {
     private val store by lazy { UserStore() }
 
 
+    fun setCustomDensity(activity: Activity, application: Application, designWidthDp: Int) {
+        val appDisplayMetrics = application.resources.displayMetrics
+
+        val targetDensity = 1.0f * appDisplayMetrics.widthPixels / designWidthDp
+        val targetDensityDpi = (targetDensity * 160).toInt()
+        var sNonCompactScaleDensity = appDisplayMetrics.scaledDensity
+        application.registerComponentCallbacks(object : ComponentCallbacks {
+            override fun onConfigurationChanged(newConfig: Configuration) {
+                if (newConfig.fontScale > 0) {
+                    sNonCompactScaleDensity = application.resources.displayMetrics.scaledDensity
+                }
+            }
+            override fun onLowMemory() {
+            }
+
+        })
+        val targetScaleDensity =
+            targetDensity * (sNonCompactScaleDensity / appDisplayMetrics.density)
+
+
+        appDisplayMetrics.density = targetDensity
+        appDisplayMetrics.densityDpi = targetDensityDpi
+        appDisplayMetrics.scaledDensity = targetScaleDensity
+
+        val activityDisplayMetrics = activity.resources.displayMetrics
+        activityDisplayMetrics.density = targetDensity
+        activityDisplayMetrics.densityDpi = targetDensityDpi
+        activityDisplayMetrics.scaledDensity = targetScaleDensity
+    }
+
+
     override fun onResume() {
         super.onResume()
         store.dispatch(UserAction.initilaize())
@@ -100,6 +135,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setCustomDensity(this, application, 412)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -397,10 +433,17 @@ class MainActivity : AppCompatActivity(), DrawerController {
     }
 
     private fun getNetPermissions() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
-        ){
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE),REQUEST_READ_TELEPHONE)
-        }else {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_PHONE_STATE),
+                REQUEST_READ_TELEPHONE
+            )
+        } else {
             return
         }
     }
@@ -411,9 +454,9 @@ class MainActivity : AppCompatActivity(), DrawerController {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode){
+        when (requestCode) {
             REQUEST_READ_TELEPHONE ->
-                if (grantResults.isNotEmpty()&&grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getNetPermissions()
                 }
         }
@@ -487,6 +530,6 @@ class MainActivity : AppCompatActivity(), DrawerController {
     }
 
     companion object {
-        private const val  REQUEST_READ_TELEPHONE = 1001
+        private const val REQUEST_READ_TELEPHONE = 1001
     }
 }
