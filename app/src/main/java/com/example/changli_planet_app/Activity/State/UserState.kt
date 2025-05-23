@@ -8,4 +8,5 @@ data class UserState (
     var userProfile: UserProfile = UserProfile(),
     var userStats: UserStats = UserStats(),
     var avatarUri: String = "",
+    var locationChangedManually : Boolean = false
 )

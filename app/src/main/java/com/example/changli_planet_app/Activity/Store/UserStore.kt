@@ -2,6 +2,7 @@ package com.example.changli_planet_app.Activity.Store
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.State.UserState
 import com.example.changli_planet_app.Activity.Store.BindingUserStore.StudentNumberRequest
@@ -64,8 +65,14 @@ class UserStore : Store<UserState, UserAction>() {
                                     UserInfoManager.userAvatar = it.avatarUrl
                                     UserInfoManager.userId = it.userId
                                     UserInfoManager.userEmail = it.emailbox ?: "待绑定"
-                                    currentState.userProfile = it
                                     currentState.avatarUri = it.avatarUrl
+                                    it.location = if (currentState.locationChangedManually) //防止数据刷新覆盖选择结果
+                                        currentState.userProfile.location
+                                    else
+                                        it.location
+                                    if (currentState.locationChangedManually) currentState.locationChangedManually = false
+                                    currentState.userProfile = it
+
                                 }
                             }
 
@@ -186,6 +193,8 @@ class UserStore : Store<UserState, UserAction>() {
             is UserAction.UpdateUserProfile -> {
                 action.userProfileRequest.avatarUrl = currentState.userProfile.avatarUrl
                 action.userProfileRequest.userLevel = currentState.userProfile.userLevel
+                action.userProfileRequest.location = currentState.userProfile.location
+
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .put(PlanetApplication.UserIp + "/me/profile")
                     .body(OkHttpHelper.gson.toJson(action.userProfileRequest))
@@ -337,6 +346,16 @@ class UserStore : Store<UserState, UserAction>() {
                         }
                     }
                 })
+                _state.onNext(currentState)
+                currentState
+            }
+            is UserAction.UpdateLocation->{
+                currentState.userProfile.location = action.location
+                currentState.locationChangedManually = true //表示所在地已在本地更新
+                _state.onNext(currentState)
+                currentState
+            }
+            else -> {
                 _state.onNext(currentState)
                 currentState
             }
