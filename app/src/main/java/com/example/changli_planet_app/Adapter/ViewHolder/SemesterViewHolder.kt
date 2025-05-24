@@ -2,6 +2,8 @@ package com.example.changli_planet_app.Adapter.ViewHolder
 
 import android.content.Context
 import android.view.View
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -55,7 +57,15 @@ class SemesterViewHolder(
             }
 
             if (item.isExpanded) {
+                rvCourses.alpha = 0f
+                rvCourses.translationY = -80f
                 rvCourses.visibility = View.VISIBLE
+                rvCourses.animate()
+                    .translationY(0f)
+                    .alpha(1f)
+                    .setDuration(400)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
                 courseAdapter.submitList(item.semester.cours)
             } else {
                 rvCourses.visibility = View.GONE

@@ -1,4 +1,6 @@
 import com.android.build.api.dsl.ViewBinding
+import com.android.build.gradle.internal.api.BaseVariantImpl
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
 plugins {
     alias(libs.plugins.android.application)
@@ -15,8 +17,8 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 34
-        versionCode = 6
-        versionName = "1.1.3"
+        versionCode = 7
+        versionName = "1.1.4"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             // 设置支持的SO库架构
@@ -34,6 +36,17 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+
+    applicationVariants.all {
+        outputs.all {
+            val buildType = buildType.name
+            val versionName = versionName
+
+            (this as BaseVariantOutputImpl).outputFileName =
+                "clPlanetApp_${buildType}_v${versionName}.apk"
+
         }
     }
     compileOptions {
@@ -99,8 +112,8 @@ dependencies {
 
     // 图片裁剪库
     implementation("com.github.Yalantis:uCrop:2.2.8")
-   // PhotoView
-    implementation ("com.github.chrisbanes:PhotoView:2.3.0")
+    // PhotoView
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
     // SubsamplingScaleImageView
     implementation("com.davemorrissey.labs:subsampling-scale-image-view:3.10.0")
