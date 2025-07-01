@@ -34,11 +34,24 @@ jobs:
       - name: Make Gradlew executable
         run: chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Build APKs
+        run: |
+          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
-      - name: Upload APK
+      - name: List generated APKs
+        run: |
+          ls -la app/build/outputs/apk/debug/
+          ls -la app/build/outputs/apk/release/
+
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: debug-apk
+          path: app/build/outputs/apk/debug/clPlanetApp_debug_v*.apk
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/clPlanetApp_release_v*.apk
