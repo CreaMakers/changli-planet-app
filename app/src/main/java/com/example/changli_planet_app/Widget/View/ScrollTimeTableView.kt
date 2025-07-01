@@ -10,16 +10,16 @@ import com.zhuangfei.timetable.TimetableView
 
 class ScrollTimeTableView(
     context: Context,
-    attrs:AttributeSet?,
-): TimetableView(context,attrs) {   //继承TimetableView可实现左右滑动的监听
-    private lateinit var scroll:ScrollController
+    attrs: AttributeSet?,
+) : TimetableView(context, attrs) {   //继承TimetableView可实现左右滑动的监听
+    private lateinit var scroll: ScrollController
 
-    fun setScrollInterface(scroll:ScrollController){
-        this.scroll=scroll
+    fun setScrollInterface(scroll: ScrollController) {
+        this.scroll = scroll
     }
 
     private val gesture by lazy {
-        GestureDetector(context,object :GestureDetector.SimpleOnGestureListener(){
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
             private val SWIPE_THRESHOLD = 100 // 最小滑动距离
             private val SWIPE_VELOCITY_THRESHOLD = 100 // 最小滑动速度
 
@@ -50,6 +50,6 @@ class ScrollTimeTableView(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        return gesture.onTouchEvent(ev)||super.onInterceptTouchEvent(ev)
+        return gesture.onTouchEvent(ev) || super.onInterceptTouchEvent(ev)
     }
 }

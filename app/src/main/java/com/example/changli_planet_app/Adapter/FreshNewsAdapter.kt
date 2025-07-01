@@ -123,7 +123,7 @@ class FreshNewsAdapter(
         }
     }
 
-    fun getCurrentPosition(item: FreshNewsItem): Int {
+    private fun getCurrentPosition(item: FreshNewsItem): Int {
         return newsList.indexOfFirst { it.freshNewsId == item.freshNewsId }
     }
 

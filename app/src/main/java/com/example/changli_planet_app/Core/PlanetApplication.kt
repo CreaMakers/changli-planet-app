@@ -77,7 +77,6 @@ class PlanetApplication : Application() {
         }
         val endTime = System.currentTimeMillis()
         val duration = endTime - startTime
-
         appContext = applicationContext
     }
 
