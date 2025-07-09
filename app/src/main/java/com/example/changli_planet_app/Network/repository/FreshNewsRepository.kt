@@ -6,8 +6,6 @@ import com.example.changli_planet_app.Network.NetApi.FreshNewsApi
 import com.example.changli_planet_app.Network.NetApi.IpService
 import com.example.changli_planet_app.Network.NetApi.toImagePart
 import com.example.changli_planet_app.Network.Resource
-import com.example.changli_planet_app.Network.Response.FreshNews
-import com.example.changli_planet_app.Network.Response.FreshNewsItem
 import com.example.changli_planet_app.Network.Response.FreshNews_Publish
 import com.example.changli_planet_app.Utils.RetrofitUtils
 import com.google.gson.Gson
@@ -16,7 +14,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
-import java.net.InetAddress
 
 
 class FreshNewsRepository private constructor() {
@@ -80,7 +77,7 @@ class FreshNewsRepository private constructor() {
         } catch (e: Exception) {
             e.printStackTrace()
             Log.d("FreshNews", e.message.toString())
-            emit(Resource.Error(e.message ?: "网络错误"))
+            emit(Resource.Error("网络错误"))
         }
     }
     //喜欢新鲜事
@@ -101,7 +98,7 @@ class FreshNewsRepository private constructor() {
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("FreshNews", "点赞失败: ${e.message}")
-            emit(Resource.Error(e.message ?: "网络错误"))
+            emit(Resource.Error("网络错误"))
         }
     }
     //收藏新鲜事
@@ -122,7 +119,7 @@ class FreshNewsRepository private constructor() {
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("FreshNews", "收藏失败: ${e.message}")
-            emit(Resource.Error(e.message ?: "网络错误"))
+            emit(Resource.Error("网络错误"))
         }
     }
 

@@ -1,12 +1,10 @@
 package com.example.changli_planet_app.Network.repository
 
+import android.util.Log
 import com.example.changli_planet_app.Cache.Room.database.UserDataBase
-import com.example.changli_planet_app.Cache.Room.entity.UserEntity
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Data.jsonbean.CommonResult
 import com.example.changli_planet_app.Network.NetApi.UserProfileApi
 import com.example.changli_planet_app.Network.Resource
-import com.example.changli_planet_app.Network.Response.UserProfile
 import com.example.changli_planet_app.Utils.RetrofitUtils
 import com.example.changli_planet_app.Utils.toEntity
 import com.example.changli_planet_app.Utils.toProfile
@@ -14,8 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import okio.EOFException
-import okio.IOException
 
 class UserProfileRepository private constructor() {
     companion object {
@@ -25,6 +21,7 @@ class UserProfileRepository private constructor() {
         // 缓存时间暂时为3小时
         private const val CACHE_DURATION = 14 * 60 * 1000L
     }
+    private val TAG = javaClass.simpleName
 
     private val service by lazy { RetrofitUtils.instanceUser.create(UserProfileApi::class.java) }
 
@@ -51,7 +48,9 @@ class UserProfileRepository private constructor() {
             }
         }
     }.catch { e ->
-        emit(Resource.Error(e.message ?: "网络错误"))
+        e.printStackTrace()
+        Log.e(TAG, "通过网络请求或缓存用户id获取信息出错: ${e.message}")
+        emit(Resource.Error("网络错误"))
     }
 
     fun getUserInFormationNoCache(userId: Int) = flow {
@@ -67,7 +66,9 @@ class UserProfileRepository private constructor() {
             emit(Resource.Error(result.msg))
         }
     }.catch { e ->
-        emit(Resource.Error(e.message ?: "网络错误"))
+        e.printStackTrace()
+        Log.e(TAG, "通过网络请求用户id获取信息出错: ${e.message}")
+        emit(Resource.Error("网络错误"))
     }
 
 }

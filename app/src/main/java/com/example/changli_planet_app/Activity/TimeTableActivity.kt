@@ -6,6 +6,9 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.TextUtils
@@ -59,6 +62,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
@@ -74,9 +78,10 @@ class TimeTableActivity : FullScreenActivity() {
     private val binding by lazy { ActivityTimeTableBinding.inflate(layoutInflater) }
     private val timetableView: ScrollTimeTableView by lazy { binding.timetableView }
     private lateinit var dataBase: CoursesDataBase
-//    private val termList by lazy { generateTermsList() }
+
+    //    private val termList by lazy { generateTermsList() }
     private val timeTableStore: TimeTableStore by lazy {
-        TimeTableStore(dataBase.courseDao())
+        TimeTableStore(dataBase.courseDao(), myHandler)
     }
 
 //    private var preWeek: String
@@ -119,7 +124,8 @@ class TimeTableActivity : FullScreenActivity() {
         )
     }
 
-    private lateinit var termList:List<String>
+    private lateinit var termList: List<String>
+    private val TAG = javaClass.simpleName
 
     private fun getCurrentTerm(): String {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
@@ -160,6 +166,12 @@ class TimeTableActivity : FullScreenActivity() {
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
 
+    companion object {
+        val CANCEL_LOADING = 164
+    }
+
+    private val myHandler = SafeHandler(this)
+
     @SuppressLint("WrongThread")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -199,7 +211,7 @@ class TimeTableActivity : FullScreenActivity() {
             .isShowNotCurWeek(false)
             .showView()
 
-        if (TimeTableStore.curState.subjects != null) {
+        if (TimeTableStore.curState.subjects.isEmpty()) {
             TimeTableStore.curState.lastUpdate = getValueInMMKV("lastUpdate")
         }
         initTimetableDate()
@@ -255,7 +267,7 @@ class TimeTableActivity : FullScreenActivity() {
         binding.weeksExtendBtn.setOnClickListener {
             ClickWheel(weekList)
         }
-        binding.courseTerm.setOnClickListener{
+        binding.courseTerm.setOnClickListener {
             ClickWheel(termList)
         }
         // 暂时关闭选择学期
@@ -490,7 +502,7 @@ class TimeTableActivity : FullScreenActivity() {
         disposables.dispose()
     }
 
-    private fun upDateTimeTable(){
+    private fun upDateTimeTable() {
         TimeTableStore.curState.lastUpdate = 0
         hideLoading()
         showLoading()
@@ -503,10 +515,10 @@ class TimeTableActivity : FullScreenActivity() {
                     "",
                     courseTerm.text.toString()
                 ),
-                refresh = { upDateTimeTable() }
+                refresh = { upDateTimeTable() },
+                refreshSuccess = { timetableView.updateView() }
             )
         )
-        timetableView.updateView()
     }
 
     private fun storeInMMKV(key: String, value: Long) = mmkv.encode(key, value)
@@ -692,7 +704,10 @@ class TimeTableActivity : FullScreenActivity() {
                 val firstView = TextView(this@TimeTableActivity).apply {
                     layoutParams = firstParams
                     gravity = Gravity.CENTER
-                    text = "${Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai")).get(Calendar.MONTH) + 1}月"
+                    text = "${
+                        Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
+                            .get(Calendar.MONTH) + 1
+                    }月"
                     setTextColor(Color.BLACK)
                     textSize = 14f
                     typeface = Typeface.DEFAULT_BOLD
@@ -829,10 +844,10 @@ class TimeTableActivity : FullScreenActivity() {
         })
     }
 
-    private fun setScrollListener(){
-        timetableView.setScrollInterface(object :ScrollController{
+    private fun setScrollListener() {
+        timetableView.setScrollInterface(object : ScrollController {
             override fun onScrollLast() {
-                if(curDisplayWeek>1){
+                if (curDisplayWeek > 1) {
                     timeTableStore.dispatch(
                         TimeTableAction.selectWeek(
                             "第${curDisplayWeek - 1}周"
@@ -842,7 +857,7 @@ class TimeTableActivity : FullScreenActivity() {
             }
 
             override fun onScrollNext() {
-                if(curDisplayWeek<20){
+                if (curDisplayWeek < 20) {
                     timeTableStore.dispatch(
                         TimeTableAction.selectWeek(
                             "第${curDisplayWeek + 1}周"
@@ -853,15 +868,29 @@ class TimeTableActivity : FullScreenActivity() {
         })
     }
 
-    private fun setTermListById(studentId:String){
-        val list= mutableListOf<String>()
-        val startYear=studentId.substring(0,4).toInt()
+    private fun setTermListById(studentId: String) {
+        val list = mutableListOf<String>()
+        val startYear = studentId.substring(0, 4).toInt()
 
-        for(i in 0..3){
-            list.add("${startYear+i}-${startYear+i+1}-1")
-            list.add("${startYear+i}-${startYear+i+1}-2")
+        for (i in 0..3) {
+            list.add("${startYear + i}-${startYear + i + 1}-1")
+            list.add("${startYear + i}-${startYear + i + 1}-2")
         }
-        termList=list
+        termList = list
+    }
+
+    private class SafeHandler(activity: TimeTableActivity) : Handler(Looper.getMainLooper()) {
+        private val weakActivity = WeakReference(activity)
+
+        override fun handleMessage(msg: Message) {
+            val activity = weakActivity.get() ?: return
+            Log.d("safeHandler", "接受msg.what: ${msg.what}")
+            when (msg.what) {
+                CANCEL_LOADING -> {
+                    activity.hideLoading()
+                }
+            }
+        }
     }
 }
 

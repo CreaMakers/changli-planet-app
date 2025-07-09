@@ -1,11 +1,11 @@
 package com.example.changli_planet_app.Activity.Action
 
 import android.content.Context
-import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.Cache.Room.entity.MySubject
+import com.example.changli_planet_app.Data.jsonbean.GetCourse
 
 sealed class TimeTableAction {
-    data class FetchCourses(val context: Context, val getCourse: GetCourse,val refresh:()->Unit) : TimeTableAction()
+    data class FetchCourses(val context: Context, val getCourse: GetCourse,val refresh:()->Unit, val refreshSuccess: (() -> Unit)?=null) : TimeTableAction()
     data class UpdateCourses(val subjects: MutableList<MySubject>) : TimeTableAction()
     data class AddCourse(val subject: MySubject) : TimeTableAction()
     data class selectWeek(val weekInfo: String) : TimeTableAction()
