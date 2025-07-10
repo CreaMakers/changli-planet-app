@@ -25,7 +25,6 @@ open class FullScreenActivity : AppCompatActivity() {
                     sNonCompactScaleDensity = application.resources.displayMetrics.scaledDensity
                 }
             }
-
             override fun onLowMemory() {
             }
 

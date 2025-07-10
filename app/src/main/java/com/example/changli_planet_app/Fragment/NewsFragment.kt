@@ -23,6 +23,7 @@ import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
 import com.example.changli_planet_app.Adapter.FreshNewsAdapter
 import com.example.changli_planet_app.Adapter.ViewHolder.FreshNewsItemViewHolder
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Core.MVI.observeState
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Resource
@@ -39,6 +40,8 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.launch
 
 class NewsFragment : Fragment() {
+    private val TAG = javaClass.simpleName
+
     private lateinit var binding: FragmentNewsBinding
     private val refreshLayout: SmartRefreshLayout by lazy { binding.refreshLayout }
     private val recyclerView: RecyclerView by lazy { binding.newsRecyclerView }
@@ -170,10 +173,11 @@ class NewsFragment : Fragment() {
     private fun initObserve() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.state.collect { state ->
-                        when (val freshNewsList = state.freshNewsList) {
+                viewModel.state.run {
+                    observeState({ value.freshNewsList }) {
+                        when (val freshNewsList = it) {
                             is Resource.Success -> {
+                                Log.d(TAG, "新鲜事刷新成功")
                                 val newsList = freshNewsList.data
                                 if (page == 1) {
                                     adapter.updateData(newsList)

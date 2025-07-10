@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.util.TypedValue
 import android.view.View
 import com.example.changli_planet_app.Cache.Room.entity.UserEntity
 import com.example.changli_planet_app.Network.Response.UserProfile
@@ -120,4 +121,12 @@ fun UserEntity.toProfile(): UserProfile {
         updateTime = this.updateTime,
         isDeleted = this.deleted
     )
+}
+
+
+fun dp2Px(context: Context, dp: Int): Int {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(),
+        context.resources.displayMetrics
+    ).toInt()
 }

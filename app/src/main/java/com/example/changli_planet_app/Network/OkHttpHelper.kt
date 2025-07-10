@@ -102,7 +102,7 @@ object OkHttpHelper {
     }
 
     // 设置缓存
-    //懒加载OkhttpClient
+    // 懒加载OkhttpClient
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
             //配置HTTPDNS解析
@@ -346,6 +346,7 @@ object OkHttpHelper {
         // 构建 HTTP 请求，指定目标 URL 和请求体
         val request = Request.Builder()
             .url(PlanetApplication.UserIp + url) // 指定上传文件的服务器 URL
+            .addHeader("Content-Encoding", "gzip")
             .post(requestBody) // 使用 POST 方法上传数据
             .build()
         // 使用 OkHttpClient 异步发送请求，避免阻塞主线程

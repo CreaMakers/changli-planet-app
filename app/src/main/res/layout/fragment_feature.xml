@@ -13,7 +13,6 @@
         android:id="@+id/planet_logo"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:src="@drawable/planet_logo"
         app:layout_constraintHeight_percent="0.3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,7 +22,6 @@
         android:layout_width="42dp"
         android:layout_height="42dp"
         android:layout_marginTop="10dp"
-        android:src="@drawable/component1"
         android:layout_marginStart="11dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

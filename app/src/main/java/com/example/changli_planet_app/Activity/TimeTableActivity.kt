@@ -36,6 +36,7 @@ import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.Interface.ScrollController
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Utils.dp2Px
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.TimetableWheelBottomDialog
 import com.example.changli_planet_app.Widget.View.ScrollTimeTableView
@@ -194,6 +195,7 @@ class TimeTableActivity : FullScreenActivity() {
         timetableView
             .maxSlideItem(10)
             .cornerAll(15)
+            .itemHeight(dp2Px(this, 63))
             .isShowNotCurWeek(false)
             .showView()
 
