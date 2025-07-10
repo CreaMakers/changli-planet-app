@@ -36,6 +36,7 @@ import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
+import com.example.changli_planet_app.Data.CommonInfo
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.Interface.ScrollController
 import com.example.changli_planet_app.R
@@ -84,6 +85,7 @@ class TimeTableActivity : FullScreenActivity() {
         TimeTableStore(dataBase.courseDao(), myHandler)
     }
 
+
 //    private var preWeek: String
 //        get() = mmkv.getString("pre_week", termList[0]) ?: termList[0]
 //        set(value) {
@@ -106,33 +108,16 @@ class TimeTableActivity : FullScreenActivity() {
         binding.timetableView.visibility = View.VISIBLE
     }
 
-    private val termMap by lazy {
-        mapOf(
-            "2025-2026-1" to "2025-09-07 00:00:00",
-            "2024-2025-2" to "2025-02-24 00:00:00",
-            "2024-2025-1" to "2024-09-02 00:00:00",
-            "2023-2024-2" to "2024-02-26 00:00:00",
-            "2023-2024-1" to "2023-09-04 00:00:00",
-            "2022-2023-2" to "2023-02-20 00:00:00",
-            "2022-2023-1" to "2022-08-29 00:00:00",
-            "2021-2022-2" to "2022-02-21 00:00:00",
-            "2021-2022-1" to "2021-09-06 00:00:00",
-            "2020-2021-2" to "2021-03-01 00:00:00",
-            "2020-2021-1" to "2020-08-24 00:00:00",
-            "2019-2020-2" to "2020-02-17 00:00:00",
-            "2019-2020-1" to "2019-09-02 00:00:00",
-        )
-    }
+
 
     private lateinit var termList: List<String>
-    private val TAG = javaClass.simpleName
 
     private fun getCurrentTerm(): String {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH) + 1
         return when {
-            currentMonth >= 9 -> "$currentYear-${currentYear + 1}-1"  // 第一学期
+            currentMonth >= 7 -> "$currentYear-${currentYear + 1}-1"  // 第一学期
             currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"  // 第二学期
             else -> "${currentYear - 1}-${currentYear}-1"  // 上学年第一学期
         }
@@ -203,7 +188,7 @@ class TimeTableActivity : FullScreenActivity() {
         }
         setTermListById(studentId)
         courseTerm.text = getCurrentTerm()
-        timetableView.setCurWeek(termMap[courseTerm.text])
+        timetableView.setCurWeek(CommonInfo.termMap[courseTerm.text])
         timetableView
             .maxSlideItem(10)
             .cornerAll(15)
@@ -217,7 +202,7 @@ class TimeTableActivity : FullScreenActivity() {
         initTimetableDate()
         disposables.add(
             timeTableStore.state().subscribe { curState ->
-                timetableView.setCurWeek(termMap[curState.term])
+                timetableView.setCurWeek(CommonInfo.termMap[curState.term])
                 subjects = curState.subjects
                 timetableView.source(subjects)
                 timetableView.updateView()
@@ -233,7 +218,7 @@ class TimeTableActivity : FullScreenActivity() {
                     isCurWeek.text = "非本周"
                 }
                 hideLoading()
-                Log.d("Debug", "startTime : ${termMap[curState.term]}")
+                Log.d("Debug", "startTime : ${CommonInfo.termMap[curState.term]}")
                 Log.d("Debug", "curWeek : ${timetableView.curWeek()}")
             }
 
@@ -672,13 +657,12 @@ class TimeTableActivity : FullScreenActivity() {
 
     private fun TimetableView.setCurWeek(startTime: String?) {
         startTime?.let {
-            val week = ScheduleSupport.timeTransfrom(it)
+            val week = ScheduleSupport.timeTransfrom(it).coerceIn(1, 20)
             val curWeekField = TimetableView::class.java.getDeclaredField("curWeek")
             curWeekField.isAccessible = true
             curWeekField.set(timetableView, week)
             onWeekChangedListener().onWeekChanged(week)
         }
-
     }
 
     private fun initTimetableDate() {
@@ -761,7 +745,7 @@ class TimeTableActivity : FullScreenActivity() {
 
                 // 获取当前日期
                 val today = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-                val startTime = termMap[courseTerm.text.toString()]
+                val startTime = CommonInfo.termMap[courseTerm.text.toString()]
 
                 startTime?.let {
                     val weekStart = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
@@ -785,7 +769,7 @@ class TimeTableActivity : FullScreenActivity() {
 
             override fun onUpdateDate(curWeek: Int, targetWeek: Int) {
                 val calendar = Calendar.getInstance()
-                val startTime = termMap[courseTerm.text.toString()]
+                val startTime = CommonInfo.termMap[courseTerm.text.toString()]
 
                 startTime?.let {
                     calendar.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(it)

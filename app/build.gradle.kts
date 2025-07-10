@@ -1,5 +1,3 @@
-import com.android.build.api.dsl.ViewBinding
-import com.android.build.gradle.internal.api.BaseVariantImpl
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
 plugins {
@@ -68,6 +66,9 @@ android {
     lint {
         checkReleaseBuilds = false
         abortOnError = false
+    }
+    buildFeatures {
+        viewBinding = true
     }
 }
 dependencies {

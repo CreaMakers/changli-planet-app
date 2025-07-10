@@ -519,4 +519,10 @@
     <dimen name="dp681">681.0dp</dimen>
     <dimen name="dp733">733.0dp</dimen>
     <dimen name="dp771">771.0dp</dimen>
+
+    <!--
+Refer to App Widget Documentation for margin information
+http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
+    -->
+    <dimen name="widget_margin">0dp</dimen>
 </resources>
