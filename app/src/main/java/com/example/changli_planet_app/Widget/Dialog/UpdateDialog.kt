@@ -5,10 +5,9 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.text.method.ScrollingMovementMethod
 import android.widget.TextView
-import com.example.changli_planet_app.Activity.DownloadService
 import com.example.changli_planet_app.Base.BaseDialog
 import com.example.changli_planet_app.R
-
+import com.example.changli_planet_app.Service.DownloadService
 
 
 class UpdateDialog(
