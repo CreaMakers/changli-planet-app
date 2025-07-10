@@ -17,7 +17,7 @@ data class UserProfile(
     val gender: Int = -1,
     val grade: String = "",
     val birthDate: String? = null,
-    val location: String = "",
+    var location: String = "",
     val website: String? = "",
     val createTime: String? = null,
     val updateTime: String? = null,

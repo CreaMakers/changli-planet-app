@@ -11,10 +11,9 @@ sealed class UserAction {
     class UploadAvatar(val file: File) : UserAction()
     class UpdateUserProfile(val userProfileRequest: UserProfileRequest, val context: Context) :
         UserAction()
-
+    class UpdateLocation(val location:String):UserAction()
     class QueryIsLastedApk(val context: Context, val versionCode: Long, val versionName: String) :
         UserAction()
-
     class BindingStudentNumber(val context: Context, val student_number: String) : UserAction()
     class initilaize : UserAction()
 }

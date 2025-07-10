@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.DisplayMetrics
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -37,7 +38,9 @@ import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.databinding.ActivityUserProfileBinding
 import com.yalantis.ucrop.UCrop
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -385,7 +388,7 @@ class UserProfileActivity : FullScreenActivity() {
             REQUEST_PROVINCE -> {
                 val province = data?.getStringExtra("province")
                 val city = data?.getStringExtra("city")
-                location.text = "$province $city"
+                store.dispatch(UserAction.UpdateLocation("$province $city"))
             }
         }
     }

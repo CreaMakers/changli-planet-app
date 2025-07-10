@@ -192,6 +192,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
         // 检查版本更新
         Looper.myQueue().addIdleHandler {
+            getNotificationPermissions()//添加通知权限
             val packageManager: PackageManager = this@MainActivity.packageManager
             val packageInfo: PackageInfo =
                 packageManager.getPackageInfo(this@MainActivity.packageName, 0)
@@ -447,6 +448,21 @@ class MainActivity : AppCompatActivity(), DrawerController {
             return
         }
     }
+    private fun getNotificationPermissions() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_NOTIFICATION
+            )
+        } else {
+            return
+        }
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -459,6 +475,11 @@ class MainActivity : AppCompatActivity(), DrawerController {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getNetPermissions()
                 }
+            REQUEST_NOTIFICATION ->
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getNotificationPermissions()
+                }
+
         }
     }
 
@@ -531,5 +552,6 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     companion object {
         private const val REQUEST_READ_TELEPHONE = 1001
+        private const val REQUEST_NOTIFICATION = 1002
     }
 }
