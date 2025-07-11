@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.os.Message
 import android.util.TypedValue
 import android.view.View
 import com.example.changli_planet_app.Cache.Room.entity.UserEntity
@@ -129,4 +130,14 @@ fun dp2Px(context: Context, dp: Int): Int {
         TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(),
         context.resources.displayMetrics
     ).toInt()
+}
+
+
+fun getMessage(what: Int, arg1: Int ?= null, arg2: Int? = null, obj: Any? = null) : Message{
+    return Message.obtain().apply {
+        this.what = what
+        arg1?.let { this.arg1 = arg1 }
+        arg2?.let { this.arg2 = arg2 }
+        obj?.let { this.obj = obj }
+    }
 }

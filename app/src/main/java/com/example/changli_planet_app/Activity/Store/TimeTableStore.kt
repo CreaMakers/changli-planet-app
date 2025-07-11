@@ -6,17 +6,19 @@ import android.os.Looper
 import android.util.Log
 import com.example.changli_planet_app.Activity.Action.TimeTableAction
 import com.example.changli_planet_app.Activity.State.TimeTableState
-import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Core.Store
+import com.example.changli_planet_app.Activity.TimeTableActivity.Companion.CANCEL_LOADING
 import com.example.changli_planet_app.Cache.Room.dao.CourseDao
 import com.example.changli_planet_app.Cache.Room.entity.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
+import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.Core.Store
 import com.example.changli_planet_app.Data.jsonbean.GetCourse
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
+import com.example.changli_planet_app.Utils.getMessage
 import com.example.changli_planet_app.Widget.Dialog.ErrorStuPasswordResponseDialog
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.Widget.View.CustomToast
@@ -29,7 +31,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Response
 
 
-class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, TimeTableAction>() {
+class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Handler?= null) : Store<TimeTableState, TimeTableAction>() {
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
     private val handler = Handler(Looper.getMainLooper())
@@ -91,15 +93,12 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ result ->
                         if (result.isNotEmpty()) {
-                            if (action is TimeTableAction.FetchCourses) {
-                                curState.term=action.getCourse.termId    //成功获取课程后更新term
-                                handleEvent(TimeTableAction.UpdateCourses(result))
-                            } else {
-                                curState.subjects = result
-                                _state.onNext(curState)
-                            }
+                            curState.term = action.getCourse.termId    //成功获取课程后更新term
+                            handleEvent(TimeTableAction.UpdateCourses(result))
+                            _state.onNext(curState)
+                            action.refreshSuccess?.invoke()
                         } else {
-                            curState.term=action.getCourse.termId
+                            curState.term = action.getCourse.termId
                             _state.onNext(curState)             //
                             Log.w("Debug", "No courses found")
                         }
@@ -300,6 +299,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                         e.printStackTrace()
                                     }
                                 }
+                                myHandler?.sendMessage(getMessage(CANCEL_LOADING))
                             }
 
                             in listOf("404", "500") -> {
@@ -314,6 +314,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                         e.printStackTrace()
                                     }
                                 }
+                                myHandler?.sendMessage(getMessage(CANCEL_LOADING))
                             }
 
                             else ->{
@@ -321,6 +322,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                 handler.post{
                                     CustomToast.showMessage(PlanetApplication.appContext,"暂时没有该学期的数据哦")
                                 }
+                                myHandler?.sendMessage(getMessage(CANCEL_LOADING))
                             }
                         }
                     } catch (e: Exception) {
@@ -335,6 +337,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                                 e.printStackTrace()
                             }
                         }
+                        myHandler?.sendMessage(getMessage(CANCEL_LOADING))
                         e.printStackTrace()
                     }
                 }
@@ -351,6 +354,7 @@ class TimeTableStore(private val courseDao: CourseDao) : Store<TimeTableState, T
                             e.printStackTrace()
                         }
                     }
+                    myHandler?.sendMessage(getMessage(CANCEL_LOADING))
                 }
             })
         }

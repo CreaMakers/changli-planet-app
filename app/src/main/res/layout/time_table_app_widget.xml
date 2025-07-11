@@ -1,0 +1,70 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Changliplanetapp.AppWidget.Container"
+    android:theme="@style/Theme.Changliplanetapp.AppWidgetContainer"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_marginTop="@dimen/dp5"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="@dimen/dp6"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/term_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_centerVertical="true"
+            android:textStyle="bold"
+            tools:text="2025-2026-1"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="7.9"
+            android:layout_toStartOf="@id/week_tv"
+            android:textSize="12sp"
+            android:layout_marginEnd="@dimen/dp5"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/week_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:textColor="@color/app_blue1"
+            tools:text="周三"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+
+
+        <TextView
+            android:id="@+id/end_tv"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:visibility="gone"
+            tools:visibility="gone"
+            android:layout_height="match_parent"
+            tools:text="本学期已经结束啦~" />
+    </LinearLayout>
+
+</LinearLayout>

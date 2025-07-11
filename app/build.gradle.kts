@@ -67,6 +67,9 @@ android {
         checkReleaseBuilds = false
         abortOnError = false
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 dependencies {
     // leakcanary
