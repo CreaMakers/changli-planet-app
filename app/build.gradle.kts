@@ -109,7 +109,7 @@ dependencies {
     implementation("androidx.room:room-ktx:2.5.2")
 
     // 图片裁剪库
-    implementation(files("libs/ucrop-2.2.8.aar"))
+    implementation("com.github.Yalantis:uCrop:2.2.9")
     // PhotoView
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
