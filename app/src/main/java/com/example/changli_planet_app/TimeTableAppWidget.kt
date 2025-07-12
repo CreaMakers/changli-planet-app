@@ -17,6 +17,7 @@ import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
 import com.google.gson.reflect.TypeToken
+import com.tencent.mmkv.MMKV
 import okhttp3.Response
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -56,8 +57,31 @@ class TimeTableAppWidget : AppWidgetProvider() {
 private val studentId by lazy { StudentInfoManager.studentId }
 private val studentPassword by lazy { StudentInfoManager.studentPassword }
 private val curTerm by lazy { getCurrentTerm() }
-private val curWeek by lazy { getCurrentWeek() }
+private val curWeekDay by lazy { getCurrentWeek() }
+private val curSchoolWeek: Int by lazy { getCurrentSchoolWeek() }
 
+private val mmkv by lazy { MMKV.mmkvWithID(TAG) }
+var isRefresh: Boolean
+    get() = mmkv.getBoolean("isRefresh", true)
+    set(value) {
+        mmkv.putBoolean("isRefresh", value)
+    }
+
+private var courses: String
+    get() = mmkv.getString("courses", "") ?: ""
+    set(value) {
+        mmkv.putString("courses", value)
+    }
+
+private val times = arrayOf(
+    "8:00\n8:45", "8:55\n9:40", "10:10\n10:55", "11:05\n11:50",
+    "14:00\n14:45", "14:55\n15:40", "16:10\n16:55", "17:05\n17:50",
+    "19:30\n20:15", "20:25\n21:10"
+)
+
+private val TAG = "TimeTableAppWidget"
+
+private const val refreshCount = 3
 internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
@@ -68,60 +92,146 @@ internal fun updateAppWidget(
     val views = RemoteViews(context.packageName, R.layout.time_table_app_widget)
     views.setTextViewText(R.id.term_tv, curTerm)
     views.setTextViewText(R.id.date_tv, getCurrentMonthAndDay())
-    views.setTextViewText(R.id.week_tv, when(curWeek) {
-        1 -> "星期一"
-        2 -> "星期二"
-        3 -> "星期三"
-        4 -> "星期四"
-        5 -> "星期五"
-        6 -> "星期六"
-        else -> "星期天"
-    })
+    views.setTextViewText(
+        R.id.week_tv, when (curWeekDay) {
+            1 -> "周一"
+            2 -> "周二"
+            3 -> "周三"
+            4 -> "周四"
+            5 -> "周五"
+            6 -> "周六"
+            else -> "周天"
+        }
+    )
+    if (studentId.isEmpty() or studentPassword.isEmpty()) {
+        views.setViewVisibility(R.id.end_tv, View.VISIBLE)
+        return
+    }
+    views.setViewVisibility(R.id.end_tv, View.GONE)
     if (isHolidayOrError()) {
         views.setViewVisibility(R.id.end_tv, View.VISIBLE)
         views.setTextViewText(R.id.end_tv, "还没有开学哦٩(◦`꒳´◦)۶")
+        // Instruct the widget manager to update the widget
+        appWidgetManager.updateAppWidget(appWidgetId, views)
     } else {
+        getCourseInfo { courses ->
+            if (courses.isNullOrEmpty()) {
+                views.setViewVisibility(R.id.no_course_tv, View.VISIBLE)
+            } else {
+                val result = courses.filter { it.weekday == curWeekDay }
+                    .filter { !it.weeks.isNullOrEmpty() and it.weeks!!.contains(curSchoolWeek) }
+                    .sortedBy { it.start }
+                    .filter { course ->
+                        val now = Calendar.getInstance()
+                        val currentMinutes =
+                            now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
 
+                        if (course.start > 0 && course.start <= times.size) {
+                            val timeStr = times[course.start - 1].split("\n")[0]
+                            val timeParts = timeStr.split(":")
+                            val courseMinutes =
+                                timeParts[0].toInt() * 60 + timeParts[1].toInt()
+                            courseMinutes > currentMinutes
+                        } else {
+                            false
+                        }
+                    }
+                    .take(2)
+                Log.d("TimeTableAppWidget","result size: ${result.size}")
+                if (result.isEmpty()) {
+                    views.setViewVisibility(R.id.no_course_tv, View.VISIBLE)
+                    views.setViewVisibility(R.id.course1_ll, View.GONE)
+                    views.setViewVisibility(R.id.course2_ll, View.GONE)
+                } else {
+                    views.setViewVisibility(R.id.no_course_tv, View.GONE)
+                    val course1 = result.getOrNull(0)
+                    val course2 = result.getOrNull(1)
+                    course1?.let {
+                        views.setViewVisibility(R.id.course1_ll, View.VISIBLE)
+                        views.setTextViewText(R.id.tv_course_name_1, it.courseName)
+                        views.setTextViewText(R.id.tv_course_room_1, it.classroom)
+                        views.setTextViewText(
+                            R.id.tv_course_time_1,
+                            "${times[it.start - 1].split("\n")[0]} - ${
+                                times[it.start + it.step - 2].split(
+                                    "\n"
+                                )[1]
+                            }"
+                        )
+                    }
+                    views.setViewVisibility(R.id.course2_ll, View.GONE)
+                    course2?.let {
+                        views.setViewVisibility(R.id.course2_ll, View.VISIBLE)
+                        views.setTextViewText(R.id.tv_course_name_2, it.courseName)
+                        views.setTextViewText(R.id.tv_course_room_2, it.classroom)
+                        views.setTextViewText(
+                            R.id.tv_course_time_2,
+                            "${times[it.start - 1].split("\n")[0]} - ${
+                                times[it.start + it.step - 2].split(
+                                    "\n"
+                                )[1]
+                            }"
+                        )
+                    }
+                }
+            }
+            // Instruct the widget manager to update the widget
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+        }
     }
-    // Instruct the widget manager to update the widget
-    appWidgetManager.updateAppWidget(appWidgetId, views)
 }
 
-
-private fun getCourseInfo() {
+private fun getCourseInfo(callback: (List<MySubject>?) -> Unit) {
     val subjects = mutableListOf<MySubject>()
-    //获得网络请求
+    if (!isRefresh) {
+        callback(OkHttpHelper.gson.fromJson(courses, object : TypeToken<List<MySubject>>() {}.type))
+        return
+    }
     val httpUrlHelper = HttpUrlHelper.HttpRequest()
         .get(PlanetApplication.ToolIp + "/courses")
         .addQueryParam("stuNum", studentId)
         .addQueryParam("password", studentPassword)
-        .addQueryParam("week", curWeek.toString())
+        .addQueryParam("week", "")
         .addQueryParam("termId", curTerm).build()
+    var isSuccess = false
+    for (i in 0 until refreshCount) {
+        OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
+            override fun onSuccess(response: Response) {
+                try {
+                    val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
+                    val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
+                        response.body?.string(), type
+                    )
 
-    OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-        override fun onSuccess(response: Response) {
-            try {
-                val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
-                val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
-                    response.body?.string(), type
-                )
+                    when (fromJson.code) {
+                        "200" -> {
+                            Log.d("TimeTableAppWidget", "获取课表成功，刷新缓存")
+                            subjects.addAll(generateSubjects(fromJson.data, curTerm))
+                            val result = subjects.distinctBy {
+                                "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}"
+                            }
+                            courses = OkHttpHelper.gson.toJson(result.toList())
+                            isRefresh = false
+                            callback(result) // 在这里调用回调
+                            isSuccess = true
+                            return
+                        }
 
-                when (fromJson.code) {
-                    "200" -> {
-                        subjects.addAll(generateSubjects(fromJson.data, curTerm))
+                        else -> {
+                        }
                     }
-
-                    else -> {
-                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
-        }
 
-        override fun onFailure(error: String) {
-        }
-    })
+            override fun onFailure(error: String) {
+                Log.e("TimeTableAppWidget", "getCourseInfo error: $error")
+            }
+        })
+        if (isSuccess) return
+        callback(OkHttpHelper.gson.fromJson(courses, object : TypeToken<List<MySubject>>() {}.type))
+    }
 }
 
 private fun getCurrentTerm(): String {
@@ -133,6 +243,15 @@ private fun getCurrentTerm(): String {
         currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"  // 第二学期
         else -> "${currentYear - 1}-${currentYear}-1"  // 上学年第一学期
     }
+}
+
+private fun getCurrentSchoolWeek(): Int {
+    val startTime = CommonInfo.termMap[curTerm]!!
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    val startDate = formatter.parse(startTime)!!
+    val currentDate = Date()
+    val diffTime = currentDate.time - startDate.time
+    return ((diffTime / 1000 / 3600 / 24) / 7 + 1).toInt()
 }
 
 private fun isHolidayOrError(): Boolean {
@@ -222,6 +341,7 @@ private fun parseWeeks(weekJson: String): weekJsonInfo {
                 }
             } ?: listOf()
         } catch (e: Exception) {
+            e.printStackTrace()
             listOf() // 异常时返回空列表
         }
 

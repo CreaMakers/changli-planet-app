@@ -746,7 +746,7 @@ class TimeTableActivity : FullScreenActivity() {
                 // 获取当前日期
                 val today = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
                 val startTime = CommonInfo.termMap[courseTerm.text.toString()]
-
+                Log.d(TAG, "startTime: $startTime")
                 startTime?.let {
                     val weekStart = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
                     weekStart.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(it)
@@ -770,7 +770,7 @@ class TimeTableActivity : FullScreenActivity() {
             override fun onUpdateDate(curWeek: Int, targetWeek: Int) {
                 val calendar = Calendar.getInstance()
                 val startTime = CommonInfo.termMap[courseTerm.text.toString()]
-
+                Log.d(TAG, "onUpdateDate startTime: $startTime")
                 startTime?.let {
                     calendar.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(it)
                     calendar.add(Calendar.WEEK_OF_YEAR, targetWeek - 1)
