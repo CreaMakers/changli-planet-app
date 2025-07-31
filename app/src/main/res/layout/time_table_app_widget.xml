@@ -1,0 +1,205 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Changliplanetapp.AppWidget.Container"
+    android:theme="@style/Theme.Changliplanetapp.AppWidgetContainer"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_marginTop="@dimen/dp4"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="@dimen/dp6"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/term_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_centerVertical="true"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText"
+            tools:text="2025-2026-1" />
+
+        <TextView
+            android:id="@+id/date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/week_tv"
+            android:textSize="12sp"
+            android:layout_marginEnd="@dimen/dp5"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"
+            tools:ignore="HardcodedText"
+            tools:text="7.9" />
+
+        <TextView
+            android:id="@+id/week_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:textColor="@color/app_blue1"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText"
+            tools:text="周三" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/course_ll"
+        android:layout_marginTop="@dimen/dp4"
+        android:layout_marginStart="@dimen/dp5"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/course1_ll"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/dp3"
+            android:layout_height="wrap_content"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="@dimen/dp4"
+                android:layout_height="match_parent"
+                android:background="@drawable/course_widget_red_bg" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_marginStart="@dimen/dp7"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_course_name_1"
+                    android:textColor="@color/black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="13sp"
+                    tools:text="测试文本" />
+
+                <TextView
+                    android:id="@+id/tv_course_room_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:maxLines="1"
+                    android:layout_marginTop="@dimen/dp2"
+                    android:ellipsize="end"
+                    tools:text="测试文本 123" />
+
+                <TextView
+                    android:id="@+id/tv_course_time_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_marginTop="@dimen/dp2"
+                    android:textSize="12sp"
+                    tools:text="测试文本 123" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/course2_ll"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/dp6"
+            android:layout_height="wrap_content"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="@dimen/dp4"
+                android:layout_height="match_parent"
+                android:background="@drawable/course_widget_blue_bg" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_marginStart="@dimen/dp7"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_course_name_2"
+                    android:textColor="@color/black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="13sp"
+                    tools:text="测试文本" />
+
+                <TextView
+                    android:id="@+id/tv_course_room_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:maxLines="1"
+                    android:layout_marginTop="@dimen/dp2"
+                    android:ellipsize="end"
+                    tools:text="测试文本 123" />
+
+                <TextView
+                    android:id="@+id/tv_course_time_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_marginTop="@dimen/dp2"
+                    android:textSize="12sp"
+                    tools:text="测试文本 123" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/end_tv"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:visibility="gone"
+            android:layout_height="match_parent"
+            tools:text="本学期已经结束啦~"
+            tools:visibility="gone" />
+
+        <TextView
+            android:id="@+id/no_course_tv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:text="今天已经没有课啦~" />
+
+        <TextView
+            android:id="@+id/student_error_tv"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:visibility="gone"
+            android:layout_height="match_parent"
+            android:text="小组件需要绑定学号和密码才能使用哦~"
+            tools:text="小组件需要绑定学号和密码才能使用哦~"
+            tools:visibility="gone" />
+    </LinearLayout>
+
+
+</LinearLayout>

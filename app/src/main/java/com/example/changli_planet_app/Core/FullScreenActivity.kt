@@ -9,10 +9,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.Dialog.LoadingDialog
 
 open class FullScreenActivity : AppCompatActivity() {
+
+    open val TAG = javaClass.simpleName
+
     private fun setCustomDensity(activity: Activity, application: Application, designWidthDp: Int) {
         val appDisplayMetrics = application.resources.displayMetrics
 

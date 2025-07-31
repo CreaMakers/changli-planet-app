@@ -1,5 +1,3 @@
-import com.android.build.api.dsl.ViewBinding
-import com.android.build.gradle.internal.api.BaseVariantImpl
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
 plugins {
@@ -69,6 +67,9 @@ android {
         checkReleaseBuilds = false
         abortOnError = false
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 dependencies {
     // leakcanary
@@ -111,7 +112,7 @@ dependencies {
     implementation("androidx.room:room-ktx:2.5.2")
 
     // 图片裁剪库
-    implementation("com.github.Yalantis:uCrop:2.2.8")
+    implementation("com.github.Yalantis:uCrop:2.2.9")
     // PhotoView
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
