@@ -1,24 +1,23 @@
 package com.example.changli_planet_app.Core
 
-import android.annotation.SuppressLint
-import android.app.AlarmManager
+import android.app.ActivityManager
 import android.app.Application
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.os.Process
+import android.os.Debug
+import android.os.Handler
+import android.os.HandlerThread
+import android.provider.Settings
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import com.example.changli_planet_app.BuildConfig
 import com.example.changli_planet_app.Cache.Room.database.CoursesDataBase
 import com.example.changli_planet_app.Network.OkHttpHelper
-import com.tencent.bugly.crashreport.CrashReport
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
 import com.tencent.msdk.dns.MSDKDnsResolver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.system.exitProcess
 
 class PlanetApplication : Application() {
     companion object {
@@ -56,18 +55,29 @@ class PlanetApplication : Application() {
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
             }
         }
+
+        fun getSystemDeviceId(): String {
+            val androidId =
+                Settings.Secure.getString(appContext.contentResolver, Settings.Secure.ANDROID_ID)
+            return when {
+                androidId.isNullOrEmpty() -> "unknown_device"
+                androidId == "9774d56d682e549c" -> "emulator_device"
+                else -> androidId
+            }
+        }
     }
+    private val fpsHandlerThread = HandlerThread("fpsHandlerThread").apply { start() }
+    private val fpsHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(fpsHandlerThread.looper) }
 
     override fun onCreate() {
         super.onCreate()
         val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initMMKV()
-        // 提包开，开发不开
+        // TODO 提包开，开发不开
 //        CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }
-            runCatching { initMMKV() }.onFailure { Log.e("MMKV", "MMKV init Error") }
             runCatching { preRequestIps.forEach { OkHttpHelper.preRequest(it) } }.onFailure {
                 Log.e(
                     "PreRequestIps",
@@ -77,9 +87,28 @@ class PlanetApplication : Application() {
         }
         val endTime = System.currentTimeMillis()
         val duration = endTime - startTime
+        if (BuildConfig.DEBUG) {
+            startMemoryMonitor()
+        }
         appContext = applicationContext
     }
+    private fun startMemoryMonitor() {
+        fpsHandler.post(object : Runnable {
+            override fun run() {
+                val activityManager = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                val memoryInfo = ActivityManager.MemoryInfo()
+                activityManager.getMemoryInfo(memoryInfo)
 
+                val debugMemoryInfo = Debug.MemoryInfo()
+                Debug.getMemoryInfo(debugMemoryInfo)
+
+                val logString = "系统内存可用 ${memoryInfo.availMem shr 20}MB /总内存 ${memoryInfo.totalMem shr 20}MB " +
+                        "java内存 ${debugMemoryInfo.dalvikPss shr 10}MB native内存 ${debugMemoryInfo.nativePss shr 10}MB"
+                Log.v("Memory", logString)
+                fpsHandler.postDelayed(this, 2000)
+            }
+        })
+    }
     private fun initDNS() {
         val dnsConfigBuilder = DnsConfig.Builder()
             .dnsId("98468")

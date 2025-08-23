@@ -10,7 +10,9 @@ plugins {
 android {
     namespace = "com.example.changli_planet_app"
     compileSdk = 34
-
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
@@ -73,7 +75,7 @@ android {
 }
 dependencies {
     // leakcanary
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
+//    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
     // Material Design
     implementation("com.google.android.material:material:1.11.0")
     // Blurry库

@@ -43,18 +43,7 @@ class FoundThingFragment:Fragment() {
     }
 
     private fun initListTest(){
-        item=listOf(FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www",R.drawable.nmap),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www",R.drawable.nmap),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www",R.drawable.nmap),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www2024 10 12 10：12：10\",\"一只猫\",\"一个甘城猫，在12教210教室不见了www2024 10 12 10：12：10\",\"一只猫\",\"一个甘城猫，在12教210教室不见了www2024 10 12 10：12：10\",\"一只猫\",\"一个甘城猫，在12教210教室不见了www"),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www",R.drawable.nmap),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www",R.drawable.nmap),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www",R.drawable.nmap),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www"),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www",R.drawable.nmap),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www"),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www"),
-            FoundThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www"),)
+
     }
     private fun refresh() {
         thread {

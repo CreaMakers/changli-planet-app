@@ -42,22 +42,6 @@ class LoseThingFragment:Fragment() {                                   //失物�
 
     private fun initListTest(){
         val longText="nya~,一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www"
-        item=listOf(
-            LoseThing(R.drawable.add,"猜猜我是谁","机痛学院","一本书",longText,R.drawable.ncalender),
-            LoseThing(R.drawable.add,"猜猜我是谁","机痛学院","一本书",longText,R.drawable.ncalender),
-            LoseThing(R.drawable.add,"猜猜我是谁","机痛学院","一本书",longText),
-            LoseThing(R.drawable.add,"猜猜我是谁","机痛学院","一本书",longText),
-            LoseThing(R.drawable.add,"猜猜我是谁","机痛学院","一本书",longText),
-            LoseThing(R.drawable.add,"猜猜我是谁","机痛学院","一本书",""),
-            LoseThing(R.drawable.add,"猜猜我是谁","机痛学院","一本书",""),
-            LoseThing(R.drawable.nmap,"何同学","计算机与通行工程学院","一只猫","一个甘城猫，在12教210教室不见了www",R.drawable.nmap),
-            LoseThing(R.drawable.add,"猜猜我是谁","机痛学院","一本书","",R.drawable.ncalender),
-            LoseThing(R.drawable.add,"猜猜我是谁","机痛学院","一本书","",R.drawable.ncalender),
-            LoseThing(R.drawable.losebackground,"我爱甘城猫猫","猫猫学院","猫猫","nya~,一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www一个甘城猫，在12教210教室不见了www"),
-            LoseThing(R.drawable.nmap,"李同学","水利学院","学生证",longText,R.drawable.nmap),
-            LoseThing(R.drawable.losebackground,"李同学","水利学院","学生证",longText,R.drawable.losebackground),
-            LoseThing(R.drawable.nmap,"李同学","水利学院","学生证","在12教110教室不见了www在12教110教室不见了www在12教110教室不见了www在12教110教室不见了www在12教110教室不见了www在12教110教室不见了www在12教110教室不见了www在12教110教室不见了www在12教110教室不见了www在12教110教室不见了www在12教110教室不见了www",R.drawable.losebackground),
-        )
     }
     fun setItem(list:List<LoseThing>){
         //item=list
