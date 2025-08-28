@@ -1,12 +1,15 @@
 package com.example.changli_planet_app.Utils
 
 import android.content.Context
+import android.util.Log
+import android.util.TimeUtils
 import android.view.View
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.changli_planet_app.Core.GlideApp
 import com.example.changli_planet_app.R
+import java.sql.Time
 
 object GlideUtils {
     fun load(
@@ -19,6 +22,7 @@ object GlideUtils {
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .error(R.drawable.ic_error_vector)
+            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
             .into(imageView)
     }
 
@@ -31,6 +35,7 @@ object GlideUtils {
         GlideApp.with(fragment)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
+            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
             .error(R.drawable.ic_error_vector)
             .into(imageView)
     }
@@ -45,6 +50,7 @@ object GlideUtils {
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .error(R.drawable.ic_error_vector)
+            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
             .into(imageView)
     }
 
@@ -59,6 +65,7 @@ object GlideUtils {
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .thumbnail(0.5f)
             .error(R.drawable.ic_error_vector)
+            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
             .into(imageView)
     }
 
@@ -72,6 +79,7 @@ object GlideUtils {
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .thumbnail(0.5f)
+            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
             .error(R.drawable.ic_error_vector)
             .into(imageView)
     }
@@ -86,6 +94,7 @@ object GlideUtils {
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .thumbnail(0.5f)
+            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
             .error(R.drawable.ic_error_vector)
             .into(imageView)
     }
