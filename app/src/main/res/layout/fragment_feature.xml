@@ -68,7 +68,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="15dp">
+                android:padding="@dimen/dp15">
 
                 <com.example.changli_planet_app.Widget.View.FunctionItem
                     android:id="@+id/ngrade"

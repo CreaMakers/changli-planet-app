@@ -3,26 +3,23 @@ package com.example.changli_planet_app.Activity.Store
 import android.os.Handler
 import android.os.Looper
 import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
-import com.example.changli_planet_app.Activity.LoginActivity
 import com.example.changli_planet_app.Activity.State.LoginAndRegisterState
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.Store
 import com.example.changli_planet_app.Data.jsonbean.Email
-import com.example.changli_planet_app.Data.jsonbean.UserPassword
 import com.example.changli_planet_app.Data.jsonbean.UserPasswordAndEmail
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.Widget.Dialog.LoginInformationDialog
 import com.example.changli_planet_app.Utils.Event.FinishEvent
 import com.example.changli_planet_app.Utils.EventBusHelper
+import com.example.changli_planet_app.Widget.Dialog.LoginInformationDialog
 import com.example.changli_planet_app.Widget.View.CustomToast
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.Response
@@ -73,7 +70,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
             is LoginAndRegisterAction.Login -> {
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .post(PlanetApplication.UserIp + "/sessions/password")
-                    .header("deviceId", LoginActivity.getDeviceId(action.context))
+                    .header("deviceId", PlanetApplication.getSystemDeviceId())
                     .body(OkHttpHelper.gson.toJson(action.userPassword))
                     .build()
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {

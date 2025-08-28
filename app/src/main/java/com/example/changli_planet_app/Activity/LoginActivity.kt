@@ -1,11 +1,9 @@
 package com.example.changli_planet_app.Activity
 
-import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
-import android.provider.Settings
 import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
@@ -23,12 +21,12 @@ import com.example.changli_planet_app.Activity.Action.UserAction
 import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
 import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Core.FullScreenActivity
-import com.example.changli_planet_app.Data.jsonbean.UserPassword
-import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.noOpDelegate
-import com.example.changli_planet_app.Widget.Dialog.ExpiredDialog
+import com.example.changli_planet_app.Data.jsonbean.UserPassword
+import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.Event.FinishEvent
+import com.example.changli_planet_app.Widget.Dialog.ExpiredDialog
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -237,15 +235,4 @@ class LoginActivity : FullScreenActivity() {
         view.text = underlinetext
     }
 
-    companion object {
-        fun getDeviceId(context: Context): String {
-            val androidId =
-                Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-            return when {
-                androidId.isNullOrEmpty() -> "unknown_device"
-                androidId == "9774d56d682e549c" -> "emulator_device"
-                else -> androidId
-            }
-        }
-    }
 }

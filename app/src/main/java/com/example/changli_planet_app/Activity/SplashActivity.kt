@@ -6,22 +6,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.changli_planet_app.Cache.UserInfoManager
-import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
-import com.example.changli_planet_app.Data.jsonbean.UserPassword
-import com.example.changli_planet_app.Network.HttpUrlHelper
-import com.example.changli_planet_app.Network.OkHttpHelper
-import com.example.changli_planet_app.Network.RequestCallback
-import com.example.changli_planet_app.Network.Response.MyResponse
+import com.example.changli_planet_app.R
 import com.gradle.scan.plugin.internal.dep.io.netty.util.internal.StringUtil
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.Response
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +23,6 @@ class SplashActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom)
             insets
         }
-        PlanetApplication.deviceId = LoginActivity.getDeviceId(this)
         // 使用协程来处理延迟任务
         lifecycleScope.launch {
             if (StringUtil.isNullOrEmpty(PlanetApplication.accessToken)) {
