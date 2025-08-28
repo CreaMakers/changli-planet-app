@@ -5,16 +5,16 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.Cache.UserInfoManager
-import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Interface.DrawerController
-import com.example.changli_planet_app.Utils.GlideUtils
+import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Utils.load
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -59,9 +59,7 @@ class FeatureFragment : Fragment() {
         }
         lifecycleScope.launch {
             delay(1200)
-            GlideUtils.load(
-                this@FeatureFragment, featureAvatar, UserInfoManager.userAvatar
-            )
+            featureAvatar.load(UserInfoManager.userAvatar)
         }
         featureAvatar.setOnClickListener { drawerController?.openDrawer() }
         Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
@@ -88,17 +86,13 @@ class FeatureFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        GlideUtils.load(
-            this@FeatureFragment, featureAvatar, UserInfoManager.userAvatar
-        )
+        featureAvatar.load(UserInfoManager.userAvatar)
     }
 
     private fun setIcons() {
         context?.let { ctx ->
             with(binding) {
-                GlideUtils.load(
-                    this@FeatureFragment, planetLogo, R.drawable.planet_logo
-                )
+                planetLogo.load(R.drawable.planet_logo)
 
                 // 设置功能图标
                 val iconIds = listOf(

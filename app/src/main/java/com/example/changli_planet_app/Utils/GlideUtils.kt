@@ -1,6 +1,7 @@
 package com.example.changli_planet_app.Utils
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.ImageView
@@ -10,6 +11,7 @@ import com.example.changli_planet_app.Core.GlideApp
 import com.example.changli_planet_app.R
 
 object GlideUtils {
+    private val TAG = "GlideUtils"
     fun load(
         view: View,
         imageView: ImageView,
@@ -112,6 +114,8 @@ object GlideUtils {
 fun ImageView.load(imageSource: Any, useDiskCache: Boolean = true) {
     // 如果视图已经具有有效尺寸，直接加载图片
     if (width > 0 && height > 0) {
+        Log.d("GlideUtil", "width: $width, height: $height")
+
         loadImageDirectly(imageSource, useDiskCache, width, height)
         return
     }
@@ -120,9 +124,20 @@ fun ImageView.load(imageSource: Any, useDiskCache: Boolean = true) {
     // 添加全局布局监听器
     observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {
-            // 检查观察者是否仍然有效
-            if (!observer.isAlive) return
-
+            /**
+             * 检查观察者是否仍然有效 无效的情况
+             * 可能是observe的mFloatingTreeObserver merge 到 View 的 mTreeObserver中执行kill()方法
+             * 再尝试拿一次width和height
+             */
+            if (!observer.isAlive) {
+                Log.d("GlideUtil", "width: $width, height: $height")
+                if (width > 0 && height > 0) {
+                    Log.d("GlideUtil", "width: $width, height: $height")
+                    loadImageDirectly(imageSource, useDiskCache, width, height)
+                }
+                return
+            }
+            Log.d("GlideUtil", "width: $width, height: $height")
             // 获取当前尺寸
             val currentWidth = width
             val currentHeight = height
