@@ -18,11 +18,12 @@ object GlideUtils {
         imageSource: Any,
         useDiskCache: Boolean = true
     ) {
+        val heightAndwidth = ResourceUtil.getImageSize(imageView)
         GlideApp.with(view)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .error(R.drawable.ic_error_vector)
-            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
+            .override(heightAndwidth.first,heightAndwidth.second)
             .into(imageView)
     }
 
@@ -32,10 +33,11 @@ object GlideUtils {
         imageSource: Any,
         useDiskCache: Boolean = true
     ) {
+        val heightAndwidth = ResourceUtil.getImageSize(imageView)
         GlideApp.with(fragment)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
-            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
+            .override(heightAndwidth.first,heightAndwidth.second)
             .error(R.drawable.ic_error_vector)
             .into(imageView)
     }
@@ -46,11 +48,12 @@ object GlideUtils {
         imageSource: Any,
         useDiskCache: Boolean = true
     ) {
+        val heightAndwidth = ResourceUtil.getImageSize(imageView)
         GlideApp.with(context)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .error(R.drawable.ic_error_vector)
-            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
+            .override(heightAndwidth.first,heightAndwidth.second)
             .into(imageView)
     }
 
@@ -60,12 +63,13 @@ object GlideUtils {
         imageSource: Any,
         useDiskCache: Boolean = true
     ) {
+        val heightAndwidth = ResourceUtil.getImageSize(imageView)
         GlideApp.with(view)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .thumbnail(0.5f)
             .error(R.drawable.ic_error_vector)
-            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
+            .override(heightAndwidth.first,heightAndwidth.second)
             .into(imageView)
     }
 
@@ -75,11 +79,12 @@ object GlideUtils {
         imageSource: Any,
         useDiskCache: Boolean = true
     ) {
+        val heightAndwidth = ResourceUtil.getImageSize(imageView)
         GlideApp.with(fragment)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .thumbnail(0.5f)
-            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
+            .override(heightAndwidth.first,heightAndwidth.second)
             .error(R.drawable.ic_error_vector)
             .into(imageView)
     }
@@ -90,11 +95,12 @@ object GlideUtils {
         imageSource: Any,
         useDiskCache: Boolean = true
     ) {
+        val heightAndwidth = ResourceUtil.getImageSize(imageView)
         GlideApp.with(context)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .thumbnail(0.5f)
-            .override(ResourceUtil.getImageSize(imageView).first,ResourceUtil.getImageSize(imageView).second)
+            .override(heightAndwidth.first,heightAndwidth.second)
             .error(R.drawable.ic_error_vector)
             .into(imageView)
     }
