@@ -1,15 +1,13 @@
 package com.example.changli_planet_app.Utils
 
 import android.content.Context
-import android.util.Log
-import android.util.TimeUtils
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.changli_planet_app.Core.GlideApp
 import com.example.changli_planet_app.R
-import java.sql.Time
 
 object GlideUtils {
     fun load(
@@ -108,4 +106,43 @@ object GlideUtils {
                 .preload()
         }
     }
+}
+
+
+fun ImageView.load(imageSource: Any, useDiskCache: Boolean = true) {
+    // 如果视图已经具有有效尺寸，直接加载图片
+    if (width > 0 && height > 0) {
+        loadImageDirectly(imageSource, useDiskCache, width, height)
+        return
+    }
+
+    val observer = this.viewTreeObserver
+    // 添加全局布局监听器
+    observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            // 检查观察者是否仍然有效
+            if (!observer.isAlive) return
+
+            // 获取当前尺寸
+            val currentWidth = width
+            val currentHeight = height
+
+            // 如果尺寸有效，加载图片并移除监听器
+            if (currentWidth > 0 && currentHeight > 0) {
+                // 移除监听器
+                observer.removeOnGlobalLayoutListener(this)
+                // 加载图片
+                loadImageDirectly(imageSource, useDiskCache, currentWidth, currentHeight)
+            }
+        }
+    })
+}
+
+private fun ImageView.loadImageDirectly(imageSource: Any, useDiskCache: Boolean, pxWidth: Int, pxHeight: Int) {
+    GlideApp.with(context)
+        .load(imageSource)
+        .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
+        .override(pxWidth, pxHeight) // 按需加载
+        .error(R.drawable.ic_error_vector)
+        .into(this)
 }
