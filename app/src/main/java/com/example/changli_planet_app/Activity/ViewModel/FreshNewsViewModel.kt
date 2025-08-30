@@ -4,22 +4,18 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-
 import com.example.changli_planet_app.Activity.Contract.FreshNewsContract
 import com.example.changli_planet_app.Cache.RefreshNewsCache
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.CoroutineContext.ErrorCoroutineContext
 import com.example.changli_planet_app.Core.MVI.MviViewModel
 import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Data.jsonbean.UserDisplayInformation
 import com.example.changli_planet_app.Network.Resource
-import com.example.changli_planet_app.Network.Response.FreshNews
 import com.example.changli_planet_app.Network.Response.FreshNewsItem
 import com.example.changli_planet_app.Network.Response.FreshNews_Publish
 import com.example.changli_planet_app.Network.repository.FreshNewsRepository
 import com.example.changli_planet_app.Network.repository.UserProfileRepository
 import com.example.changli_planet_app.Widget.View.CustomToast
-import com.example.changli_planet_app.Network.Response.UserProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn

@@ -25,6 +25,9 @@ class FreshNewsAdapter(
         private const val VIEW_TYPE_ITEM = 0
         private const val VIEW_TYPE_LOADING = 1
     }
+    private val imageViewHolderPool = RecyclerView.RecycledViewPool().apply {
+        setMaxRecycledViews(0, 15) // 设置最大复用数量
+    }
 
     private val newsList = mutableListOf<FreshNewsItem>()
     private var isLoading = false
@@ -34,6 +37,7 @@ class FreshNewsAdapter(
                 val binding = FreshNewsItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
+                binding.imagesRecyclerView.setRecycledViewPool(imageViewHolderPool)
                 FreshNewsItemViewHolder(
                     binding,
                     context,
