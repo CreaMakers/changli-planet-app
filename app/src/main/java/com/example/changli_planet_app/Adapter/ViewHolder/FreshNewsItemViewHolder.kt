@@ -1,7 +1,6 @@
 package com.example.changli_planet_app.Adapter.ViewHolder
 
 import android.content.Context
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Adapter.ImageAdapter
 import com.example.changli_planet_app.Network.Response.FreshNewsItem
@@ -48,16 +47,15 @@ class FreshNewsItemViewHolder(
             newsContent.text = news.content
 
             imagesRecyclerView.adapter = ImageAdapter(
-                news.images,
-                { imageUrl, position -> onImageClick(news.images, position) }
-            )
+                news.images
+            ) { imageUrl, position -> onImageClick(news.images, position) }
 
             newsItemLocation.text = news.location ?: "未知"
             newsFavorCount.text = news.liked.toString()
             newsCommentCount.text = (news.comments ?: 0).toString()
             newsShareCount.text = (news.favoritesCount ?: 0).toString()
 
-            if (news.images.isNullOrEmpty()) {
+            if (news.images.isEmpty()) {
                 imagesRecyclerView.visibility = android.view.View.GONE
             } else {
                 imagesRecyclerView.visibility = android.view.View.VISIBLE

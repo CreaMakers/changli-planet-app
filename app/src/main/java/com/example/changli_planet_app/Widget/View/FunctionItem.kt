@@ -9,7 +9,7 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Utils.GlideUtils
+import com.example.changli_planet_app.Utils.load
 
 class FunctionItem @JvmOverloads constructor(
     context: Context,
@@ -43,7 +43,7 @@ class FunctionItem @JvmOverloads constructor(
     fun setIconWithGlide(
         @DrawableRes resId: Int
     ) {
-        GlideUtils.load(this, icon, resId, false)
+        icon.load(resId)
     }
 
     private fun setTitle(text: String) {

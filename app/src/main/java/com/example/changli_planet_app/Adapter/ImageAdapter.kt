@@ -1,6 +1,7 @@
 package com.example.changli_planet_app.Adapter
 
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +11,8 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.changli_planet_app.Core.GlideApp
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Utils.load
 
 class ImageAdapter(
     private val imageList: List<String?>,
@@ -23,9 +24,9 @@ class ImageAdapter(
 
         fun bind(imageUrl: String?, position: Int) {
             imageUrl?.let{
-                GlideApp.with(view)
-                    .load(imageUrl)
-                    .listener(object : RequestListener<Drawable> {
+                Log.d("ImageAdapter", "imageUrl: $imageUrl")
+                imageUrl.let {
+                    imageView.load(it, listener = object : RequestListener<Drawable> {
                         override fun onLoadFailed(
                             e: GlideException?,
                             model: Any?,
@@ -49,7 +50,7 @@ class ImageAdapter(
                             return false
                         }
                     })
-                    .into(imageView)
+                }
             }
         }
     }
