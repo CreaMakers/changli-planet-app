@@ -1,12 +1,14 @@
 package com.example.changli_planet_app.Utils
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
-import android.view.ViewTreeObserver
 import android.widget.ImageView
+import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestListener
 import com.example.changli_planet_app.Core.GlideApp
 import com.example.changli_planet_app.R
 
@@ -116,53 +118,59 @@ object GlideUtils {
     }
 }
 
-
-fun ImageView.load(imageSource: Any, useDiskCache: Boolean = true) {
-    // 如果视图已经具有有效尺寸，直接加载图片
-    if (width > 0 && height > 0) {
-        Log.d("GlideUtil", "width: $width, height: $height")
-
-        loadImageDirectly(imageSource, useDiskCache, width, height)
-        return
-    }
-
-    val observer = this.viewTreeObserver
-    // 添加全局布局监听器
-    observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-        override fun onGlobalLayout() {
-            /**
-             * 检查观察者是否仍然有效 无效的情况
-             * 可能是observe的mFloatingTreeObserver merge 到 View 的 mTreeObserver中执行kill()方法
-             * 再尝试拿一次width和height
-             */
-            if (!observer.isAlive) {
-                Log.d("GlideUtil", "width: $width, height: $height")
-                if (width > 0 && height > 0) {
-                    Log.d("GlideUtil", "width: $width, height: $height")
-                    loadImageDirectly(imageSource, useDiskCache, width, height)
-                }
-                return
-            }
-            Log.d("GlideUtil", "width: $width, height: $height")
-            // 获取当前尺寸
-            val currentWidth = width
-            val currentHeight = height
-
-            // 如果尺寸有效，加载图片并移除监听器
-            if (currentWidth > 0 && currentHeight > 0) {
-                // 移除监听器
-                observer.removeOnGlobalLayoutListener(this)
-                // 加载图片
-                loadImageDirectly(imageSource, useDiskCache, currentWidth, currentHeight)
-            }
+/**
+ * 加载图片资源
+ *
+ * 注意：SVG矢量图建议使用原生方式加载以获得更好性能：
+ * imageView.setImageResource(R.drawable.ic_svg_image)
+ *
+ * @param imageSource 加载图片资源，支持多种类型：
+ *                   - Int: 资源ID
+ *                   - String: 图片URL或文件路径
+ *                   - Uri: 图片URI
+ *                   - File: 图片文件
+ *                   - Drawable: Drawable对象
+ *                   - Bitmap: Bitmap对象
+ * @param pxWidth imageView宽度，单位px
+ * @param pxHeight imageView高度，单位px
+ * @param useDiskCache 是否启用磁盘缓存
+ * @param useMemoryCache 是否启用内存缓存
+ * @param listener glide RequestListener回调
+ */
+fun ImageView.load(
+    imageSource: Any,
+    pxWidth: Int = 0,
+    pxHeight: Int = 0,
+    useDiskCache: Boolean = true,
+    useMemoryCache: Boolean = true,
+    listener: RequestListener<Drawable>? = null
+) {
+    Log.d("dcelysia", "ImageView.load start: $imageSource")
+    if (pxWidth != 0 || pxHeight != 0) {
+        Log.d("dcelysia", "ImageView.load 用户设置 pxWidth: $pxWidth, pxHeight: $pxHeight")
+        loadImageDirectly(imageSource, useDiskCache, useMemoryCache, pxWidth, pxHeight, listener)
+    } else {
+        doOnLayout {
+            Log.d("dcelysia", "ImageView.load already width: $width, height: $height")
+            loadImageDirectly(imageSource, useDiskCache, useMemoryCache, width, height, listener)
         }
-    })
+    }
 }
 
-private fun ImageView.loadImageDirectly(imageSource: Any, useDiskCache: Boolean, pxWidth: Int, pxHeight: Int) {
+private fun ImageView.loadImageDirectly(
+    imageSource: Any,
+    useDiskCache: Boolean,
+    useMemoryCache: Boolean,
+    pxWidth: Int,
+    pxHeight: Int,
+    listener: RequestListener<Drawable>? = null
+) {
+    Log.d("dcelysia", "ImageView loadImageDirectly: $imageSource")
     GlideApp.with(context)
         .load(imageSource)
+        .skipMemoryCache(!useMemoryCache)
         .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
+        .listener(listener)
         .override(pxWidth, pxHeight) // 按需加载
         .error(R.drawable.ic_error_vector)
         .into(this)
