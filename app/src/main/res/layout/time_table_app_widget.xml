@@ -3,6 +3,7 @@
     style="@style/Widget.Changliplanetapp.AppWidget.Container"
     android:theme="@style/Theme.Changliplanetapp.AppWidgetContainer"
     android:layout_width="match_parent"
+    android:id="@+id/widget_root_layout"
     android:orientation="vertical"
     android:layout_height="match_parent">
 
@@ -185,7 +186,7 @@
             android:gravity="center"
             android:textStyle="bold"
             android:textSize="13sp"
-            android:text="今天已经没有课啦~" />
+            tools:text="@string/widget_must_get_course_data" />
 
         <TextView
             android:id="@+id/student_error_tv"

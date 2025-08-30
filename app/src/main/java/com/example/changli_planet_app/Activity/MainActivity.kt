@@ -4,7 +4,10 @@ import android.Manifest
 import android.animation.LayoutTransition
 import android.app.Activity
 import android.app.Application
+import android.appwidget.AppWidgetManager
 import android.content.ComponentCallbacks
+import android.content.ComponentName
+import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -37,6 +40,7 @@ import com.example.changli_planet_app.Fragment.NewsFragment
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.Pool.TabAnimationPool
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.TimeTableAppWidget
 import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.Utils.NetworkUtil
 import com.example.changli_planet_app.Widget.Dialog.NormalChosenDialog
@@ -129,11 +133,14 @@ class MainActivity : AppCompatActivity(), DrawerController {
         super.onResume()
         store.dispatch(UserAction.initilaize())
         drawerAccount.text = UserInfoManager.account
+        refreshWidget()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (StringUtil.isNullOrEmpty(PlanetApplication.accessToken)) {
             Route.goLogin(this@MainActivity)
+            finish()
+            return
         }
         setCustomDensity(this, application, 412)
         super.onCreate(savedInstanceState)
@@ -204,6 +211,20 @@ class MainActivity : AppCompatActivity(), DrawerController {
                 )
             )
             false
+        }
+    }
+
+    private fun refreshWidget() {
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        val componentName = ComponentName(this, TimeTableAppWidget::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+
+        if (appWidgetIds.isNotEmpty()) {
+            val intent = Intent(this, TimeTableAppWidget::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            }
+            sendBroadcast(intent)
         }
     }
 
