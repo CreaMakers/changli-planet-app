@@ -1,11 +1,14 @@
 package com.example.changli_planet_app
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import com.example.changli_planet_app.Activity.MainActivity
 import com.example.changli_planet_app.Activity.Store.TimeTableStore.weekJsonInfo
 import com.example.changli_planet_app.Cache.Room.entity.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
@@ -16,6 +19,7 @@ import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
+import com.example.changli_planet_app.Utils.ResourceUtil
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
@@ -79,7 +83,7 @@ private val times = arrayOf(
     "19:30\n20:15", "20:25\n21:10"
 )
 
-private val TAG = "TimeTableAppWidget"
+private const val TAG = "TimeTableAppWidget"
 
 private const val refreshCount = 3
 internal fun updateAppWidget(
@@ -88,10 +92,25 @@ internal fun updateAppWidget(
     appWidgetId: Int
 ) {
     Log.d("TimeTableAppWidget", "updateAppWidget")
+    // 创建点击意图，拉起主Activity
+    val intent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+    }
+
+    val pendingIntent = PendingIntent.getActivity(
+        context,
+        appWidgetId, // 使用 appWidgetId 作为 requestCode 确保唯一性
+        intent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.time_table_app_widget)
+    // 为整个小组件设置点击事件
+    views.setOnClickPendingIntent(R.id.widget_root_layout, pendingIntent)
+    val currentMonthAndDay = getCurrentMonthAndDay()
     views.setTextViewText(R.id.term_tv, curTerm)
-    views.setTextViewText(R.id.date_tv, getCurrentMonthAndDay())
+    views.setTextViewText(R.id.date_tv, currentMonthAndDay)
     views.setTextViewText(
         R.id.week_tv, when (curWeekDay) {
             1 -> "周一"
@@ -103,8 +122,10 @@ internal fun updateAppWidget(
             else -> "周天"
         }
     )
+    Log.d(TAG, "curTerm: $curTerm currentMonthAndDay: $currentMonthAndDay curWeekDay: $curWeekDay")
     if (studentId.isEmpty() or studentPassword.isEmpty()) {
-        views.setViewVisibility(R.id.end_tv, View.VISIBLE)
+        views.setTextViewText(R.id.no_course_tv, ResourceUtil.getStringRes(R.string.widget_must_get_course_data))
+        appWidgetManager.updateAppWidget(appWidgetId, views)
         return
     }
     views.setViewVisibility(R.id.end_tv, View.GONE)

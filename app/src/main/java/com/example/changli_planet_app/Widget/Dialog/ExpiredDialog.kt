@@ -1,11 +1,9 @@
 package com.example.changli_planet_app.Widget.Dialog
 
-import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.os.Bundle
 import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
 import com.example.changli_planet_app.Base.BaseDialog
 import com.example.changli_planet_app.R
 
@@ -16,7 +14,7 @@ class  ExpiredDialog(context: Context, val content: String, val type: String) :
     private lateinit var fade: TextView
 
     override fun init() {
-        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         window?.setWindowAnimations(R.style.DialogAnimation)
         contents = findViewById(R.id.content)
         contents.text = content

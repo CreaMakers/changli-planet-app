@@ -83,4 +83,5 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">长理星球课表小组件</string>
+    <string name="widget_must_get_course_data">获取课表后才有数据哦~</string>
 </resources>
