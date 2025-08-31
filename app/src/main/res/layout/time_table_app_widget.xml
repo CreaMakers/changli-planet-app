@@ -186,7 +186,8 @@
             android:gravity="center"
             android:textStyle="bold"
             android:textSize="13sp"
-            tools:text="@string/widget_must_get_course_data" />
+            android:text="@string/there_are_no_classes_today"
+            tools:text="@string/there_are_no_classes_today" />
 
         <TextView
             android:id="@+id/student_error_tv"
@@ -197,9 +198,7 @@
             android:textSize="13sp"
             android:visibility="gone"
             android:layout_height="match_parent"
-            android:text="小组件需要绑定学号和密码才能使用哦~"
-            tools:text="小组件需要绑定学号和密码才能使用哦~"
-            tools:visibility="gone" />
+            android:text="@string/widget_must_get_course_data" />
     </LinearLayout>
 
 

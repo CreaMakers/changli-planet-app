@@ -1,231 +1,60 @@
-# okHttpHelper和EventBusHelper使用
-```
-# OkHttpHelper
+![长理星球](./assets/4e9c4a7f2dee81b1415ab05487fb31e7_720.png)
 
-`OkHttpHelper` 是一个基于 `OkHttp` 和 `Gson` 封装的网络请求库，支持常见的 HTTP 请求类型，如 `GET`、`POST`、`PUT` 和 `DELETE` 请求，提供了简单易用的异步请求接口。
+长理星球，作为开源的轻量化校园工具APP，安全性高，性能出色，具有课表查询，课表小组件，成绩，考试安排等常用功能
 
-## 功能特性
+## 主要功能
 
-- **GET 请求**：支持基础 GET 请求和带查询参数的 GET 请求。
-- **POST 请求**：支持发送 JSON 格式的 POST 请求。
-- **PUT 请求**：支持发送 JSON 格式的 PUT 请求。
-- **DELETE 请求**：支持 DELETE 请求。
-- **自动解析 JSON 响应**：基于 `Gson` 自动将 JSON 响应转换为指定的对象。
+### 功能页面
 
-## 依赖
+- 绑定教务系统后，可使用教务系统相关功能，例如查询课表，成绩或考试安排
+- 在不登录的情况下，也可以进行空闲教室，电费查询等功能
 
-你需要在项目的 `build.gradle` 文件中添加以下依赖：
+| <img src="./assets/image-20250831174326287.png" alt="" width="200"/> | <img src="./assets/image-20250831175418750.png" alt="" width="200"/> |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
 
-```gradle
-dependencies {
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
-    implementation 'com.google.code.gson:gson:2.8.8'
-}
-```
+### 成绩查询
 
-## 使用方法
+> 数据由教务系统提供，此类数据都只会保存在本地，不会上传云端
 
-### 1. GET 请求
+| <img src="./assets/image-20250831175656554.png" alt="" width="200"/> | <img src="./assets/image-20250831175817246.png" alt="" width="200"/> |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
 
-发起一个基础的 GET 请求并获取 JSON 响应：
+### 课表查询
 
-```kotlin
-OkHttpHelper.get(
-    url = "https://api.example.com/data",
-    responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response：MyResponse ->
-        // 成功处理响应
-        println("Response: $response")
-    },
-    onFailure = { error ->
-        // 处理错误
-        println("Error: $error")
-    }
-)
-```
+> 进入课表可以查看最新课表，自动存储到本地，定时刷新，在没有网络的环境下也能查看数据~
 
-#### 带查询参数的 GET 请求
+| <img src="./assets/image-20250831183014883.png" alt="" width="200"/> | <img src="./assets/91de5f1a8f29a91b2c0db448659105b7.jpg" alt="" width="200"/> |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
 
-```kotlin
-OkHttpHelper.get(
-    url = "https://api.example.com/data",
-    pathParams = "123",
-    queryParams = mapOf("key1" to "value1", "key2" to "value2"),
-    responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response:MyResponse ->
-        // 处理成功响应
-        println("Response: $response")
-    },
-    onFailure = { error ->
-        // 处理错误
-        println("Error: $error")
-    }
-)
-```
+### 考试安排
 
-### 2. POST 请求
+> 在教务系统颁布考试时间后便可查看
 
-发起一个 POST 请求并发送 JSON 数据：
+### 其他功能
 
-```kotlin
-val requestBody = MyRequestObject()
+> 可自行探索
 
-OkHttpHelper.post(
-    url = "https://api.example.com/submit",
-    requestBodyObj = requestBody,
-    responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response:MyResponse ->
-        // 处理成功响应
-        println("Response: $response")
-    },
-    onFailure = { error ->
-        // 处理错误
-        println("Error: $error")
-    }
-)
-```
+## 下载
 
-### 3. PUT 请求
+长理星球目前支持 Android, IOS平台
 
-发起一个 PUT 请求：
+通常建议使用稳定版本. 如果你愿意参与测试并拥有一定的对 bug 的处理能力, 也欢迎使用测试版本更快体验新功能.
+具体版本类型可查看下方.
 
-```kotlin
-val requestBody = MyRequestObject()
+## 参与开发
 
-OkHttpHelper.put(
-    url = "https://api.example.com/update",
-    requestBodyObj = requestBody,
-    responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response:MyResponse ->
-        // 处理成功响应
-        println("Response: $response")
-    },
-    onFailure = { error ->
-        // 处理错误
-        println("Error: $error")
-    }
-)
-```
+目前长理星球项目里缺少后端，前端，产品，美工等开发人员，如果你有兴趣，可联系加入我们
 
-### 4. DELETE 请求
+欢迎你提交 PR 参与开发，
+有关项目技术细节请参考 [CONTRIBUTING](docs/contribution/分支规范.md)
 
-发起一个 DELETE 请求：
+## 提供意见
 
-```kotlin
-OkHttpHelper.delete(
-    url = "https://api.example.com/delete",
-    responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response:MyResponse ->
-        // 处理成功响应
-        println("Response: $response")
-    },
-    onFailure = { error ->
-        // 处理错误
-        println("Error: $error")
-    }
-)
-```
-### 5. 上传文件
-```
-// 调用 OkHttpHelper 中的 uploadGzipFile 方法
-    OkHttpHelper.uploadGzipFile(
-        description = description,
-        url = uploadUrl,
-        file = file,
-        responseType = responseType,
-        onSuccess = { response ->
-            // 上传成功的处理逻辑
-            println("Upload Successful: $response")
-        },
-        onFailure = { error ->
-            // 上传失败的处理逻辑
-            println("Upload Failed: $error")
-        }
-    )
-```
-### 连接WebSocket
-```
-// 连接 WebSocket
-    OkHttpHelper.connectWebSocket(
-        url,
-        onOpen = { webSocket ->
-            println("WebSocket connected")
-            // 可以通过 webSocket.send() 发送消息
-            webSocket.send("Hello Server!")
-        },
-        onMessage = { message ->
-            println("Received message: $message")
-        },
-        onFailure = { error ->
-            println("WebSocket error: $error")
-        },
-        onClosing = { code, reason ->
-            println("WebSocket is closing: Code: $code, Reason: $reason")
-        },
-        onClosed = { code, reason ->
-            println("WebSocket closed: Code: $code, Reason: $reason")
-        }
-    )
-```
-## 常见问题
+欢迎使用长理星球的时候留下你宝贵的意见
 
-### 1. 如何处理 JSON 响应？
+## FAQ
 
-在请求中，`OkHttpHelper` 使用 `Gson` 自动将返回的 JSON 数据解析为指定的对象类型。你需要确保 `responseType` 的类型与服务器返回的 JSON 结构匹配。例如，使用 `TypeToken` 处理复杂的泛型对象：
+### 在长理星球中输入自己的学生账号与密码是否有泄露的风险
 
-```kotlin
-val responseType = object : TypeToken<List<MyObject>>() {}.type
-```
+并不会，每个账号可以绑定学号并上传云端，但是密码会保存到本地，长理星球前后端移动代码都是开源的，公开透明，安全性高
 
-### 2. 如何传递查询参数？
-
-在 GET 请求中，你可以通过 `Map<String, String>` 传递查询参数，库会自动将其附加到 URL 中：
-
-```kotlin
-OkHttpHelper.get(
-    url = "https://api.example.com/data",
-    queryParams = mapOf("key" to "value"),
-    responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response -> 
-        // 处理响应
-        println("Response: $response")
-    },
-    onFailure = { error -> 
-        // 处理错误
-        println("Error: $error")
-    }
-)
-```
-
-### 3. 如何发送复杂对象作为请求体？
-
-在 POST 或 PUT 请求中，你可以直接传递对象，`OkHttpHelper` 会使用 `Gson` 自动将对象序列化为 JSON 并发送：
-
-```kotlin
-val requestBody = MyRequestObject(/* 参数 */)
-
-OkHttpHelper.post(
-    url = "https://api.example.com/submit",
-    requestBodyObj = requestBody,
-    responseType = object : TypeToken<MyResponseType>() {}.type,
-    onSuccess = { response ->
-        // 处理响应
-        println("Response: $response")
-    },
-    onFailure = { error ->
-        // 处理错误
-        println("Error: $error")
-    }
-)
-```
-# EventBusHelper
-```
-//这一步之后不必再使用register和unregister
-//自动监听onStar和onStop进行注册和解注册
-lifecycle.addObserver(EventBusLifecycleObserver(this))
-        EventBusHelper.register(this)
-        EventBusHelper.unregister(this)
-        EventBusHelper.post("此处应是自定义的Event类")
-        EventBusHelper.postSticky("此处应是自定义的Event类")
-        EventBusHelper.removeStickyEvent()
-```

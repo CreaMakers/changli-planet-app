@@ -19,7 +19,6 @@ import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback
 import com.example.changli_planet_app.Network.Response.Course
 import com.example.changli_planet_app.Network.Response.MyResponse
-import com.example.changli_planet_app.Utils.ResourceUtil
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
@@ -124,11 +123,11 @@ internal fun updateAppWidget(
     )
     Log.d(TAG, "curTerm: $curTerm currentMonthAndDay: $currentMonthAndDay curWeekDay: $curWeekDay")
     if (studentId.isEmpty() or studentPassword.isEmpty()) {
-        views.setTextViewText(R.id.no_course_tv, ResourceUtil.getStringRes(R.string.widget_must_get_course_data))
+        views.setViewVisibility(R.id.student_error_tv, View.VISIBLE)
         appWidgetManager.updateAppWidget(appWidgetId, views)
         return
     }
-    views.setViewVisibility(R.id.end_tv, View.GONE)
+    views.setViewVisibility(R.id.student_error_tv, View.GONE)
     if (isHolidayOrError()) {
         views.setViewVisibility(R.id.end_tv, View.VISIBLE)
         views.setTextViewText(R.id.end_tv, "还没有开学哦٩(◦`꒳´◦)۶")
@@ -160,6 +159,7 @@ internal fun updateAppWidget(
                     .take(2)
                 Log.d("TimeTableAppWidget","result size: ${result.size}")
                 if (result.isEmpty()) {
+                    Log.d("TimeTableAppWidget","no_classes_today")
                     views.setViewVisibility(R.id.no_course_tv, View.VISIBLE)
                     views.setViewVisibility(R.id.course1_ll, View.GONE)
                     views.setViewVisibility(R.id.course2_ll, View.GONE)
