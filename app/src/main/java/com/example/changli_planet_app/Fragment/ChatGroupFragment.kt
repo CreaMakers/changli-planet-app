@@ -1,12 +1,10 @@
 package com.example.changli_planet_app.Fragment
 
-import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsetsController
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.changli_planet_app.Adapter.ChatGroupLeftItemAdapter
@@ -16,6 +14,7 @@ import com.example.changli_planet_app.Data.jsonbean.ChatGroupLeftItem
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.FragmentChatGroupBinding
 
+// TODO 暂时弃用
 class ChatGroupFragment : Fragment() {
 
     private lateinit var binding: FragmentChatGroupBinding

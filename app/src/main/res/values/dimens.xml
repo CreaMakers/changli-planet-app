@@ -10,8 +10,6 @@
     <dimen name="padding_horizontal">16dp</dimen>
     <dimen name="picker_item_height">48dp</dimen>
     <dimen name="picker_item_padding">12dp</dimen>
-
-
     <dimen name="dp0_5">0.5dp</dimen>
     <dimen name="dp1">1.0dp</dimen>
     <dimen name="dp2">2.0dp</dimen>
@@ -520,6 +518,70 @@
     <dimen name="dp733">733.0dp</dimen>
     <dimen name="dp771">771.0dp</dimen>
 
+
+    <dimen name="sp8">8.0sp</dimen>
+    <dimen name="sp9">9.0sp</dimen>
+    <dimen name="sp10">10.0sp</dimen>
+    <dimen name="sp11">11.0sp</dimen>
+    <dimen name="sp12">12.0sp</dimen>
+    <dimen name="sp13">13.0sp</dimen>
+    <dimen name="sp14">14.0sp</dimen>
+    <dimen name="sp15">15.0sp</dimen>
+    <dimen name="sp16">16.0sp</dimen>
+    <dimen name="sp17">17.0sp</dimen>
+    <dimen name="sp18">18.0sp</dimen>
+    <dimen name="sp19">19.0sp</dimen>
+    <dimen name="sp20">20.0sp</dimen>
+    <dimen name="sp21">21.0sp</dimen>
+    <dimen name="sp22">22.0sp</dimen>
+    <dimen name="sp23">23.0sp</dimen>
+    <dimen name="sp24">24.0sp</dimen>
+    <dimen name="sp25">25.0sp</dimen>
+    <dimen name="sp26">26.0sp</dimen>
+    <dimen name="sp27">27.0sp</dimen>
+    <dimen name="sp28">28.0sp</dimen>
+    <dimen name="sp29">29.0sp</dimen>
+    <dimen name="sp30">30.0sp</dimen>
+    <dimen name="sp31">31.0sp</dimen>
+    <dimen name="sp32">32.0sp</dimen>
+    <dimen name="sp33">33.0sp</dimen>
+    <dimen name="sp34">34.0sp</dimen>
+    <dimen name="sp35">35.0sp</dimen>
+    <dimen name="sp36">36.0sp</dimen>
+    <dimen name="sp37">37.0sp</dimen>
+    <dimen name="sp38">38.0sp</dimen>
+    <dimen name="sp39">39.0sp</dimen>
+    <dimen name="sp40">40.0sp</dimen>
+    <dimen name="sp41">41.0sp</dimen>
+    <dimen name="sp42">42.0sp</dimen>
+    <dimen name="sp43">43.0sp</dimen>
+    <dimen name="sp44">44.0sp</dimen>
+    <dimen name="sp45">45.0sp</dimen>
+    <dimen name="sp46">46.0sp</dimen>
+    <dimen name="sp47">47.0sp</dimen>
+    <dimen name="sp48">48.0sp</dimen>
+    <dimen name="sp49">49.0sp</dimen>
+    <dimen name="sp50">50.0sp</dimen>
+    <dimen name="sp51">51.0sp</dimen>
+    <dimen name="sp52">52.0sp</dimen>
+    <dimen name="sp53">53.0sp</dimen>
+    <dimen name="sp54">54.0sp</dimen>
+    <dimen name="sp55">55.0sp</dimen>
+    <dimen name="sp56">56.0sp</dimen>
+    <dimen name="sp57">57.0sp</dimen>
+    <dimen name="sp58">58.0sp</dimen>
+    <dimen name="sp59">59.0sp</dimen>
+    <dimen name="sp60">60.0sp</dimen>
+    <dimen name="sp61">61.0sp</dimen>
+    <dimen name="sp62">62.0sp</dimen>
+    <dimen name="sp63">63.0sp</dimen>
+    <dimen name="sp64">64.0sp</dimen>
+    <dimen name="sp65">65.0sp</dimen>
+    <dimen name="sp66">66.0sp</dimen>
+    <dimen name="sp67">67.0sp</dimen>
+    <dimen name="sp68">68.0sp</dimen>
+    <dimen name="sp69">69.0sp</dimen>
+    <dimen name="sp70">70.0sp</dimen>
     <!--
 Refer to App Widget Documentation for margin information
 http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout

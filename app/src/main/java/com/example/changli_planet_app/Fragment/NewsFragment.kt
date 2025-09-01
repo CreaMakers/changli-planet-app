@@ -1,14 +1,10 @@
 package com.example.changli_planet_app.Fragment
 
 import android.content.Intent
-import android.os.Bundle
-import android.util.Log
 import android.text.TextUtils
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,28 +17,33 @@ import com.example.changli_planet_app.Activity.PublishFreshNewsActivity
 import com.example.changli_planet_app.Activity.UserHomeActivity
 import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
 import com.example.changli_planet_app.Adapter.FreshNewsAdapter
-import com.example.changli_planet_app.Adapter.ViewHolder.FreshNewsItemViewHolder
+import com.example.changli_planet_app.Base.BaseFragment
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.MVI.observeState
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Network.Resource
 import com.example.changli_planet_app.Utils.GlideUtils
-import com.example.changli_planet_app.Widget.Dialog.ImageSliderDialog
+import com.example.changli_planet_app.Utils.ItemDecorationWrapper
 import com.example.changli_planet_app.Utils.PlanetConst
 import com.example.changli_planet_app.Utils.PlanetConst.RESULT_OK
+import com.example.changli_planet_app.Widget.Dialog.ImageSliderDialog
 import com.example.changli_planet_app.Widget.Dialog.ShowImageDialog
 import com.example.changli_planet_app.Widget.View.AddNewsFloats
-import com.example.changli_planet_app.Widget.View.CustomToast
 import com.example.changli_planet_app.databinding.FragmentNewsBinding
 import com.google.android.material.tabs.TabLayout
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.launch
 
-class NewsFragment : Fragment() {
-    private val TAG = javaClass.simpleName
+class NewsFragment : BaseFragment<FragmentNewsBinding>() {
 
-    private lateinit var binding: FragmentNewsBinding
+    companion object {
+        @JvmStatic
+        fun newInstance() = NewsFragment()
+        // 新鲜事每个item底部margin dp
+        private const val NEWS_ITEM_BOTTOM_MARGIN = 8f
+    }
+
     private val refreshLayout: SmartRefreshLayout by lazy { binding.refreshLayout }
     private val recyclerView: RecyclerView by lazy { binding.newsRecyclerView }
     private val avatar by lazy { binding.newsAvatar }
@@ -80,22 +81,17 @@ class NewsFragment : Fragment() {
             }
         }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentNewsBinding.inflate(layoutInflater)
-        initObserve()
-        initView()
-        return binding.root
+    override fun createViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentNewsBinding {
+        return FragmentNewsBinding.inflate(inflater, container, false)
     }
 
-    private fun initView() {
+    override fun initView() {
         addFloatView()
         mFloatView?.setOnClickListener {
             val intent = Intent(requireContext(), PublishFreshNewsActivity::class.java)
             startForResult.launch(intent)
         }
+
         adapter = FreshNewsAdapter(
             PlanetApplication.appContext,
             onImageClick = { imageList, position ->
@@ -107,22 +103,23 @@ class NewsFragment : Fragment() {
                 })
             },
             onMenuClick = { newsItem ->
+                // 菜单点击处理
             },
             onLikeClick = { newsItem ->
                 viewModel.processIntent(FreshNewsContract.Intent.LikeNews(newsItem))
             },
             onCommentClick = { newsItem ->
-
+                // 评论点击处理
             },
             onCollectClick = { newsItem ->
                 viewModel.processIntent(FreshNewsContract.Intent.FavoriteNews(newsItem))
             }
         )
+
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.apply {
             this.layoutManager = layoutManager
-            adapter = this@NewsFragment.adapter
-
+            this.adapter = this@NewsFragment.adapter
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
@@ -140,13 +137,18 @@ class NewsFragment : Fragment() {
                     }
                 }
             })
+            // 设置item的底部margin
+            addItemDecoration(
+                ItemDecorationWrapper.Builder(requireContext())
+                    .setVerticalMarginDp(0f, NEWS_ITEM_BOTTOM_MARGIN)
+                    .setMarginCondition { position, parent ->
+                        // 最后一个也不需要
+                        position != parent.adapter?.itemCount?.minus(1)
+                    }
+                    .build()
+            )
         }
-        refreshLayout.autoRefresh()
-    }
 
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         refreshLayout.setOnRefreshListener { refreshLayout ->
             page = 1
             hasMoreData = true
@@ -161,17 +163,16 @@ class NewsFragment : Fragment() {
                 refreshLayout.finishLoadMoreWithNoMoreData()
             }
         }
+
+        refreshLayout.autoRefresh()
     }
 
-    private fun loadMoreData() {
-        if (isLoading || !hasMoreData) return
-        isLoading = true
-        page++
-        refreshNewsList(page, pageSize)
+    override fun initData() {
+        // 数据初始化逻辑（如果有的话）
     }
 
-    private fun initObserve() {
-        lifecycleScope.launch {
+    override fun initObserve() {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.run {
                     observeState({ value.freshNewsList }) {
@@ -217,20 +218,19 @@ class NewsFragment : Fragment() {
         GlideUtils.load(this, avatar, UserInfoManager.userAvatar)
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            NewsFragment().apply {
-            }
-    }
-
-
     fun showImageDialog(imageUrl: String) {
         ShowImageDialog(requireContext(), imageUrl).show()
     }
 
     private fun refreshNewsList(page: Int, pageSize: Int) {
         viewModel.processIntent(FreshNewsContract.Intent.RefreshNewsByTime(page, pageSize))
+    }
+
+    private fun loadMoreData() {
+        if (isLoading || !hasMoreData) return
+        isLoading = true
+        page++
+        refreshNewsList(page, pageSize)
     }
 
     private fun addFloatView() {

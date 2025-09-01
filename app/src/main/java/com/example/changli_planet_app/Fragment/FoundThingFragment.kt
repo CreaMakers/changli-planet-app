@@ -15,7 +15,7 @@ import com.example.changli_planet_app.Data.jsonbean.LoseThing
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.FragmentFoundThingBinding
 import kotlin.concurrent.thread
-
+// TODO 暂时弃用
 class FoundThingFragment:Fragment() {
     private lateinit var binding:FragmentFoundThingBinding
     private lateinit var foundAdapter: FoundThingAdapter

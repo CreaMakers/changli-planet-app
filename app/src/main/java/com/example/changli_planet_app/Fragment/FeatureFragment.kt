@@ -1,15 +1,12 @@
 package com.example.changli_planet_app.Fragment
 
-
 import android.content.Context
-import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.changli_planet_app.Base.BaseFragment
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Interface.DrawerController
@@ -19,15 +16,7 @@ import com.example.changli_planet_app.databinding.FragmentFeatureBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-/**
- * A simple [Fragment] subclass.
- * Use the [FeatureFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class FeatureFragment : Fragment() {
-    private val TAG = "FeatureFragment"
-    private lateinit var binding: FragmentFeatureBinding
+class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
     private val featureAvatar by lazy { binding.featureAvatar }
     private var drawerController: DrawerController? = null
 
@@ -45,30 +34,36 @@ class FeatureFragment : Fragment() {
         super.onDetach()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun createViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentFeatureBinding {
+        return FragmentFeatureBinding.inflate(inflater, container, false)
+    }
+
+    override fun initView() {
         val start = System.currentTimeMillis()
-        binding = FragmentFeatureBinding.inflate(layoutInflater)
         setIcons()
+
         Looper.myQueue().addIdleHandler {
             setupClickListeners()
             false
         }
+        featureAvatar.setOnClickListener { drawerController?.openDrawer() }
+        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
+    }
+
+    override fun initData() {
+        // 保持原有的延迟加载头像逻辑
         lifecycleScope.launch {
             delay(1200)
             featureAvatar.load(UserInfoManager.userAvatar)
         }
-        featureAvatar.setOnClickListener { drawerController?.openDrawer() }
-        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
-        return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        featureAvatar.load(UserInfoManager.userAvatar)
+    }
 
     private fun setupClickListeners() {
-
         with(binding) {
             nmap.setOnClickListener { activity?.let { Route.goCampusMap(it) } }
             nelectronic.setOnClickListener { activity?.let { Route.goElectronic(it) } }
@@ -79,14 +74,8 @@ class FeatureFragment : Fragment() {
             nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
             nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
             accountbook.setOnClickListener { activity?.let { Route.goAccountBook(it) } }
-            ndocument.setOnClickListener {activity?.let { Route.goContract(it) }}
+            ndocument.setOnClickListener { activity?.let { Route.goContract(it) } }
         }
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        featureAvatar.load(UserInfoManager.userAvatar)
     }
 
     private fun setIcons() {
@@ -109,7 +98,6 @@ class FeatureFragment : Fragment() {
                     nclassroom to R.drawable.ic_classroom,
                     accountbook to R.drawable.account_book,
                     ndocument to R.drawable.ic_document
-
                 )
 
                 iconIds.forEach { (item, resId) ->
@@ -122,8 +110,5 @@ class FeatureFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() = FeatureFragment()
-
-
     }
-
 }
