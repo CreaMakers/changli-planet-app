@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Activity.TimeTableActivity">
+    tools:context=".Feature.timetable.ui.TimeTableActivity">
 
     <!-- 顶部头部布局 -->
     <include layout="@layout/time_table_header" />

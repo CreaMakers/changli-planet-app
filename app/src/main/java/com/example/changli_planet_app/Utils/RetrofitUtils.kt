@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.example.changli_planet_app.Activity.LoginActivity
+import com.example.changli_planet_app.Auth.ui.LoginActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Network.Interceptor.NetworkLogger
 import com.example.changli_planet_app.Network.OkHttpHelper.AuthInterceptor

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".Activity.CampusMapActivity">
+    tools:context=".Feature.common.ui.CampusMapActivity">
 
     <!-- 地图容器 -->
     <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView

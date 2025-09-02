@@ -12,7 +12,7 @@
         android:fitsSystemWindows="false"
         android:orientation="vertical"
         android:visibility="gone"
-        tools:context=".Fragment.ChatGroupFragment">
+        tools:context=".Discover.ui.ChatGroupFragment">
 
         <LinearLayout
             android:layout_width="match_parent"

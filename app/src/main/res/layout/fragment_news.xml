@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:paddingTop="@dimen/dp35"
     android:layout_height="match_parent"
-    tools:context=".Fragment.NewsFragment">
+    tools:context=".FreshNews.ui.NewsFragment">
 
     <LinearLayout
         android:id="@+id/news_search"

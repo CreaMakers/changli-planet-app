@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.AccountBookActivity">
+    tools:context=".Feature.ledgar.ui.AccountBookActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/card"
@@ -30,7 +30,7 @@
                 android:layout_width="@dimen/dp70"
                 android:layout_height="@dimen/dp70"
                 android:layout_marginEnd="@dimen/dp10"
-                android:src="@drawable/fulilian"
+                tools:src="@drawable/fulilian"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearance="@style/CircleStyle" />
@@ -42,7 +42,7 @@
                 android:text="我的资产"
                 android:textColor="@color/white"
                 android:textStyle="bold"
-                android:textSize="@dimen/dp25"
+                android:textSize="@dimen/sp25"
                 android:layout_marginTop="@dimen/dp5"
                 android:layout_marginStart="@dimen/dp10"
                 app:layout_constraintStart_toStartOf="parent"
@@ -51,7 +51,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2024-14-22"
+                tools:text="2024-14-22"
                 android:textColor="@color/white"
                 android:layout_marginTop="@dimen/dp8"
                 android:textSize="16sp"

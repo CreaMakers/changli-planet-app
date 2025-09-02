@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FBFBFD"
-    tools:context=".Activity.AddSomethingAccountActivity">
+    tools:context=".Feature.ledgar.ui.AddSomethingAccountActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/add_top"

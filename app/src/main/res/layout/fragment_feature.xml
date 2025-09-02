@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="@dimen/dp35"
-    tools:context=".Fragment.FeatureFragment">
+    tools:context=".Feature.common.ui.FeatureFragment">
 
     <ImageView
         android:id="@+id/planet_logo"

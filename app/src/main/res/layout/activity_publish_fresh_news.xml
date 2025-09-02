@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    tools:context=".Activity.PublishFreshNewsActivity">
+    tools:context=".FreshNews.ui.PublishFreshNewsActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

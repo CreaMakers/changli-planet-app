@@ -8,7 +8,7 @@
     android:animateLayoutChanges="false"
     android:hardwareAccelerated="true"
     app:elevation="0dp"
-    tools:context=".Activity.MainActivity">
+    tools:context=".Core.MainActivity">
 
     <!-- 主要内容 -->
     <androidx.constraintlayout.widget.ConstraintLayout
