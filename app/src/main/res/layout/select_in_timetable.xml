@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.changli_planet_app.Widget.View.MaxHeightLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.changli_planet_app.widget.View.MaxHeightLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/maxHeightLayout"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -34,4 +34,4 @@
         android:paddingTop="6dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-</com.example.changli_planet_app.Widget.View.MaxHeightLinearLayout>
+</com.example.changli_planet_app.widget.View.MaxHeightLinearLayout>

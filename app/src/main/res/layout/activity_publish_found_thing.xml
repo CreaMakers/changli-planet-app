@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Activity.PublishFoundThingActivity">
+    tools:context=".feature.lostfound.ui.PublishFoundThingActivity">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

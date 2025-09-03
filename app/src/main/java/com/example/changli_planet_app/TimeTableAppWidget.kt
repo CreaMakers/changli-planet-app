@@ -8,17 +8,17 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import com.example.changli_planet_app.Activity.MainActivity
-import com.example.changli_planet_app.Activity.Store.TimeTableStore.weekJsonInfo
-import com.example.changli_planet_app.Cache.Room.entity.MySubject
-import com.example.changli_planet_app.Cache.StudentInfoManager
-import com.example.changli_planet_app.Core.PlanetApplication
-import com.example.changli_planet_app.Data.CommonInfo
-import com.example.changli_planet_app.Network.HttpUrlHelper
-import com.example.changli_planet_app.Network.OkHttpHelper
-import com.example.changli_planet_app.Network.RequestCallback
-import com.example.changli_planet_app.Network.Response.Course
-import com.example.changli_planet_app.Network.Response.MyResponse
+import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
+import com.example.changli_planet_app.core.MainActivity
+import com.example.changli_planet_app.core.PlanetApplication
+import com.example.changli_planet_app.core.network.HttpUrlHelper
+import com.example.changli_planet_app.core.network.MyResponse
+import com.example.changli_planet_app.core.network.OkHttpHelper
+import com.example.changli_planet_app.core.network.listener.RequestCallback
+import com.example.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
+import com.example.changli_planet_app.feature.common.data.remote.dto.Course
+import com.example.changli_planet_app.feature.common.redux.store.TimeTableStore.weekJsonInfo
+import com.example.changli_planet_app.feature.timetable.data.CommonInfo
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
@@ -118,7 +118,7 @@ internal fun updateAppWidget(
             4 -> "周四"
             5 -> "周五"
             6 -> "周六"
-            else -> "周天"
+            else -> "周日"
         }
     )
     Log.d(TAG, "curTerm: $curTerm currentMonthAndDay: $currentMonthAndDay curWeekDay: $curWeekDay")
@@ -202,10 +202,10 @@ internal fun updateAppWidget(
     }
 }
 
-private fun getCourseInfo(callback: (List<MySubject>?) -> Unit) {
-    val subjects = mutableListOf<MySubject>()
+private fun getCourseInfo(callback: (List<TimeTableMySubject>?) -> Unit) {
+    val subjects = mutableListOf<TimeTableMySubject>()
     if (!isRefresh) {
-        callback(OkHttpHelper.gson.fromJson(courses, object : TypeToken<List<MySubject>>() {}.type))
+        callback(OkHttpHelper.gson.fromJson(courses, object : TypeToken<List<TimeTableMySubject>>() {}.type))
         return
     }
     val httpUrlHelper = HttpUrlHelper.HttpRequest()
@@ -251,7 +251,7 @@ private fun getCourseInfo(callback: (List<MySubject>?) -> Unit) {
             }
         })
         if (isSuccess) return
-        callback(OkHttpHelper.gson.fromJson(courses, object : TypeToken<List<MySubject>>() {}.type))
+        callback(OkHttpHelper.gson.fromJson(courses, object : TypeToken<List<TimeTableMySubject>>() {}.type))
     }
 }
 
@@ -301,14 +301,14 @@ private fun getCurrentWeek(): Int {
     }
 }
 
-private fun generateSubjects(courses: List<Course>, newTerm: String): MutableList<MySubject> {
-    val subjects = mutableListOf<MySubject>()
+private fun generateSubjects(courses: List<Course>, newTerm: String): MutableList<TimeTableMySubject> {
+    val subjects = mutableListOf<TimeTableMySubject>()
     courses.forEach {
         val weeks = parseWeeks(it.weeks).weeks
         val start = parseWeeks(it.weeks).start
         val step = parseWeeks(it.weeks).step
         subjects.add(
-            MySubject(
+            TimeTableMySubject(
                 courseName = it.courseName,
                 classroom = it.classroom,
                 teacher = it.teacher,

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#F6F9FE"
     android:orientation="vertical"
-    tools:context=".Activity.BindingUserActivity">
+    tools:context=".settings.ui.BindingUserActivity">
 
     <LinearLayout
         android:id="@+id/toolbar"

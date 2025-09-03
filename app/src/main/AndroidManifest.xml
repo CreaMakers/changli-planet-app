@@ -20,7 +20,7 @@
         android:required="false" />
 
     <application
-        android:name=".Core.PlanetApplication"
+        android:name=".core.PlanetApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:forceDarkAllowed="false"
@@ -49,75 +49,72 @@
         </receiver>
 
         <service
-            android:name=".Service.DownloadService"
+            android:name=".common.service.DownloadService"
             android:enabled="true"
             android:foregroundServiceType="dataSync"
-            android:exported="true"></service>
-      
+            android:exported="true"/>
+
         <activity
-            android:name=".Activity.NewsDetailActivity"
+            android:name=".freshNews.ui.UserHomeActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.UserHomeActivity"
+            android:name=".settings.ui.ChangeEmailActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.ChangeEmailActivity"
+            android:name=".auth.ui.ForgetPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.ForgetPasswordActivity"
+            android:name=".auth.ui.LoginByEmailActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.LoginByEmailActivity"
+            android:name=".auth.ui.BindEmailActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.BindEmailActivity"
+            android:name=".feature.common.ui.ContractActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.ContractActivity"
+            android:name=".feature.ledger.ui.FixSomethingAccountActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.FixSomethingAccountActivity"
+            android:name=".feature.ledger.ui.AddSomethingAccountActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.AddSomethingAccountActivity"
+            android:name=".feature.ledger.ui.AccountBookActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.AccountBookActivity"
+            android:name=".freshNews.ui.PublishFreshNewsActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.PublishFreshNewsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Activity.CampusMapActivity"
+            android:name=".feature.common.ui.CampusMapActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".Core.FullScreenActivity"
+            android:name=".base.FullScreenActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.ClassInfoActivity"
+            android:name=".feature.common.ui.ClassInfoActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.CityActivity"
+            android:name=".settings.ui.CityActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.PublishFoundThingActivity"
+            android:name=".feature.lostfound.ui.PublishFoundThingActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.PublishLoseThingActivity"
+            android:name=".feature.lostfound.ui.PublishLoseThingActivity"
             android:exported="false" />
         <activity
-            android:name=".Activity.ScoreInquiryActivity"
+            android:name=".feature.common.ui.ScoreInquiryActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.ScoreInquiryActivity"
+            android:name=".feature.common.ui.ScoreInquiryActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.ProvinceActivity"
+            android:name=".settings.ui.ProvinceActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
@@ -135,49 +132,49 @@
         </provider>
 
         <activity
-            android:name=".Activity.UserProfileActivity"
+            android:name=".settings.ui.UserProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.AccountSecurityActivity"
+            android:name=".settings.ui.AccountSecurityActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.TimeTableActivity"
+            android:name=".feature.timetable.ui.TimeTableActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.AddCourseActivity"
+            android:name=".feature.ledger.ui.AddCourseActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.BindingUserActivity"
+            android:name=".settings.ui.BindingUserActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.MandeActivity"
+            android:name=".feature.common.ui.MandeActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.CetActivity"
+            android:name=".feature.common.ui.CetActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:usesCleartextTraffic="true" />
         <activity
-            android:name=".Activity.ExamArrangementActivity"
+            android:name=".feature.common.ui.ExamArrangementActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.RegisterActivity"
+            android:name=".auth.ui.RegisterActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.LoseActivity"
+            android:name=".feature.lostfound.ui.LoseActivity"
             android:exported="false"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.MainActivity"
+            android:name=".core.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -187,15 +184,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activity.ElectronicActivity"
+            android:name=".feature.common.ui.ElectronicActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.LoginActivity"
+            android:name=".auth.ui.LoginActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Activity.SplashActivity"
+            android:name=".common.ui.SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">

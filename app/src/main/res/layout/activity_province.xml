@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/background_grey"
-    tools:context=".Activity.ProvinceActivity">
+    tools:context=".settings.ui.ProvinceActivity">
 
     <LinearLayout
         android:id="@+id/toolbar"
