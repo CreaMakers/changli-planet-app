@@ -10,6 +10,7 @@ import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnLayout
 import com.example.changli_planet_app.core.PlanetApplication
 
 object ResourceUtil {
@@ -17,26 +18,14 @@ object ResourceUtil {
         get() = PlanetApplication.appContext.resources
 
     fun getImageSize(imageView: ImageView): Pair<Int, Int> {
-        val lp = imageView.layoutParams
-        var currentWidth = if (lp.width > 0) lp.width else 0
-        var currentHeight = if (lp.height > 0) lp.height else 0
-        if (currentHeight == 0 && currentWidth == 0) {
-            val observer = imageView.viewTreeObserver
-            // 添加全局布局监听器
-            observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    if (!observer.isAlive) return
-                    Log.d("GlideUtil", "width: ${imageView.width}, height: ${imageView.height}")
+        var currentWidth =  0
+        var currentHeight =  0
 
-                    currentWidth = imageView.width
-                    currentHeight = imageView.height
-
-                    if (currentWidth > 0 && currentHeight > 0) {
-                        observer.removeOnGlobalLayoutListener(this)
-                    }
-                }
-            })
+        imageView.doOnLayout {
+            currentHeight = imageView.height
+            currentWidth = imageView.width
         }
+
         return currentWidth to currentHeight
     }
 
