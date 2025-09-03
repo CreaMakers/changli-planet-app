@@ -24,8 +24,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class LoginByEmailActivity : FullScreenActivity() {
-    private lateinit var binding:ActivityLoginByEmailBinding
+class LoginByEmailActivity : FullScreenActivity<ActivityLoginByEmailBinding>() {
     private val email:EditText by lazy { binding.email }
     private val captcha:EditText by lazy { binding.captcha }
     private val getCaptcha:TextView by lazy { binding.getCaptcha }
@@ -34,13 +33,12 @@ class LoginByEmailActivity : FullScreenActivity() {
     private val forgetPassword:TextView by lazy { binding.forget }
     private val loginByAccount:TextView by lazy { binding.loginAccount }
     private val route: TextView by lazy { binding.route }
-    private val disposables by lazy { CompositeDisposable() }
     val store=LoginAndRegisterStore()
+
+    override fun createViewBinding(): ActivityLoginByEmailBinding = ActivityLoginByEmailBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding=ActivityLoginByEmailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         initListener()
         setUnderLine()
         setTextWatcher()

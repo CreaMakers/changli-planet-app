@@ -51,8 +51,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class PublishFreshNewsActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityPublishFreshNewsBinding
+class PublishFreshNewsActivity : FullScreenActivity<ActivityPublishFreshNewsBinding>() {
     private val viewModel: FreshNewsViewModel by viewModels()
     private var currentPhotoUri: Uri? = null
     private val maxImagesAll = 9
@@ -64,11 +63,11 @@ class PublishFreshNewsActivity : FullScreenActivity() {
         private const val COMPRESS_QUALITY = 85
     }
 
+    override fun createViewBinding(): ActivityPublishFreshNewsBinding = ActivityPublishFreshNewsBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         EventBus.getDefault().register(this)
-        binding = ActivityPublishFreshNewsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         maxImageSize = dpToPx(115)          //给maxImageSize赋addImage大小的初值
 
         setContentMinHeight()

@@ -20,20 +20,17 @@ import org.greenrobot.eventbus.Subscribe
 /**
  * 绑定邮箱页面
  */
-class BindEmailActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityBindEmailBinding
-
+class BindEmailActivity : FullScreenActivity<ActivityBindEmailBinding>() {
     private val email: EditText by lazy { binding.email }
     private val captcha: EditText by lazy { binding.captcha }
     private val getCaptcha: TextView by lazy { binding.getCaptcha }
     private val store = LoginAndRegisterStore()
     private val bindButton: TextView by lazy { binding.bind }
-    private val disposables by lazy { CompositeDisposable() }
+
+    override fun createViewBinding(): ActivityBindEmailBinding = ActivityBindEmailBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityBindEmailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         initObserve()
         initTextWatcher()
         val account=intent.getStringExtra("username")?:""

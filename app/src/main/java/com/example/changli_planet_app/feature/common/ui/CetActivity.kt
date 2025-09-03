@@ -24,18 +24,16 @@ import com.google.android.material.snackbar.Snackbar
 /**
  * 四六级查询
  */
-class CetActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityCetBinding
+class CetActivity : FullScreenActivity<ActivityCetBinding>() {
     private val webView: WebView by lazy { binding.webView }
     private val back: ImageView by lazy { binding.back }
     private val progressBar: ProgressBar by lazy { binding.progressBar }
     private val initialUrl = "https://cjcx.neea.edu.cn/html1/folder/21033/653-1.htm"
 
+    override fun createViewBinding(): ActivityCetBinding = ActivityCetBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCetBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())

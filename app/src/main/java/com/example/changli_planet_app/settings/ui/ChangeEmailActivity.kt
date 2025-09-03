@@ -25,8 +25,7 @@ import org.greenrobot.eventbus.Subscribe
 /**
  * 更改邮箱
  */
-class ChangeEmailActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityChangeEmailBinding
+class ChangeEmailActivity : FullScreenActivity<ActivityChangeEmailBinding>() {
 
     private val back: ImageView by lazy { binding.backBtn }
     private val curPassword: EditText by lazy { binding.curPassword }
@@ -36,12 +35,11 @@ class ChangeEmailActivity : FullScreenActivity() {
     private val change: TextView by lazy { binding.changeEmailBtn }
 
     private val store= ChangeEmailStore()
-    private val disposables by lazy { CompositeDisposable() }
+
+    override fun createViewBinding(): ActivityChangeEmailBinding = ActivityChangeEmailBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityChangeEmailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(

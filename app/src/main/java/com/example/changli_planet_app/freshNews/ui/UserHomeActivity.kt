@@ -24,10 +24,7 @@ import kotlinx.coroutines.launch
 /**
  * 新鲜事个人主页页面
  */
-class UserHomeActivity : FullScreenActivity() {
-    private val binding by lazy(LazyThreadSafetyMode.NONE) {
-        ActivityUserHomeBinding.inflate(layoutInflater)
-    }
+class UserHomeActivity : FullScreenActivity<ActivityUserHomeBinding>() {
 
     private val appBarLayout: NestCollapsingToolbarLayout by lazy(LazyThreadSafetyMode.NONE) { binding.toolbarLayout }
     private val llSmallAuthor by lazy(LazyThreadSafetyMode.NONE) { binding.llSmallAuthor }
@@ -44,6 +41,8 @@ class UserHomeActivity : FullScreenActivity() {
     private var curAccount: String = ""
     private var curAvatarUrl: String = ""
     private var userId: Int = -1
+
+    override fun createViewBinding(): ActivityUserHomeBinding = ActivityUserHomeBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

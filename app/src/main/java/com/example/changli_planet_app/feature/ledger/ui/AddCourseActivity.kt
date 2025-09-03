@@ -23,11 +23,10 @@ import kotlinx.coroutines.launch
 /**
  * 在课表中添加自定义课程类
  */
-class AddCourseActivity : FullScreenActivity() {
+class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding>() {
     lateinit var coursesDataBase: CoursesDataBase
     lateinit var timeTableStore: TimeTableStore
     private val gson by lazy { Gson() }
-    private val binding by lazy { ActivityAddCourseInTimetableBinding.inflate(layoutInflater) }
     private val courseName by lazy { binding.customCourseName }
     private val courseRoom by lazy { binding.customCourseRoom }
     private val courseTeacher by lazy { binding.customTeacherName }
@@ -45,6 +44,8 @@ class AddCourseActivity : FullScreenActivity() {
         6 to "周六",
         7 to "周日"
     )
+
+    override fun createViewBinding(): ActivityAddCourseInTimetableBinding = ActivityAddCourseInTimetableBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

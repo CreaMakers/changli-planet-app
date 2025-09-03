@@ -26,15 +26,15 @@ import org.greenrobot.eventbus.Subscribe
 /**
  * 绑定用户类
  */
-class BindingUserActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityBindingUserBinding
+class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
     private val username: TextView by lazy { binding.etStudentId }
     private val password: TextView by lazy { binding.etStudentPassword }
     private val back: ImageView by lazy { binding.bindingBack }
     private val save: MaterialButton by lazy { binding.saveUser }
 
-    private val disposables by lazy { CompositeDisposable() }
     private val store = UserStore()
+
+    override fun createViewBinding(): ActivityBindingUserBinding = ActivityBindingUserBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,8 +56,6 @@ class BindingUserActivity : FullScreenActivity() {
     }
 
     private fun initView() {
-        binding = ActivityBindingUserBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         EventBus.getDefault().register(this)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->

@@ -30,6 +30,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.TimeTableAppWidget
+import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.common.api.DrawerController
 import com.example.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.example.changli_planet_app.common.pool.TabAnimationPool
@@ -53,9 +54,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), DrawerController {
+class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController {
 
-    private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
 
     private val fragments = mutableMapOf<Int, Fragment>()
@@ -90,7 +90,6 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     private var isDrawerAnimating = false
 
-    private val disposables by lazy { CompositeDisposable() }
 
     private val store by lazy { UserStore() }
 
@@ -133,6 +132,8 @@ class MainActivity : AppCompatActivity(), DrawerController {
         refreshWidget()
     }
 
+    override fun createViewBinding(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken)) {
             Route.goLogin(this@MainActivity)
@@ -141,11 +142,8 @@ class MainActivity : AppCompatActivity(), DrawerController {
         }
         setCustomDensity(this, application, 412)
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
         val start = System.currentTimeMillis()
         PlanetApplication.Companion.startTime = System.currentTimeMillis()
-        setContentView(binding.root)
         drawerLayout = binding.drawerLayout
         ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
