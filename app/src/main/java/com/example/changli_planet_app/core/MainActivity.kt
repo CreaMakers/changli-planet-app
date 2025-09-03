@@ -30,7 +30,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.TimeTableAppWidget
-import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.common.api.DrawerController
 import com.example.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.example.changli_planet_app.common.pool.TabAnimationPool
@@ -55,6 +54,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), DrawerController {
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
 
@@ -141,10 +141,11 @@ class MainActivity : AppCompatActivity(), DrawerController {
         }
         setCustomDensity(this, application, 412)
         super.onCreate(savedInstanceState)
-        val start = System.currentTimeMillis()
+        enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        val start = System.currentTimeMillis()
         PlanetApplication.Companion.startTime = System.currentTimeMillis()
+        setContentView(binding.root)
         drawerLayout = binding.drawerLayout
         ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
