@@ -18,7 +18,7 @@ import com.example.changli_planet_app.core.network.listener.RequestCallback
 import com.example.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
 import com.example.changli_planet_app.feature.common.data.remote.dto.Course
 import com.example.changli_planet_app.feature.common.redux.store.TimeTableStore.weekJsonInfo
-import com.example.changli_planet_app.feature.timetable.data.CommonInfo
+import com.example.changli_planet_app.common.cache.CommonInfo
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import okhttp3.Response

@@ -42,7 +42,7 @@ import com.example.changli_planet_app.feature.common.listener.ScrollController
 import com.example.changli_planet_app.feature.common.redux.store.TimeTableStore
 import com.example.changli_planet_app.feature.ledger.ui.AddCourseActivity
 import com.example.changli_planet_app.feature.timetable.action.TimeTableAction
-import com.example.changli_planet_app.feature.timetable.data.CommonInfo
+import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.utils.dp2Px
 import com.example.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.widget.Dialog.TimetableWheelBottomDialog
@@ -59,7 +59,6 @@ import com.zhuangfei.timetable.listener.OnItemLongClickAdapter
 import com.zhuangfei.timetable.listener.OnSlideBuildAdapter
 import com.zhuangfei.timetable.model.Schedule
 import com.zhuangfei.timetable.model.ScheduleSupport
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
