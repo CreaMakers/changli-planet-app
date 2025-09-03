@@ -2,12 +2,12 @@ package com.example.changli_planet_app.Widget.Dialog
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.text.method.ScrollingMovementMethod
 import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
 import com.example.changli_planet_app.Base.BaseDialog
+import com.example.changli_planet_app.Common.service.DownloadService
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.Service.DownloadService
 
 
 class UpdateDialog(
@@ -21,7 +21,7 @@ class UpdateDialog(
     private lateinit var tvUpdateContent: TextView
 
     override fun init() {//初始化ui
-        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         window?.setWindowAnimations(R.style.DialogAnimation)
         tvUpdateContent = findViewById(R.id.update_content)
 
@@ -40,8 +40,4 @@ class UpdateDialog(
     }
 
     override fun layoutId(): Int = R.layout.update_dialog
-
-
-
-
 }

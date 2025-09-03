@@ -5,7 +5,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityLoseBinding
 import com.google.android.material.tabs.TabLayout

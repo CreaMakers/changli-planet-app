@@ -8,10 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.example.changli_planet_app.Adapter.FoundThingAdapter
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.FoundThing
 import com.example.changli_planet_app.Data.jsonbean.LoseThing
+import com.example.changli_planet_app.Feature.lostfound.ui.adapter.FoundThingAdapter
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.FragmentFoundThingBinding
 import kotlin.concurrent.thread

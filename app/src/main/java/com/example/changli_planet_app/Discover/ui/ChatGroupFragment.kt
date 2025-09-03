@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.Adapter.ChatGroupLeftItemAdapter
-import com.example.changli_planet_app.Adapter.ChatGroupRightAdapter
 import com.example.changli_planet_app.Data.jsonbean.ChatGroupItem
 import com.example.changli_planet_app.Data.jsonbean.ChatGroupLeftItem
+import com.example.changli_planet_app.Discover.ui.adapter.ChatGroupLeftItemAdapter
+import com.example.changli_planet_app.Discover.ui.adapter.ChatGroupRightAdapter
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.FragmentChatGroupBinding
 

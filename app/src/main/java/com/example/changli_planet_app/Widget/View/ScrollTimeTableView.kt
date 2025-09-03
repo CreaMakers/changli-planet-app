@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
-import com.example.changli_planet_app.Activity.Action.TimeTableAction
 import com.example.changli_planet_app.Interface.ScrollController
 import com.zhuangfei.timetable.TimetableView
 

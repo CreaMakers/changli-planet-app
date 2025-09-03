@@ -8,8 +8,7 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.Adapter.ClassInfoAdapter
-import com.example.changli_planet_app.Adapter.EmptyClassroomAdapter
+import com.example.changli_planet_app.Feature.common.ui.adapter.EmptyClassroomAdapter
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.View.DividerItemDecoration
 

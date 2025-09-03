@@ -10,10 +10,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.ElectronicAction
-import com.example.changli_planet_app.Activity.Store.ElectronicStore
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.Data.jsonbean.CheckElectricity
+import com.example.changli_planet_app.Feature.common.action.ElectronicAction
+import com.example.changli_planet_app.Feature.common.store.ElectronicStore
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Widget.Dialog.WheelBottomDialog
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding

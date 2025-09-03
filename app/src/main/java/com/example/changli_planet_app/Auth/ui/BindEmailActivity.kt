@@ -5,9 +5,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.TextView
-import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
-import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Auth.action.LoginAndRegisterAction
+import com.example.changli_planet_app.Auth.store.LoginAndRegisterStore
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.Core.noOpDelegate
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.Event.FinishEvent

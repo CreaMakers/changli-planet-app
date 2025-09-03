@@ -9,10 +9,10 @@ import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.UserAction
-import com.example.changli_planet_app.Activity.Store.UserStore
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.Cache.StudentInfoManager
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Common.action.UserAction
+import com.example.changli_planet_app.Common.store.UserStore
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.Event.FinishEvent

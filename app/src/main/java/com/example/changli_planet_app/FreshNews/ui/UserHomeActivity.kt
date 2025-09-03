@@ -11,8 +11,8 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.changli_planet_app.Activity.ViewModel.UserHomeViewModel
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Base.FullScreenActivity
+import com.example.changli_planet_app.FreshNews.viewModel.UserHomeViewModel
 import com.example.changli_planet_app.Network.Resource
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.GlideUtils

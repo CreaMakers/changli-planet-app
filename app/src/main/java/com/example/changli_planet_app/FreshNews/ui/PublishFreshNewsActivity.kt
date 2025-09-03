@@ -28,10 +28,10 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.changli_planet_app.Activity.Contract.FreshNewsContract
-import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.Core.PlanetApplication
+import com.example.changli_planet_app.FreshNews.contract.FreshNewsContract
+import com.example.changli_planet_app.FreshNews.viewModel.FreshNewsViewModel
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.PlanetConst
 import com.example.changli_planet_app.Utils.singleClick

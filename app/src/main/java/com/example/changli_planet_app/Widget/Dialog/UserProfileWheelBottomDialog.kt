@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.Activity.Store.UserStore
-import com.example.changli_planet_app.Adapter.UserProfileSelectorAdapter
+import com.example.changli_planet_app.Common.store.UserStore
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Settings.ui.adapter.UserProfileSelectorAdapter
 import com.example.changli_planet_app.Utils.Event.SelectEvent
 import com.example.changli_planet_app.Utils.EventBusLifecycleObserver
 import com.example.changli_planet_app.Widget.View.DividerItemDecoration

@@ -15,9 +15,9 @@ import com.example.changli_planet_app.Feature.common.ui.ElectronicActivity
 import com.example.changli_planet_app.Feature.common.ui.ExamArrangementActivity
 import com.example.changli_planet_app.Feature.common.ui.MandeActivity
 import com.example.changli_planet_app.Feature.common.ui.ScoreInquiryActivity
-import com.example.changli_planet_app.Feature.ledgar.ui.AccountBookActivity
-import com.example.changli_planet_app.Feature.ledgar.ui.AddSomethingAccountActivity
-import com.example.changli_planet_app.Feature.ledgar.ui.FixSomethingAccountActivity
+import com.example.changli_planet_app.Feature.ledger.ui.AccountBookActivity
+import com.example.changli_planet_app.Feature.ledger.ui.AddSomethingAccountActivity
+import com.example.changli_planet_app.Feature.ledger.ui.FixSomethingAccountActivity
 import com.example.changli_planet_app.Feature.lostfound.ui.LoseActivity
 import com.example.changli_planet_app.Feature.lostfound.ui.PublishFoundThingActivity
 import com.example.changli_planet_app.Feature.lostfound.ui.PublishLoseThingActivity

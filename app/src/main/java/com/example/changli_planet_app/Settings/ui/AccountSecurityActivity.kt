@@ -15,12 +15,12 @@ import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.AccountSecurityAction
-import com.example.changli_planet_app.Activity.Store.AccountSecurityStore
+import com.example.changli_planet_app.Auth.action.AccountSecurityAction
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.Cache.UserInfoManager
-import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Settings.store.AccountSecurityStore
 import com.example.changli_planet_app.Utils.Event.FinishEvent
 import com.example.changli_planet_app.databinding.ActivityAccountSecurityBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

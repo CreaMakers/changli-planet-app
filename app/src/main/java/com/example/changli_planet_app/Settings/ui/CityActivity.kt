@@ -5,9 +5,9 @@ import android.os.Bundle
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.changli_planet_app.Adapter.CityAdapter
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.Data.model.LocationDataSource
+import com.example.changli_planet_app.Settings.ui.adapter.CityAdapter
 import com.example.changli_planet_app.Widget.View.DividerItemDecoration
 import com.example.changli_planet_app.databinding.ActivityCityBinding
 

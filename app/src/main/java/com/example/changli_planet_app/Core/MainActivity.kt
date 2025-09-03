@@ -28,9 +28,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.changli_planet_app.Activity.Action.UserAction
-import com.example.changli_planet_app.Activity.Store.UserStore
 import com.example.changli_planet_app.Cache.UserInfoManager
+import com.example.changli_planet_app.Common.action.UserAction
+import com.example.changli_planet_app.Common.store.UserStore
 import com.example.changli_planet_app.Discover.ui.ChatGroupFragment
 import com.example.changli_planet_app.Feature.common.ui.FeatureFragment
 import com.example.changli_planet_app.FreshNews.ui.NewsFragment

@@ -12,14 +12,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.Activity.Contract.FreshNewsContract
-import com.example.changli_planet_app.Activity.ViewModel.FreshNewsViewModel
-import com.example.changli_planet_app.Adapter.FreshNewsAdapter
 import com.example.changli_planet_app.Base.BaseFragment
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Core.MVI.observeState
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
+import com.example.changli_planet_app.FreshNews.contract.FreshNewsContract
+import com.example.changli_planet_app.FreshNews.ui.adapter.FreshNewsAdapter
+import com.example.changli_planet_app.FreshNews.viewModel.FreshNewsViewModel
 import com.example.changli_planet_app.Network.Resource
 import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.Utils.ItemDecorationWrapper

@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.Adapter.ClassInfoAdapter
+import com.example.changli_planet_app.Feature.common.ui.adapter.ClassInfoAdapter
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.Event.SelectEvent
 import com.example.changli_planet_app.Utils.EventBusLifecycleObserver

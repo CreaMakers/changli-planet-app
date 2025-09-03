@@ -14,8 +14,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.Adapter.PdfRenderAdapter
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Base.FullScreenActivity
+import com.example.changli_planet_app.Feature.common.ui.adapter.PdfRenderAdapter
 import com.example.changli_planet_app.databinding.ActivityContractBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -49,7 +49,7 @@
         </receiver>
 
         <service
-            android:name=".Service.DownloadService"
+            android:name=".Common.service.DownloadService"
             android:enabled="true"
             android:foregroundServiceType="dataSync"
             android:exported="true"></service>
@@ -73,13 +73,13 @@
             android:name=".Feature.common.ui.ContractActivity"
             android:exported="false" />
         <activity
-            android:name=".Feature.ledgar.ui.FixSomethingAccountActivity"
+            android:name=".Feature.ledger.ui.FixSomethingAccountActivity"
             android:exported="false" />
         <activity
-            android:name=".Feature.ledgar.ui.AddSomethingAccountActivity"
+            android:name=".Feature.ledger.ui.AddSomethingAccountActivity"
             android:exported="false" />
         <activity
-            android:name=".Feature.ledgar.ui.AccountBookActivity"
+            android:name=".Feature.ledger.ui.AccountBookActivity"
             android:exported="false" />
         <activity
             android:name=".FreshNews.ui.PublishFreshNewsActivity"
@@ -90,7 +90,7 @@
             android:exported="false"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".Core.FullScreenActivity"
+            android:name=".Base.FullScreenActivity"
             android:exported="false" />
         <activity
             android:name=".Feature.common.ui.ClassInfoActivity"
@@ -144,7 +144,7 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Feature.ledgar.ui.AddCourseActivity"
+            android:name=".Feature.ledger.ui.AddCourseActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity

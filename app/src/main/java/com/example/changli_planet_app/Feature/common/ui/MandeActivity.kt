@@ -17,7 +17,7 @@ import androidx.activity.addCallback
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityMandeBinding
 import com.google.android.material.snackbar.Snackbar

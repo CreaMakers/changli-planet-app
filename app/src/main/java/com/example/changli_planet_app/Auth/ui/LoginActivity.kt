@@ -16,11 +16,11 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.pm.PackageInfoCompat
-import com.example.changli_planet_app.Activity.Action.LoginAndRegisterAction
-import com.example.changli_planet_app.Activity.Action.UserAction
-import com.example.changli_planet_app.Activity.Store.LoginAndRegisterStore
-import com.example.changli_planet_app.Activity.Store.UserStore
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Auth.action.LoginAndRegisterAction
+import com.example.changli_planet_app.Auth.store.LoginAndRegisterStore
+import com.example.changli_planet_app.Base.FullScreenActivity
+import com.example.changli_planet_app.Common.action.UserAction
+import com.example.changli_planet_app.Common.store.UserStore
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Core.noOpDelegate
 import com.example.changli_planet_app.Data.jsonbean.UserPassword

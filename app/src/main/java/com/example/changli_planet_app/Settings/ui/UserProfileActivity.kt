@@ -18,9 +18,9 @@ import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.changli_planet_app.Activity.Action.UserAction
-import com.example.changli_planet_app.Activity.Store.UserStore
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Base.FullScreenActivity
+import com.example.changli_planet_app.Common.action.UserAction
+import com.example.changli_planet_app.Common.store.UserStore
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Core.Route
 import com.example.changli_planet_app.Data.jsonbean.UserProfileRequest

@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.Activity.Store.ElectronicStore
-import com.example.changli_planet_app.Adapter.SelectorAdapter
+import com.example.changli_planet_app.Feature.common.store.ElectronicStore
+import com.example.changli_planet_app.Feature.common.ui.adapter.SelectorAdapter
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.Utils.Event.SelectEvent
 import com.example.changli_planet_app.Utils.EventBusLifecycleObserver

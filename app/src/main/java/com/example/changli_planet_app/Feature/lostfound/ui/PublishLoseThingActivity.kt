@@ -7,8 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.LoseThingAction
-import com.example.changli_planet_app.Activity.Store.LoseThingStore
+import com.example.changli_planet_app.Feature.lostfound.action.LoseThingAction
+import com.example.changli_planet_app.Feature.lostfound.store.LoseThingStore
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityPublishLoseThingBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.ClassInfoAction
-import com.example.changli_planet_app.Activity.Store.ClassInfoStore
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.Cache.StudentInfoManager
-import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.Route
+import com.example.changli_planet_app.Feature.common.action.ClassInfoAction
+import com.example.changli_planet_app.Feature.common.store.ClassInfoStore
 import com.example.changli_planet_app.Widget.Dialog.ClassInfoBottomDialog
 import com.example.changli_planet_app.Widget.Picker.LessonPicker
 import com.example.changli_planet_app.Widget.View.CustomToast

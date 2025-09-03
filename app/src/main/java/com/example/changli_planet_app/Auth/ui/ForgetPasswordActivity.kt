@@ -5,11 +5,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.TextView
-import com.example.changli_planet_app.Activity.Action.AccountSecurityAction
-import com.example.changli_planet_app.Activity.Store.AccountSecurityStore
-import com.example.changli_planet_app.Core.FullScreenActivity
+import com.example.changli_planet_app.Auth.action.AccountSecurityAction
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.Core.noOpDelegate
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Settings.store.AccountSecurityStore
 import com.example.changli_planet_app.Utils.Event.FinishEvent
 import com.example.changli_planet_app.Utils.singleClick
 import com.example.changli_planet_app.databinding.ActivityForgetPasswordBinding

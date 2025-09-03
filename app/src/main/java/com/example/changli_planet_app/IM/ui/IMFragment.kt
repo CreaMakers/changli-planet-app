@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.Adapter.IMChatListAdapter
 import com.example.changli_planet_app.Cache.UserInfoManager
 import com.example.changli_planet_app.Data.jsonbean.ChatListItem
+import com.example.changli_planet_app.IM.ui.adapter.IMChatListAdapter
 import com.example.changli_planet_app.Interface.DrawerController
 import com.example.changli_planet_app.Utils.GlideUtils
 import com.example.changli_planet_app.databinding.FragmentIMBinding

@@ -1,0 +1,12 @@
+package com.example.changli_planet_app.Feature.lostfound.state
+
+import java.io.File
+
+data class LoseThingState(
+    var loseThingName:String="",
+    var loseThingDescribe:String="",
+    var loseThingPicture: File?=null,
+    var name:String="",
+    var phone:String="",
+    var isEnable:Boolean=false
+)

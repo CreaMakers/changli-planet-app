@@ -1,8 +1,5 @@
 package com.example.changli_planet_app.Network.Response
 
-import com.example.changli_planet_app.Adapter.ViewHolder.FreshNewsItemViewHolder
-import java.lang.ref.WeakReference
-
 data class FreshNews(
     val freshNewsId: Int,
     val userId: Int,

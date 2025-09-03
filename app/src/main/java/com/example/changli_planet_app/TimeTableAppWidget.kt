@@ -8,12 +8,12 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import com.example.changli_planet_app.Activity.Store.TimeTableStore.weekJsonInfo
 import com.example.changli_planet_app.Cache.Room.entity.MySubject
 import com.example.changli_planet_app.Cache.StudentInfoManager
 import com.example.changli_planet_app.Core.MainActivity
 import com.example.changli_planet_app.Core.PlanetApplication
 import com.example.changli_planet_app.Data.CommonInfo
+import com.example.changli_planet_app.Feature.common.store.TimeTableStore.weekJsonInfo
 import com.example.changli_planet_app.Network.HttpUrlHelper
 import com.example.changli_planet_app.Network.OkHttpHelper
 import com.example.changli_planet_app.Network.RequestCallback

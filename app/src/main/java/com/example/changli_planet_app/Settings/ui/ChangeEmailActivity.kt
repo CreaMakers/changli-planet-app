@@ -8,12 +8,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.ChangeEmailAction
-import com.example.changli_planet_app.Activity.Store.ChangeEmailStore
+import com.example.changli_planet_app.Base.FullScreenActivity
 import com.example.changli_planet_app.Cache.UserInfoManager
-import com.example.changli_planet_app.Core.FullScreenActivity
 import com.example.changli_planet_app.Core.noOpDelegate
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.Settings.action.ChangeEmailAction
+import com.example.changli_planet_app.Settings.store.ChangeEmailStore
 import com.example.changli_planet_app.Utils.Event.FinishEvent
 import com.example.changli_planet_app.Utils.singleClick
 import com.example.changli_planet_app.Widget.Dialog.NormalResponseDialog

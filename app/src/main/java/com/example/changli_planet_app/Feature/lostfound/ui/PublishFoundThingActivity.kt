@@ -7,8 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.changli_planet_app.Activity.Action.FoundThingAction
-import com.example.changli_planet_app.Activity.Store.FoundThingStore
+import com.example.changli_planet_app.Feature.lostfound.action.FoundThingAction
+import com.example.changli_planet_app.Feature.lostfound.store.FoundThingStore
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.databinding.ActivityPublishFoundThingBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
