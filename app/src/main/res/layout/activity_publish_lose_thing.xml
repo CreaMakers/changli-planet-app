@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".Feature.lostfound.ui.PublishLoseThingActivity"
+    tools:context=".feature.lostfound.ui.PublishLoseThingActivity"
     android:orientation="vertical">
 
     <LinearLayout

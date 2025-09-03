@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    tools:context=".Feature.common.ui.ContractActivity">
+    tools:context=".feature.common.ui.ContractActivity">
 
     <LinearLayout
         android:id="@+id/toolbar"

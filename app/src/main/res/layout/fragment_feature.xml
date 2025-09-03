@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="@dimen/dp35"
-    tools:context=".Feature.common.ui.FeatureFragment">
+    tools:context=".feature.common.ui.FeatureFragment">
 
     <ImageView
         android:id="@+id/planet_logo"
@@ -70,28 +70,28 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/dp15">
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ngrade"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="成绩查询" />
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ncourse"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="课表" />
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nmap"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="校园地图" />
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ncet"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -104,28 +104,28 @@
                 android:layout_height="wrap_content"
                 android:padding="15dp">
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ntest"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="考试安排" />
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ncalender"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="校历" />
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nelectronic"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="电费查询" />
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nmande"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -179,7 +179,7 @@
                 android:layout_height="wrap_content"
                 android:padding="15dp">
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nlose"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -187,21 +187,21 @@
                     app:itemTitle="失物招领" />
 
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nrank"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="学霸排行" />
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nclassroom"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="空闲教室" />
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/accountbook"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -216,7 +216,7 @@
                 android:layout_height="wrap_content"
                 android:padding="15dp">
 
-                <com.example.changli_planet_app.Widget.View.FunctionItem
+                <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ndocument"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"

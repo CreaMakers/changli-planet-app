@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/background_grey"
-    tools:context=".Settings.ui.CityActivity">
+    tools:context=".settings.ui.CityActivity">
 
     <LinearLayout
         android:id="@+id/toolbar"

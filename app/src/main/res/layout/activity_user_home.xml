@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:orientation="vertical"
-    tools:context=".FreshNews.ui.UserHomeActivity">
+    tools:context=".freshNews.ui.UserHomeActivity">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.example.changli_planet_app.Widget.View.NestCollapsingToolbarLayout
+            <com.example.changli_planet_app.widget.View.NestCollapsingToolbarLayout
                 android:id="@+id/toolbarLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -104,7 +104,7 @@
                         android:textColor="#2077F0"
                         android:textSize="15sp" />
                 </RelativeLayout>
-            </com.example.changli_planet_app.Widget.View.NestCollapsingToolbarLayout>
+            </com.example.changli_planet_app.widget.View.NestCollapsingToolbarLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

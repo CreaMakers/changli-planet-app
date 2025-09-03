@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/normal_background"
-    tools:context=".Feature.common.ui.ClassInfoActivity">
+    tools:context=".feature.common.ui.ClassInfoActivity">
 
     <LinearLayout
         android:id="@+id/toolbar2"
