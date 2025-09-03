@@ -54,8 +54,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController {
-
+class MainActivity : AppCompatActivity(), DrawerController {
+    private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
 
     private val fragments = mutableMapOf<Int, Fragment>()
@@ -90,6 +90,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
     private var isDrawerAnimating = false
 
+    private val disposables by lazy { CompositeDisposable() }
 
     private val store by lazy { UserStore() }
 
@@ -132,8 +133,6 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
         refreshWidget()
     }
 
-    override fun createViewBinding(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken)) {
             Route.goLogin(this@MainActivity)
@@ -143,6 +142,8 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
         setCustomDensity(this, application, 412)
         super.onCreate(savedInstanceState)
         val start = System.currentTimeMillis()
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         PlanetApplication.Companion.startTime = System.currentTimeMillis()
         drawerLayout = binding.drawerLayout
         ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { view, insets ->
