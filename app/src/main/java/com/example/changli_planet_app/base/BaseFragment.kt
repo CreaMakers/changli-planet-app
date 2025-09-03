@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.disposables.Disposable
 
 abstract class BaseFragment<VB : ViewBinding> : Fragment() {
 
@@ -20,7 +19,7 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
     protected lateinit var binding: VB
         private set
 
-    private val compositeDisposable = CompositeDisposable()
+    open val mDisposable = CompositeDisposable()
 
     /**
      * 子类必须实现此方法来创建ViewBinding实例
@@ -65,13 +64,6 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
     }
 
     /**
-     * 添加RxJava订阅到CompositeDisposable
-     */
-    protected fun addDisposable(disposable: Disposable) {
-        compositeDisposable.add(disposable)
-    }
-
-    /**
      * 显示加载对话框
      */
     protected open fun showLoading() {
@@ -94,11 +86,11 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        compositeDisposable.clear()
+        mDisposable.clear()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        compositeDisposable.dispose()
+        mDisposable.dispose()
     }
 }

@@ -26,22 +26,16 @@ import kotlinx.coroutines.launch
 /**
  * 记账本
  */
-class AccountBookActivity : FullScreenActivity() {
+class AccountBookActivity : FullScreenActivity<ActivityAccountBookBinding>() {
 
-    private val binding by lazy { ActivityAccountBookBinding.inflate(layoutInflater) }
     private val viewModel: AccountBookViewModel by viewModels()
     private var mFloatView: AddItemFloatView? = null
     private val avatar by lazy { binding.avatar }
 
+    override fun createViewBinding(): ActivityAccountBookBinding = ActivityAccountBookBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        setContentView(binding.root)
         GlideUtils.load(this,avatar,UserInfoManager.userAvatar,false) //加载用户头像
         handleEvents()
         showCatLoading()

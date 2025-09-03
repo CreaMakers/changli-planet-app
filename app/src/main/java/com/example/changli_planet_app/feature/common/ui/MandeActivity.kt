@@ -25,17 +25,16 @@ import com.google.android.material.snackbar.Snackbar
 /**
  * 普通话查询
  */
-class MandeActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityMandeBinding
+class MandeActivity : FullScreenActivity<ActivityMandeBinding>() {
     private val webView: WebView by lazy { binding.webView }
     private val back: ImageView by lazy { binding.back }
     private val progressBar: ProgressBar by lazy { binding.progressBar }
     private val initialUrl = "https://zwfw.moe.gov.cn/mandarin/"
 
+    override fun createViewBinding(): ActivityMandeBinding = ActivityMandeBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMandeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())

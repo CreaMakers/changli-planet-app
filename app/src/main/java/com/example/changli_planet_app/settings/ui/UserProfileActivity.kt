@@ -50,7 +50,7 @@ import java.util.Locale
 /**
  * 个人主页设置页面
  */
-class UserProfileActivity : FullScreenActivity() {
+class UserProfileActivity : FullScreenActivity<ActivityUserProfileBinding>() {
 
     companion object {
         private const val REQUEST_CAMERA = 1001
@@ -67,10 +67,7 @@ class UserProfileActivity : FullScreenActivity() {
 
     private var currentPhotoUri: Uri? = null
 
-    private lateinit var binding: ActivityUserProfileBinding
-
     private val store by lazy { UserStore() }
-    private val disposable by lazy { CompositeDisposable() }
 
     // xml view
     private val setAvatar by lazy { binding.personProfileSetAvatar }
@@ -119,10 +116,10 @@ class UserProfileActivity : FullScreenActivity() {
         "在职人员"
     )
 
+    override fun createViewBinding(): ActivityUserProfileBinding = ActivityUserProfileBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityUserProfileBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -175,7 +172,7 @@ class UserProfileActivity : FullScreenActivity() {
     }
 
     private fun observeState() {
-        disposable.add(
+        disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->

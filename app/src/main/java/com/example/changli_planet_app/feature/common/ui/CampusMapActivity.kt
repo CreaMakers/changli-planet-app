@@ -15,18 +15,17 @@ import com.example.changli_planet_app.databinding.ActivityCampusMapBinding
 /**
  * 校园地图
  */
-class CampusMapActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityCampusMapBinding
+class CampusMapActivity : FullScreenActivity<ActivityCampusMapBinding>() {
     private var currentMapIndex = 0
     private val mapResources = listOf(
         R.drawable.jincun_map,
         R.drawable.yuntang_map
     )
 
+    override fun createViewBinding(): ActivityCampusMapBinding = ActivityCampusMapBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCampusMapBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         setupMapView()
         setupMapSelector()

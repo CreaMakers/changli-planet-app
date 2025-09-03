@@ -31,10 +31,8 @@ import org.greenrobot.eventbus.Subscribe
 /**
  * 修改密码类
  */
-class AccountSecurityActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityAccountSecurityBinding
+class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBinding>() {
     private val bindingBack by lazy { binding.bindingBack }
-    private val disposables by lazy { CompositeDisposable() }
     private val curPasswordEt by lazy { binding.curPasswordEt }
     private val curPasswordImg by lazy { binding.curPasswordImg }
     private val newPasswordEt by lazy { binding.newPasswordEt }
@@ -47,6 +45,9 @@ class AccountSecurityActivity : FullScreenActivity() {
     private val containNumberIconImg by lazy { binding.containNumberIconImg }
     private val changePasswordBtn by lazy { binding.changePasswordBtn }
     private val store = AccountSecurityStore()
+
+    override fun createViewBinding(): ActivityAccountSecurityBinding = ActivityAccountSecurityBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initView()
@@ -56,8 +57,6 @@ class AccountSecurityActivity : FullScreenActivity() {
 
     private fun initView() {
         store.dispatch(AccountSecurityAction.initilaize)
-        binding = ActivityAccountSecurityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())

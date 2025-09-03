@@ -22,8 +22,7 @@ import kotlinx.coroutines.withContext
 /**
  * 添加记账本item类
  */
-class AddSomethingAccountActivity : FullScreenActivity() {
-    private val binding by lazy { ActivityAddSomethingAccountBinding.inflate(layoutInflater) }
+class AddSomethingAccountActivity : FullScreenActivity<ActivityAddSomethingAccountBinding>() {
     private val viewModel: AccountBookViewModel by viewModels()
     private val somethingName by lazy { binding.somethingNameEdit }
     private val somethingPrice by lazy { binding.somethingPriceEdit }
@@ -31,10 +30,10 @@ class AddSomethingAccountActivity : FullScreenActivity() {
     private val somethingType by lazy { binding.tvCategory }
     private val buyTime by lazy { binding.buyTimeEdit }
 
+    override fun createViewBinding(): ActivityAddSomethingAccountBinding = ActivityAddSomethingAccountBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.addTop) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
