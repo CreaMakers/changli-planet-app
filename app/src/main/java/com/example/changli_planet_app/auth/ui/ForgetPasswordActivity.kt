@@ -20,8 +20,7 @@ import org.greenrobot.eventbus.Subscribe
 /**
  * 找回密码页面
  */
-class ForgetPasswordActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityForgetPasswordBinding
+class ForgetPasswordActivity : FullScreenActivity<ActivityForgetPasswordBinding>() {
     private val email: EditText by lazy { binding.email }
     private val captcha: EditText by lazy { binding.captcha }
     private val getCaptcha: TextView by lazy { binding.getCaptcha }
@@ -29,12 +28,11 @@ class ForgetPasswordActivity : FullScreenActivity() {
     private val confirmPassword: EditText by lazy { binding.confirmPassword }
     private val change: TextView by lazy { binding.changePassword }
     private val store= AccountSecurityStore()
-    private val disposables by lazy { CompositeDisposable() }
+
+    override fun createViewBinding(): ActivityForgetPasswordBinding = ActivityForgetPasswordBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityForgetPasswordBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         initListener()
         initTextWatcher()
         EventBus.getDefault().register(this)

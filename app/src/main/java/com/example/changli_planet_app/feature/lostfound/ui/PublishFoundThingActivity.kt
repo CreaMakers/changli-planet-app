@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.databinding.ActivityPublishFoundThingBinding
 import com.example.changli_planet_app.feature.lostfound.redux.action.FoundThingAction
 import com.example.changli_planet_app.feature.lostfound.redux.store.FoundThingStore
@@ -16,14 +17,12 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 /**
  * 失误招领类
  */
-class PublishFoundThingActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityPublishFoundThingBinding
+class PublishFoundThingActivity : FullScreenActivity<ActivityPublishFoundThingBinding>() {
     private val store= FoundThingStore()
+    override fun createViewBinding(): ActivityPublishFoundThingBinding = ActivityPublishFoundThingBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding= ActivityPublishFoundThingBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)

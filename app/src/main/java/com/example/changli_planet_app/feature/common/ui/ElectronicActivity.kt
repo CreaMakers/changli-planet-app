@@ -24,12 +24,11 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 /**
  * 电费查询
  */
-class ElectronicActivity : FullScreenActivity() {
+class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
     companion object {
         val ALPHANUMERIC_REGEX = Regex("^[a-zA-Z0-9]*$")
     }
 
-    lateinit var binding: ActivityElectronicBinding
     private val mmkv by lazy { MMKV.defaultMMKV() }
     private val back: ImageView by lazy { binding.back }
     private val school: TextView by lazy { binding.school }
@@ -39,7 +38,6 @@ class ElectronicActivity : FullScreenActivity() {
     private val viewstub: ViewStub by lazy { binding.stubTv }
     private val queryText: TextView by lazy { viewstub.inflate().findViewById(R.id.tv_result) }
     private val electronicStore = ElectronicStore(this)
-    private val disposables by lazy { CompositeDisposable() }
     private val schoolList: List<String> by lazy {
         resources.getStringArray(R.array.school_location).toList()
     }
@@ -53,6 +51,8 @@ class ElectronicActivity : FullScreenActivity() {
         resources.getStringArray(R.array.dormitory).toList()
     }
 
+    override fun createViewBinding(): ActivityElectronicBinding = ActivityElectronicBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initView()
@@ -61,8 +61,6 @@ class ElectronicActivity : FullScreenActivity() {
     }
 
     private fun initView() {
-        binding = ActivityElectronicBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.query){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())

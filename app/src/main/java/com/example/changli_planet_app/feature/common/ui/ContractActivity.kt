@@ -26,8 +26,7 @@ import java.io.FileOutputStream
 /**
  * 文件库
  */
-class ContractActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityContractBinding
+class ContractActivity : FullScreenActivity<ActivityContractBinding>() {
     private val toolbar: LinearLayout by lazy { binding.toolbar }
     private val back: ImageView by lazy { binding.back }
     private val documentName: TextView by lazy { binding.documentName }
@@ -37,10 +36,10 @@ class ContractActivity : FullScreenActivity() {
     private lateinit var renderer: PdfRenderer
     private var fileName="本科学生手册（2024版）.pdf"
 
+    override fun createViewBinding(): ActivityContractBinding = ActivityContractBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityContractBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.main){ view, insets->
             val systemBars=insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.main.setPadding(view.paddingLeft,view.paddingTop,view.paddingRight,systemBars.bottom)

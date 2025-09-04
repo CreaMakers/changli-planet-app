@@ -31,23 +31,21 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 /**
  * 成绩查询页面
  */
-class ScoreInquiryActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityScoreInquiryBinding
+class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
     private val recyclerView: RecyclerView by lazy { binding.ScoreRecyclerView }
     private val refresh: ImageView by lazy { binding.refresh }
     private val examScoreAdapter by lazy { ExamScoreAdapter(store, this@ScoreInquiryActivity) }
     private val store = ScoreInquiryStore()
     private val back by lazy { binding.bindingBack }
-    private val disposables by lazy { CompositeDisposable() }
 
 
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
 
+    override fun createViewBinding(): ActivityScoreInquiryBinding = ActivityScoreInquiryBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityScoreInquiryBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(

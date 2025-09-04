@@ -33,8 +33,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class LoginActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityLoginBinding
+class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     private val Login: TextView by lazy { binding.login }
     private val route: TextView by lazy { binding.route }
     private val account: EditText by lazy { binding.account }
@@ -44,9 +43,11 @@ class LoginActivity : FullScreenActivity() {
     private val iVEye: ImageView by lazy { binding.ivEye }
     private val ivOx: ImageView by lazy { binding.ivOx }
     private val agreementCheckBox: CheckBox by lazy { binding.agreementCheckbox }
-    private val disposables by lazy { CompositeDisposable() }
     val store = LoginAndRegisterStore()
     val UserStore=UserStore()
+
+    override fun createViewBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initView()
@@ -71,8 +72,6 @@ class LoginActivity : FullScreenActivity() {
         }
     }
     private fun initView() {
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)// 设置Button的初始状态
         EventBus.getDefault().register(this)
         if (intent.getBooleanExtra("from_token_expired", false)) {
             ExpiredDialog(

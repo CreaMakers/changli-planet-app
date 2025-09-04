@@ -30,8 +30,7 @@ import java.util.Calendar
 /**
  * 考试安排查询
  */
-class ExamArrangementActivity : FullScreenActivity() {
-    lateinit var binding: ActivityExamArrangementBinding
+class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBinding>() {
     private val examRecyclerView: RecyclerView by lazy { binding.recyclerView }
     private val back: ImageView by lazy { binding.bindingBack }
     private val refresh: ImageView by lazy { binding.refresh }
@@ -40,7 +39,6 @@ class ExamArrangementActivity : FullScreenActivity() {
     private val cache by lazy { ExamArrangementCache(this) }
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
-    private val disposables by lazy { CompositeDisposable() }
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
         examRecyclerView.visibility = View.GONE
@@ -51,11 +49,10 @@ class ExamArrangementActivity : FullScreenActivity() {
         examRecyclerView.visibility = View.VISIBLE
     }
 
+    override fun createViewBinding(): ActivityExamArrangementBinding = ActivityExamArrangementBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityExamArrangementBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())

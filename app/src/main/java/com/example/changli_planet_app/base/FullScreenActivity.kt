@@ -5,15 +5,30 @@ import android.app.Application
 import android.content.ComponentCallbacks
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.viewbinding.ViewBinding
 import com.example.changli_planet_app.widget.Dialog.LoadingDialog
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
-open class FullScreenActivity : AppCompatActivity() {
+abstract class FullScreenActivity<VB: ViewBinding> : AppCompatActivity() {
 
     open val TAG = javaClass.simpleName
+
+    protected lateinit var binding: VB
+        private set
+
+    /**
+     * 子类必须实现此方法来创建ViewBinding实例
+     */
+    protected abstract fun createViewBinding(): VB
+
+    protected val disposables = CompositeDisposable()
 
     private fun setCustomDensity(activity: Activity, application: Application, designWidthDp: Int) {
         val appDisplayMetrics = application.resources.displayMetrics
@@ -54,6 +69,13 @@ open class FullScreenActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom)
             insets
         }
+        binding = createViewBinding()
+        setContentView(binding.root)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
     }
 
     fun showCatLoading() {

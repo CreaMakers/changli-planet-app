@@ -25,18 +25,17 @@ import org.greenrobot.eventbus.Subscribe
 /**
  * 注册页面
  */
-class RegisterActivity : FullScreenActivity() {
-    lateinit var binding: ActivityRegisterBinding
+class RegisterActivity : FullScreenActivity<ActivityRegisterBinding>() {
     val register: TextView by lazy { binding.register }
     val route: TextView by lazy { binding.routes }
     val account: EditText by lazy { binding.account }
     val password: EditText by lazy { binding.password }
     val store = LoginAndRegisterStore()
-    private val disposables by lazy { CompositeDisposable() }
+
+    override fun createViewBinding(): ActivityRegisterBinding = ActivityRegisterBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityRegisterBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         disposables.add(
             store.state()
                 .subscribe { state ->

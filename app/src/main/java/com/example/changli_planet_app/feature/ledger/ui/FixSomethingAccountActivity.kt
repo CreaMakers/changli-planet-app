@@ -24,8 +24,7 @@ import kotlinx.coroutines.withContext
 /**
  * 记账本修改item
  */
-class FixSomethingAccountActivity : FullScreenActivity() {
-    private val binding by lazy { ActivityFixSomethingAcccountBinding.inflate(layoutInflater) }
+class FixSomethingAccountActivity : FullScreenActivity<ActivityFixSomethingAcccountBinding>() {
     private val viewModel: AccountBookViewModel by viewModels()
     private val somethingName by lazy { binding.somethingNameEdit}
     private val somethingPrice by lazy { binding.somethingPriceEdit }
@@ -33,6 +32,8 @@ class FixSomethingAccountActivity : FullScreenActivity() {
     private val somethingType by lazy { binding.tvCategory }
     private val buyTime by lazy { binding.buyTimeEdit }
     private var itemId: Int = -1
+
+    override fun createViewBinding(): ActivityFixSomethingAcccountBinding = ActivityFixSomethingAcccountBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

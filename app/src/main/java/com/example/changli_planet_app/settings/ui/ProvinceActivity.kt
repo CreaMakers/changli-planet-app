@@ -14,8 +14,7 @@ import com.example.changli_planet_app.widget.View.DividerItemDecoration
 /**
  * 个人主页设置选择省份
  */
-class ProvinceActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityProvinceBinding
+class ProvinceActivity : FullScreenActivity<ActivityProvinceBinding>() {
     private val REQUEST_CITY = 1113
 
 
@@ -23,10 +22,10 @@ class ProvinceActivity : FullScreenActivity() {
     private val autoLocation by lazy { binding.autoLocation }
     private val back by lazy { binding.provinceBack }
 
+    override fun createViewBinding(): ActivityProvinceBinding = ActivityProvinceBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityProvinceBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(

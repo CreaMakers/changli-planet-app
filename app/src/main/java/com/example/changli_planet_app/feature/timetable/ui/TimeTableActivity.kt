@@ -69,14 +69,12 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
 
-class TimeTableActivity : FullScreenActivity() {
+class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
     private val mmkv by lazy { MMKV.defaultMMKV() }
-    private val disposables by lazy { CompositeDisposable() }
     private val isCurWeek by lazy { binding.isCurWeek }
     private val courseTerm by lazy { binding.courseTerm }
     private val courseWeek by lazy { binding.courseWeek }
     private var curDisplayWeek = 0
-    private val binding by lazy { ActivityTimeTableBinding.inflate(layoutInflater) }
     private val timetableView: ScrollTimeTableView by lazy { binding.timetableView }
     private lateinit var dataBase: CoursesDataBase
 
@@ -156,6 +154,8 @@ class TimeTableActivity : FullScreenActivity() {
     }
 
     private val myHandler = SafeHandler(this)
+
+    override fun createViewBinding(): ActivityTimeTableBinding = ActivityTimeTableBinding.inflate(layoutInflater)
 
     @SuppressLint("WrongThread")
     override fun onCreate(savedInstanceState: Bundle?) {

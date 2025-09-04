@@ -22,9 +22,7 @@ import java.util.TimeZone
 /**
  *  空闲教室查询
  */
-class ClassInfoActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityClassInfoBinding
-    private val disposables by lazy { CompositeDisposable() }
+class ClassInfoActivity : FullScreenActivity<ActivityClassInfoBinding>() {
     private val query by lazy { binding.classInfoQuery }
     private val back by lazy { binding.personProfileBack }
 
@@ -123,6 +121,8 @@ class ClassInfoActivity : FullScreenActivity() {
         screenHeight / 2
     }
 
+    override fun createViewBinding(): ActivityClassInfoBinding = ActivityClassInfoBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -150,8 +150,6 @@ class ClassInfoActivity : FullScreenActivity() {
     }
 
     private fun initView() {
-        binding = ActivityClassInfoBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         store.dispatch(ClassInfoAction.initilaize)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar2){ view, windowInsets->

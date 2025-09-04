@@ -14,8 +14,7 @@ import com.example.changli_planet_app.widget.View.DividerItemDecoration
 /**
  * 个人主页设置城市选择Activity
  */
-class CityActivity : FullScreenActivity() {
-    private lateinit var binding: ActivityCityBinding
+class CityActivity : FullScreenActivity<ActivityCityBinding>() {
     private val recyclerView by lazy { binding.cityRecycler }
     private val back by lazy { binding.cityBack }
     private val province by lazy { intent.getStringExtra("province") }
@@ -24,9 +23,9 @@ class CityActivity : FullScreenActivity() {
         initView()
     }
 
+    override fun createViewBinding(): ActivityCityBinding = ActivityCityBinding.inflate(layoutInflater)
+
     private fun initView() {
-        binding = ActivityCityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
