@@ -46,6 +46,7 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
             setupClickListeners()
             false
         }
+
         featureAvatar.setOnClickListener { drawerController?.openDrawer() }
         Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
     }

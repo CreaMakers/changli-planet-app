@@ -85,4 +85,6 @@
     <string name="app_widget_description">长理星球课表小组件</string>
     <string name="widget_must_get_course_data">获取课表后才有数据哦~</string>
     <string name="there_are_no_classes_today">今天已经没有课啦~</string>
+    <string name="profile_home">个人主页</string>
+    <string name="logout">退出登录</string>
 </resources>
