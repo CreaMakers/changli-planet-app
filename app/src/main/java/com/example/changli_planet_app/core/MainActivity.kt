@@ -212,7 +212,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
         val featureTab = tabLayout.newTab().setIcon(R.drawable.nfeature).setText(R.string.function)
         val postTab = tabLayout.newTab().setIcon(R.drawable.nnews).setText(R.string.news)
         val imTab = tabLayout.newTab().setIcon(R.drawable.nchat).setText(R.string.chat)
-        val profileTab = tabLayout.newTab().setIcon(R.drawable.nfind).setText(R.string.profile_home)
+        val profileTab = tabLayout.newTab().setIcon(R.drawable.nprofile).setText(R.string.profile_home)
         tabLayout.addTab(featureTab)
         tabLayout.addTab(postTab)
         tabLayout.addTab(imTab)
