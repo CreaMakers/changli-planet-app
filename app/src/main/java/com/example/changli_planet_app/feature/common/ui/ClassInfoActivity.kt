@@ -5,6 +5,7 @@ import android.util.DisplayMetrics
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.base.FullScreenActivity
+import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.databinding.ActivityClassInfoBinding
@@ -97,22 +98,6 @@ class ClassInfoActivity : FullScreenActivity<ActivityClassInfoBinding>() {
         } to 9,
     )
 
-    private val termMap by lazy {
-        mapOf(
-            "2024-2025-2" to "2025-02-24 00:00:00",
-            "2024-2025-1" to "2024-09-02 00:00:00",
-            "2023-2024-2" to "2024-02-26 00:00:00",
-            "2023-2024-1" to "2023-09-04 00:00:00",
-            "2022-2023-2" to "2023-02-20 00:00:00",
-            "2022-2023-1" to "2022-08-29 00:00:00",
-            "2021-2022-2" to "2022-02-21 00:00:00",
-            "2021-2022-1" to "2021-09-06 00:00:00",
-            "2020-2021-2" to "2021-03-01 00:00:00",
-            "2020-2021-1" to "2020-08-24 00:00:00",
-            "2019-2020-2" to "2020-02-17 00:00:00",
-            "2019-2020-1" to "2019-09-02 00:00:00",
-        )
-    }
 
     val maxHeight by lazy {
         val displayMetrics = DisplayMetrics()
@@ -171,7 +156,7 @@ class ClassInfoActivity : FullScreenActivity<ActivityClassInfoBinding>() {
     private fun initWeek(calendar: Calendar){
         val startTerm=getCurTerm(calendar)
         startTerm?.let {
-            val week= ScheduleSupport.timeTransfrom(termMap[startTerm])
+            val week= ScheduleSupport.timeTransfrom(CommonInfo.termMap[startTerm])
             store.dispatch(ClassInfoAction.UpdateWeek("$week"))
         }
     }

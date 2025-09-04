@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.feature.timetable.data
+package com.example.changli_planet_app.common.cache
 
 object CommonInfo {
     val termMap  =
