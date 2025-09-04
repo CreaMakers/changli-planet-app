@@ -9,8 +9,8 @@ import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestListener
-import com.example.changli_planet_app.core.GlideApp
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.core.GlideApp
 
 object GlideUtils {
     private val TAG = "GlideUtils"
@@ -145,15 +145,20 @@ fun ImageView.load(
     useMemoryCache: Boolean = true,
     listener: RequestListener<Drawable>? = null
 ) {
-    Log.d("dcelysia", "ImageView.load start: $imageSource")
-    if (pxWidth != 0 || pxHeight != 0) {
-        Log.d("dcelysia", "ImageView.load 用户设置 pxWidth: $pxWidth, pxHeight: $pxHeight")
-        loadImageDirectly(imageSource, useDiskCache, useMemoryCache, pxWidth, pxHeight, listener)
-    } else {
-        doOnLayout {
-            Log.d("dcelysia", "ImageView.load already width: $width, height: $height")
-            loadImageDirectly(imageSource, useDiskCache, useMemoryCache, width, height, listener)
+    try {
+        Log.d("dcelysia", "ImageView.load start: $imageSource")
+        if (pxWidth != 0 || pxHeight != 0) {
+            Log.d("dcelysia", "ImageView.load 用户设置 pxWidth: $pxWidth, pxHeight: $pxHeight")
+            loadImageDirectly(imageSource, useDiskCache, useMemoryCache, pxWidth, pxHeight, listener)
+        } else {
+            doOnLayout {
+                Log.d("dcelysia", "ImageView.load already width: $width, height: $height")
+                loadImageDirectly(imageSource, useDiskCache, useMemoryCache, width, height, listener)
+            }
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Log.e("dcelysia", "load error: ${e.message}")
     }
 }
 

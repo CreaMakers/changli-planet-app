@@ -41,4 +41,10 @@
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
     <color name="fresh_news_common_bg">#F2F2F2</color>
+    <color name="common_profile_bg">#F5F8FF</color>
+    <color name="setting_header_text">#6C727F</color>
+    <color name="setting_item_text">#394150</color>
+    <color name="setting_arrow_icon">#B8BCC5</color>
+    <color name="logout_text_color">#263FA8</color>
+    <color name="logout_tint">#F0F6FE</color>
 </resources>
