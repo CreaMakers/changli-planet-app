@@ -47,4 +47,7 @@
     <color name="setting_arrow_icon">#B8BCC5</color>
     <color name="logout_text_color">#263FA8</color>
     <color name="logout_tint">#F0F6FE</color>
+    <color name="about_background">#F5F7F9</color>
+    <color name="about_text_primary">#333333</color>
+    <color name="about_text_secondary">#777778</color>
 </resources>

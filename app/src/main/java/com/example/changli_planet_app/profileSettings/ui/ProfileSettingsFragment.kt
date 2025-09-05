@@ -105,15 +105,15 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
     private fun createSettingItems(): List<SettingItem> {
         return listOf(
             SettingItem("主要设置", isHeader = true),
-            SettingItem("通知设置", R.drawable.notification2, actionType = 1),
+//            SettingItem("通知设置", R.drawable.notification2, actionType = 1),
             SettingItem("隐私设置", R.drawable.yingsi, actionType = 2),
             SettingItem("账号安全", R.drawable.zhanghao, actionType = 3),
 
             SettingItem("常用功能", isHeader = true),
             SettingItem("清除缓存", R.drawable.qingchu, actionType = 4),
             SettingItem("绑定学号", R.drawable.bianji_, actionType = 5),
-            SettingItem("主题设置", R.drawable.zhuti_tiaosepan, actionType = 6),
-            SettingItem("消息中心", R.drawable.xiaoxi, actionType = 7),
+//            SettingItem("主题设置", R.drawable.zhuti_tiaosepan, actionType = 6),
+//            SettingItem("消息中心", R.drawable.xiaoxi, actionType = 7),
 
             SettingItem("帮助与支持", isHeader = true),
             SettingItem("帮助中心", R.drawable.bangzhu, actionType = 8),
@@ -124,10 +124,10 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
 
     private fun handleSettingItemClick(item: SettingItem) {
         when (item.actionType) {
-            1 -> {
-                // 通知设置
-                // TODO: 实现通知设置跳转
-            }
+//            1 -> {
+//                // 通知设置
+//                // TODO: 实现通知设置跳转
+//            }
 
             2 -> {
                 // 隐私设置
@@ -149,15 +149,15 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
                 activity?.let { Route.goBindingUser(it) }
             }
 
-            6 -> {
-                // 主题设置
-                // TODO: 实现主题设置跳转
-            }
-
-            7 -> {
-                // 消息中心
-                // TODO: 实现消息中心跳转
-            }
+//            6 -> {
+//                // 主题设置
+//                // TODO: 实现主题设置跳转
+//            }
+//
+//            7 -> {
+//                // 消息中心
+//                // TODO: 实现消息中心跳转
+//            }
 
             8 -> {
                 // 帮助中心
@@ -166,12 +166,12 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
 
             9 -> {
                 // 关于我们
-                // TODO: 实现关于我们跳转
+                Route.goAbout(requireContext())
             }
 
             10 -> {
                 // 意见反馈
-                // TODO: 实现意见反馈跳转
+                Route.goFeedback(requireContext())
             }
         }
     }
