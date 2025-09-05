@@ -3,23 +3,26 @@ import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("kotlin-parcelize")
 }
 
 android {
     namespace = "com.example.changli_planet_app"
-    compileSdk = 34
+    compileSdk = 36
     buildFeatures {
         buildConfig = true
+        compose = true
     }
     defaultConfig {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 7
         versionName = "1.1.4"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
         ndk {
             // 设置支持的SO库架构
             abiFilters.add("armeabi") //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
@@ -50,11 +53,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     viewBinding {
         enable = true
@@ -156,9 +159,17 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.crashlytics.buildtools)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
 kapt {
     arguments {

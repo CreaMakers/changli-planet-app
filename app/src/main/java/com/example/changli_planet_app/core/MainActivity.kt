@@ -25,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.TimeTableAppWidget
 import com.example.changli_planet_app.common.api.DrawerController
+import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.pool.TabAnimationPool
 import com.example.changli_planet_app.common.redux.action.UserAction
 import com.example.changli_planet_app.common.redux.store.UserStore
@@ -99,6 +100,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
             finish()
             return
         }
+        CommonInfo.startTime = System.currentTimeMillis()
         setCustomDensity(this, application, 412)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
