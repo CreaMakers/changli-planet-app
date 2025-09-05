@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.base.BaseFragment
 import com.example.changli_planet_app.common.api.DrawerController
+import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
@@ -39,7 +40,6 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
     }
 
     override fun initView() {
-        val start = System.currentTimeMillis()
         setIcons()
 
         Looper.myQueue().addIdleHandler {
@@ -48,7 +48,7 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
         }
 
         featureAvatar.setOnClickListener { drawerController?.openDrawer() }
-        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
+        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - CommonInfo.startTime}")
     }
 
     override fun initData() {

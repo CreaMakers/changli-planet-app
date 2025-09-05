@@ -24,6 +24,8 @@ import com.example.changli_planet_app.feature.lostfound.ui.PublishLoseThingActiv
 import com.example.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.example.changli_planet_app.freshNews.ui.PublishFreshNewsActivity
 import com.example.changli_planet_app.freshNews.ui.UserHomeActivity
+import com.example.changli_planet_app.profileSettings.ui.AboutActivity
+import com.example.changli_planet_app.profileSettings.ui.FeedbackActivity
 import com.example.changli_planet_app.settings.ui.AccountSecurityActivity
 import com.example.changli_planet_app.settings.ui.BindingUserActivity
 import com.example.changli_planet_app.settings.ui.ChangeEmailActivity
@@ -209,4 +211,13 @@ object Route {
         context.startActivity(intent)
     }
 
+    fun goFeedback(context: Context) {
+        val intent = Intent(context, FeedbackActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goAbout(context: Context) {
+        val intent = Intent(context, AboutActivity::class.java)
+        context.startActivity(intent)
+    }
 }

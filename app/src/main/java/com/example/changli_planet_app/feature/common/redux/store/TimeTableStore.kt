@@ -64,7 +64,7 @@ class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Ha
                                     courseDao.clearAllCourses()
                                     val mergedCourses = networkResult
                                         .distinctBy {
-                                            "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}"
+                                            "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
                                         }
                                         .filter {
                                             it.term == action.getCourse.termId &&
