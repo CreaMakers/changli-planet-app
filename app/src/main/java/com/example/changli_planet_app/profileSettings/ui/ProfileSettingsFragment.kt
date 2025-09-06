@@ -25,6 +25,8 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
     companion object Companion {
         private const val REQUEST_READ_TELEPHONE = 1001
         private const val REQUEST_NOTIFICATION = 1002
+        private const val FEI_SHU_URL =
+            "https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false"
         @JvmStatic
         fun newInstance() =
             ProfileSettingsFragment().apply {
@@ -171,7 +173,7 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
 
             10 -> {
                 // 意见反馈
-                Route.goFeedback(requireContext())
+                Route.goWebView(requireContext(), FEI_SHU_URL)
             }
         }
     }

@@ -98,11 +98,13 @@ dependencies {
     //腾讯云HTTPDNS
     implementation("io.github.dnspod:httpdns-sdk:4.9.1")
     // OkHttp
-    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
     //Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.6.1")
-    implementation("com.squareup.retrofit2:converter-gson:2.6.1")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     // EventBus
     implementation("org.greenrobot:eventbus:3.3.1")
     // Gson
@@ -149,6 +151,8 @@ dependencies {
     implementation("com.tencent.bugly:crashreport:4.1.9.3")
     // 缺省页
     implementation("com.github.liangjingkanji:StateLayout:1.4.2")
+    // jsoup
+    implementation("org.jsoup:jsoup:1.21.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

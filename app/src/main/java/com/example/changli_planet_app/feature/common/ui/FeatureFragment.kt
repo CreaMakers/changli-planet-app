@@ -35,7 +35,10 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
         super.onDetach()
     }
 
-    override fun createViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentFeatureBinding {
+    override fun createViewBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?
+    ): FragmentFeatureBinding {
         return FragmentFeatureBinding.inflate(inflater, container, false)
     }
 
@@ -76,6 +79,8 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
             nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
             accountbook.setOnClickListener { activity?.let { Route.goAccountBook(it) } }
             ndocument.setOnClickListener { activity?.let { Route.goContract(it) } }
+//            nrank.setOnClickListener { activity?.let { Route.goMooc(it) } }
+            ncalender.setOnClickListener { activity?.let { Route.goCalendar(it) } }
         }
     }
 

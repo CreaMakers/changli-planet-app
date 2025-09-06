@@ -1,4 +1,4 @@
-package com.example.changli_planet_app.profileSettings.ui
+package com.example.changli_planet_app.common.ui
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
@@ -10,8 +10,15 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.changli_planet_app.base.BaseActivity
 import com.example.changli_planet_app.databinding.ActivityFeedbackBinding
 
-class FeedbackActivity : BaseActivity<ActivityFeedbackBinding>() {
+class WebViewActivity : BaseActivity<ActivityFeedbackBinding>() {
 
+    companion object Companion {
+        private const val URL_TAG = "url_tag"
+    }
+
+    private val showUrl: String by lazy {
+        intent.getStringExtra(URL_TAG) ?: ""
+    }
     override fun createViewBinding(): ActivityFeedbackBinding {
         return ActivityFeedbackBinding.inflate(layoutInflater)
     }
@@ -44,7 +51,7 @@ class FeedbackActivity : BaseActivity<ActivityFeedbackBinding>() {
                     super.onProgressChanged(view, newProgress)
                 }
             }
-            loadUrl("https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false")
+            loadUrl(showUrl)
         }
     }
 }
