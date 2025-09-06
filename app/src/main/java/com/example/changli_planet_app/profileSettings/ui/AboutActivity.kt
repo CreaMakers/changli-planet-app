@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.profileSettings.ui
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,29 +36,43 @@ class AboutActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AboutScreen()
+            AboutScreen(this)
         }
     }
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview()
 @Composable
-fun AboutScreen() {
+fun AboutScreen(activity: Activity? = null) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("关于我们") },
+                modifier = Modifier.drawBehind {
+                    val strokeWidth = 2.dp.toPx()
+                    val y = size.height - strokeWidth / 2
+                    drawLine(
+                        color = Color.Black,
+                        start = Offset(0f, y),
+                        end = Offset(size.width, y),
+                        strokeWidth = strokeWidth
+                    )
+                },
+                title = { Text("关于我们", color = Color.Black) },
                 navigationIcon = {
-                    IconButton(onClick = { /* 返回逻辑 */ }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                    IconButton(onClick = { activity?.finish() }) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "返回",
+                            tint = Color.Black
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(id = R.color.primary_blue),
-                    titleContentColor = colorResource(id = R.color.white),
-                    navigationIconContentColor = colorResource(id = R.color.white)
+                    containerColor = Color.White,
+                    titleContentColor = Color.Black,
+                    navigationIconContentColor = Color.Black
                 )
             )
         }
@@ -62,8 +80,8 @@ fun AboutScreen() {
         Column(
             modifier = Modifier.fillMaxSize()
                 .padding(paddingValues)
-                .background(colorResource(id = R.color.normal_background))
-                .padding(16.dp)
+                .background(Color.White)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             Text(

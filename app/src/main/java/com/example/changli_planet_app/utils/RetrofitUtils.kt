@@ -21,8 +21,11 @@ object RetrofitUtils {
     private const val FreshNewsIp = "http://113.44.47.220:8085/app/"
     private const val UserIp = "http://113.44.47.220:8083/app/users/"
     private const val IpLocation ="http://ip-api.com/json/"
+    private const val MOOC_LOCATION = "http://pt.csust.edu.cn"
+    private const val SSO_AUTH_URL = "https://authserver.csust.edu.cn"
+    private const val SSO_EHALL_URL = "https://ehall.csust.edu.cn"
 
-    //添加公共请求头
+    //添加公共请求头 - 用于需要认证的 API
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
             //配置HTTPDNS解析
@@ -30,10 +33,8 @@ object RetrofitUtils {
                 override fun lookup(hostname: String): List<InetAddress> {
                     require(hostname.isNotBlank()) { "hostname can not be null or blank" }
                     return try {
-                        // 尝试使用 HTTPDNS 解析
                         val ips = MSDKDnsResolver.getInstance().getAddrByName(hostname)
                         val ipArr = ips.split(";")
-                        // 如果没有返回有效的 IP 地址，尝试降级使用 LocalDNS
                         if (ipArr.isEmpty() || ipArr.all { it == "0" }) {
                             fallbackToLocalDns(hostname)
                         } else {
@@ -44,11 +45,9 @@ object RetrofitUtils {
                                         Log.d("MyIp", ip)
                                         inetAddressList.add(InetAddress.getByName(ip))
                                     } catch (ignored: UnknownHostException) {
-                                        // 忽略无效的 IP
                                     }
                                 }
                             }
-                            // 如果 HTTPDNS 返回的 IP 列表为空，则降级使用 LocalDNS
                             if (inetAddressList.isEmpty()) {
                                 fallbackToLocalDns(hostname)
                             } else {
@@ -56,12 +55,10 @@ object RetrofitUtils {
                             }
                         }
                     } catch (e: Exception) {
-                        // 在发生异常时降级使用 LocalDNS
                         fallbackToLocalDns(hostname)
                     }
                 }
 
-                // 降级到 LocalDNS 的方法
                 private fun fallbackToLocalDns(hostname: String): List<InetAddress> {
                     return try {
                         InetAddress.getAllByName(hostname).toList()
@@ -87,6 +84,19 @@ object RetrofitUtils {
             .build()
     }
 
+    // MOOC 和 SSO 专用客户端 - 不包含 AuthInterceptor，添加 Cookie 支持
+    private val moocClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)  // MOOC 系统可能较慢，增加超时时间
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(NetworkLogger.getLoggingInterceptor())
+            .cookieJar(okhttp3.JavaNetCookieJar(java.net.CookieManager().apply {
+                setCookiePolicy(java.net.CookiePolicy.ACCEPT_ALL)
+            }))  // 添加 Cookie 支持，SSO 登录需要
+            .build()
+    }
+
     val instanceNewFresh: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(FreshNewsIp)
@@ -107,6 +117,33 @@ object RetrofitUtils {
         Retrofit.Builder()
             .baseUrl(IpLocation)
             .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val instanceMooc: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(MOOC_LOCATION)
+            .client(moocClient)
+            .addConverterFactory(retrofit2.converter.scalars.ScalarsConverterFactory.create())  // 支持 String 响应
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val instanceSSOAuth: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(SSO_AUTH_URL)
+            .client(moocClient)
+            .addConverterFactory(retrofit2.converter.scalars.ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val instanceSSOEhall: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(SSO_EHALL_URL)
+            .client(moocClient)
+            .addConverterFactory(retrofit2.converter.scalars.ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
