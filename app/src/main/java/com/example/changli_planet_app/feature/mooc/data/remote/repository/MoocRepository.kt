@@ -1,6 +1,7 @@
 package com.example.changli_planet_app.feature.mooc.data.remote.repository
 
 import android.util.Log
+import com.example.changli_planet_app.R
 import com.example.changli_planet_app.core.network.Resource
 import com.example.changli_planet_app.feature.mooc.data.remote.api.MoocApi
 import com.example.changli_planet_app.feature.mooc.data.remote.api.SSOAuthApi
@@ -10,8 +11,12 @@ import com.example.changli_planet_app.feature.mooc.data.remote.dto.MoocCourse
 import com.example.changli_planet_app.feature.mooc.data.remote.dto.MoocHomework
 import com.example.changli_planet_app.feature.mooc.data.remote.dto.MoocProfile
 import com.example.changli_planet_app.feature.mooc.data.remote.dto.MoocTest
+import com.example.changli_planet_app.feature.mooc.data.remote.dto.PendingAssignmentCourse
 import com.example.changli_planet_app.utils.AESUtils
+import com.example.changli_planet_app.utils.ResourceUtil
 import com.example.changli_planet_app.utils.RetrofitUtils
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
 
@@ -76,61 +81,55 @@ class MoocRepository private constructor() {
     // SSO 登录
     fun login(username: String, password: String) = flow {
         emit(Resource.Loading())
-        try {
-            Log.d(TAG, "进入Mooc登陆")
-            // 1. 获取登录表单
-            val (loginForm, isAlreadyLoggedIn) = getLoginForm()
-            if (isAlreadyLoggedIn) {
-                emit(Resource.Success(true))
-                return@flow
-            }
-
-            if (loginForm == null) {
-                emit(Resource.Error("获取登录表单失败"))
-                return@flow
-            }
-
-            // 2. 检查是否需要验证码
-            val needCaptcha = checkNeedCaptcha(username)
-            if (needCaptcha) {
-                emit(Resource.Error("需要验证码，暂未实现"))
-                return@flow
-            }
-
-            // 3. 加密密码
-            val encryptedPassword = AESUtils.encryptPassword(password, loginForm.pwdEncryptSalt)
-
-            // 4. 执行登录
-            val loginResponse = ssoAuthApi.login(
-                username = username,
-                password = encryptedPassword,
-                execution = loginForm.execution
-            )
-
-            // 5. 检查登录结果
-            var finalUrl = loginResponse.raw().request.url.toString()
-            if (finalUrl.contains("ehall.csust.edu.cn/index.html") ||
-                finalUrl.contains("ehall.csust.edu.cn/default/index.html")
-            ) {
-                emit(Resource.Success(true))
-            } else {
-                emit(Resource.Error("登录失败，请检查用户名和密码"))
-            }
-
-            val response = api.loginToMooc()
-            // 检查重定向 URL
-            finalUrl = response.raw().request.url.toString()
-            if (finalUrl.contains("pt.csust.edu.cn/meol/personal.do")) {
-                emit(Resource.Success(true))
-            } else {
-                emit(Resource.Error("MOOC 登录失败"))
-            }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("MoocRepository", "登录失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+        Log.d(TAG, "进入Mooc登陆")
+        // 1. 获取登录表单
+        val (loginForm, isAlreadyLoggedIn) = getLoginForm()
+        if (isAlreadyLoggedIn) {
+            emit(Resource.Success(true))
+            return@flow
         }
+
+        if (loginForm == null) {
+            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+            return@flow
+        }
+
+        // 2. 检查是否需要验证码
+        val needCaptcha = checkNeedCaptcha(username)
+        if (needCaptcha) {
+            emit(Resource.Error(ResourceUtil.getStringRes(R.string.account_status_abnormal_login_on_web)))
+            return@flow
+        }
+        // 3. 加密密码
+        val encryptedPassword = AESUtils.encryptPassword(password, loginForm.pwdEncryptSalt)
+        // 4. 执行登录
+        val loginResponse = ssoAuthApi.login(
+            username = username,
+            password = encryptedPassword,
+            execution = loginForm.execution
+        )
+        // 5. 检查登录结果
+        var finalUrl = loginResponse.raw().request.url.toString()
+        if (finalUrl.contains("ehall.csust.edu.cn/index.html") ||
+            finalUrl.contains("ehall.csust.edu.cn/default/index.html")
+        ) {
+            emit(Resource.Success(true))
+        } else {
+            emit(Resource.Error("登录失败，请检查用户名和密码"))
+            return@flow
+        }
+
+        val response = api.loginToMooc()
+        finalUrl = response.raw().request.url.toString()
+        if (finalUrl.contains("pt.csust.edu.cn/meol/personal.do")) {
+            emit(Resource.Success(true))
+        } else {
+            emit(Resource.Error("MOOC 登录失败"))
+        }
+    }.catch { e ->
+        e.printStackTrace()
+        Log.e(TAG, "获取待完成作业课程失败: ${e.message}")
+        emit(Resource.Error("网络错误"))
     }
 
     // 获取登录用户信息
@@ -275,7 +274,7 @@ class MoocRepository private constructor() {
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "获取课程列表失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
         }
     }
 
@@ -307,7 +306,7 @@ class MoocRepository private constructor() {
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "获取课程作业失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
         }
     }
 
@@ -375,11 +374,11 @@ class MoocRepository private constructor() {
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "获取课程测试失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
         }
     }
 
-    fun getCourseNamesWithPendingHomeworks() = flow {
+    fun getCourseNamesWithPendingHomeworks(): Flow<Resource<List<PendingAssignmentCourse>>> = flow {
         emit(Resource.Loading())
         try {
             val response = api.getCourseNamesWithPendingHomeworks()
@@ -390,40 +389,38 @@ class MoocRepository private constructor() {
 
             val html = response.body()
             if (html.isNullOrEmpty()) {
-                emit(Resource.Error("Empty response"))
+                emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
                 return@flow
             }
 
             val document = Jsoup.parse(html)
             val reminderElement = document.getElementById("reminder")
             if (reminderElement == null) {
-                emit(Resource.Error("Reminder section not found"))
+                emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
                 return@flow
             }
 
             val courseNamesContainer = reminderElement.getElementsByTag("li").firstOrNull()
             if (courseNamesContainer == null) {
-                emit(Resource.Success(emptyList<Pair<String, String>>()))
+                emit(Resource.Success(emptyList()))
                 return@flow
             }
 
             val courseNameElements = courseNamesContainer.select("li > ul > li > a")
-            val courseNames = mutableListOf<Pair<String, String>>()
+            val courseNames = mutableListOf<PendingAssignmentCourse>()
 
             for (courseNameElement in courseNameElements) {
                 val id = courseNameElement.attr("onclick")
                     .replace("window.open('./lesson/enter_course.jsp?lid=", "")
                     .replace("&t=hw','manage_course')", "")
                 val courseName = courseNameElement.text().trim()
-                courseNames.add(Pair(courseName, id))
+                courseNames.add(PendingAssignmentCourse(id, courseName))
             }
-
             emit(Resource.Success(courseNames))
-
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "获取待完成作业课程失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
         }
     }
 

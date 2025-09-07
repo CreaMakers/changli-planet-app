@@ -7,3 +7,8 @@ data class MoocCourse(
     val department: String,
     val teacher: String
 )
+
+data class PendingAssignmentCourse(
+    val id: String,
+    val name: String
+)

@@ -10,4 +10,6 @@ sealed class MoocHelperError(message: String) : Exception(message) {
     class TestRetrievalFailed(message: String) : MoocHelperError("Test retrieval failed: $message")
     class CourseNamesWithPendingHomeworksRetrievalFailed(message: String) :
         MoocHelperError("Course names with pending homeworks retrieval failed: $message")
+
+    class CookieExpiredException(message: String) : Exception(message)
 }

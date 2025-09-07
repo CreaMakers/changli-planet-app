@@ -79,7 +79,7 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
             nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
             accountbook.setOnClickListener { activity?.let { Route.goAccountBook(it) } }
             ndocument.setOnClickListener { activity?.let { Route.goContract(it) } }
-//            nrank.setOnClickListener { activity?.let { Route.goMooc(it) } }
+            nhomework.setOnClickListener { activity?.let { Route.goMooc(it) } }
             ncalender.setOnClickListener { activity?.let { Route.goCalendar(it) } }
         }
     }
@@ -100,7 +100,7 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
                     nmande to R.drawable.ic_talking,
                     nlose to R.drawable.ic_lost_and_found,
                     nelectronic to R.drawable.ic_bill,
-                    nrank to R.drawable.ic_rank,
+                    nhomework to R.drawable.ic_homework,
                     nclassroom to R.drawable.ic_classroom,
                     accountbook to R.drawable.account_book,
                     ndocument to R.drawable.ic_document

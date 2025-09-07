@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -19,10 +18,10 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/featureAvatar"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="11dp"
+        android:layout_width="@dimen/dp42"
+        android:layout_height="@dimen/dp42"
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_marginStart="@dimen/dp11"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearance="@style/CircleStyle" />
@@ -31,28 +30,26 @@
         android:id="@+id/mainfunction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="12dp"
+        android:elevation="@dimen/dp12"
         android:baselineAligned="false"
-        android:layout_marginHorizontal="15dp"
-        app:cardCornerRadius="12dp"
+        android:layout_marginHorizontal="@dimen/dp15"
+        app:cardCornerRadius="@dimen/dp12"
         app:layout_constraintTop_toBottomOf="@+id/planet_logo">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginHorizontal="@dimen/dp15"
             android:background="@drawable/userui"
             android:baselineAligned="false"
             android:orientation="vertical"
-            android:paddingVertical="10dp"
-            app:layout_constraintTop_toBottomOf="@+id/planet_logo">
-
+            android:paddingVertical="@dimen/dp10">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:paddingLeft="15dp"
-                android:paddingTop="15dp"
+                android:paddingStart="@dimen/dp15"
+                android:paddingTop="@dimen/dp15"
                 android:layout_weight="1">
 
                 <TextView
@@ -60,8 +57,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="常用功能"
-                    android:textSize="15sp"
+                    android:text="@string/feature_title_common_functions"
+                    android:textSize="@dimen/sp15"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -75,159 +72,148 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="成绩查询" />
+                    app:itemTitle="@string/feature_function_grade_query" />
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ncourse"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="课表" />
+                    app:itemTitle="@string/feature_function_course_schedule" />
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nmap"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="校园地图" />
+                    app:itemTitle="@string/feature_function_campus_map" />
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ncet"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="四六级" />
+                    app:itemTitle="@string/feature_function_cet_exam" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="15dp">
+                android:padding="@dimen/dp15">
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ntest"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="考试安排" />
+                    app:itemTitle="@string/feature_function_exam_schedule" />
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ncalender"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="校历" />
+                    app:itemTitle="@string/feature_function_school_calendar" />
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nelectronic"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="电费查询" />
+                    app:itemTitle="@string/feature_function_electricity_query" />
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nmande"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="普通话" />
+                    app:itemTitle="@string/feature_function_mandarin_test" />
             </LinearLayout>
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 
-
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:elevation="12dp"
+        android:layout_marginTop="@dimen/dp20"
+        android:elevation="@dimen/dp12"
         android:baselineAligned="false"
-        android:layout_marginHorizontal="15dp"
-        app:cardCornerRadius="12dp"
+        android:layout_marginHorizontal="@dimen/dp15"
+        app:cardCornerRadius="@dimen/dp12"
         app:layout_constraintTop_toBottomOf="@+id/mainfunction">
 
         <LinearLayout
             android:id="@+id/help"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginHorizontal="@dimen/dp15"
             android:background="@drawable/userui"
             android:baselineAligned="false"
             android:orientation="vertical"
-            android:paddingVertical="10dp"
-            app:layout_constraintTop_toBottomOf="@+id/mainfunction">
+            android:paddingVertical="@dimen/dp10">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:paddingLeft="15dp"
-                android:paddingTop="15dp"
+                android:paddingStart="@dimen/dp15"
+                android:paddingTop="@dimen/dp15"
                 android:layout_weight="1">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="其他"
-                    android:textSize="15sp"
+                    android:text="@string/feature_title_others"
+                    android:textSize="@dimen/sp15"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="15dp">
+                android:padding="@dimen/dp15">
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nlose"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="失物招领" />
-
+                    app:itemTitle="@string/feature_function_lost_found" />
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
-                    android:id="@+id/nrank"
+                    android:id="@+id/nhomework"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="学霸排行" />
+                    app:itemTitle="@string/inquiry_homework" />
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/nclassroom"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="空闲教室" />
+                    app:itemTitle="@string/feature_function_classroom_availability" />
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/accountbook"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="记帐本" />
-
-
+                    app:itemTitle="@string/feature_function_account_book" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="15dp">
+                android:padding="@dimen/dp15">
 
                 <com.example.changli_planet_app.widget.View.FunctionItem
                     android:id="@+id/ndocument"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:itemTitle="文件库" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
+                    app:itemTitle="@string/feature_function_document_library" />
 
                 <Space
                     android:layout_width="0dp"
@@ -239,14 +225,13 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
 
-
-
-
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
             </LinearLayout>
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -130,4 +130,25 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="inquiry_homework">作业查询</string>
+    <string name="pending_homework">未完成作业</string>
+    <string name="no_pending_assignments">暂无未完成作业</string>
+    <string name="school_account_not_bound_cannot_query">未绑定学校账号密码，无法查询</string>
+    <string name="error_unknown">未知错误</string>
+    <string name="feature_title_common_functions">常用功能</string>
+    <string name="feature_function_grade_query">成绩查询</string>
+    <string name="feature_function_course_schedule">课表</string>
+    <string name="feature_function_campus_map">校园地图</string>
+    <string name="feature_function_cet_exam">四六级</string>
+    <string name="feature_function_exam_schedule">考试安排</string>
+    <string name="feature_function_school_calendar">校历</string>
+    <string name="feature_function_electricity_query">电费查询</string>
+    <string name="feature_function_mandarin_test">普通话</string>
+    <string name="feature_title_others">其他</string>
+    <string name="feature_function_lost_found">失物招领</string>
+    <string name="feature_function_classroom_availability">空闲教室</string>
+    <string name="feature_function_account_book">记帐本</string>
+    <string name="feature_function_document_library">文件库</string>
+    <string name="network_error">网络错误</string>
+    <string name="account_status_abnormal_login_on_web">账号状态异常，请在网页登录一次</string>
 </resources>
