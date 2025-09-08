@@ -30,6 +30,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.base.FullScreenActivity
+import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.Route
@@ -42,7 +43,6 @@ import com.example.changli_planet_app.feature.common.listener.ScrollController
 import com.example.changli_planet_app.feature.common.redux.store.TimeTableStore
 import com.example.changli_planet_app.feature.ledger.ui.AddCourseActivity
 import com.example.changli_planet_app.feature.timetable.action.TimeTableAction
-import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.utils.dp2Px
 import com.example.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.widget.Dialog.TimetableWheelBottomDialog
@@ -180,7 +180,7 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         if (mmkv.getBoolean("isFirstDialog", true)) {
             NormalResponseDialog(
                 this,
-                "喵呜~ 试试左右滑动日期栏来切换周次吧！(◍•ᴗ•◍)✧*。",
+                "喵呜~ 试试左右滑动日期栏来切换周次吧，手机小组件功能也上线啦！(◍•ᴗ•◍)✧*",
                 "贴心小提示"
             ).show()
             mmkv.encode("isFirstDialog", false)

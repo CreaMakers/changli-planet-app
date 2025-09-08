@@ -93,7 +93,7 @@ object RetrofitUtils {
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
             .cookieJar(okhttp3.JavaNetCookieJar(java.net.CookieManager().apply {
                 setCookiePolicy(java.net.CookiePolicy.ACCEPT_ALL)
-            }))  // 添加 Cookie 支持，SSO 登录需要
+            }))
             .build()
     }
 

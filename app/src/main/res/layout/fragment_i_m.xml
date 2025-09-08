@@ -1,83 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:paddingTop="@dimen/dp35"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/linearLayout"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginVertical="10dp"-->
+    <!--        android:orientation="horizontal">-->
+
+    <!--        <com.google.android.material.imageview.ShapeableImageView-->
+    <!--            android:id="@+id/im_avatar"-->
+    <!--            android:layout_width="42dp"-->
+    <!--            android:layout_height="42dp"-->
+    <!--            android:layout_gravity="center_vertical"-->
+    <!--            android:layout_marginStart="5dp"-->
+    <!--            app:shapeAppearance="@style/CircleStyle" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/im_name"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:layout_marginStart="5dp"-->
+    <!--            android:gravity="center_vertical"-->
+    <!--            android:text="魏子清"-->
+    <!--            android:textColor="@color/black"-->
+    <!--            android:textSize="18sp" />-->
+
+    <!--        <View-->
+    <!--            android:layout_width="0dp"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:layout_weight="1" />-->
+
+    <!--        <ImageView-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:layout_marginEnd="8dp"-->
+    <!--            android:src="@drawable/add_btn" />-->
+
+    <!--    </LinearLayout>-->
+
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/feature_linear2"-->
+    <!--        android:orientation="horizontal"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_marginHorizontal="10dp"-->
+    <!--        android:background="@drawable/main_search"-->
+    <!--        android:layout_marginTop="2dp"-->
+    <!--        android:layout_height="40dp">-->
+
+    <!--        <ImageView-->
+    <!--            android:layout_width="25dp"-->
+    <!--            android:layout_height="25dp"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:layout_marginStart="15dp"-->
+    <!--            android:src="@drawable/component2" />-->
+
+    <!--        <TextView-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:layout_marginStart="15dp"-->
+    <!--            android:text="点击搜索想要的群组"-->
+    <!--            android:textColor="@color/game1_gray"-->
+    <!--            android:textSize="17sp" />-->
+
+    <!--    </LinearLayout>-->
+
+    <!--    <androidx.recyclerview.widget.RecyclerView-->
+    <!--        android:id="@+id/chat_list_recycler"-->
+    <!--        android:layout_marginHorizontal="20dp"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:layout_marginTop="10dp" />-->
+
+    <ImageView
+        android:id="@+id/iv_under_construction"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/im_avatar"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="5dp"
-            app:shapeAppearance="@style/CircleStyle" />
-
-        <TextView
-            android:id="@+id/im_name"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="5dp"
-            android:gravity="center_vertical"
-            android:text="魏子清"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/add_btn" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/feature_linear2"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_marginHorizontal="10dp"
-        android:background="@drawable/main_search"
-        android:layout_marginTop="2dp"
-        android:layout_height="40dp">
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center"
-            android:layout_marginStart="15dp"
-            android:src="@drawable/component2" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="15dp"
-            android:text="点击搜索想要的群组"
-            android:textColor="@color/game1_gray"
-            android:textSize="17sp" />
-
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chat_list_recycler"
-        android:layout_marginHorizontal="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp" />
+        android:layout_height="match_parent" />
 </LinearLayout>
