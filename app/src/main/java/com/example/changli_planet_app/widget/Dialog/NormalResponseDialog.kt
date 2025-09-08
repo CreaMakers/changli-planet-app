@@ -2,8 +2,8 @@ package com.example.changli_planet_app.widget.Dialog
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.base.BaseDialog
 
@@ -14,7 +14,7 @@ class NormalResponseDialog(context: Context, val content: String, val type: Stri
     private lateinit var fade: TextView
 
     override fun init() {
-        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         window?.setWindowAnimations(R.style.DialogAnimation)
         yes = findViewById(R.id.yes)
         yes.setOnClickListener {

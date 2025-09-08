@@ -8,7 +8,6 @@ import com.example.changli_planet_app.auth.ui.LoginActivity
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.network.OkHttpHelper.AuthInterceptor
 import com.example.changli_planet_app.core.network.interceptor.NetworkLogger
-import com.example.changli_planet_app.feature.mooc.data.remote.cookie.MmkvPersistentCookieJar
 import com.tencent.msdk.dns.MSDKDnsResolver
 import okhttp3.Dns
 import okhttp3.OkHttpClient
@@ -92,7 +91,9 @@ object RetrofitUtils {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
-            .cookieJar(MmkvPersistentCookieJar(PlanetApplication.appContext))
+            .cookieJar(okhttp3.JavaNetCookieJar(java.net.CookieManager().apply {
+                setCookiePolicy(java.net.CookiePolicy.ACCEPT_ALL)
+            }))
             .build()
     }
 

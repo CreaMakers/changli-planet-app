@@ -151,4 +151,5 @@
     <string name="feature_function_document_library">文件库</string>
     <string name="network_error">网络错误</string>
     <string name="account_status_abnormal_login_on_web">账号状态异常，请在网页登录一次</string>
+    <string name="feature_developing_in_progress">正在全力开发中~</string>
 </resources>

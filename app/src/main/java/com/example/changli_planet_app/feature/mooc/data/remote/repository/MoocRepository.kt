@@ -47,9 +47,8 @@ class MoocRepository private constructor() {
             Log.d(TAG, "进入Mooc getLoginForm")
             val response = ssoAuthApi.getLoginForm()
 
-            // 检查是否已经登录（重定向到主页）
             val finalUrl = response.raw().request.url.toString()
-            if (finalUrl.contains("ehall.csust.edu.cn/index.html")) {
+            if (finalUrl.contains("https://ehall.csust.edu.cn")) {
                 return Pair(null, true)
             }
 
@@ -113,7 +112,7 @@ class MoocRepository private constructor() {
         if (finalUrl.contains("ehall.csust.edu.cn/index.html") ||
             finalUrl.contains("ehall.csust.edu.cn/default/index.html")
         ) {
-            emit(Resource.Success(true))
+//            emit(Resource.Success(true))
         } else {
             emit(Resource.Error("登录失败，请检查用户名和密码"))
             return@flow
@@ -380,48 +379,46 @@ class MoocRepository private constructor() {
 
     fun getCourseNamesWithPendingHomeworks(): Flow<Resource<List<PendingAssignmentCourse>>> = flow {
         emit(Resource.Loading())
-        try {
-            val response = api.getCourseNamesWithPendingHomeworks()
-            if (!response.isSuccessful) {
-                emit(Resource.Error("HTTP ${response.code()}"))
-                return@flow
-            }
-
-            val html = response.body()
-            if (html.isNullOrEmpty()) {
-                emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
-                return@flow
-            }
-
-            val document = Jsoup.parse(html)
-            val reminderElement = document.getElementById("reminder")
-            if (reminderElement == null) {
-                emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
-                return@flow
-            }
-
-            val courseNamesContainer = reminderElement.getElementsByTag("li").firstOrNull()
-            if (courseNamesContainer == null) {
-                emit(Resource.Success(emptyList()))
-                return@flow
-            }
-
-            val courseNameElements = courseNamesContainer.select("li > ul > li > a")
-            val courseNames = mutableListOf<PendingAssignmentCourse>()
-
-            for (courseNameElement in courseNameElements) {
-                val id = courseNameElement.attr("onclick")
-                    .replace("window.open('./lesson/enter_course.jsp?lid=", "")
-                    .replace("&t=hw','manage_course')", "")
-                val courseName = courseNameElement.text().trim()
-                courseNames.add(PendingAssignmentCourse(id, courseName))
-            }
-            emit(Resource.Success(courseNames))
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("MoocRepository", "获取待完成作业课程失败: ${e.message}")
-            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+        val response = api.getCourseNamesWithPendingHomeworks()
+        if (!response.isSuccessful) {
+            emit(Resource.Error("HTTP ${response.code()}"))
+            return@flow
         }
+
+        val html = response.body()
+        if (html.isNullOrEmpty()) {
+            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+            return@flow
+        }
+
+        val document = Jsoup.parse(html)
+        val reminderElement = document.getElementById("reminder")
+        if (reminderElement == null) {
+            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+            return@flow
+        }
+
+        val courseNamesContainer = reminderElement.getElementsByTag("li").firstOrNull()
+        if (courseNamesContainer == null) {
+            emit(Resource.Success(emptyList()))
+            return@flow
+        }
+
+        val courseNameElements = courseNamesContainer.select("li > ul > li > a")
+        val courseNames = mutableListOf<PendingAssignmentCourse>()
+
+        for (courseNameElement in courseNameElements) {
+            val id = courseNameElement.attr("onclick")
+                .replace("window.open('./lesson/enter_course.jsp?lid=", "")
+                .replace("&t=hw','manage_course')", "")
+            val courseName = courseNameElement.text().trim()
+            courseNames.add(PendingAssignmentCourse(id, courseName))
+        }
+        emit(Resource.Success(courseNames.toList()))
+    }.catch { e ->
+        e.printStackTrace()
+        Log.e("MoocRepository", "获取待完成作业课程失败: ${e.message}")
+        emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
     }
 
     fun logout() = flow {

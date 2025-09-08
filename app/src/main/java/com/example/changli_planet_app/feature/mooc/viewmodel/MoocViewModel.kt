@@ -53,7 +53,9 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
                 _isSuccessLogin.value = loginResult
 
                 if (loginResult is Resource.Success && loginResult.data) {
-                    val courseResult = repository.getCourseNamesWithPendingHomeworks().first()
+                    val courseResult = repository.getCourseNamesWithPendingHomeworks()
+                        .filter { it !is Resource.Loading }
+                        .first()
                     _pendingCourse.value = courseResult
                 } else {
                     _pendingCourse.value = Resource.Error((loginResult as Resource.Error).msg)
