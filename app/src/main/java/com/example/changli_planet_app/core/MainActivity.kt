@@ -95,6 +95,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken)) {
             Route.goLogin(this@MainActivity)
             finish()
@@ -102,7 +103,6 @@ class MainActivity : AppCompatActivity(), DrawerController {
         }
         CommonInfo.startTime = System.currentTimeMillis()
         setCustomDensity(this, application, 412)
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         val start = System.currentTimeMillis()
