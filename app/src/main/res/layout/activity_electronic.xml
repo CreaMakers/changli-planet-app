@@ -8,177 +8,331 @@
     android:background="@color/white"
     tools:context=".feature.common.ui.ElectronicActivity">
 
-    <LinearLayout
-        android:id="@+id/query"
+    <!-- 顶部标题栏 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/tb_query"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primary_blue"
         android:padding="10dp"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/back"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:src="@drawable/back" />
+            android:src="@drawable/back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="8"
-            android:gravity="center"
-            android:text="电费查询"
+            android:text="@string/electronicQuery"
             android:textColor="@color/white"
             android:textSize="25sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
+    <!-- 标题文本 -->
+    <TextView
+        android:id="@+id/tv_dorm_bind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dorm_bind"
+        android:textColor="@color/text_color_grey"
+        android:textSize="@dimen/sp18"
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_marginStart="@dimen/dp15"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tb_query" />
+
+    <!-- 主要内容卡片 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/main_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp20"
+        android:layout_marginStart="@dimen/dp10"
+        android:layout_marginEnd="@dimen/dp10"
+        android:elevation="@dimen/dp10"
+        app:cardCornerRadius="@dimen/dp15"
+        app:layout_constraintTop_toBottomOf="@id/tv_dorm_bind">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/ctl_bind_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dp10">
+
+            <!-- 校区选择 -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/siv_school_region"
+                android:layout_width="@dimen/dp80"
+                android:layout_height="@dimen/dp80"
+                android:padding="@dimen/dp2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearance="@style/CircleStyle"
+                app:strokeColor="@color/light_blue_200"
+                app:strokeWidth="@dimen/dp2" />
+            <TextView
+                android:id="@+id/tv_school_zone"
+                android:gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp40"
+                android:layout_marginStart="@dimen/dp20"
+                android:text="@string/schoolZone"
+                android:textStyle="bold"
+                android:textColor="@color/color_2878F3"
+                android:textSize="@dimen/sp18"
+                app:layout_constraintStart_toEndOf="@id/siv_school_region"
+                app:layout_constraintTop_toTopOf="@id/siv_school_region"
+                app:layout_constraintBottom_toBottomOf="@id/siv_school_region"/>
+            <TextView
+                android:id="@+id/tv_school_select"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp40"
+                android:layout_marginStart="@dimen/dp10"
+                android:layout_marginEnd="@dimen/dp20"
+                android:text="@string/selectSchoolZone"
+                android:textColor="@color/feature_white"
+                android:textSize="@dimen/sp18"
+                android:textStyle="bold"
+                android:foreground="?attr/selectableItemBackground"
+                android:background="@drawable/electronic_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                app:layout_constraintStart_toEndOf="@id/tv_school_zone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/siv_school_region"
+                app:layout_constraintBottom_toBottomOf="@id/siv_school_region" />
+
+            <!-- 分割线 -->
+            <View
+                android:id="@+id/divider1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_gray"
+                android:layout_marginTop="@dimen/dp10"
+                app:layout_constraintTop_toBottomOf="@id/siv_school_region" />
+
+            <!-- 宿舍楼选择 -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/siv_dorm_building"
+                android:layout_width="@dimen/dp80"
+                android:layout_height="@dimen/dp80"
+                android:layout_marginTop="@dimen/dp10"
+                android:padding="@dimen/dp2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/divider1"
+                app:shapeAppearance="@style/CircleStyle"
+                app:strokeColor="@color/light_blue_200"
+                app:strokeWidth="@dimen/dp2" />
+            <TextView
+                android:id="@+id/tv_dorm"
+                android:gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp40"
+                android:layout_marginStart="@dimen/dp20"
+                android:text="@string/dorm"
+                android:textStyle="bold"
+                android:textColor="@color/color_2878F3"
+                android:textSize="@dimen/sp18"
+                app:layout_constraintStart_toEndOf="@id/siv_dorm_building"
+                app:layout_constraintTop_toTopOf="@id/siv_dorm_building"
+                app:layout_constraintBottom_toBottomOf="@id/siv_dorm_building"/>
+            <TextView
+                android:id="@+id/tv_dorm_select"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp40"
+                android:layout_marginStart="@dimen/dp10"
+                android:layout_marginEnd="@dimen/dp20"
+                android:text="@string/selectDorm"
+                android:background="@drawable/electronic_button"
+                android:foreground="?attr/selectableItemBackground"
+                android:textColor="@color/feature_white"
+                android:textSize="@dimen/sp18"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                app:layout_constraintStart_toEndOf="@id/tv_dorm"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/siv_dorm_building"
+                app:layout_constraintBottom_toBottomOf="@id/siv_dorm_building" />
+
+            <!-- 分割线 -->
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_gray"
+                android:layout_marginTop="@dimen/dp10"
+                app:layout_constraintTop_toBottomOf="@id/siv_dorm_building" />
+
+            <!-- 房间号输入 -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/siv_room_number"
+                android:layout_width="@dimen/dp80"
+                android:layout_height="@dimen/dp80"
+                android:layout_marginTop="@dimen/dp10"
+                android:padding="@dimen/dp2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/divider2"
+                app:shapeAppearance="@style/CircleStyle"
+                app:strokeColor="@color/light_blue_200"
+                app:strokeWidth="@dimen/dp2" />
+            <TextView
+                android:id="@+id/tv_door"
+                android:gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp40"
+                android:layout_marginStart="@dimen/dp20"
+                android:text="@string/doorNum"
+                android:textStyle="bold"
+                android:textColor="@color/color_2878F3"
+                android:textSize="@dimen/sp18"
+                app:layout_constraintStart_toEndOf="@id/siv_room_number"
+                app:layout_constraintTop_toTopOf="@id/siv_room_number"
+                app:layout_constraintBottom_toBottomOf="@id/siv_room_number"/>
+            <EditText
+                android:id="@+id/tv_door_input"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp40"
+                android:layout_marginStart="@dimen/dp10"
+                android:layout_marginEnd="@dimen/dp20"
+                android:gravity="center"
+                android:hint="@string/selectDoorNum"
+                android:imeOptions="actionDone"
+                android:selectAllOnFocus="true"
+                android:textColorHint="@color/low_blue"
+                android:background="@drawable/electronic_button"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp18"
+                android:textStyle="bold"
+                android:inputType="text"
+                app:layout_constraintStart_toEndOf="@id/tv_door"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/siv_room_number"
+                app:layout_constraintBottom_toBottomOf="@id/siv_room_number" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+    <View
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dp1"
+        android:background="@color/color_7E7E7E"
+        app:layout_constraintTop_toBottomOf="@+id/main_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginHorizontal="@dimen/dp10"
+        android:layout_marginTop="@dimen/dp10"/>
+    <!-- 电量显示卡片 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_electricity"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
-        android:padding="24dp"
+        android:layout_marginTop="@dimen/dp20"
+        android:layout_marginBottom="@dimen/dp15"
+        android:layout_marginStart="@dimen/dp10"
+        android:layout_marginEnd="@dimen/dp10"
+        android:elevation="@dimen/dp10"
+        app:cardCornerRadius="@dimen/dp15"
+        app:layout_constraintTop_toBottomOf="@id/main_card">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_present_ele"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp10"
+                android:layout_marginStart="@dimen/dp15"
+                android:text="@string/present_ele"
+                android:textColor="@color/text_color_grey"
+                android:textStyle="bold"
+                android:textSize="@dimen/sp16"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ele_img"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dp70"
+                android:layout_marginStart="@dimen/dp18"
+                android:layout_marginTop="@dimen/dp10"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_present_ele" />
+
+            <TextView
+                android:id="@+id/ele_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/sp16"
+                android:gravity="center"
+                android:layout_marginStart="@dimen/dp40"
+                android:layout_marginEnd="@dimen/dp10"
+                android:textStyle="bold"
+                android:textColor="@color/color_CC346EEB"
+                app:layout_constraintStart_toEndOf="@id/ele_img"
+                app:layout_constraintEnd_toStartOf="@id/ele_state"
+                app:layout_constraintTop_toTopOf="@id/ele_img"
+                app:layout_constraintBottom_toBottomOf="@id/ele_img" />
+
+            <TextView
+                android:id="@+id/ele_state"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp10"
+                android:layout_marginEnd="@dimen/dp18"
+                android:textColor="@color/icon_gray"
+                android:textSize="@dimen/sp16"
+                android:gravity="center"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/ele_num"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/ele_img"
+                app:layout_constraintBottom_toBottomOf="@id/ele_img" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/query_ele"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp45"
+        android:text="@string/e_query"
+        android:textColor="@color/feature_white"
+        android:gravity="center"
+        android:textStyle="italic"
+        android:textSize="@dimen/sp25"
+        android:background="@drawable/electronic_button"
+        android:foreground="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginStart="@dimen/dp40"
+        android:layout_marginEnd="@dimen/dp40"
+        android:layout_marginTop="@dimen/dp20"
+        app:layout_constraintTop_toBottomOf="@+id/card_electricity"/>
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp10"
+        android:text="@string/query_things"
+        android:textColor="@color/setting_header_text"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/query">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:text="校区"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/school"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="6"
-                android:text="选择校区"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="20dp"
-            android:background="@color/itractor" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:text="宿舍楼"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/dor"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="6"
-                android:text="选择宿舍楼"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="20dp"
-            android:background="@color/itractor" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:text="房间号"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
-            <EditText
-                android:id="@+id/dor_number"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="6"
-                android:background="@color/white" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="3" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="6"
-                android:background="@color/icon_gray" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="25dp"
-            android:text="@string/query_things"
-            android:textColor="@color/icon_gray"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/query_elec"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="查询"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <ViewStub
-            android:id="@+id/stub_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="20dp"
-            android:inflatedId="@+id/tv_result"
-            android:layout="@layout/electronic_result" />
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

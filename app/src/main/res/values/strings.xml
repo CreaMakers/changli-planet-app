@@ -87,4 +87,22 @@
     <string name="there_are_no_classes_today">今天已经没有课啦~</string>
     <string name="profile_home">个人主页</string>
     <string name="logout">退出登录</string>
+    <string name="schoolZone">校区:</string>
+    <string name="electronicQuery">电费查询</string>
+    <string name="selectSchoolZone">选择校区</string>
+    <string name="dorm">宿舍楼:</string>
+    <string name="selectDorm">选择宿舍楼</string>
+    <string name="doorNum">房间号:</string>
+    <string name="query">查询</string>
+    <string name="dorm_bind">寝室绑定</string>
+    <string name="selectDoorNum">填写房间号</string>
+    <string name="e_query">查询电量</string>
+    <string name="present_ele">当前电量：</string>
+    <string name="ele_queryDefault">无法查询，请先绑定寝室(●\'◡\'●)</string>
+    <string name="ele_queryNow">剩余电量: %1$s 度</string>
+    <string name="ele_query_false">未找到宿舍\n┭┮﹏┭┮</string>
+    <string name="ele_state_low">电量过低，建议立即充值!</string>
+    <string name="ele_state_normal">电量正常</string>
+    <string name="ele_state_high">电量充足~</string>
+    <string name="ele_state_unknown">状态未知</string>
 </resources>
