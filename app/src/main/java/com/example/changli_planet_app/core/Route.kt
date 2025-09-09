@@ -14,6 +14,7 @@ import com.example.changli_planet_app.feature.common.ui.CetActivity
 import com.example.changli_planet_app.feature.common.ui.ClassInfoActivity
 import com.example.changli_planet_app.feature.common.ui.ContractActivity
 import com.example.changli_planet_app.feature.common.ui.ElectronicActivity
+
 import com.example.changli_planet_app.feature.common.ui.ExamArrangementActivity
 import com.example.changli_planet_app.feature.common.ui.MandeActivity
 import com.example.changli_planet_app.feature.common.ui.ScoreInquiryActivity

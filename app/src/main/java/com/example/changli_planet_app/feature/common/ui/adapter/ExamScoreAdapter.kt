@@ -19,6 +19,10 @@ class ExamScoreAdapter(
     private var _items = emptyList<CourseListItem>()
     private val currentList: List<CourseListItem> get() = _items
 
+    private val CourseViewHolderViewPool = RecyclerView.RecycledViewPool().apply {
+        setMaxRecycledViews(0,12)
+    }
+
     companion object {
         private const val TYPE_SEMESTER = 0
         private const val TYPE_COURSE = 1
@@ -63,6 +67,7 @@ class ExamScoreAdapter(
         val binding = ScoreItemSemesterBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
+        binding.rvCourses.setRecycledViewPool(CourseViewHolderViewPool)
         return SemesterViewHolder(binding, store, context) { position -> toggleGroup(position) }
     }
 

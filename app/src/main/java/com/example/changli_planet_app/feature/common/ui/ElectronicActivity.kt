@@ -3,8 +3,9 @@ package com.example.changli_planet_app.feature.common.ui
 import android.os.Bundle
 import android.text.InputFilter
 import android.util.DisplayMetrics
+import android.view.MotionEvent
 import android.view.View
-import android.view.ViewStub
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,10 +17,11 @@ import com.example.changli_planet_app.databinding.ActivityElectronicBinding
 import com.example.changli_planet_app.feature.common.data.remote.dto.CheckElectricity
 import com.example.changli_planet_app.feature.common.redux.action.ElectronicAction
 import com.example.changli_planet_app.feature.common.redux.store.ElectronicStore
+import com.example.changli_planet_app.utils.load
 import com.example.changli_planet_app.widget.Dialog.WheelBottomDialog
+import com.google.android.material.imageview.ShapeableImageView
 import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 /**
  * 电费查询
@@ -31,12 +33,13 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
 
     private val mmkv by lazy { MMKV.defaultMMKV() }
     private val back: ImageView by lazy { binding.back }
-    private val school: TextView by lazy { binding.school }
-    private val dor: TextView by lazy { binding.dor }
-    private val query_ele: TextView by lazy { binding.queryElec }
-    private val dor_number: EditText by lazy { binding.dorNumber }
-    private val viewstub: ViewStub by lazy { binding.stubTv }
-    private val queryText: TextView by lazy { viewstub.inflate().findViewById(R.id.tv_result) }
+    private val school: TextView by lazy { binding.tvSchoolSelect }
+    private val dor: TextView by lazy { binding.tvDormSelect }
+    private val ele_query: TextView by lazy { binding.queryEle }
+    private val door_number: EditText by lazy { binding.tvDoorInput }
+    private val ele_image: ShapeableImageView by lazy { binding.eleImg }
+    private val ele_num: TextView by lazy { binding.eleNum }
+    private val ele_state :TextView by lazy { binding.eleState }
     private val electronicStore = ElectronicStore(this)
     private val schoolList: List<String> by lazy {
         resources.getStringArray(R.array.school_location).toList()
@@ -62,7 +65,7 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
 
     private fun initView() {
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.query){ view, windowInsets->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.tbQuery){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
                 view.paddingLeft,
@@ -72,10 +75,23 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             )
             WindowInsetsCompat.CONSUMED
         }
-        inputFilter(dor_number)
+        inputFilter(door_number)
+        binding.sivSchoolRegion.load(R.drawable.e_school)
+        binding.sivDormBuilding.load(R.drawable.e_dorm)
+        binding.sivRoomNumber.load(R.drawable.e_door)
     }
 
     private fun initListener() {
+        door_number.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                door_number.hint = ""
+            }
+            else{
+                if (door_number.text.isEmpty()){
+                    door_number.hint = getString(R.string.selectDoorNum)
+                }
+            }
+        }
         dor.setOnClickListener {
             val filteredList = when (school.text) {
                 "云塘校区" -> dorList.subList(0, 45)
@@ -85,13 +101,13 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             ClickWheel(filteredList)
         }
         school.setOnClickListener { ClickWheel(schoolList) }
-        query_ele.setOnClickListener {
+        ele_query.setOnClickListener {
             electronicStore.dispatch(
                 ElectronicAction.queryElectronic(
                     CheckElectricity(
                         school.text.toString(),
                         dor.text.toString(),
-                        dor_number.text.toString()
+                        door_number.text.toString()
                     )
                 )
             )
@@ -106,15 +122,36 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                 school.text = state.address
                 dor.text = state.buildId
                 if (state.isElec) {
-                    if (viewstub.parent == null) {
-                        val text = findViewById<TextView>(R.id.tv_result)
-                        text.text = state.elec
-                    } else {
-                        val td = viewstub.inflate() as View
-                        val text = td.findViewById<TextView>(R.id.tv_result)
-                        text.text = state.elec
+                    // 1. 使用正则表达式提取字符串中的数字（包括小数）
+                    val regex = Regex("(\\d*\\.?\\d+)")
+                    val matchResult = regex.find(state.elec)
+
+                    // 2. 将提取到的数字字符串转换为 Float，如果失败则默认为 0.0f
+                    val electronicValue = matchResult?.value?.toFloatOrNull() ?: -1.0f
+                    when{
+                        electronicValue in 0.0f..20f -> {
+                            ele_image.load(R.drawable.e_none)
+                            ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
+                            ele_state.text = getString(R.string.ele_state_low)
+                            ele_state.setTextColor(getColor(R.color.ele_low))
+                        }
+                        electronicValue in 20.1f..100f ->{
+                            ele_image.load(R.drawable.e_low)
+                            ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
+                            ele_state.text = getString(R.string.ele_state_normal)
+                            ele_state.setTextColor(getColor(R.color.ele_normal))
+                        }
+                        electronicValue > 100f ->{
+                            ele_image.load(R.drawable.e_high)
+                            ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
+                            ele_state.text = getString(R.string.ele_state_high)
+                            ele_state.setTextColor(getColor(R.color.ele_high))
+                        }
+                        electronicValue < 0.0f ->{
+                            ele_image.load(R.drawable.e_default)
+                            ele_num.text = getString(R.string.ele_query_false)
+                        }
                     }
-                    state.isElec = false
                 }
             })
     }
@@ -135,20 +172,66 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         Wheel.show(supportFragmentManager, "wheel")
     }
 
+    /**
+     * 点击外部区域隐藏键盘并清除EditText焦点
+     */
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is EditText) {
+                val outRect = android.graphics.Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    v.clearFocus()
+                    hideKeyboard(v)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
+    /**
+     * 隐藏键盘
+     */
+    private fun hideKeyboard(view: View) {
+        val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
     override fun onResume() {
         super.onResume()
         school.text = mmkv.decodeString("school", "选择校区")
         dor.text = mmkv.decodeString("dor", "选择宿舍楼")
-        dor_number.setText(mmkv.decodeString("dor_number", ""))
+        door_number.setText(mmkv.decodeString("door_number", ""))
         electronicStore.dispatch(ElectronicAction.selectAddress(school.text.toString()))
         electronicStore.dispatch(ElectronicAction.selectBuild(dor.text.toString()))
+        if (school.text == "选择校区" || dor.text == "选择宿舍楼" || door_number.text.isEmpty()) {
+            // 如果是初始状态，则显示默认UI
+            ele_image.load(R.drawable.e_default)
+            ele_num.text = getString(R.string.ele_queryDefault)
+            ele_state.text = getString(R.string.ele_state_unknown)
+            mmkv.encode("isFirstLaunch", false)
+        } else {
+            // 如果不是初始状态，则自动查询
+            electronicStore.dispatch(
+                ElectronicAction.queryElectronic(
+                    CheckElectricity(
+                        school.text.toString(),
+                        dor.text.toString(),
+                        door_number.text.toString()
+                    )
+                )
+            )
+        }
+
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
         mmkv.encode("school", school.text.toString())
         mmkv.encode("dor", dor.text.toString())
-        mmkv.encode("dor_number", dor_number.text.toString())
+        mmkv.encode("door_number", door_number.text.toString())
         disposables.clear()
     }
 }
