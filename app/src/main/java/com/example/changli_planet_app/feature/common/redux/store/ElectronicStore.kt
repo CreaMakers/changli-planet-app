@@ -3,6 +3,7 @@ package com.example.changli_planet_app.feature.common.redux.store
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.Store
 import com.example.changli_planet_app.core.network.HttpUrlHelper
@@ -36,6 +37,7 @@ class ElectronicStore(contexts: Activity):Store<ElectronicState,ElectronicAction
                 currentState
             }
             is ElectronicAction.queryElectronic->{
+                Log.d("ElectronicStore","received")
                 val builder = HttpUrlHelper.HttpRequest()
                     .header("Authorization","${PlanetApplication.accessToken}")
                     .get(PlanetApplication.ToolIp + "/dormitory-electricity")
@@ -49,11 +51,11 @@ class ElectronicStore(contexts: Activity):Store<ElectronicState,ElectronicAction
                             response.body?.string(),
                             MyResponse::class.java
                         )
-                        if(!currentState.isElec){
+
                             currentState.elec = fromJson.msg
                             currentState.isElec = true
                             _state.onNext(currentState)
-                        }
+                        
                     }
                     override fun onFailure(error: String) {
                     }
