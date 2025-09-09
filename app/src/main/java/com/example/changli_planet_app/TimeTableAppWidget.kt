@@ -8,6 +8,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.example.changli_planet_app.core.MainActivity
 import com.example.changli_planet_app.core.PlanetApplication
@@ -18,7 +19,6 @@ import com.example.changli_planet_app.core.network.listener.RequestCallback
 import com.example.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
 import com.example.changli_planet_app.feature.common.data.remote.dto.Course
 import com.example.changli_planet_app.feature.common.redux.store.TimeTableStore.weekJsonInfo
-import com.example.changli_planet_app.common.cache.CommonInfo
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
@@ -229,7 +229,7 @@ private fun getCourseInfo(callback: (List<TimeTableMySubject>?) -> Unit) {
                             Log.d("TimeTableAppWidget", "获取课表成功，刷新缓存")
                             subjects.addAll(generateSubjects(fromJson.data, curTerm))
                             val result = subjects.distinctBy {
-                                "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}"
+                                "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
                             }
                             courses = OkHttpHelper.gson.toJson(result.toList())
                             isRefresh = false

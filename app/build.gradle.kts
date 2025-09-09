@@ -3,23 +3,26 @@ import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("kotlin-parcelize")
 }
 
 android {
     namespace = "com.example.changli_planet_app"
-    compileSdk = 34
+    compileSdk = 36
     buildFeatures {
         buildConfig = true
+        compose = true
     }
     defaultConfig {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 7
-        versionName = "1.1.4"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        targetSdk = 36
+        versionCode = 8
+        versionName = "1.2.0"
+
+
         ndk {
             // 设置支持的SO库架构
             abiFilters.add("armeabi") //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
@@ -50,11 +53,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     viewBinding {
         enable = true
@@ -95,11 +98,13 @@ dependencies {
     //腾讯云HTTPDNS
     implementation("io.github.dnspod:httpdns-sdk:4.9.1")
     // OkHttp
-    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
     //Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.6.1")
-    implementation("com.squareup.retrofit2:converter-gson:2.6.1")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     // EventBus
     implementation("org.greenrobot:eventbus:3.3.1")
     // Gson
@@ -140,25 +145,32 @@ dependencies {
     implementation("io.github.scwang90:refresh-header-radar:3.0.0-alpha")
     implementation("io.github.scwang90:refresh-header-material:3.0.0-alpha")
     implementation("io.github.scwang90:refresh-footer-classics:3.0.0-alpha")
-    // BRV，尝试一下
-    implementation("com.github.liangjingkanji:BRV:1.6.1")
-
-
     //lottie
     implementation("com.airbnb.android:lottie:6.0.0")
     //bugly
     implementation("com.tencent.bugly:crashreport:4.1.9.3")
     // 缺省页
     implementation("com.github.liangjingkanji:StateLayout:1.4.2")
+    // jsoup
+    implementation("org.jsoup:jsoup:1.21.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.crashlytics.buildtools)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
 kapt {
     arguments {

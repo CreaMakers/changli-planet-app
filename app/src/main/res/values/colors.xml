@@ -50,4 +50,7 @@
     <color name="ele_low">#FF3D00</color>
     <color name="ele_normal">#FFA800</color>
     <color name="ele_high">#00C853</color>
+    <color name="about_background">#F5F7F9</color>
+    <color name="about_text_primary">#333333</color>
+    <color name="about_text_secondary">#777778</color>
 </resources>

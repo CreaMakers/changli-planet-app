@@ -3,5 +3,8 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">113.44.47.220</domain>
         <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">pt.csust.edu.cn</domain>
+        <domain includeSubdomains="true">authserver.csust.edu.cn</domain>
+        <domain includeSubdomains="true">ehall.csust.edu.cn</domain>
     </domain-config>
 </network-security-config>

@@ -25,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.TimeTableAppWidget
 import com.example.changli_planet_app.common.api.DrawerController
+import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.pool.TabAnimationPool
 import com.example.changli_planet_app.common.redux.action.UserAction
 import com.example.changli_planet_app.common.redux.store.UserStore
@@ -94,13 +95,14 @@ class MainActivity : AppCompatActivity(), DrawerController {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken)) {
             Route.goLogin(this@MainActivity)
             finish()
             return
         }
+        CommonInfo.startTime = System.currentTimeMillis()
         setCustomDensity(this, application, 412)
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         val start = System.currentTimeMillis()
@@ -212,7 +214,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
         val featureTab = tabLayout.newTab().setIcon(R.drawable.nfeature).setText(R.string.function)
         val postTab = tabLayout.newTab().setIcon(R.drawable.nnews).setText(R.string.news)
         val imTab = tabLayout.newTab().setIcon(R.drawable.nchat).setText(R.string.chat)
-        val profileTab = tabLayout.newTab().setIcon(R.drawable.nfind).setText(R.string.profile_home)
+        val profileTab = tabLayout.newTab().setIcon(R.drawable.nprofile).setText(R.string.profile_home)
         tabLayout.addTab(featureTab)
         tabLayout.addTab(postTab)
         tabLayout.addTab(imTab)

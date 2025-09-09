@@ -9,14 +9,24 @@ import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.base.BaseFragment
 import com.example.changli_planet_app.common.api.DrawerController
+import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
+import com.example.changli_planet_app.utils.ResourceUtil
 import com.example.changli_planet_app.utils.load
+import com.example.changli_planet_app.widget.Dialog.NormalResponseDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
+    companion object {
+        @JvmStatic
+        fun newInstance() = FeatureFragment()
+
+        private const val CSUST_MAP_URL = "https://gis.csust.edu.cn/cmipsh5/#/"
+    }
+
     private val featureAvatar by lazy { binding.featureAvatar }
     private var drawerController: DrawerController? = null
 
@@ -34,12 +44,14 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
         super.onDetach()
     }
 
-    override fun createViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentFeatureBinding {
+    override fun createViewBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?
+    ): FragmentFeatureBinding {
         return FragmentFeatureBinding.inflate(inflater, container, false)
     }
 
     override fun initView() {
-        val start = System.currentTimeMillis()
         setIcons()
 
         Looper.myQueue().addIdleHandler {
@@ -48,7 +60,7 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
         }
 
         featureAvatar.setOnClickListener { drawerController?.openDrawer() }
-        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - start}")
+        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - CommonInfo.startTime}")
     }
 
     override fun initData() {
@@ -66,7 +78,8 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
 
     private fun setupClickListeners() {
         with(binding) {
-            nmap.setOnClickListener { activity?.let { Route.goCampusMap(it) } }
+//            nmap.setOnClickListener { activity?.let { Route.goCampusMap(it) } }
+            nmap.setOnClickListener { activity?.let { Route.goWebView(it, CSUST_MAP_URL) } }
             nelectronic.setOnClickListener { activity?.let { Route.goElectronic(it) } }
             ncourse.setOnClickListener { activity?.let { Route.goTimetable(it) } }
             ngrade.setOnClickListener { activity?.let { Route.goScoreInquiry(it) } }
@@ -76,6 +89,10 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
             nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
             accountbook.setOnClickListener { activity?.let { Route.goAccountBook(it) } }
             ndocument.setOnClickListener { activity?.let { Route.goContract(it) } }
+//            nhomework.setOnClickListener { activity?.let { Route.goMooc(it) } }
+            nhomework.setOnClickListener { showNormalDialog(ResourceUtil.getStringRes(R.string.feature_developing_in_progress)) }
+            nlose.setOnClickListener { showNormalDialog(ResourceUtil.getStringRes(R.string.feature_developing_in_progress)) }
+            ncalender.setOnClickListener { activity?.let { Route.goCalendar(it) } }
         }
     }
 
@@ -95,7 +112,7 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
                     nmande to R.drawable.ic_talking,
                     nlose to R.drawable.ic_lost_and_found,
                     nelectronic to R.drawable.ic_bill,
-                    nrank to R.drawable.ic_rank,
+                    nhomework to R.drawable.ic_homework,
                     nclassroom to R.drawable.ic_classroom,
                     accountbook to R.drawable.account_book,
                     ndocument to R.drawable.ic_document
@@ -108,8 +125,11 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
         }
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance() = FeatureFragment()
+    private fun showNormalDialog(text: String) {
+        NormalResponseDialog(
+            requireActivity(),
+            text,
+            "贴心小提示"
+        ).show()
     }
 }

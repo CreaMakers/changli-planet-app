@@ -7,6 +7,8 @@ import com.example.changli_planet_app.auth.ui.ForgetPasswordActivity
 import com.example.changli_planet_app.auth.ui.LoginActivity
 import com.example.changli_planet_app.auth.ui.LoginByEmailActivity
 import com.example.changli_planet_app.auth.ui.RegisterActivity
+import com.example.changli_planet_app.common.ui.WebViewActivity
+import com.example.changli_planet_app.feature.common.ui.CalendarActivity
 import com.example.changli_planet_app.feature.common.ui.CampusMapActivity
 import com.example.changli_planet_app.feature.common.ui.CetActivity
 import com.example.changli_planet_app.feature.common.ui.ClassInfoActivity
@@ -22,9 +24,11 @@ import com.example.changli_planet_app.feature.ledger.ui.FixSomethingAccountActiv
 import com.example.changli_planet_app.feature.lostfound.ui.LoseActivity
 import com.example.changli_planet_app.feature.lostfound.ui.PublishFoundThingActivity
 import com.example.changli_planet_app.feature.lostfound.ui.PublishLoseThingActivity
+import com.example.changli_planet_app.feature.mooc.ui.MoocActivity
 import com.example.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.example.changli_planet_app.freshNews.ui.PublishFreshNewsActivity
 import com.example.changli_planet_app.freshNews.ui.UserHomeActivity
+import com.example.changli_planet_app.profileSettings.ui.AboutActivity
 import com.example.changli_planet_app.settings.ui.AccountSecurityActivity
 import com.example.changli_planet_app.settings.ui.BindingUserActivity
 import com.example.changli_planet_app.settings.ui.ChangeEmailActivity
@@ -182,7 +186,6 @@ object Route {
         context.startActivity(intent)
     }
 
-
     fun goAccountBook(context: Context) {
         val intent = Intent(context, AccountBookActivity::class.java)
         context.startActivity(intent)
@@ -210,4 +213,25 @@ object Route {
         context.startActivity(intent)
     }
 
+    fun goWebView(context: Context, url: String) {
+        val intent = Intent(context, WebViewActivity::class.java).apply {
+            putExtra("url_tag", url)
+        }
+        context.startActivity(intent)
+    }
+
+    fun goAbout(context: Context) {
+        val intent = Intent(context, AboutActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goMooc(context: Context) {
+        val intent = Intent(context, MoocActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goCalendar(context: Context) {
+        val intent = Intent(context, CalendarActivity::class.java)
+        context.startActivity(intent)
+    }
 }

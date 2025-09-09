@@ -1,28 +1,12 @@
 package com.example.changli_planet_app.utils
 
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.os.Message
 import android.util.TypedValue
 import android.view.View
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.common.data.local.room.entity.UserEntity
 import com.example.changli_planet_app.common.data.remote.dto.UserProfile
-
-val Float.dp: Float
-    get() = android.util.TypedValue.applyDimension(
-        android.util.TypedValue.COMPLEX_UNIT_DIP, this, Resources.getSystem().displayMetrics
-    )
-
-val Int.dp: Int
-    get() = android.util.TypedValue.applyDimension(
-        android.util.TypedValue.COMPLEX_UNIT_DIP,
-        this.toFloat(),
-        Resources.getSystem().displayMetrics
-    ).toInt()
-
 
 val Context.screenHeight
     get() = resources.displayMetrics.heightPixels
@@ -39,17 +23,6 @@ val Context.statusBarHeight
         )
     )
 
-
-/**
- * 设置View的圆角与颜色
- */
-fun View.setRoundRectBg(color: Int = Color.RED, cornerRadius: Int = 15.dp) {
-    background = GradientDrawable().apply {
-        setColor(color)
-        setCornerRadius(cornerRadius.toFloat())
-        shape = GradientDrawable.RECTANGLE
-    }
-}
 
 fun View.isVisible() = this.visibility == View.VISIBLE
 

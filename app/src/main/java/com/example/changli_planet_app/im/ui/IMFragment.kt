@@ -7,23 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.changli_planet_app.common.data.local.mmkv.UserInfoManager
-import com.example.changli_planet_app.im.data.ChatListItem
-import com.example.changli_planet_app.im.ui.adapter.IMChatListAdapter
+import com.example.changli_planet_app.R
 import com.example.changli_planet_app.common.api.DrawerController
-import com.example.changli_planet_app.utils.GlideUtils
 import com.example.changli_planet_app.databinding.FragmentIMBinding
-import com.google.android.material.imageview.ShapeableImageView
+import com.example.changli_planet_app.im.data.ChatListItem
+import com.example.changli_planet_app.utils.load
 
 class IMFragment : Fragment() {
     private lateinit var binding: FragmentIMBinding
     private val TAG = "IMFragment"
 
-    private val recyclerView: RecyclerView by lazy { binding.chatListRecycler }
-    private val imAvatar: ShapeableImageView by lazy { binding.imAvatar }
-    private val imName by lazy { binding.imName }
+//    private val recyclerView: RecyclerView by lazy { binding.chatListRecycler }
+//    private val imAvatar: ShapeableImageView by lazy { binding.imAvatar }
+//    private val imName by lazy { binding.imName }
 
     private var drawerController: DrawerController? = null
 
@@ -41,15 +37,15 @@ class IMFragment : Fragment() {
         super.onDetach()
     }
 
-    override fun onResume() {
-        super.onResume()
-        imName.text = UserInfoManager.account
-        GlideUtils.loadWithThumbnail(
-            this,
-            imAvatar,
-            UserInfoManager.userAvatar
-        )
-    }
+//    override fun onResume() {
+//        super.onResume()
+//        imName.text = UserInfoManager.account
+//        GlideUtils.loadWithThumbnail(
+//            this,
+//            imAvatar,
+//            UserInfoManager.userAvatar
+//        )
+//    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,9 +57,10 @@ class IMFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        imAvatar.setOnClickListener { drawerController?.openDrawer() }
-        recyclerView.adapter = IMChatListAdapter(chatList)
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        binding.ivUnderConstruction.load(R.drawable.under_construction)
+//        imAvatar.setOnClickListener { drawerController?.openDrawer() }
+//        recyclerView.adapter = IMChatListAdapter(chatList)
+//        recyclerView.layoutManager = LinearLayoutManager(context)
     }
 
     private val chatList = listOf(

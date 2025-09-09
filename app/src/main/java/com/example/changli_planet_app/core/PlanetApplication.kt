@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.example.changli_planet_app.BuildConfig
 import com.example.changli_planet_app.core.network.OkHttpHelper
 import com.example.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
+import com.tencent.bugly.crashreport.CrashReport
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
 import com.tencent.msdk.dns.MSDKDnsResolver
@@ -74,8 +75,9 @@ class PlanetApplication : Application() {
         val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initMMKV()
-        // TODO 提包开，开发不开
-//        CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
+        if (!BuildConfig.DEBUG) {
+            CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
+        }
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }
             runCatching { preRequestIps.forEach { OkHttpHelper.preRequest(it) } }.onFailure {
