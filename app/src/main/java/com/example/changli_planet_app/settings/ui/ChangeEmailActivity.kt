@@ -18,7 +18,6 @@ import com.example.changli_planet_app.settings.redux.store.ChangeEmailStore
 import com.example.changli_planet_app.utils.Event.FinishEvent
 import com.example.changli_planet_app.utils.singleClick
 import com.example.changli_planet_app.widget.Dialog.NormalResponseDialog
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 

@@ -18,7 +18,6 @@ import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.core.noOpDelegate
 import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import com.example.changli_planet_app.utils.Event.FinishEvent
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 

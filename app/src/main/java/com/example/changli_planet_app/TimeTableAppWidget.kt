@@ -19,6 +19,7 @@ import com.example.changli_planet_app.core.network.listener.RequestCallback
 import com.example.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
 import com.example.changli_planet_app.feature.common.data.remote.dto.Course
 import com.example.changli_planet_app.feature.common.redux.store.TimeTableStore.weekJsonInfo
+import com.example.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
@@ -27,6 +28,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.jvm.java
 
 /**
  * Implementation of App Widget functionality.
@@ -92,9 +94,11 @@ internal fun updateAppWidget(
 ) {
     Log.d("TimeTableAppWidget", "updateAppWidget")
     // 创建点击意图，拉起主Activity
-    val intent = Intent(context, MainActivity::class.java).apply {
+    val intent = Intent(context, TimeTableActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        putExtra("from_timeTable_widget",true)
     }
+
 
     val pendingIntent = PendingIntent.getActivity(
         context,

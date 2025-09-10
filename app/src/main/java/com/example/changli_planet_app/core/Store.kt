@@ -18,7 +18,7 @@ open abstract class Store<S, A> {
     }
 
     abstract fun handleEvent(action: A)
-    fun dispatch(action: A) {
+    fun dispatch(action: A & Any) {
         eventStream.onNext(action)
     }
 

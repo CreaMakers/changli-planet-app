@@ -24,7 +24,6 @@ import com.example.changli_planet_app.feature.common.redux.store.ExamArrangement
 import com.example.changli_planet_app.feature.common.ui.adapter.ExamArrangementAdapter
 import com.example.changli_planet_app.feature.common.ui.adapter.model.Exam
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.Calendar
 
 /**

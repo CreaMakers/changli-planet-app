@@ -26,7 +26,6 @@ import com.example.changli_planet_app.feature.common.ui.adapter.ExamScoreAdapter
 import com.example.changli_planet_app.feature.common.ui.adapter.model.CourseScore
 import com.example.changli_planet_app.feature.common.ui.adapter.model.SemesterGroup
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 /**
  * 成绩查询页面
