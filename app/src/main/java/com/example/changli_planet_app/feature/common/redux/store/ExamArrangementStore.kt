@@ -68,7 +68,7 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
                         handler.post {
                             NormalResponseDialog(
                                 action.context,
-                                "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+                                " 暂时查询不到考试场次喵~₍ᐢ..ᐢ₎♡",
                                 "查询失败"
                             ).show()
                         }
