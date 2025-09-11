@@ -22,6 +22,8 @@ import kotlinx.coroutines.launch
 
 class PlanetApplication : Application() {
     companion object {
+        private const val TIME_TABLE_APP_WIDGET = "TimeTableAppWidget"
+        
         var accessToken: String?
             get() = MMKV.defaultMMKV()?.getString("token", null)
             set(value) {
@@ -46,6 +48,7 @@ class PlanetApplication : Application() {
                 accessToken = ""
                 MMKV.mmkvWithID("import_cache").clearAll()
                 MMKV.mmkvWithID("content_cache").clearAll()
+                MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
             }
         }

@@ -310,6 +310,7 @@ class UserStore : Store<UserState, UserAction>() {
                                     handler.post {
                                         EventBusHelper.post(FinishEvent("bindingUser"))
                                     }
+                                    PlanetApplication.clearCacheAll()
                                 }
 
                                 else -> {
