@@ -309,6 +309,8 @@ class UserStore : Store<UserState, UserAction>() {
                                     StudentInfoManager.studentId = action.student_number
                                     handler.post {
                                         EventBusHelper.post(FinishEvent("bindingUser"))
+
+
                                     }
                                     PlanetApplication.clearCacheAll()
                                 }
