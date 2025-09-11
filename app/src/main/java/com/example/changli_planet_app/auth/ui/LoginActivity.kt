@@ -46,6 +46,10 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     val store = LoginAndRegisterStore()
     val UserStore=UserStore()
 
+    private lateinit var accountTextWatcher: TextWatcher
+    private lateinit var passwordTextWatcher: TextWatcher
+
+
     override fun createViewBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,7 +98,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         )
         store.dispatch(LoginAndRegisterAction.initilaize)
         setUnderLine()
-        val accountTextWatcher = object : TextWatcher by noOpDelegate() {
+        accountTextWatcher = object : TextWatcher by noOpDelegate() {
             override fun afterTextChanged(s: Editable?) {
                 store.dispatch(
                     LoginAndRegisterAction.InputLogin(
@@ -104,7 +108,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
                 )
             }
         }
-        val passwordTextWatcher = object : TextWatcher by noOpDelegate() {
+        passwordTextWatcher = object : TextWatcher by noOpDelegate() {
             override fun afterTextChanged(s: Editable?) {
                 store.dispatch(
                     LoginAndRegisterAction.InputLogin(
@@ -208,6 +212,8 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
+        account.removeTextChangedListener(accountTextWatcher)
+        password.removeTextChangedListener(passwordTextWatcher)
         EventBus.getDefault().unregister(this)
     }
 

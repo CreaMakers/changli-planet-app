@@ -65,6 +65,19 @@
                 android:resource="@xml/time_table_app_widget_info" />
         </receiver>
 
+
+        <receiver
+            android:name=".ElectronicAppWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/electronic_app_widget_info" />
+        </receiver>
+
         <service
             android:name=".common.service.DownloadService"
             android:enabled="true"

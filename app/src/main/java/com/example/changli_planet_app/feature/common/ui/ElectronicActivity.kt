@@ -1,27 +1,43 @@
 package com.example.changli_planet_app.feature.common.ui
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Intent
+import android.icu.util.TimeUnit
 import android.os.Bundle
 import android.text.InputFilter
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Switch
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
+import com.example.changli_planet_app.ElectronicAppWidget
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.base.FullScreenActivity
+import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
 import com.example.changli_planet_app.feature.common.data.remote.dto.CheckElectricity
 import com.example.changli_planet_app.feature.common.redux.action.ElectronicAction
 import com.example.changli_planet_app.feature.common.redux.store.ElectronicStore
 import com.example.changli_planet_app.utils.load
+import com.example.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.widget.Dialog.WheelBottomDialog
 import com.google.android.material.imageview.ShapeableImageView
 import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlin.jvm.java
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 /**
  * 电费查询
@@ -31,6 +47,7 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         val ALPHANUMERIC_REGEX = Regex("^[a-zA-Z0-9]*$")
     }
 
+//    private val appWidgetId by lazy { intent.getIntExtra("ele_widget_id",0) }
     private val mmkv by lazy { MMKV.defaultMMKV() }
     private val back: ImageView by lazy { binding.back }
     private val school: TextView by lazy { binding.tvSchoolSelect }
@@ -61,6 +78,17 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         initView()
         initListener()
         initObserve()
+        recoverInstance(savedInstanceState)
+    }
+
+    private fun recoverInstance(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null){
+            Log.d("Qingyue","saved")
+            school.text = savedInstanceState.getString("ele_school", "选择校区")
+            dor.text = savedInstanceState.getString("ele_dor", "选择宿舍楼")
+            door_number.setText(savedInstanceState.getString("ele_door", ""))
+
+        }
     }
 
     private fun initView() {
@@ -150,6 +178,7 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                         electronicValue < 0.0f ->{
                             ele_image.load(R.drawable.e_default)
                             ele_num.text = getString(R.string.ele_query_false)
+                            ele_state.text =getString(R.string.ele_state_unknown)
                         }
                     }
                 }
@@ -223,6 +252,26 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                 )
             )
         }
+
+
+    }
+
+//    private fun sendEleBroadcast() {
+//        if (appWidgetId != 0){
+//            val intent = Intent(this, ElectronicAppWidget::class.java).apply {
+//                intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+//                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetId)
+//            }
+//            sendBroadcast(intent)
+//        }
+//
+//    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putString("ele_school",school.text.toString())
+        outState.putString("ele_dor",dor.text.toString())
+        outState.putString("ele_door",door_number.text.toString())
 
 
     }

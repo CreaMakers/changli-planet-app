@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ele_widget_root_layout"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    style="@style/Widget.Changliplanetapp.AppWidget.Container"
+    android:theme="@style/Theme.Changliplanetapp.AppWidgetContainer"
+    android:layout_height="match_parent">
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ele_title"
+        android:textColor="@color/app_blue1"
+        android:text="@string/eletronic_search"/>
+
+    <LinearLayout
+        android:layout_marginTop="@dimen/dp10"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/school_ele"
+            android:text="金盆岭校区"/>
+
+        <TextView
+            android:layout_marginLeft="@dimen/dp20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dor_ele"
+            android:text="西11"/>
+
+        <TextView
+            android:layout_marginLeft="@dimen/dp20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/door_ele"
+            android:text="135"/>
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_marginTop="@dimen/dp10"
+        android:gravity="center"
+        android:textSize="@dimen/sp17"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp80"
+        android:id="@+id/ele_widget_num"
+        android:text="剩余电量为：101.10度"/>
+
+
+    <LinearLayout
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <TextView
+            android:layout_marginLeft="@dimen/dp90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/refresh_time_text"
+            android:text="上次刷新时间："/>
+
+        <TextView
+            android:textColor="@color/app_blue1"
+            android:layout_marginLeft="@dimen/dp10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/refresh_time"
+            android:text="9.11 | 20:20"/>
+    </LinearLayout>
+
+
+</LinearLayout>

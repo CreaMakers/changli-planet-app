@@ -284,10 +284,11 @@
                 android:layout_marginEnd="@dimen/dp10"
                 android:textStyle="bold"
                 android:textColor="@color/color_CC346EEB"
-                app:layout_constraintStart_toEndOf="@id/ele_img"
+                app:layout_constraintBottom_toBottomOf="@id/ele_img"
                 app:layout_constraintEnd_toStartOf="@id/ele_state"
+                app:layout_constraintStart_toEndOf="@id/ele_img"
                 app:layout_constraintTop_toTopOf="@id/ele_img"
-                app:layout_constraintBottom_toBottomOf="@id/ele_img" />
+                app:layout_constraintVertical_bias="0.52" />
 
             <TextView
                 android:id="@+id/ele_state"
@@ -322,17 +323,21 @@
         android:focusable="true"
         android:layout_marginStart="@dimen/dp40"
         android:layout_marginEnd="@dimen/dp40"
-        android:layout_marginTop="@dimen/dp20"
+        android:layout_marginTop="@dimen/dp60"
         app:layout_constraintTop_toBottomOf="@+id/card_electricity"/>
+
+
     <TextView
+        android:id="@+id/tip"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/dp10"
+        android:layout_marginBottom="@dimen/dp30"
         android:text="@string/query_things"
         android:textColor="@color/setting_header_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
