@@ -182,9 +182,9 @@ class MainActivity : AppCompatActivity(), DrawerController {
         supportFragmentManager.fragments.forEach { fragment ->
             val key = when (fragment) {
                 is FeatureFragment -> 0
-                is ProfileSettingsFragment -> 1
+                is ProfileSettingsFragment -> 3
                 is NewsFragment -> 2
-                is IMFragment -> 3
+                is IMFragment -> 1
                 else -> throw IllegalStateException("Invalid fragment")
             }
             fragments.put(key, fragment)     //重新添加fragment
