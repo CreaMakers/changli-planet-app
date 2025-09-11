@@ -83,7 +83,7 @@ class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Ha
                                 .map { dbResult ->
                                     // 对数据库结果也进行去重
                                     dbResult.distinctBy {
-                                        "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}"
+                                        "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
                                     }.toMutableList()
                                 }
                                 .doOnSuccess { Log.d("TimeTableStore", "从数据库获得课表") }
