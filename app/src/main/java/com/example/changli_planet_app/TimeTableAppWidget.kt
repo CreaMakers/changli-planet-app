@@ -157,6 +157,7 @@ internal fun updateAppWidget(
                     views.setViewVisibility(R.id.no_course_tv, View.VISIBLE)
                 }
             } else {
+                views.setViewVisibility(R.id.student_error_tv, View.GONE)
                 val result = courses.filter { it.weekday == curWeekDay }
                     .filter { !it.weeks.isNullOrEmpty() and it.weeks!!.contains(curSchoolWeek) }
                     .sortedBy { it.start }
