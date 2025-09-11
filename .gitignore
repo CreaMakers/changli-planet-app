@@ -6,6 +6,7 @@
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
+/.idea/deviceManager.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
@@ -13,3 +14,4 @@
 .externalNativeBuild
 .cxx
 local.properties
+/app/release/**
