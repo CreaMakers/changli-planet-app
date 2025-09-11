@@ -17,7 +17,7 @@
             android:id="@+id/term_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/sp12"
+            android:textSize="@dimen/dp12"
             android:layout_centerVertical="true"
             android:textStyle="bold"
             tools:ignore="HardcodedText"
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@id/week_tv"
-            android:textSize="@dimen/sp12"
+            android:textSize="@dimen/dp12"
             android:layout_marginEnd="@dimen/dp5"
             android:textStyle="bold"
             android:layout_centerVertical="true"
@@ -39,7 +39,7 @@
             android:id="@+id/week_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="@dimen/dp12"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:textColor="@color/app_blue1"
@@ -50,7 +50,7 @@
 
     <LinearLayout
         android:id="@+id/course_ll"
-        android:layout_marginTop="@dimen/dp4"
+        android:layout_marginTop="@dimen/dp3"
         android:layout_marginStart="@dimen/dp5"
         android:layout_width="match_parent"
         android:orientation="vertical"
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             tools:visibility="visible">
 
-            <ImageView
+            <TextView
                 android:layout_width="@dimen/dp4"
                 android:layout_height="match_parent"
                 android:background="@drawable/course_widget_red_bg" />
@@ -84,14 +84,14 @@
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    android:textSize="13sp"
+                    android:textSize="@dimen/dp13"
                     tools:text="测试文本" />
 
                 <TextView
                     android:id="@+id/tv_course_room_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="@dimen/dp12"
                     android:maxLines="1"
                     android:layout_marginTop="@dimen/dp2"
                     android:ellipsize="end"
@@ -104,7 +104,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:layout_marginTop="@dimen/dp2"
-                    android:textSize="12sp"
+                    android:textSize="@dimen/dp12"
                     tools:text="测试文本 123" />
 
             </LinearLayout>
@@ -120,7 +120,7 @@
             android:layout_height="wrap_content"
             tools:visibility="visible">
 
-            <ImageView
+            <TextView
                 android:layout_width="@dimen/dp4"
                 android:layout_height="match_parent"
                 android:background="@drawable/course_widget_blue_bg" />
@@ -139,14 +139,14 @@
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    android:textSize="13sp"
+                    android:textSize="@dimen/dp13"
                     tools:text="测试文本" />
 
                 <TextView
                     android:id="@+id/tv_course_room_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="@dimen/dp12"
                     android:maxLines="1"
                     android:layout_marginTop="@dimen/dp2"
                     android:ellipsize="end"
@@ -159,7 +159,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:layout_marginTop="@dimen/dp2"
-                    android:textSize="12sp"
+                    android:textSize="@dimen/dp12"
                     tools:text="测试文本 123" />
 
             </LinearLayout>
@@ -172,11 +172,33 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:textStyle="bold"
-            android:textSize="13sp"
+            android:textSize="@dimen/dp13"
             android:visibility="gone"
             android:layout_height="match_parent"
             tools:text="本学期已经结束啦~"
             tools:visibility="gone" />
+
+        <TextView
+            android:id="@+id/student_error_tv"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="@dimen/dp13"
+            android:layout_height="match_parent"
+            android:text="@string/widget_must_get_course_data" />
+
+        <TextView
+            android:id="@+id/tv_error_account"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="@dimen/dp13"
+            android:visibility="gone"
+            android:text="@string/account_bind_failed"
+            tools:text="@string/account_bind_failed" />
 
         <TextView
             android:id="@+id/no_course_tv"
@@ -185,21 +207,8 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:textStyle="bold"
-            android:textSize="13sp"
+            android:textSize="@dimen/dp13"
             android:text="@string/there_are_no_classes_today"
             tools:text="@string/there_are_no_classes_today" />
-
-        <TextView
-            android:id="@+id/student_error_tv"
-            android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textSize="13sp"
-            android:visibility="gone"
-            android:layout_height="match_parent"
-            android:text="@string/widget_must_get_course_data" />
     </LinearLayout>
-
-
 </LinearLayout>
