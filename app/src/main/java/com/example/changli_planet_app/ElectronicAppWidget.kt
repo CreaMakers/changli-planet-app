@@ -82,7 +82,6 @@ class ElectronicAppWidget: AppWidgetProvider() {
 
         val intent = Intent(context, ElectronicActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-//            putExtra("ele_widget_id", appWidgetIds)
         }
         val  PendingIntent = PendingIntent.getActivity(context,appWidgetIds,intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
