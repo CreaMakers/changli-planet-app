@@ -33,9 +33,14 @@ class AccountBookActivity : FullScreenActivity<ActivityAccountBookBinding>() {
     private val avatar by lazy { binding.avatar }
 
     override fun createViewBinding(): ActivityAccountBookBinding = ActivityAccountBookBinding.inflate(layoutInflater)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
         GlideUtils.load(this,avatar,UserInfoManager.userAvatar,false) //加载用户头像
         handleEvents()
         showCatLoading()
