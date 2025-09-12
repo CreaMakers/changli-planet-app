@@ -1,6 +1,8 @@
 package com.example.changli_planet_app.feature.timetable.ui
 
 import android.annotation.SuppressLint
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -32,6 +34,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.TimeTableAppWidget
 import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
@@ -291,6 +294,10 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
 //        })
     }
 
+    override fun onResume() {
+        super.onResume()
+        refreshWidget()
+    }
     private fun getCurTerm(instance: Calendar): String {
         val month = instance.get(Calendar.MONTH) + 1
         var year = instance.get(Calendar.YEAR)
@@ -885,7 +892,19 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         }
         termList = list
     }
+    private fun refreshWidget() {
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        val componentName = ComponentName(this, TimeTableAppWidget::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
+        if (appWidgetIds.isNotEmpty()) {
+            val intent = Intent(this, TimeTableAppWidget::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            }
+            sendBroadcast(intent)
+        }
+    }
     private class SafeHandler(activity: TimeTableActivity) : Handler(Looper.getMainLooper()) {
         private val weakActivity = WeakReference(activity)
 

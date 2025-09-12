@@ -94,7 +94,6 @@ class MainActivity : AppCompatActivity(), DrawerController {
     override fun onResume() {
         super.onResume()
         store.dispatch(UserAction.initilaize())
-        refreshWidget()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -160,19 +159,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
         }
     }
 
-    private fun refreshWidget() {
-        val appWidgetManager = AppWidgetManager.getInstance(this)
-        val componentName = ComponentName(this, TimeTableAppWidget::class.java)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
-        if (appWidgetIds.isNotEmpty()) {
-            val intent = Intent(this, TimeTableAppWidget::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
-            }
-            sendBroadcast(intent)
-        }
-    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)

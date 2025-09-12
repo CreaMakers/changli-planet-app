@@ -312,7 +312,7 @@ class UserStore : Store<UserState, UserAction>() {
 
 
                                     }
-                                    PlanetApplication.clearCacheAll()
+                                    PlanetApplication.clearSchoolDataCacheAll()
                                 }
 
                                 else -> {
