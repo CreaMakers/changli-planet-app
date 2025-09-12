@@ -34,11 +34,14 @@ import com.example.changli_planet_app.feature.common.ui.FeatureFragment
 import com.example.changli_planet_app.freshNews.ui.NewsFragment
 import com.example.changli_planet_app.im.ui.IMFragment
 import com.example.changli_planet_app.profileSettings.ui.ProfileSettingsFragment
+import com.example.changli_planet_app.utils.Event.SelectEvent
 import com.google.android.material.tabs.TabLayout
 import com.gradle.scan.plugin.internal.dep.io.netty.util.internal.StringUtil
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
 class MainActivity : AppCompatActivity(), DrawerController {
 
@@ -91,11 +94,11 @@ class MainActivity : AppCompatActivity(), DrawerController {
     override fun onResume() {
         super.onResume()
         store.dispatch(UserAction.initilaize())
-        refreshWidget()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        EventBus.getDefault().register(this)
         if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken)) {
             Route.goLogin(this@MainActivity)
             finish()
@@ -156,19 +159,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
         }
     }
 
-    private fun refreshWidget() {
-        val appWidgetManager = AppWidgetManager.getInstance(this)
-        val componentName = ComponentName(this, TimeTableAppWidget::class.java)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
-        if (appWidgetIds.isNotEmpty()) {
-            val intent = Intent(this, TimeTableAppWidget::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
-            }
-            sendBroadcast(intent)
-        }
-    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -182,9 +173,9 @@ class MainActivity : AppCompatActivity(), DrawerController {
         supportFragmentManager.fragments.forEach { fragment ->
             val key = when (fragment) {
                 is FeatureFragment -> 0
-                is ProfileSettingsFragment -> 1
+                is ProfileSettingsFragment -> 3
                 is NewsFragment -> 2
-                is IMFragment -> 3
+                is IMFragment -> 1
                 else -> throw IllegalStateException("Invalid fragment")
             }
             fragments.put(key, fragment)     //重新添加fragment
@@ -195,6 +186,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     override fun onDestroy() {
         super.onDestroy()
+        EventBus.getDefault().unregister(this)
         disposables.clear()
         TabAnimationPool.clear()
     }
@@ -332,5 +324,9 @@ class MainActivity : AppCompatActivity(), DrawerController {
     companion object {
         private const val REQUEST_READ_TELEPHONE = 1001
         private const val REQUEST_NOTIFICATION = 1002
+    }
+    @Subscribe
+    fun selectProfileFragment(selectEvent: SelectEvent){
+        tabLayout.selectTab(tabLayout.getTabAt(3))
     }
 }

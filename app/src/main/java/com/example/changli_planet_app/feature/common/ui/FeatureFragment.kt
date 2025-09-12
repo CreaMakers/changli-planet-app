@@ -13,6 +13,8 @@ import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.databinding.FragmentFeatureBinding
+import com.example.changli_planet_app.utils.Event.SelectEvent
+import com.example.changli_planet_app.utils.EventBusHelper
 import com.example.changli_planet_app.utils.ResourceUtil
 import com.example.changli_planet_app.utils.load
 import com.example.changli_planet_app.widget.Dialog.NormalResponseDialog
@@ -59,7 +61,7 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
             false
         }
 
-        featureAvatar.setOnClickListener { drawerController?.openDrawer() }
+        featureAvatar.setOnClickListener { EventBusHelper.post(SelectEvent(3)) }
         Log.d(TAG, "花费时间 ${System.currentTimeMillis() - CommonInfo.startTime}")
     }
 

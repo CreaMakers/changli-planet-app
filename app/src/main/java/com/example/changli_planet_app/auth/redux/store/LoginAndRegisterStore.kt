@@ -40,14 +40,6 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                     currentState.account = action.content
                 } else if (action.type == "password") {
                     currentState.password = action.content
-                    currentState.isLengthValid = action.content.length >= 8
-                    currentState.hasUpperAndLower = action.content.matches(".*[A-Z].*".toRegex()) &&
-                            action.content.matches(".*[a-z].*".toRegex())
-
-                    currentState.hasNumberAndSpecial =
-                        action.content.matches(".*[0-9].*".toRegex()) &&
-                                action.content.matches(".*[^A-Za-z0-9].*".toRegex())
-
                 }else if(action.type=="email"){
                     currentState.email=action.content
                 }else if(action.type=="captcha"){
@@ -316,7 +308,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
     }
 
     private fun checkEnable(): Boolean {
-        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty() && currentState.isLengthValid && currentState.hasUpperAndLower && currentState.hasNumberAndSpecial
+        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty()
     }
 
     private fun checkLoginEnable(): Boolean {

@@ -24,7 +24,6 @@ import com.example.changli_planet_app.databinding.ActivityAccountSecurityBinding
 import com.example.changli_planet_app.settings.redux.store.AccountSecurityStore
 import com.example.changli_planet_app.utils.Event.FinishEvent
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 

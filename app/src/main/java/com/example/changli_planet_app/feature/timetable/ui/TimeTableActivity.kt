@@ -1,6 +1,8 @@
 package com.example.changli_planet_app.feature.timetable.ui
 
 import android.annotation.SuppressLint
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -26,12 +28,17 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.TimeTableAppWidget
 import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
+import com.example.changli_planet_app.core.MainActivity
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.databinding.ActivityTimeTableBinding
@@ -67,6 +74,7 @@ import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
+import kotlin.or
 
 class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
     private val mmkv by lazy { MMKV.defaultMMKV() }
@@ -254,6 +262,7 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         binding.courseTerm.setOnClickListener {
             ClickWheel(termList)
         }
+        setBack()
         // 暂时关闭选择学期
 //        binding.courseTerm.setOnClickListener {
 //            ClickWheel(termList)
@@ -285,6 +294,10 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
 //        })
     }
 
+    override fun onResume() {
+        super.onResume()
+        refreshWidget()
+    }
     private fun getCurTerm(instance: Calendar): String {
         val month = instance.get(Calendar.MONTH) + 1
         var year = instance.get(Calendar.YEAR)
@@ -478,14 +491,32 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
             }
         })
     }
-
-
     override fun onDestroy() {
         super.onDestroy()
         storeInMMKV("lastUpdate", TimeTableStore.curState.lastUpdate)
         disposables.dispose()
     }
+    private fun setBack(){
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // 检查是否从 Widget 启动
+                val fromWidget = intent.getBooleanExtra("from_timeTable_widget", false)
 
+                if (fromWidget) {
+                    // 如果是从 Widget 启动，跳转到 MainActivity
+                    val intent = Intent(this@TimeTableActivity, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                } else {
+                    // 正常返回，移除当前回调并触发默认行为
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+    }
     private fun upDateTimeTable() {
         TimeTableStore.curState.lastUpdate = 0
         hideLoading()
@@ -861,7 +892,19 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         }
         termList = list
     }
+    private fun refreshWidget() {
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        val componentName = ComponentName(this, TimeTableAppWidget::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
+        if (appWidgetIds.isNotEmpty()) {
+            val intent = Intent(this, TimeTableAppWidget::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            }
+            sendBroadcast(intent)
+        }
+    }
     private class SafeHandler(activity: TimeTableActivity) : Handler(Looper.getMainLooper()) {
         private val weakActivity = WeakReference(activity)
 

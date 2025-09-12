@@ -29,7 +29,6 @@ import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import com.example.changli_planet_app.utils.Event.FinishEvent
 import com.example.changli_planet_app.widget.Dialog.ExpiredDialog
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
