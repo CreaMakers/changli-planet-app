@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken)) {
+        if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken) && !PlanetApplication.Companion.is_tourist) {
             Route.goLogin(this@MainActivity)
             finish()
             return

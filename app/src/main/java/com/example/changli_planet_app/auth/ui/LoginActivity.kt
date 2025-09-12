@@ -23,19 +23,21 @@ import com.example.changli_planet_app.auth.redux.store.LoginAndRegisterStore
 import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.common.redux.action.UserAction
 import com.example.changli_planet_app.common.redux.store.UserStore
+import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.core.noOpDelegate
 import com.example.changli_planet_app.databinding.ActivityLoginBinding
 import com.example.changli_planet_app.utils.Event.FinishEvent
 import com.example.changli_planet_app.widget.Dialog.ExpiredDialog
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     private val Login: TextView by lazy { binding.login }
     private val route: TextView by lazy { binding.route }
+    private val touristRoute: TextView by lazy { binding.touristRoute }
+    private val touristHint: ImageView by lazy { binding.incompleteFeatureHint }
     private val account: EditText by lazy { binding.account }
     private val password: EditText by lazy { binding.password }
     private val forgetPassword:TextView by lazy { binding.forget }
@@ -136,6 +138,14 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         iVEye.setOnClickListener {
             store.dispatch(LoginAndRegisterAction.ChangeVisibilityOfPassword)
         }
+        touristHint.setOnClickListener {
+            ExpiredDialog(
+                this,
+                "由于账号的注册与登录功能主要服务于“长理星球新鲜事”板块，但目前尚未完善，您可以点击右下角的「跳过，稍后登录」以游客身份体验应用的其他功能（除了新鲜事其他的基础功能都可用哦~）。\n" +
+                        "(*￣3￣)╭~",
+                "账号相关"
+            ).show()
+        }
         account.addTextChangedListener(accountTextWatcher)
         password.addTextChangedListener(passwordTextWatcher)
         agreementCheckBox.setOnCheckedChangeListener { _, isChecked ->
@@ -166,8 +176,13 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         getUnderLineScope(route,6,8)
         getUnderLineScope(forgetPassword,0,4)
         getUnderLineScope(loginByEmail,0,4)
+        getUnderLineScope(touristRoute,0,2)
         route.setOnClickListener {
             Route.goRegister(this)
+        }
+        touristRoute.setOnClickListener {
+            PlanetApplication.is_tourist = true
+            Route.goHome(this)
         }
         loginByEmail.setOnClickListener{
             Route.goLoginByEmailForcibly(this)
