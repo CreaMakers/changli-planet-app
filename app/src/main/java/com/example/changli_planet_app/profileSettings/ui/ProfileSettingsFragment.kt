@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -44,7 +45,12 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
 
     override fun initView() {
         super.initView()
-        setupViews()
+
+        if(PlanetApplication.is_tourist){
+            setupTouristViews()
+        }else{
+            setupViews()
+        }
         initRecyclerView()
         loadUserData()
     }
@@ -52,15 +58,15 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
     private fun setupViews() {
         binding.ivBackground.load(R.drawable.ic_profile_home_bg)
         binding.mbLogout.setOnClickListener {
-            NormalChosenDialog(
-                requireContext(),
-                "将清除本地所有缓存",
-                "是否登出",
-                onConfirm = {
-                    PlanetApplication.Companion.clearCacheAll()
-                    Route.goLoginForcibly(requireContext())
-                }
-            ).show()
+                NormalChosenDialog(
+                    requireContext(),
+                    "将清除本地所有缓存",
+                    "是否登出",
+                    onConfirm = {
+                        PlanetApplication.Companion.clearCacheAll()
+                        Route.goLoginForcibly(requireContext())
+                    }
+                ).show()
         }
 
         binding.ivEdit.setOnClickListener {
@@ -71,6 +77,36 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
                 CustomToast.Companion.showMessage(requireContext(), "网络未连接")
             }
         }
+    }
+
+    private fun setupTouristViews(){
+        binding.ivBackground.load(R.drawable.ic_profile_home_bg)
+        binding.mbLogout.setOnClickListener{
+            NormalChosenDialog(
+                requireContext(),
+                "将清除本地所有缓存哦~",
+                "现在进行登录吗",
+                onConfirm = {
+                    PlanetApplication.Companion.clearCacheAll()
+                    Route.goLoginForcibly(requireContext())
+                }
+
+            ).show()
+        }
+        binding.ivAvatar.setOnClickListener {
+            NormalChosenDialog(
+                requireContext(),
+                "将清除本地所有缓存哦~",
+                "现在进行登录吗",
+                onConfirm = {
+                    PlanetApplication.Companion.clearCacheAll()
+                    Route.goLoginForcibly(requireContext())
+                }
+
+            ).show()
+        }
+        binding.mbLogout.text = "登录账号"
+        binding.ivEdit.visibility = View.GONE
     }
 
     private fun getNetPermissions() {
@@ -138,6 +174,10 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
 
             3 -> {
                 // 账号安全
+                if(PlanetApplication.is_tourist){
+                    CustomToast.showMessage(requireContext(), "游客账号无法进行此操作哦~")
+                    return
+                }
                 activity?.let { Route.goAccountSecurity(it) }
             }
 
@@ -191,8 +231,13 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
         }
     }
     private fun loadUserData() {
-        binding.tvUsername.text = UserInfoManager.account
-        binding.ivAvatar.load(UserInfoManager.userAvatar)
+        if(PlanetApplication.is_tourist){ //对游客账号进行特殊处理，为避免与网络逻辑嵌套混淆，没有走MVI流
+            binding.tvUsername.text = "长理学子~"
+            binding.ivAvatar.load(UserInfoManager.userAvatar)
+        }else {
+            binding.tvUsername.text = UserInfoManager.account
+            binding.ivAvatar.load(UserInfoManager.userAvatar)
+        }
     }
 
     override fun onDestroyView() {

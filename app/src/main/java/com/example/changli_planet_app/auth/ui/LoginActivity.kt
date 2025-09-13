@@ -141,8 +141,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         touristHint.setOnClickListener {
             ExpiredDialog(
                 this,
-                "由于账号的注册与登录功能主要服务于“长理星球新鲜事”板块，但目前尚未完善，您可以点击右下角的「跳过，稍后登录」以游客身份体验应用的其他功能（除了新鲜事其他的基础功能都可用哦~）。\n" +
-                        "(*￣3￣)╭~",
+                "由于账号的注册与登录功能主要服务于“长理星球新鲜事”板块，但目前尚未完善，您可以点击右下角的「跳过，稍后登录」以游客身份体验应用的其他功能（除了新鲜事以外其他的基础功能都可用哦(*￣3￣)╭~)",
                 "账号相关"
             ).show()
         }
