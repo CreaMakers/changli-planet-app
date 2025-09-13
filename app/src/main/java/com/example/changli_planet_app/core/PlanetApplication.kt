@@ -54,7 +54,6 @@ class PlanetApplication : Application() {
         }
         fun clearSchoolDataCacheAll(){
             CoroutineScope(Dispatchers.IO).launch {
-                MMKV.mmkvWithID("import_cache").clearAll()
                 MMKV.mmkvWithID("content_cache").clearAll()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
