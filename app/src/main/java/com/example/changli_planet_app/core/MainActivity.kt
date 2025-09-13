@@ -3,10 +3,7 @@ package com.example.changli_planet_app.core
 import android.Manifest
 import android.app.Activity
 import android.app.Application
-import android.appwidget.AppWidgetManager
 import android.content.ComponentCallbacks
-import android.content.ComponentName
-import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -23,7 +20,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.TimeTableAppWidget
 import com.example.changli_planet_app.common.api.DrawerController
 import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.pool.TabAnimationPool
@@ -93,7 +89,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     override fun onResume() {
         super.onResume()
-        store.dispatch(UserAction.initilaize())
+        store.dispatch(UserAction.initilaize())  //初始化用户信息，对游客模式无影响
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,9 +132,11 @@ class MainActivity : AppCompatActivity(), DrawerController {
             launch(Dispatchers.Main) {
                 setupTabSelectionListener()
             }
-            launch(Dispatchers.IO) {
-                store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
-                store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+            if( !PlanetApplication.Companion.is_tourist) {  //游客模式不获取用户信息
+                launch(Dispatchers.IO) {
+                    store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
+                    store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+                }
             }
         }
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
@@ -149,7 +147,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
             val packageInfo: PackageInfo =
                 packageManager.getPackageInfo(this@MainActivity.packageName, 0)
             store.dispatch(
-                UserAction.QueryIsLastedApk(
+                UserAction.QueryIsLastedApk(  //检测是否需要更新，对游客模式无影响
                     this@MainActivity,
                     PackageInfoCompat.getLongVersionCode(packageInfo),
                     packageInfo.packageName
@@ -193,10 +191,12 @@ class MainActivity : AppCompatActivity(), DrawerController {
 
     override fun onStart() {
         super.onStart()
-        lifecycleScope.launch {
-            launch(Dispatchers.IO) {
-                store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
-                store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+        if(!PlanetApplication.is_tourist) {   //游客模式不获取用户信息
+            lifecycleScope.launch {
+                launch(Dispatchers.IO) {
+                    store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
+                    store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+                }
             }
         }
     }
