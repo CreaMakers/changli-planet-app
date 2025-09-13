@@ -29,6 +29,12 @@ class PlanetApplication : Application() {
             set(value) {
                 MMKV.defaultMMKV()?.putString("token", value)
             }
+
+        var is_tourist: Boolean
+            get() = MMKV.defaultMMKV()?.getBoolean("is_tourist", false) ?: false
+            set(value) {
+                MMKV.defaultMMKV()?.putBoolean("is_tourist", value)
+            }
         var startTime: Long = 0
         var deviceId: String = ""
         lateinit var appContext: Context
@@ -46,6 +52,7 @@ class PlanetApplication : Application() {
         fun clearCacheAll() {
             CoroutineScope(Dispatchers.IO).launch {
                 accessToken = ""
+                is_tourist = false
                 MMKV.mmkvWithID("import_cache").clearAll()
                 MMKV.mmkvWithID("content_cache").clearAll()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()

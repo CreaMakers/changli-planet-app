@@ -14,6 +14,7 @@ import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.example.changli_planet_app.common.redux.action.UserAction
 import com.example.changli_planet_app.common.redux.store.UserStore
+import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.databinding.ActivityBindingUserBinding
 import com.example.changli_planet_app.utils.Event.FinishEvent
@@ -81,8 +82,11 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
             showMessage("学号和密码不能为空")
             return
         }
+        if(PlanetApplication.is_tourist){
+            StudentInfoManager.studentId = studentId  //游客模式不使用网络进行储存学号
+        }
         StudentInfoManager.studentPassword = studentPassword
-        store.dispatch(UserAction.BindingStudentNumber(this, studentId))
+        store.dispatch(UserAction.BindingStudentNumber(this, studentId))  //在MVI流对游客模式也进行了判断逻辑与state发布
     }
 
     private fun showMessage(message: String) {

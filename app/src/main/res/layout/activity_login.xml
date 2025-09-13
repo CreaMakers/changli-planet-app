@@ -39,6 +39,18 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView"
         app:layout_constraintWidth_percent="0.30" />
 
+
+    <ImageView
+        android:id="@+id/incomplete_feature_hint"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        android:src="@drawable/e_default"
+        app:layout_constraintHeight_percent="0.10"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/space"
+        app:layout_constraintWidth_percent="0.28" />
+
     <EditText
         android:id="@+id/account"
         android:layout_width="0dp"
@@ -200,14 +212,31 @@
 
     <TextView
         android:id="@+id/route"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:gravity="center"
+        android:gravity="right|center_vertical"
+        android:paddingEnd="18dp"
         android:text="没有账号？去注册"
         android:textColor="@color/primary_blue"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/regicremaker"
         app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintWidth_percent="0.50" />
+
+    <TextView
+        android:id="@+id/tourist_route"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="left|center_vertical"
+        android:paddingStart="18dp"
+        android:text="跳过，稍后登录"
+        android:textColor="@color/primary_blue"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/regicremaker"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintWidth_percent="0.50" />
 </androidx.constraintlayout.widget.ConstraintLayout>
