@@ -23,6 +23,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import com.example.changli_planet_app.ElectronicAppWidget
 import com.example.changli_planet_app.R
+import com.example.changli_planet_app.TimeTableAppWidget
 import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
@@ -47,7 +48,6 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         val ALPHANUMERIC_REGEX = Regex("^[a-zA-Z0-9]*$")
     }
 
-//    private val appWidgetId by lazy { intent.getIntExtra("ele_widget_id",0) }
     private val mmkv by lazy { MMKV.defaultMMKV() }
     private val back: ImageView by lazy { binding.back }
     private val school: TextView by lazy { binding.tvSchoolSelect }
@@ -139,6 +139,10 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                     )
                 )
             )
+            mmkv.encode("school", school.text.toString())
+            mmkv.encode("dor", dor.text.toString())
+            mmkv.encode("door_number", door_number.text.toString())
+            refreshWidget()
         }
         back.setOnClickListener { finish() }
     }
@@ -256,16 +260,19 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
 
     }
 
-//    private fun sendEleBroadcast() {
-//        if (appWidgetId != 0){
-//            val intent = Intent(this, ElectronicAppWidget::class.java).apply {
-//                intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-//                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetId)
-//            }
-//            sendBroadcast(intent)
-//        }
-//
-//    }
+    private fun refreshWidget() {
+        val appWidgetManager = AppWidgetManager.getInstance(PlanetApplication.appContext)
+        val componentName = ComponentName(PlanetApplication.appContext, ElectronicAppWidget::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+
+        if (appWidgetIds.isNotEmpty()) {
+            val intent = Intent(PlanetApplication.appContext, ElectronicAppWidget::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            }
+            sendBroadcast(intent)
+        }
+    }
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 

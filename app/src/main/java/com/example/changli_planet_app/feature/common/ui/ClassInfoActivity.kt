@@ -16,7 +16,6 @@ import com.example.changli_planet_app.widget.Picker.LessonPicker
 import com.example.changli_planet_app.widget.View.CustomToast
 import com.zhuangfei.timetable.model.ScheduleSupport
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.Calendar
 import java.util.TimeZone
 

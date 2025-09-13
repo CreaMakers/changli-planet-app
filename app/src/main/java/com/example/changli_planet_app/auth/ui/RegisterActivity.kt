@@ -18,7 +18,6 @@ import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.core.noOpDelegate
 import com.example.changli_planet_app.databinding.ActivityRegisterBinding
 import com.example.changli_planet_app.utils.Event.FinishEvent
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -45,12 +44,6 @@ class RegisterActivity : FullScreenActivity<ActivityRegisterBinding>() {
                     } else {
                         register.isEnabled = state.isEnable
                         register.setBackgroundResource(R.drawable.enable_button)
-                    }
-                    //checkNameFlat(state)
-                    binding.apply {
-                        lengthIcon.setImageResource(if (state.isLengthValid) R.drawable.dui else R.drawable.cuo)
-                        upperLowerIcon.setImageResource(if (state.hasUpperAndLower) R.drawable.dui else R.drawable.cuo)
-                        numberSpecialIcon.setImageResource(if (state.hasNumberAndSpecial) R.drawable.dui else R.drawable.cuo)
                     }
                 }
 
@@ -109,27 +102,6 @@ class RegisterActivity : FullScreenActivity<ActivityRegisterBinding>() {
 //            store.dispatch(LoginAndRegisterAction.input(0.toString(),"checkNameFlat")) //恢复默认状态，防止一直发消息
 //        }
     }
-
-    private fun validatePassword(password: String) {
-        val isLengthValid = password.length >= 8
-        val hasUpperAndLower = password.matches(".*[A-Z].*".toRegex()) &&
-                password.matches(".*[a-z].*".toRegex())
-
-        val hasNumberAndSpecial = password.matches(".*[0-9].*".toRegex()) &&
-                password.matches(".*[^A-Za-z0-9].*".toRegex())
-        binding.apply {
-            lengthIcon.setImageResource(if (isLengthValid) R.drawable.dui else R.drawable.cuo)
-            upperLowerIcon.setImageResource(if (hasUpperAndLower) R.drawable.dui else R.drawable.cuo)
-            numberSpecialIcon.setImageResource(if (hasNumberAndSpecial) R.drawable.dui else R.drawable.cuo)
-        }
-        store.dispatch(
-            LoginAndRegisterAction.input(
-                if (isLengthValid && hasUpperAndLower && hasNumberAndSpecial) "valid" else "invalid",
-                "password"
-            )
-        )
-    }
-
     private fun setUnderLine() {
         var underlinetext = SpannableString(route.text.toString())
         underlinetext.setSpan(UnderlineSpan(), 6, 8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

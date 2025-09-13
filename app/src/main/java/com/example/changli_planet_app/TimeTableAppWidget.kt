@@ -6,12 +6,10 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
-import com.example.changli_planet_app.core.MainActivity
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.network.HttpUrlHelper
 import com.example.changli_planet_app.core.network.MyResponse
@@ -20,6 +18,7 @@ import com.example.changli_planet_app.core.network.listener.RequestCallback
 import com.example.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
 import com.example.changli_planet_app.feature.common.data.remote.dto.Course
 import com.example.changli_planet_app.feature.common.redux.store.TimeTableStore.weekJsonInfo
+import com.example.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.example.changli_planet_app.utils.ResourceUtil
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
@@ -94,9 +93,11 @@ internal fun updateAppWidget(
 ) {
     Log.d("TimeTableAppWidget", "updateAppWidget")
     // 创建点击意图，拉起主Activity
-    val intent = Intent(context, MainActivity::class.java).apply {
+    val intent = Intent(context, TimeTableActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        putExtra("from_timeTable_widget",true)
     }
+
 
     val pendingIntent = PendingIntent.getActivity(
         context,
@@ -107,22 +108,11 @@ internal fun updateAppWidget(
 
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.time_table_app_widget)
-
-    val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-    val minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-    val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
-    val densityDpi = context.resources.displayMetrics.densityDpi
-    // 获取适配后的字体大小
-    val (smallTextSize, largeTextSize) = getAdaptiveTextSize(densityDpi, minWidth, minHeight)
-    Log.d(TAG, "Device info - width: $minWidth, height: $minHeight, density: $densityDpi")
-    Log.d(TAG, "Adaptive text sizes - small: ${smallTextSize}dp, large: ${largeTextSize}dp")
-    // 应用字体大小到所有TextView（使用DP单位避免sp干扰）
-    applyTextSizes(views, smallTextSize, largeTextSize)
-
     // 为整个小组件设置点击事件
     views.setOnClickPendingIntent(R.id.widget_root_layout, pendingIntent)
     val currentMonthAndDay = getCurrentMonthAndDay()
-    views.setTextViewText(R.id.term_tv, curTerm)
+    val weekTextAuto = CommonInfo.getCurrentWeekAuto()
+    views.setTextViewText(R.id.term_tv, weekTextAuto)
     views.setTextViewText(R.id.date_tv, currentMonthAndDay)
     views.setTextViewText(
         R.id.week_tv, when (curWeekDay) {
@@ -415,112 +405,4 @@ private fun parseWeeks(weekJson: String): weekJsonInfo {
 
     // 返回空的结果
     return weekJsonInfo(listOf(), 0, 0)
-}
-
-private fun getAdaptiveTextSize(
-    densityDpi: Int,
-    widgetWidth: Int,
-    widgetHeight: Int
-): Pair<Int, Int> {
-    val widgetArea = widgetWidth * widgetHeight
-
-    Log.d(
-        TAG,
-        "Adaptation calc - densityDpi: $densityDpi, width: $widgetWidth, height: $widgetHeight, area: $widgetArea"
-    )
-
-    return when {
-        // vivo手机: densityDpi 489, 128x152, area 19456 - 高密度小空间
-        densityDpi >= 480 && widgetArea < 20000 -> {
-            Log.d(TAG, "Using high density small widget config")
-            Pair(12, 14)
-        }
-
-        // 小米手机: densityDpi 419, 146x164, area 23944 - 中密度大空间
-        densityDpi in 400..479 && widgetArea > 23000 -> {
-            Log.d(TAG, "Using medium density large widget config")
-            Pair(11, 13)
-        }
-
-        // 超高密度设备
-        densityDpi >= 560 -> {
-            if (widgetArea < 22000) Pair(11, 12) else Pair(12, 13)
-        }
-
-        // 中高密度设备
-        densityDpi in 440..559 -> {
-            if (widgetArea < 20000) Pair(12, 13) else Pair(13, 14)
-        }
-
-        // 中密度设备
-        densityDpi in 320..439 -> {
-            if (widgetArea > 25000) Pair(13, 14) else Pair(12, 13)
-        }
-
-        // 低密度设备
-        densityDpi < 320 -> {
-            Pair(14, 15)
-        }
-
-        // 默认配置
-        else -> {
-            Log.d(TAG, "Using default config")
-            if (widgetArea > 22000) Pair(13, 14) else Pair(12, 13)
-        }
-    }
-}
-
-private fun applyTextSizes(views: RemoteViews, smallTextSize: Int, largeTextSize: Int) {
-    views.setTextViewTextSize(R.id.term_tv, TypedValue.COMPLEX_UNIT_DIP, smallTextSize.toFloat())
-    views.setTextViewTextSize(R.id.date_tv, TypedValue.COMPLEX_UNIT_DIP, smallTextSize.toFloat())
-    views.setTextViewTextSize(R.id.week_tv, TypedValue.COMPLEX_UNIT_DIP, smallTextSize.toFloat())
-
-    views.setTextViewTextSize(
-        R.id.tv_course_name_1,
-        TypedValue.COMPLEX_UNIT_DIP,
-        largeTextSize.toFloat()
-    )
-    views.setTextViewTextSize(
-        R.id.tv_course_name_2,
-        TypedValue.COMPLEX_UNIT_DIP,
-        largeTextSize.toFloat()
-    )
-
-    views.setTextViewTextSize(
-        R.id.tv_course_room_1,
-        TypedValue.COMPLEX_UNIT_DIP,
-        smallTextSize.toFloat()
-    )
-    views.setTextViewTextSize(
-        R.id.tv_course_time_1,
-        TypedValue.COMPLEX_UNIT_DIP,
-        smallTextSize.toFloat()
-    )
-    views.setTextViewTextSize(
-        R.id.tv_course_room_2,
-        TypedValue.COMPLEX_UNIT_DIP,
-        smallTextSize.toFloat()
-    )
-    views.setTextViewTextSize(
-        R.id.tv_course_time_2,
-        TypedValue.COMPLEX_UNIT_DIP,
-        smallTextSize.toFloat()
-    )
-
-    views.setTextViewTextSize(R.id.end_tv, TypedValue.COMPLEX_UNIT_DIP, largeTextSize.toFloat())
-    views.setTextViewTextSize(
-        R.id.student_error_tv,
-        TypedValue.COMPLEX_UNIT_DIP,
-        largeTextSize.toFloat()
-    )
-    views.setTextViewTextSize(
-        R.id.tv_error_account,
-        TypedValue.COMPLEX_UNIT_DIP,
-        largeTextSize.toFloat()
-    )
-    views.setTextViewTextSize(
-        R.id.no_course_tv,
-        TypedValue.COMPLEX_UNIT_DIP,
-        largeTextSize.toFloat()
-    )
 }
