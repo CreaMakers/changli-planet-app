@@ -76,7 +76,7 @@ class PersistentCookieJar : CookieJar {
         val host = url.host
         Log.d(TAG, "loadForRequest: Loading cookies for host: $host")
         val now = System.currentTimeMillis()
-        val list = memoryCache.getOrPut(host) {
+        val list = memoryCache.computeIfAbsent(host) {
             val json = mmkv.decodeString(host)
             Log.d(TAG, "loadForRequest: Reading from MMKV for host: $host, json: $json")
             if (json != null) {
