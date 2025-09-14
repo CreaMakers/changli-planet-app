@@ -3,7 +3,15 @@ package com.example.changli_planet_app.feature.mooc.cookie
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.gradle.scan.agent.serialization.scan.serializer.kryo.it
 import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
@@ -19,25 +27,21 @@ class PersistentCookieJar : CookieJar {
     private val gson = Gson()
 
     //内存缓存
-    private val memoryCache = mutableMapOf<String, MutableList<Cookie>>()
-    private val scheduler = ScheduledThreadPoolExecutor(1).apply {
-        //避免被取消的任务长期留在队列里
-        removeOnCancelPolicy = true
-    }
+    private val memoryCache = ConcurrentHashMap<String, MutableList<Cookie>>()
+    val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     //使用线程安全的map
-    private val pendingTasks = ConcurrentHashMap<String, ScheduledFuture<*>>()
+    private val pendingJobs = ConcurrentHashMap<String, Job>()
     private val saveDelayMs = 500L
     private val TAG = "PersistentCookieJar"
 
-    @Synchronized
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         //从mmkv读取该 host 已有的 cookie
         val host = url.host
         Log.d(TAG, "saveFromResponse: Saving cookies for host: $host")
 
         //mmkv加载到内存
-        val list = memoryCache.getOrPut(host) {
+        val list = memoryCache.computeIfAbsent(host) {
             val json = mmkv.decodeString(host)
             Log.d(TAG, "saveFromResponse: Reading from MMKV for host: $host, json: $json")
             if (json != null) {
@@ -65,10 +69,9 @@ class PersistentCookieJar : CookieJar {
         //过滤过期cookie
         val validList = list.filter { it.expiresAt > System.currentTimeMillis() }.toMutableList()
         memoryCache[host] = validList
-        scheduleSave(host)
+        jobSave(host)
     }
 
-    @Synchronized
     override fun loadForRequest(url: HttpUrl): List<Cookie> {
         val host = url.host
         Log.d(TAG, "loadForRequest: Loading cookies for host: $host")
@@ -96,15 +99,20 @@ class PersistentCookieJar : CookieJar {
         return validList
     }
 
-    private fun scheduleSave(host: String) {
-        pendingTasks[host]?.cancel(false)
-        val future = scheduler.schedule({
+    private fun jobSave(host: String) {
+        pendingJobs[host]?.let { job ->
+            if (!job.isCompleted && !job.isCancelled) {
+                Log.d(TAG, "scheduleSave: cancelling existing job for host=$host")
+                job.cancel()
+            }
+        }
+        val job = scope.launch {
+            delay(saveDelayMs)
             persistHost(host)
-        }, saveDelayMs, TimeUnit.MILLISECONDS)
-        pendingTasks[host] = future
+        }
+        pendingJobs[host] = job
     }
 
-    @Synchronized
     private fun persistHost(host: String) {
         val list = memoryCache[host] ?: return
         Log.d(TAG, "persistHost: Persisting ${list.size} cookies for host: $host")
@@ -123,19 +131,15 @@ class PersistentCookieJar : CookieJar {
         }
         Log.d(TAG, "persistHost: Saving ${toSave.size} valid cookies to MMKV for host: $host")
         mmkv.encode(host, gson.toJson(toSave))
-        pendingTasks.remove(host)
+        pendingJobs.remove(host)
     }
 
-    @Synchronized
     fun clear() {
-        Log.d(TAG, "clear: Clearing all cookies")
-        // 取消所有计划任务
-        pendingTasks.values.forEach { it.cancel(false) }
-        pendingTasks.clear()
-        Log.d(
-            TAG,
-            "clear: Cleared pending tasks, memory cache size before clear: ${memoryCache.size}"
-        )
+        Log.d(TAG, "clear: Clearing all cookies and cancelling jobs")
+        // 取消所有协程任务
+        pendingJobs.values.forEach { it.cancel() }
+        pendingJobs.clear()
+        scope.cancel()
         memoryCache.clear()
         mmkv.clearAll()
         Log.d(TAG, "clear: Cleared MMKV and memory cache")
