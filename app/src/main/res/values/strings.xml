@@ -82,7 +82,7 @@
     </string-array>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
-    <string name="app_widget_description">长理星球课表小组件</string>
+    <string name="app_timetable_widget_description">长理星球课表小组件</string>
     <string name="widget_must_get_course_data">获取课表后才有数据哦~</string>
     <string name="there_are_no_classes_today">今天已经没有课啦~</string>
     <string name="profile_home">个人主页</string>
@@ -170,7 +170,10 @@
     <string name="network_error">网络错误</string>
     <string name="account_status_abnormal_login_on_web">账号状态异常，请在网页登录一次</string>
     <string name="feature_developing_in_progress">正在全力开发中~</string>
+    <string name="eletronic_search">当前电量</string>
+    <string name="eletronic_widget_description">长理星球电量查询小组件</string>
     <string name="account_bind_failed">学号账号密码错误，请重新绑定</string>
     <string name="no_classroom">无教室</string>
     <string name="next_step">下一步</string>
+    <string name="binding_privacy_statement">隐私声明：您的学号将用于身份认证并与账号绑定，是参与校园社区交流的必要凭证。密码仅用于教务系统数据查询，采用本地存储，不会上传至云端服务器，确保您的账号安全₍ᐢ..ᐢ₎♡。如果没有登陆，则学号也只会存到本地~</string>
 </resources>

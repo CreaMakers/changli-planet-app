@@ -1,11 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_root_layout"
     style="@style/Widget.Changliplanetapp.AppWidget.Container"
     android:theme="@style/Theme.Changliplanetapp.AppWidgetContainer"
     android:layout_width="match_parent"
-    android:id="@+id/widget_root_layout"
-    android:orientation="vertical"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_marginTop="@dimen/dp4"

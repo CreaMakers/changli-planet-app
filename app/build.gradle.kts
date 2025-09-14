@@ -19,8 +19,8 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.2.0"
+        versionCode = 9
+        versionName = "1.2.1"
 
 
         ndk {
@@ -171,6 +171,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // workmanager
+    implementation("androidx.work:work-runtime-ktx:2.10.3")
+    implementation("androidx.work:work-rxjava2:2.10.3")
 }
 kapt {
     arguments {

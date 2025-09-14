@@ -28,7 +28,7 @@ class SplashActivity : AppCompatActivity() {
         }
         // 使用协程来处理延迟任务
         lifecycleScope.launch {
-            if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken)) {
+            if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken) && !PlanetApplication.Companion.is_tourist) {
                 delay(300) // 延迟 0.2 秒
                 Route.goLogin(this@SplashActivity)
             } else {

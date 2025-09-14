@@ -291,6 +291,15 @@ class UserStore : Store<UserState, UserAction>() {
             }
 
             is UserAction.BindingStudentNumber -> {
+
+                //对游客模式的MVI流逻辑处理
+                if(PlanetApplication.is_tourist){
+                    currentState.userStats.studentNumber = StudentInfoManager.studentId
+                    handler.post {
+                        EventBusHelper.post(FinishEvent("bindingUser"))
+                    }
+                }
+
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .post(PlanetApplication.Companion.UserIp + "/me/student-number")
                     .body(OkHttpHelper.gson.toJson(BindingUserStore.StudentNumberRequest(action.student_number)))
@@ -309,8 +318,6 @@ class UserStore : Store<UserState, UserAction>() {
                                     StudentInfoManager.studentId = action.student_number
                                     handler.post {
                                         EventBusHelper.post(FinishEvent("bindingUser"))
-
-
                                     }
                                     PlanetApplication.clearSchoolDataCacheAll()
                                 }
@@ -350,6 +357,7 @@ class UserStore : Store<UserState, UserAction>() {
                 _state.onNext(currentState)
                 currentState
             }
+
             is UserAction.UpdateLocation->{
                 currentState.userProfile.location = action.location
                 currentState.locationChangedManually = true //表示所在地已在本地更新

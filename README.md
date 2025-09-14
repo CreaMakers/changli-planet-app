@@ -58,3 +58,7 @@
 
 并不会，每个账号可以绑定学号并上传云端，但是密码会保存到本地，长理星球前后端移动代码都是开源的，公开透明，安全性高
 
+### 如何加入
+
+长理星球加入表单链接https://creamaker.feishu.cn/share/base/form/shrcnOIl2W9rBAcEYYrK12l6Ffd
+
