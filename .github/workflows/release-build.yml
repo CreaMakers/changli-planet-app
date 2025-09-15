@@ -1,16 +1,13 @@
-name: Android Build
+name: Release Build
 
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+    tags:
+      - "*"
 
 jobs:
-  build:
-    name: Build APK
+  build-release:
+    name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
@@ -38,26 +35,16 @@ jobs:
         run: |
           echo ${{ secrets.RELEASE_KEYSTORE }} | base64 --decode > app/release-key.jks
 
-      - name: Build APKs
-        run: |
-          ./gradlew assembleDebug
-          ./gradlew assembleRelease
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
         env:
           RELEASE_STORE_FILE: release-key.jks
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
 
-      - name: List generated APKs
-        run: |
-          ls -la app/build/outputs/apk/debug/
-          ls -la app/build/outputs/apk/release/
-
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-apk
-          path: app/build/outputs/apk/debug/clPlanetApp_debug_v*.apk
+      - name: List generated APK
+        run: ls -la app/build/outputs/apk/release/
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
