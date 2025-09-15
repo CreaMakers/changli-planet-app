@@ -45,3 +45,17 @@ jobs:
         with:
           name: debug-apk
           path: app/build/outputs/apk/debug/clPlanetApp_debug_v*.apk
+
+      - name: Send Notification
+        if: always()
+        run: |
+          STATUS_MESSAGE="构建失败"
+          if [[ ${{ job.status }} == 'success' ]]; then
+            STATUS_MESSAGE="构建成功"
+          fi
+          MESSAGE="仓库：${{ github.repository }}\nWorkflow：${{ github.workflow }}\n$STATUS_MESSAGE\nRuns地址：${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          JSON_STRING="{\"message\":\"$MESSAGE\"}"
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "$JSON_STRING" \
+          "https://webhook.zhelearn.com/webhook/custom/${{ secrets.WEBHOOK_API_KEY }}?chat_type=group&chat_number=${{ secrets.WEBHOOK_ADDRESS }}"
