@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.feature.ledger.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.changli_planet_app.R
@@ -18,6 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.div
 
 class AccountBookViewModel : ViewModel() {
     val _totalMoney = MutableStateFlow("")
@@ -167,11 +169,21 @@ class AccountBookViewModel : ViewModel() {
 
     private fun String.calculateDaysSince(): Long {
         val sdf = SimpleDateFormat("yyyy-M-d", Locale.getDefault())
-        return kotlin.comparisons.maxOf(
-            1,
-            (Date().time - sdf.parse(this).time) / (1000 * 60 * 60 * 24)
-        )
+        val now = Date().time
+        return try {
+            val parsed = sdf.parse(this)
+            if (parsed == null) {
+                1L
+            } else {
+                val days = (now - parsed.time) / (1000 * 60 * 60 * 24)
+                days.coerceAtLeast(1L)
+            }
+        } catch (e: Exception) {
+            Log.d("AccountBookViewModel",e.toString())
+            1L
+        }
     }
+
 
     private val typeToIconMap = mapOf(
         "手机" to R.drawable.iphone,
