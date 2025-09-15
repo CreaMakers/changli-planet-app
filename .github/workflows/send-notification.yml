@@ -1,0 +1,31 @@
+name: Reusable Send Notification
+
+on:
+  workflow_call:
+    inputs:
+      build_status:
+        required: true
+        type: string
+    secrets:
+      WEBHOOK_API_KEY:
+        required: true
+      WEBHOOK_ADDRESS:
+        required: true
+
+jobs:
+  send-notification:
+    name: Send Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        run: |
+          STATUS_MESSAGE="构建失败"
+          if [[ ${{ inputs.build_status }} == 'success' ]]; then
+            STATUS_MESSAGE="构建成功"
+          fi
+          MESSAGE="仓库：${{ github.repository }}\nWorkflow：${{ github.workflow }}\n$STATUS_MESSAGE\nRuns地址：${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          JSON_STRING="{\"message\":\"$MESSAGE\"}"
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "$JSON_STRING" \
+          "https://webhook.zhelearn.com/webhook/custom/${{ secrets.WEBHOOK_API_KEY }}?chat_type=group&chat_number=${{ secrets.WEBHOOK_ADDRESS }}"
