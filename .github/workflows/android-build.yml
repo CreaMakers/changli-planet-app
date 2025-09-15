@@ -34,10 +34,19 @@ jobs:
       - name: Make Gradlew executable
         run: chmod +x gradlew
 
+      - name: Decode Keystore
+        run: |
+          echo ${{ secrets.RELEASE_KEYSTORE }} | base64 --decode > app/release-key.jks
+
       - name: Build APKs
         run: |
           ./gradlew assembleDebug
           ./gradlew assembleRelease
+        env:
+          RELEASE_STORE_FILE: release-key.jks
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
 
       - name: List generated APKs
         run: |
