@@ -3,7 +3,6 @@ package com.example.changli_planet_app.feature.common.ui
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
-import android.icu.util.TimeUnit
 import android.os.Bundle
 import android.text.InputFilter
 import android.util.DisplayMetrics
@@ -13,17 +12,11 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Switch
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import com.example.changli_planet_app.ElectronicAppWidget
 import com.example.changli_planet_app.R
-import com.example.changli_planet_app.TimeTableAppWidget
 import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.databinding.ActivityElectronicBinding
@@ -31,15 +24,11 @@ import com.example.changli_planet_app.feature.common.data.remote.dto.CheckElectr
 import com.example.changli_planet_app.feature.common.redux.action.ElectronicAction
 import com.example.changli_planet_app.feature.common.redux.store.ElectronicStore
 import com.example.changli_planet_app.utils.load
-import com.example.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.example.changli_planet_app.widget.Dialog.WheelBottomDialog
 import com.google.android.material.imageview.ShapeableImageView
 import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlin.jvm.java
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-
 /**
  * 电费查询
  */
@@ -130,12 +119,15 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         }
         school.setOnClickListener { ClickWheel(schoolList) }
         ele_query.setOnClickListener {
+            // 处理宿舍楼和房间号逻辑
+            val processedDoorNumber = processDormAndRoom(dor.text.toString(), door_number.text.toString())
+            
             electronicStore.dispatch(
                 ElectronicAction.queryElectronic(
                     CheckElectricity(
                         school.text.toString(),
                         dor.text.toString(),
-                        door_number.text.toString()
+                        processedDoorNumber
                     )
                 )
             )
@@ -246,12 +238,15 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             mmkv.encode("isFirstLaunch", false)
         } else {
             // 如果不是初始状态，则自动查询
+            // 处理宿舍楼和房间号逻辑
+            val processedDoorNumber = processDormAndRoom(dor.text.toString(), door_number.text.toString())
+            
             electronicStore.dispatch(
                 ElectronicAction.queryElectronic(
                     CheckElectricity(
                         school.text.toString(),
                         dor.text.toString(),
-                        door_number.text.toString()
+                        processedDoorNumber
                     )
                 )
             )
@@ -273,6 +268,26 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             sendBroadcast(intent)
         }
     }
+    /**
+     * 处理宿舍楼和房间号逻辑
+     * 当dor包含'A'或'B'且door_number中没有字母时，在nod参数中添加相应的字母
+     */
+    private fun processDormAndRoom(dor: String, doorNumber: String): String {
+        // 检查dor是否包含'A'或'B'
+        val containsA = dor.contains('A')
+        val containsB = dor.contains('B')
+        
+        // 检查door_number是否包含字母
+        val doorContainsLetter = doorNumber.any { it.isLetter() }
+        
+        // 如果dor包含'A'或'B'且door_number不包含字母，则添加相应字母
+        return when {
+            containsA && !doorContainsLetter -> "A$doorNumber"
+            containsB && !doorContainsLetter -> "B$doorNumber"
+            else -> doorNumber
+        }
+    }
+    
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
