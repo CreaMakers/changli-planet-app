@@ -87,3 +87,5 @@ jobs:
         env:
           HUAWEICLOUD_SDK_AK: ${{ secrets.HUAWEICLOUD_SDK_AK }}
           HUAWEICLOUD_SDK_SK: ${{ secrets.HUAWEICLOUD_SDK_SK }}
+          OBS_BUCKET_NAME: csustplant
+          OBS_ENDPOINT: cn-south-1
