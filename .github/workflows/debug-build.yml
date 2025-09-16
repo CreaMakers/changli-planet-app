@@ -58,8 +58,6 @@ jobs:
     secrets:
       HUAWEICLOUD_SDK_AK: ${{ secrets.HUAWEICLOUD_SDK_AK }}
       HUAWEICLOUD_SDK_SK: ${{ secrets.HUAWEICLOUD_SDK_SK }}
-      OBS_BUCKET_NAME: ${{ secrets.OBS_BUCKET_NAME }}
-      OBS_ENDPOINT: ${{ secrets.OBS_ENDPOINT }}
 
   call-send-notification:
     name: Send Notification

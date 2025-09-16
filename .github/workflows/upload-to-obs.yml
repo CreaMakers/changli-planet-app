@@ -28,10 +28,6 @@ on:
         required: true
       HUAWEICLOUD_SDK_SK:
         required: true
-      OBS_BUCKET_NAME:
-        required: true
-      OBS_ENDPOINT:
-        required: true
 
 jobs:
   upload-to-obs:
@@ -63,21 +59,14 @@ jobs:
             exit 1
           fi
 
-          # 提取原始文件名和版本信息
+          # 提取原始文件名
           ORIGINAL_FILENAME=$(basename "$APK_FILE")
           echo "📦 找到文件: $ORIGINAL_FILENAME"
           echo "📍 文件路径: $APK_FILE"
 
-          # 根据构建类型生成新的文件名
-          if [ "${{ inputs.build_type }}" = "release" ]; then
-            # 提取版本号 (假设格式为 clPlanetApp_release_v1.0.0.apk)
-            VERSION=$(echo "$ORIGINAL_FILENAME" | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' || echo "v1.0.0")
-            NEW_FILENAME="clPlanetApp_release_${{ inputs.run_id }}_${VERSION}.apk"
-            OBS_OBJECT_KEY="builds/release/${NEW_FILENAME}"
-          else
-            NEW_FILENAME="clPlanetApp_debug_${{ inputs.run_id }}.apk"
-            OBS_OBJECT_KEY="builds/debug/${NEW_FILENAME}"
-          fi
+          # 生成新的文件名：{runid}_{原始文件名}
+          NEW_FILENAME="${{ inputs.run_id }}_${ORIGINAL_FILENAME}"
+          OBS_OBJECT_KEY="builds/${{ inputs.build_type }}/${NEW_FILENAME}"
 
           echo "🏷️  新文件名: $NEW_FILENAME"
           echo "📁 OBS路径: $OBS_OBJECT_KEY"
@@ -90,7 +79,7 @@ jobs:
           ./scripts/upload.sh
 
           # 生成OBS访问URL
-          OBS_URL="https://${{ secrets.OBS_BUCKET_NAME }}.obs.${{ secrets.OBS_ENDPOINT }}.myhuaweicloud.com/${OBS_OBJECT_KEY}"
+          OBS_URL="https://csustplant.obs.cn-south-1.myhuaweicloud.com/${OBS_OBJECT_KEY}"
           echo "🌐 上传完成，访问地址: $OBS_URL"
 
           # 设置输出
@@ -98,5 +87,3 @@ jobs:
         env:
           HUAWEICLOUD_SDK_AK: ${{ secrets.HUAWEICLOUD_SDK_AK }}
           HUAWEICLOUD_SDK_SK: ${{ secrets.HUAWEICLOUD_SDK_SK }}
-          OBS_BUCKET_NAME: ${{ secrets.OBS_BUCKET_NAME }}
-          OBS_ENDPOINT: ${{ secrets.OBS_ENDPOINT }}
