@@ -66,9 +66,19 @@ jobs:
       HUAWEICLOUD_SDK_AK: ${{ secrets.HUAWEICLOUD_SDK_AK }}
       HUAWEICLOUD_SDK_SK: ${{ secrets.HUAWEICLOUD_SDK_SK }}
 
+  call-update-download-links:
+    name: Update Download Links
+    needs: [build-release, call-upload-to-obs]
+    if: success() && needs.call-upload-to-obs.outputs.obs_url
+    uses: ./.github/workflows/update-download-links.yml
+    with:
+      obs_url: ${{ needs.call-upload-to-obs.outputs.obs_url }}
+    secrets:
+      WEBSITE_API_KEY: ${{ secrets.WEBSITE_API_KEY }}
+
   call-send-notification:
     name: Send Notification
-    needs: [build-release, call-upload-to-obs]
+    needs: [build-release, call-upload-to-obs, call-update-download-links]
     if: always()
     uses: ./.github/workflows/send-notification.yml
     with:
