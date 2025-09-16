@@ -1,0 +1,102 @@
+name: Reusable Upload to OBS
+
+on:
+  workflow_call:
+    inputs:
+      build_type:
+        required: true
+        type: string
+        description: "Build type: debug or release"
+      apk_pattern:
+        required: true
+        type: string
+        description: "APK file pattern to search for"
+      version_tag:
+        required: false
+        type: string
+        description: "Version tag for release builds"
+      run_id:
+        required: true
+        type: string
+        description: "GitHub run ID for unique naming"
+    outputs:
+      obs_url:
+        description: "The URL of the uploaded file"
+        value: ${{ jobs.upload-to-obs.outputs.obs_url }}
+    secrets:
+      HUAWEICLOUD_SDK_AK:
+        required: true
+      HUAWEICLOUD_SDK_SK:
+        required: true
+      OBS_BUCKET_NAME:
+        required: true
+      OBS_ENDPOINT:
+        required: true
+
+jobs:
+  upload-to-obs:
+    name: Upload APK to OBS
+    runs-on: ubuntu-latest
+    outputs:
+      obs_url: ${{ steps.upload.outputs.obs_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.build_type }}-apk
+          path: ./artifacts/
+
+      - name: Make upload script executable
+        run: chmod +x scripts/upload.sh
+
+      - name: Upload APK to OBS
+        id: upload
+        run: |
+          # 获取APK文件路径
+          APK_FILE=$(find ./artifacts/ -name "${{ inputs.apk_pattern }}" | head -1)
+          if [ -z "$APK_FILE" ]; then
+            echo "❌ 找不到APK文件: ${{ inputs.apk_pattern }}"
+            exit 1
+          fi
+
+          # 提取原始文件名和版本信息
+          ORIGINAL_FILENAME=$(basename "$APK_FILE")
+          echo "📦 找到文件: $ORIGINAL_FILENAME"
+          echo "📍 文件路径: $APK_FILE"
+
+          # 根据构建类型生成新的文件名
+          if [ "${{ inputs.build_type }}" = "release" ]; then
+            # 提取版本号 (假设格式为 clPlanetApp_release_v1.0.0.apk)
+            VERSION=$(echo "$ORIGINAL_FILENAME" | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' || echo "v1.0.0")
+            NEW_FILENAME="clPlanetApp_release_${{ inputs.run_id }}_${VERSION}.apk"
+            OBS_OBJECT_KEY="builds/release/${NEW_FILENAME}"
+          else
+            NEW_FILENAME="clPlanetApp_debug_${{ inputs.run_id }}.apk"
+            OBS_OBJECT_KEY="builds/debug/${NEW_FILENAME}"
+          fi
+
+          echo "🏷️  新文件名: $NEW_FILENAME"
+          echo "📁 OBS路径: $OBS_OBJECT_KEY"
+
+          # 设置环境变量
+          export OBS_FILE_PATH="$APK_FILE"
+          export OBS_OBJECT_KEY="$OBS_OBJECT_KEY"
+
+          # 调用上传脚本
+          ./scripts/upload.sh
+
+          # 生成OBS访问URL
+          OBS_URL="https://${{ secrets.OBS_BUCKET_NAME }}.obs.${{ secrets.OBS_ENDPOINT }}.myhuaweicloud.com/${OBS_OBJECT_KEY}"
+          echo "🌐 上传完成，访问地址: $OBS_URL"
+
+          # 设置输出
+          echo "obs_url=$OBS_URL" >> $GITHUB_OUTPUT
+        env:
+          HUAWEICLOUD_SDK_AK: ${{ secrets.HUAWEICLOUD_SDK_AK }}
+          HUAWEICLOUD_SDK_SK: ${{ secrets.HUAWEICLOUD_SDK_SK }}
+          OBS_BUCKET_NAME: ${{ secrets.OBS_BUCKET_NAME }}
+          OBS_ENDPOINT: ${{ secrets.OBS_ENDPOINT }}

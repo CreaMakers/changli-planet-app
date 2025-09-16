@@ -52,13 +52,30 @@ jobs:
           name: release-apk
           path: app/build/outputs/apk/release/clPlanetApp_release_v*.apk
 
+  call-upload-to-obs:
+    name: Upload to OBS
+    needs: build-release
+    if: success()
+    uses: ./.github/workflows/upload-to-obs.yml
+    with:
+      build_type: "release"
+      apk_pattern: "clPlanetApp_release_v*.apk"
+      version_tag: ${{ github.ref_name }}
+      run_id: ${{ github.run_id }}
+    secrets:
+      HUAWEICLOUD_SDK_AK: ${{ secrets.HUAWEICLOUD_SDK_AK }}
+      HUAWEICLOUD_SDK_SK: ${{ secrets.HUAWEICLOUD_SDK_SK }}
+      OBS_BUCKET_NAME: ${{ secrets.OBS_BUCKET_NAME }}
+      OBS_ENDPOINT: ${{ secrets.OBS_ENDPOINT }}
+
   call-send-notification:
     name: Send Notification
-    needs: build-release
+    needs: [build-release, call-upload-to-obs]
     if: always()
     uses: ./.github/workflows/send-notification.yml
     with:
       build_status: ${{ needs.build-release.result }}
+      obs_url: ${{ needs.call-upload-to-obs.outputs.obs_url }}
     secrets:
       WEBHOOK_API_KEY: ${{ secrets.WEBHOOK_API_KEY }}
       WEBHOOK_ADDRESS: ${{ secrets.WEBHOOK_ADDRESS }}

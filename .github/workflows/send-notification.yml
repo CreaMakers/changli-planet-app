@@ -6,6 +6,10 @@ on:
       build_status:
         required: true
         type: string
+      obs_url:
+        required: false
+        type: string
+        description: "OBS download URL for the APK file"
     secrets:
       WEBHOOK_API_KEY:
         required: true
@@ -23,7 +27,15 @@ jobs:
           if [[ ${{ inputs.build_status }} == 'success' ]]; then
             STATUS_MESSAGE="✅ 构建成功"
           fi
+          
+          # 构建基础消息
           MESSAGE="$STATUS_MESSAGE\n\n仓库：${{ github.repository }}\n工作流：${{ github.workflow }}\n地址：${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          # 如果有OBS下载链接，添加到消息中
+          if [[ -n "${{ inputs.obs_url }}" && "${{ inputs.obs_url }}" != "" ]]; then
+            MESSAGE="$MESSAGE\n\n📱 APK下载：${{ inputs.obs_url }}"
+          fi
+          
           JSON_STRING="{\"message\":\"$MESSAGE\"}"
           curl -X POST \
           -H "Content-Type: application/json" \
