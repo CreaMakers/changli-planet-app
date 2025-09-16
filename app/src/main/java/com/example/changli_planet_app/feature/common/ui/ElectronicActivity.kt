@@ -126,12 +126,14 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         }
         school.setOnClickListener { ClickWheel(schoolList) }
         ele_query.setOnClickListener {
+            // 处理宿舍楼和房间号逻辑
+            val processedDoorNumber = processDormAndRoom(dor.text.toString(), door_number.text.toString())
             electronicStore.dispatch(
                 ElectronicAction.queryElectronic(
                     CheckElectricity(
                         school.text.toString(),
                         dor.text.toString(),
-                        door_number.text.toString()
+                        processedDoorNumber
                     )
                 )
             )
@@ -242,12 +244,13 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             mmkv.encode("isFirstLaunch", false)
         } else {
             // 如果不是初始状态，则自动查询
+            val processedDoorNumber = processDormAndRoom(dor.text.toString(), door_number.text.toString())
             electronicStore.dispatch(
                 ElectronicAction.queryElectronic(
                     CheckElectricity(
                         school.text.toString(),
                         dor.text.toString(),
-                        door_number.text.toString()
+                        processedDoorNumber
                     )
                 )
             )
@@ -269,6 +272,27 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             sendBroadcast(intent)
         }
     }
+
+    /**
+     * 处理宿舍楼和房间号逻辑
+     * 当dor包含'A'或'B'且door_number中没有字母时，在nod参数中添加相应的字母
+     */
+    private fun processDormAndRoom(dor: String, doorNumber: String): String {
+        // 检查dor是否包含'A'或'B'
+        val containsA = dor.contains('A')
+        val containsB = dor.contains('B')
+
+        // 检查door_number是否包含字母
+        val doorContainsLetter = doorNumber.any { it.isLetter() }
+
+        // 如果dor包含'A'或'B'且door_number不包含字母，则添加相应字母
+        return when {
+            containsA && !doorContainsLetter -> "A$doorNumber"
+            containsB && !doorContainsLetter -> "B$doorNumber"
+            else -> doorNumber
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
