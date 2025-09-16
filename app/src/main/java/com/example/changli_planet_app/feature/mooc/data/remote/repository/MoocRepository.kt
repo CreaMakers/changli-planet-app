@@ -296,13 +296,16 @@ class MoocRepository private constructor() {
                     } ?: emptyList()
                     emit(Resource.Success(homeworks))
                 }
-
                 else -> {
+                    Log.d("MoocViewModel","获取作业失败")
                     emit(Resource.Error(response.message() ?: "获取作业失败"))
                 }
             }
 
-        } catch (e: Exception) {
+        }
+        catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        }catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "获取课程作业失败: ${e.message}")
             emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
