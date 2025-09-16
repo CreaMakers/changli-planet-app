@@ -1,4 +1,4 @@
-name: Android Build
+name: Debug Build
 
 on:
   push:
@@ -9,8 +9,8 @@ on:
       - master
 
 jobs:
-  build:
-    name: Build APK
+  build-debug:
+    name: Build Debug APK
     runs-on: ubuntu-latest
 
     steps:
@@ -34,15 +34,11 @@ jobs:
       - name: Make Gradlew executable
         run: chmod +x gradlew
 
-      - name: Build APKs
-        run: |
-          ./gradlew assembleDebug
-          ./gradlew assembleRelease
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
-      - name: List generated APKs
-        run: |
-          ls -la app/build/outputs/apk/debug/
-          ls -la app/build/outputs/apk/release/
+      - name: List generated APK
+        run: ls -la app/build/outputs/apk/debug/
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
@@ -50,8 +46,13 @@ jobs:
           name: debug-apk
           path: app/build/outputs/apk/debug/clPlanetApp_debug_v*.apk
 
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-apk
-          path: app/build/outputs/apk/release/clPlanetApp_release_v*.apk
+  call-send-notification:
+    name: Send Notification
+    needs: build-debug
+    if: always()
+    uses: ./.github/workflows/send-notification.yml
+    with:
+      build_status: ${{ needs.build-debug.result }}
+    secrets:
+      WEBHOOK_API_KEY: ${{ secrets.WEBHOOK_API_KEY }}
+      WEBHOOK_ADDRESS: ${{ secrets.WEBHOOK_ADDRESS }}

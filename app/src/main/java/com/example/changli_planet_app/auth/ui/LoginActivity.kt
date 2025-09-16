@@ -1,5 +1,6 @@
 package com.example.changli_planet_app.auth.ui
 
+import android.Manifest
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -15,6 +16,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.pm.PackageInfoCompat
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.auth.data.remote.dto.UserPassword
@@ -64,6 +66,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     private fun checkUpdate(){
         // 检查版本更新
         Looper.myQueue().addIdleHandler {
+            getNotificationPermissions()
             val packageManager: PackageManager = this@LoginActivity.packageManager
             val packageInfo: PackageInfo =
                 packageManager.getPackageInfo(this@LoginActivity.packageName, 0)
@@ -253,5 +256,40 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         underlinetext.setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         view.text = underlinetext
     }
+
+    private fun getNotificationPermissions() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_NOTIFICATION
+            )
+        } else {
+            return
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_NOTIFICATION ->
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getNotificationPermissions()
+                }
+
+        }
+    }
+    companion object {
+        private const val REQUEST_NOTIFICATION = 1002
+    }
+
 
 }
