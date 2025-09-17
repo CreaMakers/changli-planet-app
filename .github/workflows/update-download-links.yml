@@ -1,0 +1,45 @@
+name: Update Download Links
+
+on:
+  workflow_call:
+    inputs:
+      obs_url:
+        required: true
+        type: string
+        description: "OBS URL for the APK file"
+    secrets:
+      WEBSITE_API_KEY:
+        required: true
+        description: "API key for updating website download links"
+
+jobs:
+  update-links:
+    name: Update Website Download Links
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update download links via API
+        run: |
+          echo "🔄 Updating download links..."
+          response=$(curl -X POST https://cm.zhelearn.com/api/config \
+            -H "Content-Type: application/json" \
+            -d '{
+              "API_KEY": "${{ secrets.WEBSITE_API_KEY }}",
+              "downloadUrls": {
+                "android": "${{ inputs.obs_url }}"
+              }
+            }' \
+            -w "%{http_code}" \
+            -s -o /tmp/api_response.json)
+
+          echo "📥 API Response: $(cat /tmp/api_response.json)"
+          echo "📊 HTTP Status Code: $response"
+
+          if [ "$response" -eq 200 ]; then
+            echo "✅ Download links updated successfully"
+            echo "🔗 New Android download URL: ${{ inputs.obs_url }}"
+          else
+            echo "❌ Failed to update download links. HTTP status: $response"
+            echo "💬 Response body: $(cat /tmp/api_response.json)"
+            exit 1
+          fi
