@@ -8,21 +8,17 @@ import android.content.Intent
 import android.util.Log
 import android.util.TypedValue
 import android.widget.RemoteViews
-import androidx.compose.ui.platform.LocalFontLoader
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.network.HttpUrlHelper
 import com.example.changli_planet_app.core.network.MyResponse
 import com.example.changli_planet_app.core.network.OkHttpHelper
 import com.example.changli_planet_app.core.network.listener.RequestCallback
 import com.example.changli_planet_app.feature.common.ui.ElectronicActivity
-import com.gradle.scan.agent.serialization.scan.serializer.kryo.by
 import com.tencent.mmkv.MMKV
 import okhttp3.Response
-import kotlin.getValue
-import kotlin.jvm.java
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class ElectronicAppWidget: AppWidgetProvider() {
