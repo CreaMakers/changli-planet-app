@@ -59,6 +59,7 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
                     val courseResult = repository.getCourseNamesWithPendingHomeworks()
                         .filter { it !is Resource.Loading }
                         .first()
+                    Log.d(TAG,courseResult.toString())
                     _pendingCourse.value = courseResult
                 } else {
                     _pendingCourse.value = Resource.Error((loginResult as Resource.Error).msg)

@@ -24,7 +24,7 @@ class MoocActivity : ComponentActivity() {
             }
         }
         if (studentId.isEmpty() || studentPassword.isEmpty()) {
-            showMessage("请先绑定学号和密码")
+            showMessage(getString(R.string.bind_notification))
             Route.goBindingUser(this)
             finish()
             return  // 这里直接返回了，后续代码不会执行
