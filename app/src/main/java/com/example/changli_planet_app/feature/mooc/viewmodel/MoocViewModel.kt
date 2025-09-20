@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.core.network.Resource
+import com.example.changli_planet_app.feature.mooc.data.remote.dto.MoocHomework
 import com.example.changli_planet_app.feature.mooc.data.remote.dto.PendingAssignmentCourse
 import com.example.changli_planet_app.feature.mooc.data.remote.repository.MoocRepository
 import com.example.changli_planet_app.utils.ResourceUtil
@@ -28,7 +29,9 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
     private val _pendingCourse =
         MutableStateFlow<Resource<List<PendingAssignmentCourse>>>(Resource.Loading())
     val pendingCourse = _pendingCourse.asStateFlow()
-
+    private val _pendingHomeworks =
+        MutableStateFlow<Resource<List<MoocHomework>>>(Resource.Loading())
+    val pendingHomeworks = _pendingHomeworks.asStateFlow()
     private val repository by lazy { MoocRepository.instance }
 
     fun login(account: String, password: String) {
@@ -56,6 +59,7 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
                     val courseResult = repository.getCourseNamesWithPendingHomeworks()
                         .filter { it !is Resource.Loading }
                         .first()
+                    Log.d(TAG,courseResult.toString())
                     _pendingCourse.value = courseResult
                 } else {
                     _pendingCourse.value = Resource.Error((loginResult as Resource.Error).msg)
@@ -67,6 +71,20 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
                 _pendingCourse.value =
                     Resource.Error(e.message ?: ResourceUtil.getStringRes(R.string.error_unknown))
             }
+        }
+    }
+    fun getCourseHomeworks(courseId: String){
+        viewModelScope.launch {
+            try {
+                val result = repository.getCourseHomeworks(courseId)
+                    .filter { it !is Resource.Loading }
+                    .first()
+                _pendingHomeworks.value = result
+            }
+            catch (e: Exception){
+                Log.e(TAG,"failed to get Homeworks:${e}")
+            }
+
         }
     }
 }

@@ -84,10 +84,10 @@
                 app:strokeWidth="@dimen/dp2" />
             <TextView
                 android:id="@+id/tv_school_zone"
-                android:gravity="center"
+                android:gravity="end"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/dp40"
-                android:layout_marginStart="@dimen/dp20"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp36"
                 android:text="@string/schoolZone"
                 android:textStyle="bold"
                 android:textColor="@color/color_2878F3"
@@ -138,9 +138,9 @@
                 app:strokeWidth="@dimen/dp2" />
             <TextView
                 android:id="@+id/tv_dorm"
-                android:gravity="center"
+                android:gravity="end"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/dp40"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp20"
                 android:text="@string/dorm"
                 android:textStyle="bold"
@@ -192,9 +192,9 @@
                 app:strokeWidth="@dimen/dp2" />
             <TextView
                 android:id="@+id/tv_door"
-                android:gravity="center"
+                android:gravity="end"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/dp40"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp20"
                 android:text="@string/doorNum"
                 android:textStyle="bold"
@@ -240,7 +240,7 @@
         android:id="@+id/card_electricity"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/dp20"
+        android:layout_marginTop="@dimen/dp50"
         android:layout_marginBottom="@dimen/dp15"
         android:layout_marginStart="@dimen/dp10"
         android:layout_marginEnd="@dimen/dp10"
@@ -323,21 +323,6 @@
         android:focusable="true"
         android:layout_marginStart="@dimen/dp40"
         android:layout_marginEnd="@dimen/dp40"
-        android:layout_marginTop="@dimen/dp60"
+        android:layout_marginTop="@dimen/dp40"
         app:layout_constraintTop_toBottomOf="@+id/card_electricity"/>
-
-
-    <TextView
-        android:id="@+id/tip"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/dp30"
-        android:text="@string/query_things"
-        android:textColor="@color/setting_header_text"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
