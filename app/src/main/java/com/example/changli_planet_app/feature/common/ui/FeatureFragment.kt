@@ -91,8 +91,8 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
             nclassroom.setOnClickListener { activity?.let { Route.goClassInfo(it) } }
             accountbook.setOnClickListener { activity?.let { Route.goAccountBook(it) } }
             ndocument.setOnClickListener { activity?.let { Route.goContract(it) } }
-//            nhomework.setOnClickListener { activity?.let { Route.goMooc(it) } }
-            nhomework.setOnClickListener { showNormalDialog(ResourceUtil.getStringRes(R.string.feature_developing_in_progress)) }
+            nhomework.setOnClickListener { activity?.let { Route.goMooc(it) } }
+//            nhomework.setOnClickListener { showNormalDialog(ResourceUtil.getStringRes(R.string.feature_developing_in_progress)) }
             nlose.setOnClickListener { showNormalDialog(ResourceUtil.getStringRes(R.string.feature_developing_in_progress)) }
             ncalender.setOnClickListener { activity?.let { Route.goCalendar(it) } }
         }

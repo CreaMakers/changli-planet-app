@@ -15,6 +15,7 @@ import com.example.changli_planet_app.feature.mooc.data.remote.dto.PendingAssign
 import com.example.changli_planet_app.utils.AESUtils
 import com.example.changli_planet_app.utils.ResourceUtil
 import com.example.changli_planet_app.utils.RetrofitUtils
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -279,35 +280,29 @@ class MoocRepository private constructor() {
 
     fun getCourseHomeworks(courseId: String) = flow {
         emit(Resource.Loading())
-        try {
-            val response = api.getCourseHomeworks(courseId = courseId)
-            when {
-                response.code() == 200 -> {
-                    val homeworks = response.body()?.datas?.hwtList?.map { item ->
-                        MoocHomework(
-                            id = item.id,
-                            title = item.title,
-                            publisher = item.realName,
-                            canSubmit = item.submitStruts,
-                            submitStatus = item.answerStatus != null,
-                            deadline = item.deadLine,
-                            startTime = item.startDateTime
-                        )
-                    } ?: emptyList()
-                    emit(Resource.Success(homeworks))
-                }
-
-                else -> {
-                    emit(Resource.Error(response.message() ?: "获取作业失败"))
-                }
-            }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("MoocRepository", "获取课程作业失败: ${e.message}")
+        val response = api.getCourseHomeworks(courseId = courseId)
+        if (response.code() == 200) {
+            val homeworks = response.body()?.datas?.hwtList?.map { item ->
+                MoocHomework(
+                    id = item.id,
+                    title = item.title,
+                    publisher = item.realName,
+                    canSubmit = item.submitStruts,
+                    submitStatus = item.answerStatus != null,
+                    deadline = item.deadLine,
+                    startTime = item.startDateTime
+                )
+            } ?: emptyList()
+            emit(Resource.Success(homeworks))
+        } else {
+            Log.d(TAG, "获取作业失败")
+            emit(Resource.Error(response.message() ?: "获取作业失败"))
+        }
+    }.catch { e ->
+            if (e is CancellationException) throw e
+            Log.e(TAG, "获取课程作业失败: ${e.message}", e)
             emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
         }
-    }
 
     fun getCourseTests(courseId: String) = flow {
         emit(Resource.Loading())

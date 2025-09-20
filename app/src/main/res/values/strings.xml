@@ -106,6 +106,8 @@
     <string name="ele_state_high">电量充足~</string>
     <string name="ele_state_unknown">状态未知</string>
     <string name="feedback">意见反馈</string>
+<!--    用于MoocActivity的字符串-->
+    <string name="bind_notification">请先绑定学号和密码</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
