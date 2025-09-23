@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.example.changli_planet_app.BuildConfig
 import com.example.changli_planet_app.core.network.OkHttpHelper
 import com.example.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
+import com.example.changli_planet_app.utils.StartupTimeTracker
 import com.tencent.bugly.crashreport.CrashReport
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
@@ -23,7 +24,7 @@ import kotlinx.coroutines.launch
 class PlanetApplication : Application() {
     companion object {
         private const val TIME_TABLE_APP_WIDGET = "TimeTableAppWidget"
-        
+
         var accessToken: String?
             get() = MMKV.defaultMMKV()?.getString("token", null)
             set(value) {
@@ -84,16 +85,19 @@ class PlanetApplication : Application() {
             }
         }
     }
+
     private val fpsHandlerThread = HandlerThread("fpsHandlerThread").apply { start() }
     private val fpsHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(fpsHandlerThread.looper) }
 
     override fun onCreate() {
         super.onCreate()
-        val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initMMKV()
         if (!BuildConfig.DEBUG) {
             CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
+        }
+        if (BuildConfig.DEBUG) {
+            StartupTimeTracker.initialize(applicationContext as Application)
         }
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }

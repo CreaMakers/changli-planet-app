@@ -171,6 +171,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.process.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -186,6 +187,7 @@ dependencies {
     // workmanager
     implementation("androidx.work:work-runtime-ktx:2.10.3")
     implementation("androidx.work:work-rxjava2:2.10.3")
+    implementation(project(":CP_Common"))
 }
 kapt {
     arguments {
