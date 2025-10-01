@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
@@ -16,10 +18,14 @@ import com.example.changli_planet_app.common.redux.action.UserAction
 import com.example.changli_planet_app.common.redux.store.UserStore
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.Route
+import com.example.changli_planet_app.core.network.Resource
 import com.example.changli_planet_app.databinding.ActivityBindingUserBinding
+import com.example.changli_planet_app.feature.mooc.data.remote.repository.MoocRepository
 import com.example.changli_planet_app.utils.Event.FinishEvent
+import com.example.changli_planet_app.widget.View.CustomToast
 import com.google.android.material.button.MaterialButton
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -31,6 +37,7 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
     private val password: TextView by lazy { binding.etStudentPassword }
     private val back: ImageView by lazy { binding.bindingBack }
     private val save: MaterialButton by lazy { binding.saveUser }
+    private val repository by lazy { MoocRepository.instance }
 
     private val store = UserStore()
 
