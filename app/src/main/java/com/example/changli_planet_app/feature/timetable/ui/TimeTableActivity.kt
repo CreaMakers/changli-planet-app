@@ -33,6 +33,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.lifecycleScope
+import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.TimeTableAppWidget
 import com.example.changli_planet_app.base.FullScreenActivity
