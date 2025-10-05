@@ -156,9 +156,14 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                     val regex = Regex("(\\d*\\.?\\d+)")
                     val matchResult = regex.find(state.elec)
 
-                    // 2. 将提取到的数字字符串转换为 Float，如果失败则默认为 0.0f
-                    val electronicValue = matchResult?.value?.toFloatOrNull() ?: -1.0f
+                    // 2. 将提取到的数字字符串转换为 Float，如果失败则默认为 -1.0f
+                    val electronicValue = matchResult?.value?.toFloatOrNull()
                     when{
+                        electronicValue == null ->{
+                            ele_image.load(R.drawable.e_default)
+                            ele_num.text = getString(R.string.ele_query_false)
+                            ele_state.text =getString(R.string.ele_state_unknown)
+                        }
                         electronicValue in 0.0f..20f -> {
                             ele_image.load(R.drawable.e_none)
                             ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
@@ -177,11 +182,7 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                             ele_state.text = getString(R.string.ele_state_high)
                             ele_state.setTextColor(getColor(R.color.ele_high))
                         }
-                        electronicValue < 0.0f ->{
-                            ele_image.load(R.drawable.e_default)
-                            ele_num.text = getString(R.string.ele_query_false)
-                            ele_state.text =getString(R.string.ele_state_unknown)
-                        }
+
                     }
                 }
             })
