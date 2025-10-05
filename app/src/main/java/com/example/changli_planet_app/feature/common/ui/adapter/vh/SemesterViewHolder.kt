@@ -65,7 +65,7 @@ class SemesterViewHolder(
                     .setDuration(400)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
-                courseAdapter.submitList(item.semester.cours)
+                courseAdapter.submitList(item.semester.course)
             } else {
                 rvCourses.visibility = View.GONE
             }
