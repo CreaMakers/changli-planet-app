@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.airbnb.lottie.LottieCompositionFactory.fromJson
+import com.dcelysia.csust_spider.core.RetrofitUtils
 import com.dcelysia.csust_spider.education.data.remote.services.AuthService
 import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
@@ -307,10 +308,12 @@ class UserStore : Store<UserState, UserAction>() {
                     }
                 }
                 CoroutineScope(Dispatchers.IO).launch {
+                    RetrofitUtils.ClearClient("moocClient")
+                    RetrofitUtils.ClearClient("EducationClient")
                     try {
                         // 先做 SSO 登录（过滤掉 Loading）
                         val ssoResult = MoocRepository.instance
-                            .login(action.student_number, UserInfoManager.userPassword)
+                            .login(action.student_number, StudentInfoManager.studentPassword)
                             .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
                             .first()
 
