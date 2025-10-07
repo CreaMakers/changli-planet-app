@@ -58,77 +58,17 @@ import com.example.changli_planet_app.core.network.Resource
 import com.example.changli_planet_app.feature.mooc.data.remote.dto.MoocHomework
 import com.example.changli_planet_app.feature.mooc.data.remote.dto.PendingAssignmentCourse
 import com.example.changli_planet_app.feature.mooc.viewmodel.MoocViewModel
+import kotlin.collections.get
 
 
 // 辅助函数：将字符串日期转换为Date对象
-fun parseDate(dateString: String): Date? {
-    val formats = listOf(
-        "yyyy-MM-dd HH:mm:ss",
-        "yyyy-MM-dd",
-        "MM/dd/yyyy HH:mm",
-        "MM/dd/yyyy"
-    )
-    
-    for (format in formats) {
-        try {
-            val sdf = SimpleDateFormat(format, Locale.getDefault())
-            return sdf.parse(dateString)
-        } catch (e: Exception) {
-            // 继续尝试下一个格式
-        }
-    }
-    return null
-}
+
 
 // 按截止时间排序作业列表
-fun sortHomeworksByDeadline(homeworks: List<MoocHomework>): List<MoocHomework> {
-    return homeworks.sortedWith { a, b ->
-        val dateA = parseDate(a.deadline)
-        val dateB = parseDate(b.deadline)
-        
-        when {
-            dateA == null && dateB == null -> 0 // 两者都无法解析，保持原有顺序
-            dateA == null -> 1 // 无法解析的日期排在后面
-            dateB == null -> -1 // 无法解析的日期排在后面
-            else -> dateA.compareTo(dateB) // 按日期排序
-        }
-    }
-}
+
 
 // 检查作业是否在一天内截止
-fun isHomeworkDueWithinOneDay(deadline: String): Boolean {
-    val deadlineDate = parseDate(deadline) ?: return false
-    val currentTime = System.currentTimeMillis()
-    val deadlineTime = deadlineDate.time
-    
-    // 如果截止时间已经过了，返回false
-    if (deadlineTime <= currentTime) {
-        return false
-    }
-    
-    // 计算截止日期和当前日期之间的天数差
-    val currentCalendar = java.util.Calendar.getInstance().apply {
-        timeInMillis = currentTime
-        set(java.util.Calendar.HOUR_OF_DAY, 0)
-        set(java.util.Calendar.MINUTE, 0)
-        set(java.util.Calendar.SECOND, 0)
-        set(java.util.Calendar.MILLISECOND, 0)
-    }
-    
-    val deadlineCalendar = java.util.Calendar.getInstance().apply {
-        timeInMillis = deadlineTime
-        set(java.util.Calendar.HOUR_OF_DAY, 0)
-        set(java.util.Calendar.MINUTE, 0)
-        set(java.util.Calendar.SECOND, 0)
-        set(java.util.Calendar.MILLISECOND, 0)
-    }
-    
-    val diffInMillis = deadlineCalendar.timeInMillis - currentCalendar.timeInMillis
-    val diffInDays = diffInMillis / (24 * 60 * 60 * 1000)
-    
-    // 如果在同一天或第二天，返回true
-    return diffInDays <= 1
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -215,7 +155,7 @@ fun MoocScreen(
                             contentPadding = PaddingValues(vertical = 8.dp)
                         ) {
                             items(courses) { course ->
-                                CourseItem(course = course,moocViewModel)
+                                CourseItem(course = course, moocViewModel = moocViewModel)
                             }
                         }
                     }
@@ -226,12 +166,11 @@ fun MoocScreen(
 }
 @Composable
 fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
-    var expanded by remember { mutableStateOf(false) }
-    val homeworks by moocViewModel.pendingHomeworks.collectAsStateWithLifecycle()
+    val isExpanded by moocViewModel.expandedCourseIds.collectAsStateWithLifecycle()
+    val expanded = isExpanded.contains(course.id)
+    val pendingHomeworksByCourse by moocViewModel.pendingHomeworksByCourse.collectAsStateWithLifecycle()
+    val homeworks = pendingHomeworksByCourse[course.id] ?: Resource.Loading()
     val rotationAngle by animateFloatAsState(targetValue = if (expanded) 180f else 0f, label = "rotationAngle")
-
-    // 预加载状态，用于优化首次展开的性能
-    var isPreloaded by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -239,14 +178,7 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
             .padding(horizontal = 16.dp)
             .height(72.dp)
             .clickable {
-                expanded = !expanded
-                if (expanded && !isPreloaded) {
-                    moocViewModel.getCourseHomeworks(course.id)
-                    isPreloaded = true
-                } else if (expanded && isPreloaded) {
-                    // 如果已经预加载过，直接刷新数据
-                    moocViewModel.getCourseHomeworks(course.id)
-                }
+                moocViewModel.handleCourseClick(course.id)
             },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -311,17 +243,16 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
 
             is Resource.Success -> {
                 val homeworkList = (homeworks as Resource.Success).data
-                val sortedHomeworkList = sortHomeworksByDeadline(homeworkList)
-                if (sortedHomeworkList.isNotEmpty()) {
+                if (homeworkList.isNotEmpty()) {
                     // 统一左右内边距为 16.dp，使对齐一致
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        sortedHomeworkList.forEach { homework ->
+                        homeworkList.forEach { homework ->
                             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                HomeworkItem(homework = homework)
+                                HomeworkItem(homework = homework,moocViewModel = moocViewModel)
                             }
                         }
                     }
@@ -336,10 +267,15 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
 }
 
 @Composable
-fun HomeworkItem(homework: MoocHomework) {
-    val isDueSoon = isHomeworkDueWithinOneDay(homework.deadline)
+fun HomeworkItem(homework: MoocHomework, moocViewModel: MoocViewModel) {
+    val isDueSoonMap by moocViewModel.isDueSoonMap.collectAsStateWithLifecycle()
+    val key = homework.title
+    val isDueSoon = when (val res = isDueSoonMap[key]) {
+        is Resource.Success -> res.data
+        else -> false
+    }
     val titleColor = if (isDueSoon) Color(0xFFFF5252) else Color.Black // 使用亮红色 #FF5252
-    
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
