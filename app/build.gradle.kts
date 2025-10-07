@@ -189,7 +189,7 @@ dependencies {
     implementation("androidx.work:work-rxjava2:2.10.3")
     implementation(project(":CP_Common"))
     //csustDataGet
-    implementation("com.github.CreaMakers:CSUSTDataGet:925b73d03e")
+    implementation("com.github.CreaMakers:CSUSTDataGet:3bf310626c")
 }
 kapt {
     arguments {
