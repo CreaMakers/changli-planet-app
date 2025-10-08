@@ -475,7 +475,7 @@ class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Ha
     private fun toLocalCourse(courses: List<com.dcelysia.csust_spider.education.data.remote.model.Course>): List<Course>{
             val localCourses = courses.map {
                 Course(
-                    it.courseName,
+                    it.classroom,
                     it.courseName,
                     it.teacher,
                     it.weekday,
