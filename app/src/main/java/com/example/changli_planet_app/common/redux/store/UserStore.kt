@@ -316,7 +316,6 @@ class UserStore : Store<UserState, UserAction>() {
                             .login(action.student_number, StudentInfoManager.studentPassword)
                             .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
                             .first()
-
                         when (ssoResult) {
                             is com.dcelysia.csust_spider.core.Resource.Success -> {
                                 Log.d(TAG, "sso登陆成功")

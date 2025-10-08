@@ -29,8 +29,8 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.2.1"
+        versionCode = 10
+        versionName = "1.2.2"
 
 
         ndk {
@@ -189,7 +189,8 @@ dependencies {
     implementation("androidx.work:work-rxjava2:2.10.3")
     implementation(project(":CP_Common"))
     //csustDataGet
-    implementation("com.github.CreaMakers:CSUSTDataGet:3bf310626c")
+//    implementation("com.github.CreaMakers:CSUSTDataGet:28c105c2a7")
+    implementation("com.github.CreaMakers:CSUSTDataGet:28c105c2a7")
 }
 kapt {
     arguments {
