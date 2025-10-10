@@ -15,10 +15,15 @@ import com.example.changli_planet_app.feature.mooc.data.remote.dto.PendingAssign
 import com.example.changli_planet_app.utils.AESUtils
 import com.example.changli_planet_app.utils.ResourceUtil
 import com.example.changli_planet_app.utils.RetrofitUtils
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.compareTo
 
 class MoocRepository private constructor() {
     companion object {
@@ -279,34 +284,62 @@ class MoocRepository private constructor() {
 
     fun getCourseHomeworks(courseId: String) = flow {
         emit(Resource.Loading())
-        try {
-            val response = api.getCourseHomeworks(courseId = courseId)
-            when {
-                response.code() == 200 -> {
-                    val homeworks = response.body()?.datas?.hwtList?.map { item ->
-                        MoocHomework(
-                            id = item.id,
-                            title = item.title,
-                            publisher = item.realName,
-                            canSubmit = item.submitStruts,
-                            submitStatus = item.answerStatus != null,
-                            deadline = item.deadLine,
-                            startTime = item.startDateTime
-                        )
-                    } ?: emptyList()
-                    emit(Resource.Success(homeworks))
-                }
+        val response = api.getCourseHomeworks(courseId = courseId)
+        if (response.code() == 200) {
+            val homeworks = response.body()?.datas?.hwtList?.map { item ->
+                MoocHomework(
+                    id = item.id,
+                    title = item.title,
+                    publisher = item.realName,
+                    canSubmit = item.submitStruts,
+                    submitStatus = item.answerStatus != null,
+                    deadline = item.deadLine,
+                    startTime = item.startDateTime
+                )
+            } ?: emptyList()
 
-                else -> {
-                    emit(Resource.Error(response.message() ?: "获取作业失败"))
+            // 本地同步解析函数，返回 null 表示无法解析
+            fun parseDateOrNull(dateString: String?): Date? {
+                if (dateString.isNullOrBlank()) return null
+                val formats = listOf(
+                    "yyyy-MM-dd HH:mm:ss",
+                    "yyyy-MM-dd",
+                    "MM/dd/yyyy HH:mm",
+                    "MM/dd/yyyy"
+                )
+                for (fmt in formats) {
+                    try {
+                        val sdf = SimpleDateFormat(fmt, Locale.getDefault())
+                        sdf.isLenient = false
+                        return sdf.parse(dateString)
+                    } catch (_: Exception) {
+                        // try next
+                    }
+                }
+                return null
+            }
+
+            val sorted = homeworks.sortedWith { a, b ->
+                val dateA = parseDateOrNull(a.deadline)
+                val dateB = parseDateOrNull(b.deadline)
+
+                when {
+                    dateA == null && dateB == null -> 0
+                    dateA == null -> 1
+                    dateB == null -> -1
+                    else -> dateA.compareTo(dateB)
                 }
             }
 
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("MoocRepository", "获取课程作业失败: ${e.message}")
-            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+            emit(Resource.Success(sorted))
+        } else {
+            Log.d(TAG, "获取作业失败")
+            emit(Resource.Error(response.message() ?: "获取作业失败"))
         }
+    }.catch { e ->
+        if (e is CancellationException) throw e
+        Log.e(TAG, "获取课程作业失败: ${e.message}", e)
+        emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
     }
 
     fun getCourseTests(courseId: String) = flow {
@@ -438,6 +471,69 @@ class MoocRepository private constructor() {
             e.printStackTrace()
             Log.e("MoocRepository", "登出失败: ${e.message}")
             emit(Resource.Error("网络错误"))
+        }
+    }
+
+     fun isHomeworkDueWithinOneDay(deadline: String): Flow<Resource<Boolean>> = flow {
+        emit(Resource.Loading())
+        try {
+            fun parseDateOrNull(dateString: String?): Date? {
+                if (dateString.isNullOrBlank()) return null
+                val formats = listOf(
+                    "yyyy-MM-dd HH:mm:ss",
+                    "yyyy-MM-dd",
+                    "MM/dd/yyyy HH:mm",
+                    "MM/dd/yyyy"
+                )
+                for (fmt in formats) {
+                    try {
+                        val sdf = SimpleDateFormat(fmt, Locale.getDefault())
+                        sdf.isLenient = false
+                        return sdf.parse(dateString)
+                    } catch (_: Exception) {
+                        // try next
+                    }
+                }
+                return null
+            }
+
+            val deadlineDate = parseDateOrNull(deadline) ?: run {
+                emit(Resource.Success(false))
+                return@flow
+            }
+
+            val currentTime = System.currentTimeMillis()
+            val deadlineTime = deadlineDate.time
+
+            if (deadlineTime <= currentTime) {
+                emit(Resource.Success(false))
+                return@flow
+            }
+
+            val currentCalendar = java.util.Calendar.getInstance().apply {
+                timeInMillis = currentTime
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }
+
+            val deadlineCalendar = java.util.Calendar.getInstance().apply {
+                timeInMillis = deadlineTime
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }
+
+            val diffInMillis = deadlineCalendar.timeInMillis - currentCalendar.timeInMillis
+            val diffInDays = diffInMillis / (24 * 60 * 60 * 1000)
+
+            emit(Resource.Success(diffInDays <= 1))
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            e.printStackTrace()
+            emit(Resource.Error("计算截止时间失败"))
         }
     }
 }

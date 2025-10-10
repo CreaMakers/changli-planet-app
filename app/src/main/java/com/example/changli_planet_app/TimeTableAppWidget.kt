@@ -8,6 +8,8 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import com.airbnb.lottie.LottieCompositionFactory.fromJson
+import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.example.changli_planet_app.common.cache.CommonInfo
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.example.changli_planet_app.core.PlanetApplication
@@ -22,12 +24,17 @@ import com.example.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.example.changli_planet_app.utils.ResourceUtil
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Response
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.ranges.step
 
 /**
  * Implementation of App Widget functionality.
@@ -224,64 +231,68 @@ internal fun updateAppWidget(
 
 private fun getCourseInfo(callback: (List<TimeTableMySubject>?) -> Unit) {
     val subjects = mutableListOf<TimeTableMySubject>()
+
+    // 先尝试使用缓存
     if (!isRefresh) {
-        callback(
-            OkHttpHelper.gson.fromJson(
-                courses,
-                object : TypeToken<List<TimeTableMySubject>>() {}.type
-            )
-        )
+        val cached = OkHttpHelper.gson.fromJson(
+            courses,
+            object : TypeToken<List<TimeTableMySubject>>() {}.type
+        ) as List<TimeTableMySubject>?
+        callback(cached)
         return
     }
-    val httpUrlHelper = HttpUrlHelper.HttpRequest()
-        .get(PlanetApplication.ToolIp + "/courses")
-        .addQueryParam("stuNum", studentId)
-        .addQueryParam("password", studentPassword)
-        .addQueryParam("week", "")
-        .addQueryParam("termId", curTerm).build()
-    var isSuccess = false
-    for (i in 0 until refreshCount) {
-        OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-            override fun onSuccess(response: Response) {
-                try {
-                    val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
-                    val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
-                        response.body?.string(), type
+
+    // 异步进行网络请求并在完成后通过回调返回结果（确保在主线程回调）
+    CoroutineScope(Dispatchers.IO).launch {
+        var isSuccess = false
+
+        for (i in 0 until refreshCount) {
+            try {
+                val dataGetCourses = EducationHelper.getCourseScheduleByTerm("", curTerm)
+                val localCourses = dataGetCourses.map {
+                    com.example.changli_planet_app.feature.common.data.remote.dto.Course(
+                        classroom = it.classroom,
+                        courseName = it.courseName,
+                        teacher = it.teacher,
+                        weeks = it.weeks,
+                        weekday = it.weekday
                     )
-
-                    when (fromJson.code) {
-                        "200" -> {
-                            Log.d("TimeTableAppWidget", "获取课表成功，刷新缓存")
-                            subjects.addAll(generateSubjects(fromJson.data, curTerm))
-                            val result = subjects.distinctBy {
-                                "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
-                            }
-                            courses = OkHttpHelper.gson.toJson(result.toList())
-                            isRefresh = false
-                            callback(result) // 在这里调用回调
-                            isSuccess = true
-                            return
-                        }
-
-                        else -> {
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
-            }
 
-            override fun onFailure(error: String) {
-                Log.e("TimeTableAppWidget", "getCourseInfo error: $error")
+                if (localCourses.isNotEmpty()) {
+                    Log.d("TimeTableAppWidget", "获取课表成功，刷新缓存")
+                    subjects.addAll(generateSubjects(localCourses, curTerm))
+                    val result = subjects.distinctBy {
+                        "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
+                    }.toList()
+
+                    // 更新缓存与标志
+                    courses = OkHttpHelper.gson.toJson(result)
+                    isRefresh = false
+                    isSuccess = true
+
+                    withContext(Dispatchers.Main) {
+                        callback(result)
+                    }
+                    break
+                } else {
+                    Log.e("TimeTableAppWidget", "课程获取为空，尝试重试：$i")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        })
-        if (isSuccess) return
-        callback(
-            OkHttpHelper.gson.fromJson(
+        }
+
+        if (!isSuccess) {
+            // 所有尝试失败，返回缓存结果（可能为空）
+            val cached = OkHttpHelper.gson.fromJson(
                 courses,
                 object : TypeToken<List<TimeTableMySubject>>() {}.type
-            )
-        )
+            ) as List<TimeTableMySubject>?
+            withContext(Dispatchers.Main) {
+                callback(cached)
+            }
+        }
     }
 }
 

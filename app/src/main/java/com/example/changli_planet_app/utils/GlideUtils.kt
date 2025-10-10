@@ -5,7 +5,7 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import androidx.core.view.doOnLayout
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestListener
@@ -146,14 +146,42 @@ fun ImageView.load(
     listener: RequestListener<Drawable>? = null
 ) {
     try {
-        Log.d("dcelysia", "ImageView.load start: $imageSource")
-        if (pxWidth != 0 || pxHeight != 0) {
-            Log.d("dcelysia", "ImageView.load 用户设置 pxWidth: $pxWidth, pxHeight: $pxHeight")
-            loadImageDirectly(imageSource, useDiskCache, useMemoryCache, pxWidth, pxHeight, listener)
-        } else {
-            doOnLayout {
-                Log.d("dcelysia", "ImageView.load already width: $width, height: $height")
-                loadImageDirectly(imageSource, useDiskCache, useMemoryCache, width, height, listener)
+        when {
+            pxWidth != 0 || pxHeight != 0 -> {
+                loadImageDirectly(
+                    imageSource,
+                    useDiskCache,
+                    useMemoryCache,
+                    pxWidth,
+                    pxHeight,
+                    listener
+                )
+            }
+
+            !isLayoutRequested && width > 0 && height > 0 -> {
+                Log.d("dcelysia", "ImageViewId: ${hashCode()}, width: $width, height: $height")
+                loadImageDirectly(
+                    imageSource,
+                    useDiskCache,
+                    useMemoryCache,
+                    width,
+                    height,
+                    listener
+                )
+            }
+
+            else -> {
+                Log.d("dcelysia", "ImageViewId: ${hashCode()}, width: $width, height: $height")
+                doOnPreDraw {
+                    loadImageDirectly(
+                        imageSource,
+                        useDiskCache,
+                        useMemoryCache,
+                        width,
+                        height,
+                        listener
+                    )
+                }
             }
         }
     } catch (e: Exception) {

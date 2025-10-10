@@ -1,0 +1,72 @@
+name: Debug Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-debug:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make Gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: List generated APK
+        run: ls -la app/build/outputs/apk/debug/
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/clPlanetApp_debug_v*.apk
+
+  call-upload-to-obs:
+    name: Upload to OBS
+    needs: build-debug
+    if: success()
+    uses: ./.github/workflows/upload-to-obs.yml
+    with:
+      build_type: "debug"
+      apk_pattern: "clPlanetApp_debug_v*.apk"
+      run_id: ${{ github.run_id }}
+    secrets:
+      HUAWEICLOUD_SDK_AK: ${{ secrets.HUAWEICLOUD_SDK_AK }}
+      HUAWEICLOUD_SDK_SK: ${{ secrets.HUAWEICLOUD_SDK_SK }}
+
+  call-send-notification:
+    name: Send Notification
+    needs: [build-debug, call-upload-to-obs]
+    if: always()
+    uses: ./.github/workflows/send-notification.yml
+    with:
+      build_status: ${{ needs.build-debug.result }}
+      obs_url: ${{ needs.call-upload-to-obs.outputs.obs_url }}
+    secrets:
+      WEBHOOK_API_KEY: ${{ secrets.WEBHOOK_API_KEY }}
+      WEBHOOK_ADDRESS: ${{ secrets.WEBHOOK_ADDRESS }}

@@ -188,11 +188,11 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="@dimen/dp15"
+        android:layout_marginHorizontal="@dimen/dp20"
         android:gravity="center"
-        android:lineSpacingExtra="4dp"
-        android:text="隐私声明：您的学号将用于身份认证并与账号绑定，是参与校园社区交流的必要凭证。密码仅用于教务系统数据查询，采用本地存储，不会上传至云端服务器，确保您的账号安全₍ᐢ..ᐢ₎♡。"
+        android:lineSpacingExtra="@dimen/dp3"
+        android:text="@string/binding_privacy_statement"
         android:textColor="#CCD4E4"
         android:textSize="13sp" />
 

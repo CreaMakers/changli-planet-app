@@ -70,6 +70,7 @@
         <item>"东苑6栋"</item>,
         <item>"东苑9栋"</item>,
         <item>"东苑14栋"</item>,
+        <item>"东苑15栋"</item>,
         <item>"南苑3栋"</item>,
         <item>"南苑4栋"</item>,
         <item>"南苑5栋"</item>,
@@ -106,6 +107,8 @@
     <string name="ele_state_high">电量充足~</string>
     <string name="ele_state_unknown">状态未知</string>
     <string name="feedback">意见反馈</string>
+<!--    用于MoocActivity的字符串-->
+    <string name="bind_notification">请先绑定学号和密码</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -175,4 +178,5 @@
     <string name="account_bind_failed">学号账号密码错误，请重新绑定</string>
     <string name="no_classroom">无教室</string>
     <string name="next_step">下一步</string>
+    <string name="binding_privacy_statement">隐私声明：您的学号将用于身份认证并与账号绑定，是参与校园社区交流的必要凭证。密码仅用于教务系统数据查询，采用本地存储，不会上传至云端服务器，确保您的账号安全₍ᐢ..ᐢ₎♡。如果没有登陆，则学号也只会存到本地~</string>
 </resources>

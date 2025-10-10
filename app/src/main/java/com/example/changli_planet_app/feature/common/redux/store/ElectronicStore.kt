@@ -12,6 +12,11 @@ import com.example.changli_planet_app.core.network.OkHttpHelper
 import com.example.changli_planet_app.core.network.listener.RequestCallback
 import com.example.changli_planet_app.feature.common.redux.action.ElectronicAction
 import com.example.changli_planet_app.feature.common.redux.state.ElectronicState
+import com.example.changli_planet_app.widget.Dialog.NormalResponseDialog
+import com.example.csustdataget.CampusCard.CampusCardHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.Response
 
 /**
@@ -20,6 +25,7 @@ import okhttp3.Response
  * 状态流要使用PublishSubject
  */
 class ElectronicStore(contexts: Activity):Store<ElectronicState,ElectronicAction>() {
+    private val TAG = "ElectronicStore"
     private var currentState = ElectronicState("选择校区","选择宿舍楼")
     val content= contexts;
     var handler = Handler(Looper.getMainLooper())
@@ -37,29 +43,50 @@ class ElectronicStore(contexts: Activity):Store<ElectronicState,ElectronicAction
                 currentState
             }
             is ElectronicAction.queryElectronic->{
-                Log.d("ElectronicStore","received")
-                val builder = HttpUrlHelper.HttpRequest()
-                    .header("Authorization","${PlanetApplication.accessToken}")
-                    .get(PlanetApplication.ToolIp + "/dormitory-electricity")
-                    .addQueryParam("address","${action.checkElectricity.address}")
-                    .addQueryParam("buildId","${action.checkElectricity.buildId}")
-                    .addQueryParam("nod","${action.checkElectricity.nod}")
-                    .build()
-                OkHttpHelper.sendRequest(builder,object :RequestCallback{
-                    override fun onSuccess(response: Response) {
-                        var fromJson = OkHttpHelper.gson.fromJson(
-                            response.body?.string(),
-                            MyResponse::class.java
+                CoroutineScope(Dispatchers.IO).launch {
+                    val eleResponse = CampusCardHelper
+                        .queryElectricity(
+                            action.checkElectricity.address,
+                            action.checkElectricity.buildId,
+                            action.checkElectricity.nod
                         )
-
-                            currentState.elec = fromJson.msg
-                            currentState.isElec = true
-                            _state.onNext(currentState)
-                        
+                    if (eleResponse == null){
+                        currentState.elec = "无数据"
+                        currentState.isElec = true
+                        _state.onNext(currentState)
                     }
-                    override fun onFailure(error: String) {
+                    else{
+                        Log.d(TAG,eleResponse.toString())
+                        currentState.elec = eleResponse.toString()
+                        currentState.isElec = true
+                        _state.onNext(currentState)
                     }
-                })
+                }
+                //旧实现
+//                Log.d("ElectronicStore","received")
+//                val builder = HttpUrlHelper.HttpRequest()
+//                    .header("Authorization","${PlanetApplication.accessToken}")
+//                    .get(PlanetApplication.ToolIp + "/dormitory-electricity")
+//                    .addQueryParam("address","${action.checkElectricity.address}")
+//                    .addQueryParam("buildId","${action.checkElectricity.buildId}")
+//                    .addQueryParam("nod","${action.checkElectricity.nod}")
+//                    .build()
+//                OkHttpHelper.sendRequest(builder,object :RequestCallback{
+//                    override fun onSuccess(response: Response) {
+//                        var fromJson = OkHttpHelper.gson.fromJson(
+//                            response.body?.string(),
+//                            MyResponse::class.java
+//                        )
+//
+//                        currentState.elec = fromJson.msg
+//                        Log.d(TAG,fromJson.msg)
+//                        currentState.isElec = true
+//                        _state.onNext(currentState)
+//
+//                    }
+//                    override fun onFailure(error: String) {
+//                    }
+//                })
                 currentState
             }
         }

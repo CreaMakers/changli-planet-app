@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.ui.platform.DisableContentCapture
+import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.Store
@@ -28,6 +30,9 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.Response
 import java.util.regex.Pattern
 
@@ -261,94 +266,20 @@ class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Ha
     private fun fetchTimetableFromNetwork(action: TimeTableAction.FetchCourses): Single<MutableList<TimeTableMySubject>> {
         return Single.create { emitter ->
             val subjects = mutableListOf<TimeTableMySubject>()
-            //获得网络请求
-            val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                .get(PlanetApplication.Companion.ToolIp + "/courses")
-                .addQueryParam("stuNum", action.getCourse.stuNum)
-                .addQueryParam("password", action.getCourse.password)
-                .addQueryParam("week", action.getCourse.week)
-                .addQueryParam("termId", action.getCourse.termId).build()
-
-            OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-                override fun onSuccess(response: Response) {
-                    try {
-                        val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
-                        val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
-                            response.body?.string(), type
-                        )
-
-                        when (fromJson.code) {
-                            "200" -> {
-                                subjects.addAll(generateSubjects(fromJson.data,action.getCourse.termId))
-                                emitter.onSuccess(subjects)
-                                handler.post{
-                                    CustomToast.Companion.showMessage(PlanetApplication.Companion.appContext,"刷新成功")
-                                }
-                            }
-
-                            "403" -> {
-                                handler.post {
-                                    try {
-                                        ErrorStuPasswordResponseDialog(
-                                            action.context,
-                                            "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
-                                            "查询失败",
-                                            action.refresh
-                                        ).show()
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                    }
-                                }
-                                myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
-                            }
-
-                            in listOf("404", "500") -> {
-                                handler.post {
-                                    try {
-                                        NormalResponseDialog(
-                                            action.context,
-                                            "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
-                                            "查询失败"
-                                        ).show()
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                    }
-                                }
-                                myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
-                            }
-
-                            else ->{
-                                emitter.onError(Exception("数据错误"))
-                                handler.post{
-                                    CustomToast.Companion.showMessage(PlanetApplication.Companion.appContext,"暂时没有该学期的数据哦")
-                                }
-                                myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
-                            }
-                        }
-                    } catch (e: Exception) {
-                        handler.post {
-                            try {
-                                NormalResponseDialog(
-                                    action.context,
-                                    "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
-                                    "查询失败"
-                                ).show()
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                        myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
-                        e.printStackTrace()
-                    }
-                }
-
-                override fun onFailure(error: String) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val courses = EducationHelper
+                    .getCourseScheduleByTerm(action.getCourse.week, action.getCourse.termId)
+                //映射到本地
+                val localCourse = toLocalCourse(courses)
+                if (courses.isEmpty())
+                {
                     handler.post {
                         try {
-                            NormalResponseDialog(
+                            ErrorStuPasswordResponseDialog(
                                 action.context,
                                 "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
-                                "查询失败"
+                                "查询失败",
+                                action.refresh
                             ).show()
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -356,7 +287,113 @@ class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Ha
                     }
                     myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
                 }
-            })
+                else{
+                    subjects.addAll(generateSubjects(localCourse,action.getCourse.termId))
+                    emitter.onSuccess(subjects)
+                    handler.post {
+                        CustomToast.Companion.showMessage(
+                            PlanetApplication.Companion.appContext,
+                            "刷新成功"
+                        )
+                    }
+                }
+            }
+            //获得网络请求
+//            val httpUrlHelper = HttpUrlHelper.HttpRequest()
+//                .get(PlanetApplication.Companion.ToolIp + "/courses")
+//                .addQueryParam("stuNum", action.getCourse.stuNum)
+//                .addQueryParam("password", action.getCourse.password)
+//                .addQueryParam("week", action.getCourse.week)
+//                .addQueryParam("termId", action.getCourse.termId).build()
+//
+//            OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
+//                override fun onSuccess(response: Response) {
+//                    try {
+//                        val type = object : TypeToken<MyResponse<List<Course>>>() {}.type
+//                        val fromJson = OkHttpHelper.gson.fromJson<MyResponse<List<Course>>>(
+//                            response.body?.string(), type
+//                        )
+//
+//                        when (fromJson.code) {
+//                            "200" -> {
+//                                subjects.addAll(generateSubjects(fromJson.data,action.getCourse.termId))
+//                                emitter.onSuccess(subjects)
+//                                handler.post{
+//                                    CustomToast.Companion.showMessage(PlanetApplication.Companion.appContext,"刷新成功")
+//                                }
+//                            }
+//
+//                            "403" -> {
+//                                handler.post {
+//                                    try {
+//                                        ErrorStuPasswordResponseDialog(
+//                                            action.context,
+//                                            "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
+//                                            "查询失败",
+//                                            action.refresh
+//                                        ).show()
+//                                    } catch (e: Exception) {
+//                                        e.printStackTrace()
+//                                    }
+//                                }
+//                                myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
+//                            }
+//
+//                            in listOf("404", "500") -> {
+//                                handler.post {
+//                                    try {
+//                                        NormalResponseDialog(
+//                                            action.context,
+//                                            "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+//                                            "查询失败"
+//                                        ).show()
+//                                    } catch (e: Exception) {
+//                                        e.printStackTrace()
+//                                    }
+//                                }
+//                                myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
+//                            }
+//
+//                            else ->{
+//                                emitter.onError(Exception("数据错误"))
+//                                handler.post{
+//                                    CustomToast.Companion.showMessage(PlanetApplication.Companion.appContext,"暂时没有该学期的数据哦")
+//                                }
+//                                myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
+//                            }
+//                        }
+//                    } catch (e: Exception) {
+//                        handler.post {
+//                            try {
+//                                NormalResponseDialog(
+//                                    action.context,
+//                                    "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+//                                    "查询失败"
+//                                ).show()
+//                            } catch (e: Exception) {
+//                                e.printStackTrace()
+//                            }
+//                        }
+//                        myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
+//                        e.printStackTrace()
+//                    }
+//                }
+//
+//                override fun onFailure(error: String) {
+//                    handler.post {
+//                        try {
+//                            NormalResponseDialog(
+//                                action.context,
+//                                "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+//                                "查询失败"
+//                            ).show()
+//                        } catch (e: Exception) {
+//                            e.printStackTrace()
+//                        }
+//                    }
+//                    myHandler?.sendMessage(getMessage(TimeTableActivity.Companion.CANCEL_LOADING))
+//                }
+//            })
         }
 
     }
@@ -434,6 +471,18 @@ class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Ha
             )
         }
         return subjects
+    }
+    private fun toLocalCourse(courses: List<com.dcelysia.csust_spider.education.data.remote.model.Course>): List<Course>{
+            val localCourses = courses.map {
+                Course(
+                    it.classroom,
+                    it.courseName,
+                    it.teacher,
+                    it.weekday,
+                    it.weeks
+                )
+            }
+            return localCourses
     }
 
 

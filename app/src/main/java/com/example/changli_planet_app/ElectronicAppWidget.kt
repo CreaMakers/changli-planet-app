@@ -8,21 +8,22 @@ import android.content.Intent
 import android.util.Log
 import android.util.TypedValue
 import android.widget.RemoteViews
-import androidx.compose.ui.platform.LocalFontLoader
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.example.changli_planet_app.core.PlanetApplication
 import com.example.changli_planet_app.core.network.HttpUrlHelper
 import com.example.changli_planet_app.core.network.MyResponse
 import com.example.changli_planet_app.core.network.OkHttpHelper
 import com.example.changli_planet_app.core.network.listener.RequestCallback
 import com.example.changli_planet_app.feature.common.ui.ElectronicActivity
-import com.gradle.scan.agent.serialization.scan.serializer.kryo.by
+import com.example.csustdataget.CampusCard.CampusCardHelper
 import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.Response
-import kotlin.getValue
-import kotlin.jvm.java
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class ElectronicAppWidget: AppWidgetProvider() {
@@ -176,26 +177,16 @@ class ElectronicAppWidget: AppWidgetProvider() {
     private fun getEletronic(dor: String?, dorNumber: String?, school: String?,
                              callback: (ele_number : String) -> Unit) {
         if (dor != null && dorNumber != null && school != null) {
-            val builder = HttpUrlHelper.HttpRequest()
-                .get(PlanetApplication.ToolIp + "/dormitory-electricity")
-                .addQueryParam("address", school)
-                .addQueryParam("buildId", dor)
-                .addQueryParam("nod", dorNumber)
-                .build()
-            OkHttpHelper.sendRequest(builder,object : RequestCallback{
-                override fun onSuccess(response: Response) {
-                    val Json = OkHttpHelper.gson.fromJson(
-                        response.body?.string(),
-                        MyResponse::class.java
-                    )
-                    callback(Json.msg)
-                }
-
-                override fun onFailure(error: String) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val electricity = CampusCardHelper.queryElectricity(school,dor,dorNumber)
+                if (electricity == null){
                     callback("网络错误，无法获取当前电量喵~")
                 }
+                else{
+                    callback("当前电量:$electricity")
+                }
+            }
 
-            })
         }else{
             callback("当前宿舍信息不全，请点击前往查询页面绑定数据捏~")
         }

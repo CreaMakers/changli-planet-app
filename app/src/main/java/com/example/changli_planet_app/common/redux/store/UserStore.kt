@@ -2,6 +2,11 @@ package com.example.changli_planet_app.common.redux.store
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
+import com.airbnb.lottie.LottieCompositionFactory.fromJson
+import com.dcelysia.csust_spider.core.RetrofitUtils
+import com.dcelysia.csust_spider.education.data.remote.services.AuthService
+import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.example.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.example.changli_planet_app.common.data.local.room.database.UserDataBase
@@ -16,6 +21,7 @@ import com.example.changli_planet_app.core.Store
 import com.example.changli_planet_app.core.network.HttpUrlHelper
 import com.example.changli_planet_app.core.network.MyResponse
 import com.example.changli_planet_app.core.network.OkHttpHelper
+import com.example.changli_planet_app.core.network.Resource
 import com.example.changli_planet_app.core.network.listener.RequestCallback
 import com.example.changli_planet_app.settings.redux.store.BindingUserStore
 import com.example.changli_planet_app.utils.Event.FinishEvent
@@ -26,6 +32,8 @@ import com.example.changli_planet_app.widget.Dialog.UpdateDialog
 import com.example.changli_planet_app.widget.View.CustomToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
@@ -293,67 +301,78 @@ class UserStore : Store<UserState, UserAction>() {
             is UserAction.BindingStudentNumber -> {
 
                 //对游客模式的MVI流逻辑处理
-                if(PlanetApplication.is_tourist){
+                if (PlanetApplication.is_tourist) {
                     currentState.userStats.studentNumber = StudentInfoManager.studentId
                     handler.post {
                         EventBusHelper.post(FinishEvent("bindingUser"))
                     }
                 }
-
-                val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .post(PlanetApplication.Companion.UserIp + "/me/student-number")
-                    .body(OkHttpHelper.gson.toJson(BindingUserStore.StudentNumberRequest(action.student_number)))
-                    .build()
-
-                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-                    override fun onSuccess(response: Response) {
-                        try {
-                            val fromJson = OkHttpHelper.gson.fromJson(
-                                response.body?.string(),
-                                MyResponse::class.java
-                            )
-                            when (fromJson.code) {
-                                "200" -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    RetrofitUtils.ClearClient("moocClient")
+                    RetrofitUtils.ClearClient("EducationClient")
+                    try {
+                        // 先做 SSO 登录（过滤掉 Loading）
+                        val ssoResult = MoocRepository.instance
+                            .login(action.student_number, StudentInfoManager.studentPassword)
+                            .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
+                            .first()
+                        when (ssoResult) {
+                            is com.dcelysia.csust_spider.core.Resource.Success -> {
+                                Log.d(TAG, "sso登陆成功")
+                                // SSO 成功后再做教务登录（顺序执行）
+                                val eduSuccess = AuthService.Login(
+                                    action.student_number,
+                                    UserInfoManager.userPassword
+                                )
+                                if (eduSuccess) {
+                                    Log.d(TAG, "教务登录成功")
                                     currentState.userStats.studentNumber = action.student_number
                                     StudentInfoManager.studentId = action.student_number
-                                    handler.post {
-                                        EventBusHelper.post(FinishEvent("bindingUser"))
-                                    }
+                                    handler.post { EventBusHelper.post(FinishEvent("bindingUser")) }
                                     PlanetApplication.clearSchoolDataCacheAll()
-                                }
-
-                                else -> {
+                                } else {
                                     handler.post {
                                         NormalResponseDialog(
                                             action.context,
-                                            fromJson.msg,
+                                            "教务系统登录失败，请检查用户名或密码",
                                             "绑定失败"
                                         ).show()
                                     }
                                 }
                             }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            handler.post {
-                                NormalResponseDialog(
-                                    action.context,
-                                    "数据解析错误",
-                                    "绑定失败"
-                                ).show()
+
+                            is com.dcelysia.csust_spider.core.Resource.Error -> {
+                                handler.post {
+                                    NormalResponseDialog(
+                                        action.context,
+                                        ssoResult.msg ?: "SSO 登录失败",
+                                        "绑定失败"
+                                    ).show()
+                                }
+                            }
+
+                            else -> {
+                                // 兜底（理论上 filter 已去掉 Loading）
+                                handler.post {
+                                    NormalResponseDialog(
+                                        action.context,
+                                        "网络或未知错误，请重试",
+                                        "绑定失败"
+                                    ).show()
+                                }
                             }
                         }
-                    }
-
-                    override fun onFailure(error: String) {
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                         handler.post {
                             NormalResponseDialog(
                                 action.context,
-                                "网络请求失败",
+                                "网络错误: ${e.message ?: "未知"}",
                                 "绑定失败"
                             ).show()
                         }
                     }
-                })
+                }
                 _state.onNext(currentState)
                 currentState
             }

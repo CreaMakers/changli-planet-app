@@ -152,7 +152,7 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
             SemesterGroup(
                 semesterName = semester,
                 gpa = semesterGPA,
-                cours = courseScores
+                course = courseScores
             )
         }
 
@@ -192,8 +192,10 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
 
     // 计算平均学分绩点
     private fun calculateAverageScore(grades: List<Grade>): Double {
-        val totalScore = grades.sumOf { it.grade.toDoubleOrNull() ?: 0.0 }
-        return if (grades.isNotEmpty()) totalScore / grades.size else 0.0
+        val totalScore = grades.sumOf {
+            (it.grade.toDoubleOrNull() ?: 0.0) * (it.score.toDoubleOrNull() ?: 0.0) }
+        val totalCredits = grades.sumOf { it.score.toDoubleOrNull() ?: 0.0 }
+        return if (grades.isNotEmpty()) totalScore / totalCredits else 0.0
     }
 
     private fun showMessage(message: String) {

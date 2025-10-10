@@ -15,12 +15,22 @@ android {
         buildConfig = true
         compose = true
     }
+    
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getenv("RELEASE_STORE_FILE") ?: "release-key.jks")
+            storePassword = System.getenv("RELEASE_STORE_PASSWORD")
+            keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+            keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+        }
+    }
+    
     defaultConfig {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.2.1"
+        versionCode = 11
+        versionName = "1.2.3"
 
 
         ndk {
@@ -39,6 +49,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -160,6 +171,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.process.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -175,6 +187,10 @@ dependencies {
     // workmanager
     implementation("androidx.work:work-runtime-ktx:2.10.3")
     implementation("androidx.work:work-rxjava2:2.10.3")
+    implementation(project(":CP_Common"))
+    //csustDataGet
+//    implementation("com.github.CreaMakers:CSUSTDataGet:28c105c2a7")
+    implementation("com.github.CreaMakers:CSUSTDataGet:28c105c2a7")
 }
 kapt {
     arguments {

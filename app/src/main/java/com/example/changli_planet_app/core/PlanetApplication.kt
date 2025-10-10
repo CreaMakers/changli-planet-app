@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.example.changli_planet_app.BuildConfig
 import com.example.changli_planet_app.core.network.OkHttpHelper
 import com.example.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
+import com.example.changli_planet_app.utils.StartupTimeTracker
 import com.tencent.bugly.crashreport.CrashReport
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
@@ -23,7 +24,7 @@ import kotlinx.coroutines.launch
 class PlanetApplication : Application() {
     companion object {
         private const val TIME_TABLE_APP_WIDGET = "TimeTableAppWidget"
-        
+
         var accessToken: String?
             get() = MMKV.defaultMMKV()?.getString("token", null)
             set(value) {
@@ -39,14 +40,15 @@ class PlanetApplication : Application() {
         var deviceId: String = ""
         lateinit var appContext: Context
 
-        const val UserIp: String = "http://113.44.47.220:8083/app/users"
-        const val ToolIp: String = "http://113.44.47.220:8081/app/tools"
-        const val FreshNewsIp: String = "http://113.44.47.220:8085/app/fresh_news"
+        const val UserIp: String = "user.csust.creamaker.cn"
+        const val ToolIp: String = "web.csust.creamaker.cn"
+        const val FreshNewsIp: String = "freshnews.csust.creamaker.cn"
 //        const val ToolIp: String = "http://10.0.2.2:8081/app/tools"
 
         val preRequestIps = listOf(
-            "http://113.44.47.220:8083",
-            "http://113.44.47.220:8081"
+            "user.csust.creamaker.cn",
+            "web.csust.creamaker.cn",
+            "freshnews.csust.creamaker.cn"
         )
 
         fun clearCacheAll() {
@@ -84,16 +86,19 @@ class PlanetApplication : Application() {
             }
         }
     }
+
     private val fpsHandlerThread = HandlerThread("fpsHandlerThread").apply { start() }
     private val fpsHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(fpsHandlerThread.looper) }
 
     override fun onCreate() {
         super.onCreate()
-        val startTime = System.currentTimeMillis()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initMMKV()
         if (!BuildConfig.DEBUG) {
             CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
+        }
+        if (BuildConfig.DEBUG) {
+            StartupTimeTracker.initialize(applicationContext as Application)
         }
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { initDNS() }.onFailure { Log.e("DNS", "DNS, Error") }

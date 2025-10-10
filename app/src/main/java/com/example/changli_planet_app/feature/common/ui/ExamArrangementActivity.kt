@@ -12,12 +12,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.example.changli_planet_app.R
 import com.example.changli_planet_app.base.FullScreenActivity
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.example.changli_planet_app.core.Route
 import com.example.changli_planet_app.databinding.ActivityExamArrangementBinding
-import com.example.changli_planet_app.feature.common.data.local.entity.ExamArrangement
 import com.example.changli_planet_app.feature.common.data.local.mmkv.ExamArrangementCache
 import com.example.changli_planet_app.feature.common.redux.action.ExamInquiryAction
 import com.example.changli_planet_app.feature.common.redux.store.ExamArrangementStore
@@ -25,6 +25,7 @@ import com.example.changli_planet_app.feature.common.ui.adapter.ExamArrangementA
 import com.example.changli_planet_app.feature.common.ui.adapter.model.Exam
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.util.Calendar
+import kotlin.collections.map
 
 /**
  * 考试安排查询
@@ -96,8 +97,6 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
             store.dispatch(
                 ExamInquiryAction.UpdateExamData(
                     this,
-                    studentId,
-                    studentPassword,
                     getCurrentTerm(),
                     refresh = {refreshData()}
                 )
@@ -109,7 +108,7 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
         }
     }
 
-    private fun showAllExamInfo(exams: List<ExamArrangement>) {
+    private fun showAllExamInfo(exams: List<ExamArrange>) {
         if (exams.isEmpty()) {
             hideLoading()
             return
@@ -117,10 +116,10 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
         cache.saveExamArrangement(exams)
         examList = exams.map { grade ->
             Exam(
-                grade.name,
-                grade.time,
-                grade.place,
-                grade.room
+                grade.courseNameval,
+                grade.examTime,
+                grade.campus,
+                grade.examRoomval
             )
         }.toMutableList()
         examRecyclerView.adapter = ExamArrangementAdapter(examList)
