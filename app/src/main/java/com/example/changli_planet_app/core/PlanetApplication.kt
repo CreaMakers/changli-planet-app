@@ -40,15 +40,15 @@ class PlanetApplication : Application() {
         var deviceId: String = ""
         lateinit var appContext: Context
 
-        const val UserIp: String = "user.csust.creamaker.cn"
-        const val ToolIp: String = "web.csust.creamaker.cn"
-        const val FreshNewsIp: String = "freshnews.csust.creamaker.cn"
+        const val UserIp: String = "https://user.csust.creamaker.cn"
+        const val ToolIp: String = "https://web.csust.creamaker.cn"
+//        const val FreshNewsIp: String = "http://freshnews.csust.creamaker.cn"
 //        const val ToolIp: String = "http://10.0.2.2:8081/app/tools"
 
         val preRequestIps = listOf(
-            "user.csust.creamaker.cn",
-            "web.csust.creamaker.cn",
-            "freshnews.csust.creamaker.cn"
+            "https://user.csust.creamaker.cn",
+            "https://web.csust.creamaker.cn",
+//            "http://freshnews.csust.creamaker.cn"
         )
 
         fun clearCacheAll() {

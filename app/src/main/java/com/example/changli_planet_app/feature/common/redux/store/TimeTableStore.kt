@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.compose.ui.platform.DisableContentCapture
+import com.dcelysia.csust_spider.core.Resource
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.example.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.example.changli_planet_app.core.PlanetApplication
@@ -37,6 +38,7 @@ import okhttp3.Response
 import java.util.regex.Pattern
 
 class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Handler?= null) : Store<TimeTableState, TimeTableAction>() {
+    private val TAG = "TimeTableStore"
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
     private val handler = Handler(Looper.getMainLooper())
@@ -267,8 +269,18 @@ class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Ha
         return Single.create { emitter ->
             val subjects = mutableListOf<TimeTableMySubject>()
             CoroutineScope(Dispatchers.IO).launch {
-                val courses = EducationHelper
+                var courses :List<com.dcelysia.csust_spider.education.data.remote.model.Course> = emptyList()
+                val coursesResource = EducationHelper
                     .getCourseScheduleByTerm(action.getCourse.week, action.getCourse.termId)
+                when(coursesResource){
+                    is Resource.Success->{
+                        courses = coursesResource.data
+                    }
+                    is Resource.Loading ->{}
+                    is Resource.Error ->{
+                        Log.e(TAG,coursesResource.msg)
+                    }
+                }
                 //映射到本地
                 val localCourse = toLocalCourse(courses)
                 if (courses.isEmpty())
