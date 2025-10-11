@@ -248,9 +248,13 @@ private fun getCourseInfo(callback: (List<TimeTableMySubject>?) -> Unit) {
 
         for (i in 0 until refreshCount) {
             try {
-                val dataGetCourses = EducationHelper.getCourseScheduleByTerm("", curTerm)
+                var dataGetCourses:List<com.dcelysia.csust_spider.education.data.remote.model.Course> = emptyList()
+                val dataGetCoursesResource = EducationHelper.getCourseScheduleByTerm("", curTerm)
+                if (dataGetCoursesResource is com.dcelysia.csust_spider.core.Resource.Success){
+                    dataGetCourses = dataGetCoursesResource.data
+                }
                 val localCourses = dataGetCourses.map {
-                    com.example.changli_planet_app.feature.common.data.remote.dto.Course(
+                    Course(
                         classroom = it.classroom,
                         courseName = it.courseName,
                         teacher = it.teacher,
