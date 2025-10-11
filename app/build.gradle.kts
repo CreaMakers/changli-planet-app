@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.changli_planet_app"
+    namespace = "com.creamaker.changli_planet_app"
     compileSdk = 36
     buildFeatures {
         buildConfig = true
