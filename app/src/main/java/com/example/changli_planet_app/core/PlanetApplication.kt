@@ -55,6 +55,7 @@ class PlanetApplication : Application() {
             CoroutineScope(Dispatchers.IO).launch {
                 accessToken = ""
                 is_tourist = false
+                MMKV.mmkvWithID("education_cache").clearAll()
                 MMKV.mmkvWithID("import_cache").clearAll()
                 MMKV.mmkvWithID("content_cache").clearAll()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
