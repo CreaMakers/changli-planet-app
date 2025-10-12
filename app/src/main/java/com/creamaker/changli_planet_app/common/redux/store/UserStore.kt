@@ -31,6 +31,7 @@ import com.creamaker.changli_planet_app.utils.toEntity
 import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.creamaker.changli_planet_app.widget.Dialog.UpdateDialog
 import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.gradle.enterprise.gradleplugin.testselection.internal.a
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -300,6 +301,7 @@ class UserStore : Store<UserState, UserAction>() {
             }
 
             is UserAction.BindingStudentNumber -> {
+                currentState.uiForLoading = true
 
                 //对游客模式的MVI流逻辑处理
                 if (PlanetApplication.is_tourist) {
@@ -326,14 +328,18 @@ class UserStore : Store<UserState, UserAction>() {
                                     StudentInfoManager.studentPassword
                                 )
                                 if (eduSuccess) {
+                                    currentState.uiForLoading = false
+
                                     EducationData.studentId = action.student_number
                                     EducationData.studentPassword = StudentInfoManager.studentPassword
                                     Log.d(TAG, "教务登录成功")
-                                    currentState.userStats.studentNumber = action.student_number
                                     StudentInfoManager.studentId = action.student_number
                                     handler.post { EventBusHelper.post(FinishEvent("bindingUser")) }
                                     PlanetApplication.clearSchoolDataCacheAll()
+                                    _state.onNext(currentState)
                                 } else {
+                                    currentState.userStats.studentNumber = action.student_number
+                                    currentState.uiForLoading = false
                                     handler.post {
                                         NormalResponseDialog(
                                             action.context,
@@ -345,6 +351,8 @@ class UserStore : Store<UserState, UserAction>() {
                             }
 
                             is com.dcelysia.csust_spider.core.Resource.Error -> {
+                                currentState.userStats.studentNumber = action.student_number
+                                currentState.uiForLoading = false
                                 handler.post {
                                     NormalResponseDialog(
                                         action.context,
@@ -352,9 +360,12 @@ class UserStore : Store<UserState, UserAction>() {
                                         "绑定失败"
                                     ).show()
                                 }
+                                _state.onNext(currentState)
                             }
 
                             else -> {
+                                currentState.userStats.studentNumber = action.student_number
+                                currentState.uiForLoading = false
                                 // 兜底（理论上 filter 已去掉 Loading）
                                 handler.post {
                                     NormalResponseDialog(
@@ -363,9 +374,12 @@ class UserStore : Store<UserState, UserAction>() {
                                         "绑定失败"
                                     ).show()
                                 }
+                                _state.onNext(currentState)
                             }
                         }
                     } catch (e: Exception) {
+                        currentState.userStats.studentNumber = action.student_number
+                        currentState.uiForLoading = false
                         e.printStackTrace()
                         handler.post {
                             NormalResponseDialog(
@@ -374,6 +388,7 @@ class UserStore : Store<UserState, UserAction>() {
                                 "绑定失败"
                             ).show()
                         }
+                        _state.onNext(currentState)
                     }
                 }
                 _state.onNext(currentState)
