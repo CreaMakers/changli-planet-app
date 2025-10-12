@@ -1,0 +1,12 @@
+package com.creamaker.changli_planet_app.feature.lostfound.redux.state
+
+import java.io.File
+
+data class LoseThingState(
+    var loseThingName:String="",
+    var loseThingDescribe:String="",
+    var loseThingPicture: File?=null,
+    var name:String="",
+    var phone:String="",
+    var isEnable:Boolean=false
+)
