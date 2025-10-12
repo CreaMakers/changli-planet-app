@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.changli_planet_app"
+    namespace = "com.creamaker.changli_planet_app"
     compileSdk = 36
     buildFeatures {
         buildConfig = true
@@ -29,8 +29,8 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 11
-        versionName = "1.2.3"
+        versionCode = 12
+        versionName = "1.2.4"
 
 
         ndk {
@@ -190,7 +190,7 @@ dependencies {
     implementation(project(":CP_Common"))
     //csustDataGet
 //    implementation("com.github.CreaMakers:CSUSTDataGet:28c105c2a7")
-    implementation("com.github.CreaMakers:CSUSTDataGet:28c105c2a7")
+    implementation("com.github.CreaMakers:CSUSTDataGet:2621828cf6")
 }
 kapt {
     arguments {
