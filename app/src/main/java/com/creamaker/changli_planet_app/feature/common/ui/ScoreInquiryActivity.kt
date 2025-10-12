@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.compose.ui.text.font.FontVariation.grade
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -127,12 +128,31 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
         }
     }
 
+    private fun preprocessGrades(rawData: List<Grade>): List<Grade> {
+        return rawData
+            .groupBy { it.name }
+            .map { (_, grades) ->
+                val retakeGrade = grades.find { grade ->
+                    grade.upperReItem.isNotBlank() ||
+                            grade.property.contains("重修", ignoreCase = true) ||
+                            grade.property.contains("补考", ignoreCase = true)
+                }
+
+                if (retakeGrade != null) {
+                    retakeGrade
+                } else {
+                    grades.maxByOrNull { it.grade.toDoubleOrNull() ?: 0.0 }!!
+                }
+            }
+    }
+
     private fun showInfo(rawData: List<Grade>) {
         if (rawData.isEmpty()) {
             return
         }
-        ScoreCache.saveGrades(rawData)
-        val groupedData = rawData.groupBy { it.item }.toSortedMap(compareByDescending { it })
+        val processedGrades = preprocessGrades(rawData)
+        ScoreCache.saveGrades(processedGrades)
+        val groupedData = processedGrades.groupBy { it.item }.toSortedMap(compareByDescending { it })
         val semesterGroups = groupedData.map { (semester, grades) ->
 
             val courseScores = grades.map { grade ->
@@ -156,10 +176,10 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
             )
         }
 
-        val allCourses = rawData.size // 课程总数
-        val totalCredits = rawData.sumOf { it.score.toDoubleOrNull() ?: 0.0 } // 已修总学分
-        val totalGPA = calculateOverallGPA(rawData) // 总体 GPA
-        val averageScore = calculateAverageScore(rawData) // 平均学分绩点
+        val allCourses = processedGrades.size // 课程总数
+        val totalCredits = processedGrades.sumOf { it.score.toDoubleOrNull() ?: 0.0 } // 已修总学分
+        val totalGPA = calculateOverallGPA(processedGrades) // 总体 GPA
+        val averageScore = calculateAverageScore(processedGrades) // 平均学分绩点
 
 
         binding.apply {
