@@ -379,7 +379,7 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
             point = gradePoint.toString(),
             upperReItem = retakeSemester,
             method = assessmentMethod,
-            property = courseNature.name,
+            property = examNature,
             attribute = courseAttribute,
             reItem = groupName,
             pscjUrl = gradeDetailUrl,
