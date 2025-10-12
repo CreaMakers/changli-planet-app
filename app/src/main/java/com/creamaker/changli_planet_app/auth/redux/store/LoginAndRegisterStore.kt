@@ -105,6 +105,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
             is LoginAndRegisterAction.LoginByEmail->{
                 val builder= HttpUrlHelper.HttpRequest()
                     .post(PlanetApplication.Companion.UserIp+"/sessions/email")
+                    .header("deviceId", PlanetApplication.Companion.getSystemDeviceId())
                     .body(OkHttpHelper.gson.toJson(action.userEmail))
                     .build()
                 OkHttpHelper.sendRequest(builder,object : RequestCallback {

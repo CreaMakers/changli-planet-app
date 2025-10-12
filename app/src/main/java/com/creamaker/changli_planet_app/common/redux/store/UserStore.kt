@@ -5,6 +5,7 @@ import android.os.Looper
 import android.util.Log
 import com.airbnb.lottie.LottieCompositionFactory.fromJson
 import com.dcelysia.csust_spider.core.RetrofitUtils
+import com.dcelysia.csust_spider.education.data.remote.EducationData
 import com.dcelysia.csust_spider.education.data.remote.services.AuthService
 import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
@@ -322,9 +323,11 @@ class UserStore : Store<UserState, UserAction>() {
                                 // SSO 成功后再做教务登录（顺序执行）
                                 val eduSuccess = AuthService.Login(
                                     action.student_number,
-                                    UserInfoManager.userPassword
+                                    StudentInfoManager.studentPassword
                                 )
                                 if (eduSuccess) {
+                                    EducationData.studentId = action.student_number
+                                    EducationData.studentPassword = StudentInfoManager.studentPassword
                                     Log.d(TAG, "教务登录成功")
                                     currentState.userStats.studentNumber = action.student_number
                                     StudentInfoManager.studentId = action.student_number
