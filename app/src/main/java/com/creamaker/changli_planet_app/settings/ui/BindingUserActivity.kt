@@ -5,12 +5,17 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.transition.Visibility
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
@@ -21,8 +26,11 @@ import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityBindingUserBinding
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.widget.View.CustomToast
+
 import com.dcelysia.csust_spider.core.RetrofitUtils
 import com.example.changli_planet_app.widget.Dialog.SSOWebviewDialog
+import com.creamaker.changli_planet_app.widget.View.CustomToast.Companion.showMessage
+import com.drake.statelayout.StateConfig.loadingLayout
 import com.google.android.material.button.MaterialButton
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.launch
@@ -51,13 +59,27 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
         observeState()
     }
 
+    private fun showLoading(){
+        binding.loadingLayout.visibility = View.VISIBLE
+        binding.bindingUserLayout.visibility = View.GONE
+    }
+    fun hideLoading(){
+        binding.loadingLayout.visibility = View.GONE
+        binding.bindingUserLayout.visibility = View.VISIBLE
+    }
     private fun observeState() {
         disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->
-                    StudentInfoManager.studentId = state.userStats.studentNumber
-                    username.text = state.userStats.studentNumber
+                    if (state.userStats.studentNumber.isNotBlank()) {
+                        StudentInfoManager.studentId = state.userStats.studentNumber
+                        username.text = state.userStats.studentNumber
+                    }
+                    Log.d(TAG, "observeState: ${state.uiForLoading}")
+                    if (!state.uiForLoading) {
+                        hideLoading()
+                    }
                 }
         )
     }
@@ -120,6 +142,9 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
         }
         StudentInfoManager.studentPassword = studentPassword
         store.dispatch(UserAction.BindingStudentNumber(this, studentId,{web_login()}))//在MVI流对游客模式也进行了判断逻辑与state发布
+        showLoading()
+      
+
     }
 
     private fun showMessage(message: String) {

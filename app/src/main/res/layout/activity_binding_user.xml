@@ -61,7 +61,7 @@
     <!-- 输入框区域 -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp310"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="40dp"
         app:cardBackgroundColor="@color/white"
@@ -69,6 +69,7 @@
         app:cardElevation="4dp">
 
         <LinearLayout
+            android:id="@+id/binding_user_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -183,6 +184,31 @@
                 android:textStyle="bold" />
 
         </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/loadingLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80FFFFFF"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminateTintMode="src_atop"
+                android:indeterminateTint="#4C81CE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/progressBar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dp"
+                android:text="登录中..."
+                android:textColor="#4C81CE"
+                android:textSize="14sp" />
+        </RelativeLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
