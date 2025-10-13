@@ -48,7 +48,13 @@ class MandeActivity : FullScreenActivity<ActivityMandeBinding>() {
         }
         setupWebView()
         onBackPressedDispatcher.addCallback(this) {
-            webView.goBack()
+            if(webView.canGoBack()){
+                webView.goBack()
+            }else{
+                isEnabled=false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled=true
+            }
         }
         back.setOnClickListener{finish()}
     }
