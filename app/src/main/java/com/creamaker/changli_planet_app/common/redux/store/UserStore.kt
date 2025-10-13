@@ -1,5 +1,8 @@
 package com.creamaker.changli_planet_app.common.redux.store
 
+import android.R.attr.maxHeight
+import android.R.attr.password
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -10,6 +13,7 @@ import com.dcelysia.csust_spider.education.data.remote.services.AuthService
 import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
+import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager.username
 import com.creamaker.changli_planet_app.common.data.local.room.database.UserDataBase
 import com.creamaker.changli_planet_app.common.data.remote.dto.ApkResponse
 import com.creamaker.changli_planet_app.common.data.remote.dto.UploadAvatarResponse
@@ -28,15 +32,18 @@ import com.creamaker.changli_planet_app.settings.redux.store.BindingUserStore
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.toEntity
+import com.creamaker.changli_planet_app.widget.Dialog.ErrorStuPasswordResponseDialog
 import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.creamaker.changli_planet_app.widget.Dialog.UpdateDialog
 import com.creamaker.changli_planet_app.widget.View.CustomToast
-import com.gradle.enterprise.gradleplugin.testselection.internal.a
+
+import com.example.changli_planet_app.widget.Dialog.SSOWebviewDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
 
@@ -343,7 +350,7 @@ class UserStore : Store<UserState, UserAction>() {
                                     handler.post {
                                         NormalResponseDialog(
                                             action.context,
-                                            "教务系统登录失败，请检查用户名或密码",
+                                            "学号或密码错误，请重试",
                                             "绑定失败"
                                         ).show()
                                     }
@@ -354,10 +361,11 @@ class UserStore : Store<UserState, UserAction>() {
                                 currentState.userStats.studentNumber = action.student_number
                                 currentState.uiForLoading = false
                                 handler.post {
-                                    NormalResponseDialog(
+                                    ErrorStuPasswordResponseDialog(
                                         action.context,
                                         ssoResult.msg ?: "SSO 登录失败",
-                                        "绑定失败"
+                                        "登录失败",
+                                        action.refresh
                                     ).show()
                                 }
                                 _state.onNext(currentState)

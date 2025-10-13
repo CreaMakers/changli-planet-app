@@ -17,6 +17,6 @@ sealed class UserAction {
     class UpdateLocation(val location:String):UserAction()
     class QueryIsLastedApk(val context: Context, val versionCode: Long, val versionName: String) :
         UserAction()
-    class BindingStudentNumber(val context: Context, val student_number: String) : UserAction()
+    class BindingStudentNumber(val context: Context, val student_number: String,val refresh: ()-> Unit) : UserAction()
     class initilaize : UserAction()
 }
