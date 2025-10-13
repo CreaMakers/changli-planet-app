@@ -23,6 +23,7 @@ import org.jsoup.Jsoup
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.regex.Pattern
 import kotlin.compareTo
 
 class MoocRepository private constructor() {
@@ -412,6 +413,7 @@ class MoocRepository private constructor() {
 
     fun getCourseNamesWithPendingHomeworks(): Flow<Resource<List<PendingAssignmentCourse>>> = flow {
         emit(Resource.Loading())
+
         val response = api.getCourseNamesWithPendingHomeworks()
         if (!response.isSuccessful) {
             emit(Resource.Error("HTTP ${response.code()}"))
@@ -427,25 +429,42 @@ class MoocRepository private constructor() {
         val document = Jsoup.parse(html)
         val reminderElement = document.getElementById("reminder")
         if (reminderElement == null) {
-            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+            emit(Resource.Error(ResourceUtil.getStringRes(R.string.reminder_area_not_found)))
             return@flow
         }
 
-        val courseNamesContainer = reminderElement.getElementsByTag("li").firstOrNull()
-        if (courseNamesContainer == null) {
+        val homeworkListElement = reminderElement.children()
+            .firstOrNull{ element ->
+                element.select("a").firstOrNull()?.ownText()?.contains("待提交作业") == true
+            }
+
+        if (homeworkListElement == null){
             emit(Resource.Success(emptyList()))
             return@flow
         }
 
-        val courseNameElements = courseNamesContainer.select("li > ul > li > a")
+        val courseNameElements = homeworkListElement.select("ul > li > a")
+        if (courseNameElements.isEmpty()){
+            emit(Resource.Success(emptyList()))
+            return@flow
+        }
+
         val courseNames = mutableListOf<PendingAssignmentCourse>()
 
         for (courseNameElement in courseNameElements) {
-            val id = courseNameElement.attr("onclick")
-                .replace("window.open('./lesson/enter_course.jsp?lid=", "")
-                .replace("&t=hw','manage_course')", "")
-            val courseName = courseNameElement.text().trim()
-            courseNames.add(PendingAssignmentCourse(id, courseName))
+            try {
+                val onclickAttr = courseNameElement.attr("onclick")
+                val pattern = Pattern.compile("lid=(\\d+)")
+                val matcher = pattern.matcher(onclickAttr)
+
+                if (matcher.find()){
+                    val id = matcher.group(1)
+                    val courseName = courseNameElement.text().trim()
+                    courseNames.add(PendingAssignmentCourse(id, courseName))
+                }
+            } catch (e: Exception) {
+                Log.w(TAG,"解析课程元素失败:${e.message}")
+            }
         }
         emit(Resource.Success(courseNames.toList()))
     }.catch { e ->
