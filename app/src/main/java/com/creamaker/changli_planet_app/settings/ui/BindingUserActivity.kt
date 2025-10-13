@@ -69,8 +69,10 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->
-                    StudentInfoManager.studentId = state.userStats.studentNumber
-                    username.text = state.userStats.studentNumber
+                    if (state.userStats.studentNumber.isNotBlank()) {
+                        StudentInfoManager.studentId = state.userStats.studentNumber
+                        username.text = state.userStats.studentNumber
+                    }
                     Log.d(TAG, "observeState: ${state.uiForLoading}")
                     if (!state.uiForLoading) {
                         hideLoading()
