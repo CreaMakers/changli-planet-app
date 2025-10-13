@@ -1,5 +1,6 @@
 package com.creamaker.changli_planet_app.settings.ui
 
+import android.R.attr.maxHeight
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,7 @@ import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.transition.Visibility
@@ -21,16 +23,18 @@ import com.creamaker.changli_planet_app.common.redux.action.UserAction
 import com.creamaker.changli_planet_app.common.redux.store.UserStore
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
-import com.creamaker.changli_planet_app.core.network.Resource
 import com.creamaker.changli_planet_app.databinding.ActivityBindingUserBinding
-import com.creamaker.changli_planet_app.feature.mooc.data.remote.repository.MoocRepository
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.widget.View.CustomToast
+
+import com.dcelysia.csust_spider.core.RetrofitUtils
+import com.example.changli_planet_app.widget.Dialog.SSOWebviewDialog
 import com.creamaker.changli_planet_app.widget.View.CustomToast.Companion.showMessage
 import com.drake.statelayout.StateConfig.loadingLayout
 import com.google.android.material.button.MaterialButton
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -42,7 +46,6 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
     private val password: TextView by lazy { binding.etStudentPassword }
     private val back: ImageView by lazy { binding.bindingBack }
     private val save: MaterialButton by lazy { binding.saveUser }
-    private val repository by lazy { MoocRepository.instance }
 
     private val store = UserStore()
 
@@ -101,6 +104,32 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
         back.setOnClickListener { finish() }
     }
 
+    private fun web_login() {
+        val web_dialog = SSOWebviewDialog(maxHeight) { account, Stpassword, Loginmode, url, cookies ->
+            username.text = account
+            password.text = Stpassword
+
+            if (url.isNotEmpty() && cookies.isNotEmpty()) {
+                RetrofitUtils.totalCookieJar.saveFromResponse(url.toHttpUrl(), cookies)
+                CustomToast.showMessage(this, "cookies保存成功！")
+            } else {
+                CustomToast.showMessage(this, "cookies保存失败")
+            }
+            if (account.isNotEmpty() && Stpassword.isNotEmpty() && Loginmode == "Username") {
+                if (PlanetApplication.is_tourist) {
+                    StudentInfoManager.studentId = account //游客模式不使用网络进行储存学号
+                }
+                if (Loginmode == "Username") {
+                    StudentInfoManager.studentPassword = Stpassword
+                }
+                store.dispatch(UserAction.BindingStudentNumber(this@BindingUserActivity, account,{}))
+            }
+
+
+        }.show(supportFragmentManager,"SSOWebDialog")
+
+
+    }
     private fun saveUserInfo() {
         val studentId = username.text.toString()
         val studentPassword = password.text.toString()
@@ -112,8 +141,10 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
             StudentInfoManager.studentId = studentId  //游客模式不使用网络进行储存学号
         }
         StudentInfoManager.studentPassword = studentPassword
+        store.dispatch(UserAction.BindingStudentNumber(this, studentId,{web_login()}))//在MVI流对游客模式也进行了判断逻辑与state发布
         showLoading()
-        store.dispatch(UserAction.BindingStudentNumber(this, studentId))  //在MVI流对游客模式也进行了判断逻辑与state发布
+      
+
     }
 
     private fun showMessage(message: String) {
