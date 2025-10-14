@@ -1,14 +1,10 @@
 package com.creamaker.changli_planet_app.common.redux.store
 
-import android.R.attr.maxHeight
-import android.R.attr.password
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
-import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager.username
 import com.creamaker.changli_planet_app.common.data.local.room.database.UserDataBase
 import com.creamaker.changli_planet_app.common.data.remote.dto.ApkResponse
 import com.creamaker.changli_planet_app.common.data.remote.dto.UploadAvatarResponse
@@ -28,14 +24,15 @@ import com.creamaker.changli_planet_app.widget.Dialog.ErrorStuPasswordResponseDi
 import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.creamaker.changli_planet_app.widget.Dialog.UpdateDialog
 import com.creamaker.changli_planet_app.widget.View.CustomToast
-
-import com.example.changli_planet_app.widget.Dialog.SSOWebviewDialog
+import com.dcelysia.csust_spider.core.RetrofitUtils
+import com.dcelysia.csust_spider.education.data.remote.EducationData
+import com.dcelysia.csust_spider.education.data.remote.services.AuthService
+import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
 
