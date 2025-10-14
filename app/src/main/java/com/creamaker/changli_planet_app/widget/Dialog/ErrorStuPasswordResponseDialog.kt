@@ -23,6 +23,7 @@ class  ErrorStuPasswordResponseDialog(context: Context, val content: String, val
 
         contents = findViewById(R.id.content)
         contents.text = content
+
         rebind = findViewById(R.id.rebind)
         rebind.setOnClickListener {
             Route.goBindingUser(context)
@@ -39,6 +40,7 @@ class  ErrorStuPasswordResponseDialog(context: Context, val content: String, val
         }
         fade = findViewById(R.id.fade)
         fade.text = type
+        if (type.equals("登录失败")) refresh.text = "网页登录"
     }
 
     override fun layoutId(): Int =R.layout.error_stu_password

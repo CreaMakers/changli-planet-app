@@ -78,6 +78,18 @@ class TimeTableStore(private val courseDao: CourseDao, private val myHandler: Ha
                                                     it.studentId == studentId &&
                                                     it.studentPassword == studentPassword
                                         }
+                                        // 处理weekday=7时，weeks列表中每个元素减1
+                                        .map { course ->
+                                            if (course.weekday == 7) {
+                                                // 对weeks列表中的每个元素执行减1操作（处理可能的null情况）
+                                                val adjustedWeeks = course.weeks?.map { week -> week - 1 }
+                                                // 复制原对象，替换weeks为调整后的值
+                                                course.copy(weeks = adjustedWeeks)
+                                            } else {
+                                                // 其他情况保持不变
+                                                course
+                                            }
+                                        }
                                         .toMutableList()
                                     courseDao.insertCourses(mergedCourses)
 //                                    cacheWeek = action.getCourse.termId
