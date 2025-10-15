@@ -19,4 +19,9 @@ sealed class UserAction {
         UserAction()
     class BindingStudentNumber(val context: Context, val student_number: String,val webLogin: ()-> Unit) : UserAction()
     class initilaize : UserAction()
+    data class WebLoginSuccess(
+        val context: Context,
+        val account: String,
+        val password: String
+    ) : UserAction()
 }

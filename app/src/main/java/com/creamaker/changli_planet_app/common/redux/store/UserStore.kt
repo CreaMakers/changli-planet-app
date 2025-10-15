@@ -401,6 +401,18 @@ class UserStore : Store<UserState, UserAction>() {
                 _state.onNext(currentState)
                 currentState
             }
+            is UserAction.WebLoginSuccess ->{
+                // 1. 更新 StudentInfoManager
+                StudentInfoManager.studentId = action.account
+                StudentInfoManager.studentPassword = action.password
+                // 2. 更新 State，这将通过 observeState 回调来更新UI
+                currentState.userStats = currentState.userStats.copy(studentNumber = action.account)
+                _state.onNext(currentState)
+                // 3. 调用现有的学号绑定逻辑，触发网络请求
+                handleEvent(UserAction.BindingStudentNumber(action.context, action.account) {})
+
+                currentState
+            }
 
             is UserAction.UpdateLocation->{
                 currentState.userProfile.location = action.location

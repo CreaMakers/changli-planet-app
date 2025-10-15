@@ -28,6 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/sso_webview_cancel"
+            android:textStyle="bold"
             android:textSize="@dimen/sp15" />
 
     </LinearLayout>
