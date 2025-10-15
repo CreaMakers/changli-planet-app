@@ -309,7 +309,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
     }
 
     private fun checkEnable(): Boolean {
-        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty()
+        return currentState.account.isNotEmpty() && currentState.password.isNotEmpty() && currentState.password.length>=6
     }
 
     private fun checkLoginEnable(): Boolean {

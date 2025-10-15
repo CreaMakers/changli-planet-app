@@ -139,6 +139,18 @@ class RegisterActivity : FullScreenActivity<ActivityRegisterBinding>() {
             }
         }
         editText.filters = arrayOf(filter)
+
+        val watcher = object : TextWatcher by noOpDelegate() {
+            override fun afterTextChanged(s: Editable?) {
+                val length = s?.length ?: 0
+                if (length < 6) {
+                    editText.error = "密码至少需要6个字符"
+                } else {
+                    editText.error = null
+                }
+            }
+        }
+        editText.addTextChangedListener(watcher)
     }
 
     override fun onDestroy() {

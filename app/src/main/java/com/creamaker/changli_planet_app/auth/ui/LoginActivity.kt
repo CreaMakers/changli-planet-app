@@ -217,13 +217,14 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
 
     private fun updatePasswordVisibility(isVisible: Boolean) {
         if (isVisible) {
-            password.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+
+            password.transformationMethod = android.text.method.HideReturnsTransformationMethod.getInstance()
             iVEye.setImageResource(R.drawable.login_visibiliby_eyes)
         } else {
-            password.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            password.transformationMethod = android.text.method.PasswordTransformationMethod.getInstance()
             iVEye.setImageResource(R.drawable.line_invisible2)
         }
-        password.setSelection(password.text.length)
+        password.setSelection(password.text?.length ?: 0)
     }
 
     override fun onDestroy() {

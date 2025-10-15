@@ -33,7 +33,7 @@ class AccountSecurityStore : Store<AccountSecurityState, AccountSecurityAction>(
             is AccountSecurityAction.UpdateSafeType -> {
                 currentState.password = action.newPassword
                 currentState.safeType = 0
-                currentState.isLengthValid = action.newPassword.length >= 8
+                currentState.isLengthValid = action.newPassword.length >= 6
 
                 currentState.hasUpperAndLower = action.newPassword.matches(".*[A-Z].*".toRegex()) &&
                         action.newPassword.matches(".*[a-z].*".toRegex())

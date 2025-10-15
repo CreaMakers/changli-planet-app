@@ -38,10 +38,10 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
     private val newPasswordImg by lazy { binding.newPasswordImg }
     private val confirmPasswordEt by lazy { binding.confirmPasswordEt }
     private val confirmPasswordImg by lazy { binding.confirmPasswordImg }
-    private val strongPasswordPrb by lazy { binding.strongPasswordPrb }
+//    private val strongPasswordPrb by lazy { binding.strongPasswordPrb }
     private val strength8Img by lazy { binding.strength8Img }
-    private val containBigAndSmallImg by lazy { binding.containBigAndSmallImg }
-    private val containNumberIconImg by lazy { binding.containNumberIconImg }
+//    private val containBigAndSmallImg by lazy { binding.containBigAndSmallImg }
+//    private val containNumberIconImg by lazy { binding.containNumberIconImg }
     private val changePasswordBtn by lazy { binding.changePasswordBtn }
     private val store = AccountSecurityStore()
 
@@ -96,8 +96,8 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->
                     updateCondition(state.isLengthValid, strength8Img)
-                    updateCondition(state.hasUpperAndLower, containBigAndSmallImg)
-                    updateCondition(state.hasNumberAndSpecial, containNumberIconImg)
+//                    updateCondition(state.hasUpperAndLower, containBigAndSmallImg)
+//                    updateCondition(state.hasNumberAndSpecial, containNumberIconImg)
                     updatePasswordVisibility(
                         state.curPasswordVisible,
                         curPasswordEt,
@@ -113,7 +113,7 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
                         confirmPasswordEt,
                         confirmPasswordImg
                     )
-                    updateProgressBar(state.safeType)
+//                    updateProgressBar(state.safeType)
                 }
         )
     }
@@ -131,10 +131,10 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
             showMessage("新密码与确认密码不一致，请重新输入")
             return
         }
-        if (strongPasswordPrb.progress != 100) {
-            showMessage("新密码不满足要求，请重新输入")
-            return
-        }
+//        if (strongPasswordPrb.progress != 100) {
+//            showMessage("新密码不满足要求，请重新输入")
+//            return
+//        }
         store.dispatch(AccountSecurityAction.ChangePassword(this,curPasswordEt.text.toString(),newPassword, confirmPassword))
     }
 
@@ -164,29 +164,29 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
         }
     }
 
-    fun updateProgressBar(safeType: Int) {
-        when (safeType) {
-            0 -> {
-                strongPasswordPrb.progress = 0
-            }
-
-            1 -> {
-                strongPasswordPrb.progress = 33
-                strongPasswordPrb.progressTintList = ColorStateList.valueOf(Color.RED)
-            }
-
-            2 -> {
-                strongPasswordPrb.progress = 66
-                strongPasswordPrb.progressTintList = ColorStateList.valueOf(Color.YELLOW)
-            }
-
-            3 -> {
-                strongPasswordPrb.progress = 100
-                strongPasswordPrb.progressTintList =
-                    ColorStateList.valueOf(Color.parseColor("#6396F1"))
-            }
-        }
-    }
+//    fun updateProgressBar(safeType: Int) {
+//        when (safeType) {
+//            0 -> {
+//                strongPasswordPrb.progress = 0
+//            }
+//
+//            1 -> {
+//                strongPasswordPrb.progress = 33
+//                strongPasswordPrb.progressTintList = ColorStateList.valueOf(Color.RED)
+//            }
+//
+//            2 -> {
+//                strongPasswordPrb.progress = 66
+//                strongPasswordPrb.progressTintList = ColorStateList.valueOf(Color.YELLOW)
+//            }
+//
+//            3 -> {
+//                strongPasswordPrb.progress = 100
+//                strongPasswordPrb.progressTintList =
+//                    ColorStateList.valueOf(Color.parseColor("#6396F1"))
+//            }
+//        }
+//    }
 
     private fun showMessage(message: String) {
         Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).apply {
