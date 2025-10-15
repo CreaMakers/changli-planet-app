@@ -182,7 +182,7 @@ class UserProfileActivity : FullScreenActivity<ActivityUserProfileBinding>() {
 //                    account.text = UserInfoManager.username
                     bio.setText(userProfile.bio)
                     grade.text = state.userProfile.grade
-                    birthday.text = userProfile.birthDate?.let{ minusOneDay(it) }//解决因前后端时区不一致导致保存后的生日提前一天 手动增加一天（未彻底解决问题）
+                    birthday.text = userProfile.birthDate
                     gender.text = genderList[state.userProfile.gender]
                     location.text = state.userProfile.location
                     website.setText(userProfile.website)
@@ -191,22 +191,12 @@ class UserProfileActivity : FullScreenActivity<ActivityUserProfileBinding>() {
         )
     }
 
-
     private fun setAvatar() {
         PhotoPickerDialog(
             this,
             onGalleryClick = { checkGalleryPermission() },
             onCameraClick = { checkCameraPermission() }
         ).show()
-    }
-
-    private fun minusOneDay(dateStr: String): String{
-        val sdf = SimpleDateFormat("yyyy-MM-dd",Locale.getDefault())
-        val date = sdf.parse(dateStr)
-        val calendar = Calendar.getInstance()
-        calendar.time = date!!
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
-        return sdf.format(calendar.time)
     }
 
     private fun formatDate(year: Int, month: Int, day: Int): String {
