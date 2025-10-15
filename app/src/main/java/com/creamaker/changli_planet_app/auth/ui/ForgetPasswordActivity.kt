@@ -63,8 +63,6 @@ class ForgetPasswordActivity : FullScreenActivity<ActivityForgetPasswordBinding>
 
                     binding.apply {
                         lengthIcon.setImageResource(if(state.isLengthValid) R.drawable.dui else R.drawable.cuo)
-                        upperLowerIcon.setImageResource(if(state.hasUpperAndLower) R.drawable.dui else R.drawable.cuo)
-                        numberSpecialIcon.setImageResource(if(state.hasNumberAndSpecial) R.drawable.dui else R.drawable.cuo)
                     }
                 }
         )
