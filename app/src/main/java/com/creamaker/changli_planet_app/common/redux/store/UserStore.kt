@@ -1,19 +1,10 @@
 package com.creamaker.changli_planet_app.common.redux.store
 
-import android.R.attr.maxHeight
-import android.R.attr.password
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.airbnb.lottie.LottieCompositionFactory.fromJson
-import com.dcelysia.csust_spider.core.RetrofitUtils
-import com.dcelysia.csust_spider.education.data.remote.EducationData
-import com.dcelysia.csust_spider.education.data.remote.services.AuthService
-import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
-import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager.username
 import com.creamaker.changli_planet_app.common.data.local.room.database.UserDataBase
 import com.creamaker.changli_planet_app.common.data.remote.dto.ApkResponse
 import com.creamaker.changli_planet_app.common.data.remote.dto.UploadAvatarResponse
@@ -24,26 +15,25 @@ import com.creamaker.changli_planet_app.common.redux.state.UserState
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Store
 import com.creamaker.changli_planet_app.core.network.HttpUrlHelper
-import com.creamaker.changli_planet_app.core.network.MyResponse
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper
-import com.creamaker.changli_planet_app.core.network.Resource
 import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
-import com.creamaker.changli_planet_app.settings.redux.store.BindingUserStore
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.toEntity
+import com.creamaker.changli_planet_app.widget.Dialog.BindingFromWebDialog
 import com.creamaker.changli_planet_app.widget.Dialog.ErrorStuPasswordResponseDialog
 import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.creamaker.changli_planet_app.widget.Dialog.UpdateDialog
 import com.creamaker.changli_planet_app.widget.View.CustomToast
-
-import com.example.changli_planet_app.widget.Dialog.SSOWebviewDialog
+import com.dcelysia.csust_spider.core.RetrofitUtils
+import com.dcelysia.csust_spider.education.data.remote.EducationData
+import com.dcelysia.csust_spider.education.data.remote.services.AuthService
+import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
 
@@ -181,6 +171,7 @@ class UserStore : Store<UserState, UserAction>() {
                         )
                         when (fromJson.code) {
                             "200" -> {
+
                                 UserInfoManager.userAvatar = fromJson.data.toString()
                                 currentState.avatarUri = fromJson.data.toString()
                                 currentState.userProfile.avatarUrl = fromJson.data.toString()
@@ -222,6 +213,7 @@ class UserStore : Store<UserState, UserAction>() {
                         )
                         when (fromJson.code) {
                             "200" -> {
+                                Log.d(TAG,"返回"+fromJson.data.toString())
                                 currentState.userProfile = fromJson.data!!
                                 UserInfoManager.account = fromJson.data.account
                                 handler.post {
@@ -310,13 +302,6 @@ class UserStore : Store<UserState, UserAction>() {
             is UserAction.BindingStudentNumber -> {
                 currentState.uiForLoading = true
 
-                //对游客模式的MVI流逻辑处理
-                if (PlanetApplication.is_tourist) {
-                    currentState.userStats.studentNumber = StudentInfoManager.studentId
-                    handler.post {
-                        EventBusHelper.post(FinishEvent("bindingUser"))
-                    }
-                }
                 CoroutineScope(Dispatchers.IO).launch {
                     RetrofitUtils.ClearClient("moocClient")
                     RetrofitUtils.ClearClient("EducationClient")
@@ -360,14 +345,28 @@ class UserStore : Store<UserState, UserAction>() {
                             is com.dcelysia.csust_spider.core.Resource.Error -> {
                                 currentState.userStats.studentNumber = action.student_number
                                 currentState.uiForLoading = false
-                                handler.post {
-                                    ErrorStuPasswordResponseDialog(
-                                        action.context,
-                                        ssoResult.msg ?: "SSO 登录失败",
-                                        "登录失败",
-                                        action.refresh
-                                    ).show()
+                                Log.d(TAG,"ssoResult:${ssoResult}")
+                                //如果不用重新在网页登录就不用显示出网页登录选项
+                                if (!(ssoResult.msg.contains("请在手机网页登录一次"))){
+                                    handler.post {
+                                        NormalResponseDialog(
+                                            action.context,
+                                            "学号或密码错误，请重试",
+                                            "绑定失败"
+                                        ).show()
+                                    }
                                 }
+                                else{
+                                    handler.post {
+                                        BindingFromWebDialog(
+                                            action.context,
+                                            ssoResult.msg ?: "SSO 登录失败",
+                                            "绑定失败",
+                                            action.webLogin
+                                        ).show()
+                                    }
+                                }
+
                                 _state.onNext(currentState)
                             }
 
@@ -400,6 +399,18 @@ class UserStore : Store<UserState, UserAction>() {
                     }
                 }
                 _state.onNext(currentState)
+                currentState
+            }
+            is UserAction.WebLoginSuccess ->{
+                // 1. 更新 StudentInfoManager
+                StudentInfoManager.studentId = action.account
+                StudentInfoManager.studentPassword = action.password
+                // 2. 更新 State，这将通过 observeState 回调来更新UI
+                currentState.userStats = currentState.userStats.copy(studentNumber = action.account)
+                _state.onNext(currentState)
+                // 3. 调用现有的学号绑定逻辑，触发网络请求
+                handleEvent(UserAction.BindingStudentNumber(action.context, action.account) {})
+
                 currentState
             }
 

@@ -53,4 +53,5 @@
     <color name="about_background">#F5F7F9</color>
     <color name="about_text_primary">#333333</color>
     <color name="about_text_secondary">#777778</color>
+    <color name="sso_webview_background">#E8F3FE</color>
 </resources>
