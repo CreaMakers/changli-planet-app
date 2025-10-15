@@ -180,4 +180,5 @@
     <string name="no_classroom">无教室</string>
     <string name="next_step">下一步</string>
     <string name="binding_privacy_statement">隐私声明：您的学号将用于身份认证并与账号绑定，是参与校园社区交流的必要凭证。密码仅用于教务系统数据查询，采用本地存储，不会上传至云端服务器，确保您的账号安全₍ᐢ..ᐢ₎♡。如果没有登陆，则学号也只会存到本地~</string>
+    <string name="sso_webview_cancel">关闭</string>
 </resources>

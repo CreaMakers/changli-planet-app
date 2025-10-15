@@ -105,10 +105,7 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
     }
 
     private fun web_login() {
-        val web_dialog = SSOWebviewDialog(maxHeight) { account, Stpassword, Loginmode, url, cookies ->
-            username.text = account
-            password.text = Stpassword
-
+        SSOWebviewDialog { account, Stpassword, Loginmode, url, cookies ->
             if (url.isNotEmpty() && cookies.isNotEmpty()) {
                 RetrofitUtils.totalCookieJar.saveFromResponse(url.toHttpUrl(), cookies)
                 CustomToast.showMessage(this, "cookies保存成功！")
@@ -116,16 +113,8 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
                 CustomToast.showMessage(this, "cookies保存失败")
             }
             if (account.isNotEmpty() && Stpassword.isNotEmpty() && Loginmode == "Username") {
-                if (PlanetApplication.is_tourist) {
-                    StudentInfoManager.studentId = account //游客模式不使用网络进行储存学号
-                }
-                if (Loginmode == "Username") {
-                    StudentInfoManager.studentPassword = Stpassword
-                }
-                store.dispatch(UserAction.BindingStudentNumber(this@BindingUserActivity, account,{}))
+                store.dispatch(UserAction.WebLoginSuccess(this,account,Stpassword))
             }
-
-
         }.show(supportFragmentManager,"SSOWebDialog")
 
 

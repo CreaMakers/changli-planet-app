@@ -17,6 +17,11 @@ sealed class UserAction {
     class UpdateLocation(val location:String):UserAction()
     class QueryIsLastedApk(val context: Context, val versionCode: Long, val versionName: String) :
         UserAction()
-    class BindingStudentNumber(val context: Context, val student_number: String,val refresh: ()-> Unit) : UserAction()
+    class BindingStudentNumber(val context: Context, val student_number: String,val webLogin: ()-> Unit) : UserAction()
     class initilaize : UserAction()
+    data class WebLoginSuccess(
+        val context: Context,
+        val account: String,
+        val password: String
+    ) : UserAction()
 }
