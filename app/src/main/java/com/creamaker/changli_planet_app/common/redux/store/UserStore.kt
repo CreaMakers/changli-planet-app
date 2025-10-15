@@ -20,6 +20,7 @@ import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.toEntity
+import com.creamaker.changli_planet_app.widget.Dialog.BindingFromWebDialog
 import com.creamaker.changli_planet_app.widget.Dialog.ErrorStuPasswordResponseDialog
 import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.creamaker.changli_planet_app.widget.Dialog.UpdateDialog
@@ -170,6 +171,7 @@ class UserStore : Store<UserState, UserAction>() {
                         )
                         when (fromJson.code) {
                             "200" -> {
+
                                 UserInfoManager.userAvatar = fromJson.data.toString()
                                 currentState.avatarUri = fromJson.data.toString()
                                 currentState.userProfile.avatarUrl = fromJson.data.toString()
@@ -211,6 +213,7 @@ class UserStore : Store<UserState, UserAction>() {
                         )
                         when (fromJson.code) {
                             "200" -> {
+                                Log.d(TAG,"返回"+fromJson.data.toString())
                                 currentState.userProfile = fromJson.data!!
                                 UserInfoManager.account = fromJson.data.account
                                 handler.post {
@@ -342,14 +345,28 @@ class UserStore : Store<UserState, UserAction>() {
                             is com.dcelysia.csust_spider.core.Resource.Error -> {
                                 currentState.userStats.studentNumber = action.student_number
                                 currentState.uiForLoading = false
-                                handler.post {
-                                    ErrorStuPasswordResponseDialog(
-                                        action.context,
-                                        ssoResult.msg ?: "SSO 登录失败",
-                                        "登录失败",
-                                        action.refresh
-                                    ).show()
+                                Log.d(TAG,"ssoResult:${ssoResult}")
+                                //如果不用重新在网页登录就不用显示出网页登录选项
+                                if (!(ssoResult.msg.contains("请在手机网页登录一次"))){
+                                    handler.post {
+                                        NormalResponseDialog(
+                                            action.context,
+                                            "学号或密码错误，请重试",
+                                            "绑定失败"
+                                        ).show()
+                                    }
                                 }
+                                else{
+                                    handler.post {
+                                        BindingFromWebDialog(
+                                            action.context,
+                                            ssoResult.msg ?: "SSO 登录失败",
+                                            "绑定失败",
+                                            action.webLogin
+                                        ).show()
+                                    }
+                                }
+
                                 _state.onNext(currentState)
                             }
 

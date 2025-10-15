@@ -26,7 +26,6 @@ import okhttp3.HttpUrl
 import java.net.HttpCookie
 
 class SSOWebviewDialog(
-    val maxHeight: Int,
     val LoginResult : (String, String, String, String, List<Cookie>)-> Unit
 ) : BottomSheetDialogFragment(){
 
