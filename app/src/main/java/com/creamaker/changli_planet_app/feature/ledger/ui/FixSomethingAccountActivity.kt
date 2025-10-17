@@ -178,7 +178,7 @@ class FixSomethingAccountActivity : FullScreenActivity<ActivityFixSomethingAccco
 
 
     private fun showDatePicker() {
-        val dialog = DatePickerDialog(this)
+        val dialog = DatePickerDialog(getString(R.string.date_buy_time),this)
         dialog.setDate(2023, 3, 9)
         dialog.setOnDateSelectedListener { year, month, day ->
             val date = String.format("%d-%02d-%02d", year, month, day)

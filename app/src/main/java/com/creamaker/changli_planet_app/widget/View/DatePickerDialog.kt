@@ -9,10 +9,11 @@ import com.github.gzuliyujiang.wheelview.widget.WheelView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.util.Calendar
 
-class DatePickerDialog(context: Context) : BottomSheetDialog(context) {
+class DatePickerDialog(dataDescription:String, context: Context) : BottomSheetDialog(context) {
     private var yearWheel: WheelView
     private var monthWheel: WheelView
     private var dayWheel: WheelView
+    private val dialogData: TextView
     private var onDateSelectedListener: ((year: Int, month: Int, day: Int) -> Unit)? = null
 
     init {
@@ -25,6 +26,8 @@ class DatePickerDialog(context: Context) : BottomSheetDialog(context) {
         yearWheel = view.findViewById(R.id.yearWheel)
         monthWheel = view.findViewById(R.id.monthWheel)
         dayWheel = view.findViewById(R.id.dayWheel)
+        dialogData = view.findViewById(R.id.dialog_data_birthday)
+        dialogData.text = dataDescription
 
         // 设置数据范围
         val years = (1900..2100).map { it.toString() }

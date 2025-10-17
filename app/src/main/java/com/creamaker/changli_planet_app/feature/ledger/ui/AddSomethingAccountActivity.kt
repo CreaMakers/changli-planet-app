@@ -9,11 +9,13 @@ import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.databinding.ActivityAddSomethingAccountBinding
 import com.creamaker.changli_planet_app.feature.ledger.viewModel.AccountBookViewModel
 import com.creamaker.changli_planet_app.widget.Picker.ProductCategoryPicker
 import com.creamaker.changli_planet_app.widget.View.DatePickerDialog
+import com.gradle.scan.agent.serialization.scan.serializer.kryo.ge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -136,7 +138,8 @@ class AddSomethingAccountActivity : FullScreenActivity<ActivityAddSomethingAccou
 
 
     private fun showDatePicker() {
-        val dialog = DatePickerDialog(this)
+        val dialog = DatePickerDialog(
+            getString(R.string.date_buy_time),this)
         dialog.setDate(2023, 3, 9)
         dialog.setOnDateSelectedListener { year, month, day ->
             val date = String.format("%d-%02d-%02d", year, month, day)
