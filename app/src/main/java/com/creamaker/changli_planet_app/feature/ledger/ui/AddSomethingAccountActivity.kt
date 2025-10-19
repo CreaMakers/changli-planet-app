@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -12,8 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.databinding.ActivityAddSomethingAccountBinding
 import com.creamaker.changli_planet_app.feature.ledger.viewModel.AccountBookViewModel
-import com.creamaker.changli_planet_app.widget.Picker.ProductCategoryPicker
-import com.creamaker.changli_planet_app.widget.View.DatePickerDialog
+import com.creamaker.changli_planet_app.widget.picker.ProductCategoryPicker
+import com.creamaker.changli_planet_app.widget.view.DatePickerDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

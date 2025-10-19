@@ -3,7 +3,7 @@ package com.creamaker.changli_planet_app.freshNews.data.remote.repository
 import android.util.Log
 import com.creamaker.changli_planet_app.common.data.local.room.database.UserDataBase
 import com.creamaker.changli_planet_app.core.PlanetApplication
-import com.creamaker.changli_planet_app.core.network.Resource
+import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.freshNews.data.remote.api.UserProfileApi
 import com.creamaker.changli_planet_app.utils.RetrofitUtils
 import com.creamaker.changli_planet_app.utils.toEntity
@@ -31,44 +31,44 @@ class UserProfileRepository private constructor() {
         }
 
         if (cacheUser != null && System.currentTimeMillis() - cacheUser.cacheTime <= CACHE_DURATION) {
-            emit(Resource.Success(cacheUser.toProfile()))
+            emit(ApiResponse.Success(cacheUser.toProfile()))
             return@flow
         }
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         val result = service.getUserInformationById(userId)
         if (result.code == "200" && result.data != null) {
             val userEntity = result.data.toEntity()
             cache.insertUser(userEntity)
-            emit(Resource.Success(result.data))
+            emit(ApiResponse.Success(result.data))
         } else {
-            emit(Resource.Error(result.msg))
+            emit(ApiResponse.Error(result.msg))
 
             if (cacheUser != null) {
-                emit(Resource.Success(cacheUser.toProfile()))
+                emit(ApiResponse.Success(cacheUser.toProfile()))
             }
         }
     }.catch { e ->
         e.printStackTrace()
         Log.e(TAG, "通过网络请求或缓存用户id获取信息出错: ${e.message}")
-        emit(Resource.Error("网络错误"))
+        emit(ApiResponse.Error("网络错误"))
     }
 
     fun getUserInFormationNoCache(userId: Int) = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         val result = service.getUserInformationById(userId)
         if (result.code == "200" && result.data != null) {
             val userEntity = result.data.toEntity()
             withContext(Dispatchers.IO) {
                 cache.insertUser(userEntity)
             }
-            emit(Resource.Success(result.data))
+            emit(ApiResponse.Success(result.data))
         } else {
-            emit(Resource.Error(result.msg))
+            emit(ApiResponse.Error(result.msg))
         }
     }.catch { e ->
         e.printStackTrace()
         Log.e(TAG, "通过网络请求用户id获取信息出错: ${e.message}")
-        emit(Resource.Error("网络错误"))
+        emit(ApiResponse.Error("网络错误"))
     }
 
 }

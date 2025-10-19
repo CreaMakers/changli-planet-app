@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.creamaker.changli_planet_app.widget.View.NestCollapsingToolbarLayout
+            <com.creamaker.changli_planet_app.widget.view.NestCollapsingToolbarLayout
                 android:id="@+id/toolbarLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -104,7 +104,7 @@
                         android:textColor="#2077F0"
                         android:textSize="15sp" />
                 </RelativeLayout>
-            </com.creamaker.changli_planet_app.widget.View.NestCollapsingToolbarLayout>
+            </com.creamaker.changli_planet_app.widget.view.NestCollapsingToolbarLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

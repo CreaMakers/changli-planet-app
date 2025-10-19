@@ -13,7 +13,7 @@ import com.creamaker.changli_planet_app.settings.redux.state.BindingUserState
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.PlanetConst
-import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
+import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
 import okhttp3.Response
 
 class BindingUserStore : Store<BindingUserState, BindingUserAction>() {  // 修正泛型参数

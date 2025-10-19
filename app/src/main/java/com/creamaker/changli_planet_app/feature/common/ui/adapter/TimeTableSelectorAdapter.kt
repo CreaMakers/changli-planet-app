@@ -7,8 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.feature.common.redux.store.TimeTableStore
-import com.creamaker.changli_planet_app.feature.timetable.action.TimeTableAction
+import com.creamaker.changli_planet_app.feature.timetable.viewmodel.TimeTableViewModel
 import com.creamaker.changli_planet_app.utils.Event.SelectEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 
@@ -17,7 +16,7 @@ class TimeTableSelectorAdapter(
     private val stuNum: String,
     private val stuPassword: String,
     val list: List<String>,
-    val store: TimeTableStore,
+    val vm: TimeTableViewModel,
     val refresh:()->Unit
 ) :
     RecyclerView.Adapter<TimeTableSelectorAdapter.TimeTableViewHodler>() {
@@ -36,21 +35,8 @@ class TimeTableSelectorAdapter(
 
         holder.selec.text = list[position]
         holder.selec.setOnClickListener {
-            if (list.size == 20) {
-                store.dispatch(TimeTableAction.selectWeek(list[position]))
-                EventBusHelper.post(SelectEvent(1))
-            } else {
-                store.dispatch(
-                    TimeTableAction.selectTerm(
-                        context,
-                        stuNum,
-                        stuPassword,
-                        list[position],
-                        refresh
-                    )
-                )
-                EventBusHelper.post(SelectEvent(1))
-            }
+            vm.selectTerm(list[position])
+            EventBusHelper.post(SelectEvent(1))
         }
     }
 }

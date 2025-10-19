@@ -12,8 +12,8 @@ import com.creamaker.changli_planet_app.settings.redux.action.ChangeEmailAction
 import com.creamaker.changli_planet_app.settings.redux.state.ChangeEmailState
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
-import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

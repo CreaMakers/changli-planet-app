@@ -1,6 +1,5 @@
 package com.creamaker.changli_planet_app.settings.ui
 
-import android.R.attr.maxHeight
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -13,9 +12,6 @@ import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.transition.Visibility
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
@@ -25,15 +21,12 @@ import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityBindingUserBinding
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 import com.dcelysia.csust_spider.core.RetrofitUtils
 import com.example.changli_planet_app.widget.Dialog.SSOWebviewDialog
-import com.creamaker.changli_planet_app.widget.View.CustomToast.Companion.showMessage
-import com.drake.statelayout.StateConfig.loadingLayout
 import com.google.android.material.button.MaterialButton
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe

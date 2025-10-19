@@ -4,20 +4,13 @@ import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Store
-import com.creamaker.changli_planet_app.core.network.HttpUrlHelper
-import com.creamaker.changli_planet_app.core.network.MyResponse
-import com.creamaker.changli_planet_app.core.network.OkHttpHelper
-import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
 import com.creamaker.changli_planet_app.feature.common.redux.action.ElectronicAction
 import com.creamaker.changli_planet_app.feature.common.redux.state.ElectronicState
-import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
 import com.example.csustdataget.CampusCard.CampusCardHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.Response
 
 /**
  * 统一调度器，接受事件并进行Dispatch并处理

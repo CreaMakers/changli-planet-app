@@ -2,7 +2,7 @@ package com.creamaker.changli_planet_app.freshNews.contract
 
 import com.creamaker.changli_planet_app.core.mvi.MviIntent
 import com.creamaker.changli_planet_app.core.mvi.MviViewState
-import com.creamaker.changli_planet_app.core.network.Resource
+import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsPublish
 import java.io.File
@@ -25,7 +25,7 @@ class FreshNewsContract {
 
     data class State(
         var currentTab: Int,
-        var freshNewsList: Resource<List<FreshNewsItem>>,
+        var freshNewsList: ApiResponse<List<FreshNewsItem>>,
         var publishNews: FreshNewsPublish,
         var images: MutableList<File>,
         var isEnable: Boolean,

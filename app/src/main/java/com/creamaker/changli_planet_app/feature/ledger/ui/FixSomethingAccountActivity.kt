@@ -14,8 +14,8 @@ import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityFixSomethingAcccountBinding
 import com.creamaker.changli_planet_app.feature.ledger.viewModel.AccountBookViewModel
-import com.creamaker.changli_planet_app.widget.Picker.ProductCategoryPicker
-import com.creamaker.changli_planet_app.widget.View.DatePickerDialog
+import com.creamaker.changli_planet_app.widget.picker.ProductCategoryPicker
+import com.creamaker.changli_planet_app.widget.view.DatePickerDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

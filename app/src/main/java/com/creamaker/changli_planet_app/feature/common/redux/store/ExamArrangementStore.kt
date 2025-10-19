@@ -6,21 +6,14 @@ import com.dcelysia.csust_spider.education.data.remote.error.EduHelperError
 import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.dcelysia.csust_spider.education.data.remote.services.ExamArrangeService
 import com.creamaker.changli_planet_app.core.PlanetApplication
-import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.Store
-import com.creamaker.changli_planet_app.core.network.HttpUrlHelper
-import com.creamaker.changli_planet_app.core.network.OkHttpHelper
-import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
-import com.creamaker.changli_planet_app.feature.common.data.local.entity.ExamArrangementResponse
 import com.creamaker.changli_planet_app.feature.common.redux.action.ExamInquiryAction
 import com.creamaker.changli_planet_app.feature.common.redux.state.ExamInquiryState
-import com.creamaker.changli_planet_app.widget.Dialog.ErrorStuPasswordResponseDialog
-import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.dialog.ErrorStuPasswordResponseDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.Response
 
 class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
     var currentState = ExamInquiryState()

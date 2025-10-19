@@ -6,7 +6,9 @@
     tools:context=".feature.timetable.ui.TimeTableActivity">
 
     <!-- 顶部头部布局 -->
-    <include layout="@layout/time_table_header" />
+    <include
+        android:id="@+id/header_layout"
+        layout="@layout/time_table_header" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -93,7 +95,7 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <com.creamaker.changli_planet_app.widget.View.ScrollTimeTableView
+        <com.creamaker.changli_planet_app.widget.view.ScrollTimeTableView
             android:id="@+id/timetableView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
