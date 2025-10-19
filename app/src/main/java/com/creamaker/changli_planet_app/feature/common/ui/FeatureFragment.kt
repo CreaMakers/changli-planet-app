@@ -17,7 +17,7 @@ import com.creamaker.changli_planet_app.utils.Event.SelectEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.ResourceUtil
 import com.creamaker.changli_planet_app.utils.load
-import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
+import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

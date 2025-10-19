@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,7 +19,7 @@ import com.creamaker.changli_planet_app.feature.ledger.data.local.room.entity.Le
 import com.creamaker.changli_planet_app.feature.ledger.ui.adapter.LedgerItemAdapter
 import com.creamaker.changli_planet_app.feature.ledger.viewModel.AccountBookViewModel
 import com.creamaker.changli_planet_app.utils.GlideUtils
-import com.creamaker.changli_planet_app.widget.View.AddItemFloatView
+import com.creamaker.changli_planet_app.widget.view.AddItemFloatView
 import kotlinx.coroutines.launch
 
 /**

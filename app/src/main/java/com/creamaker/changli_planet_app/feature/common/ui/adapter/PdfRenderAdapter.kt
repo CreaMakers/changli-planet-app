@@ -7,7 +7,7 @@ import android.view.SurfaceHolder
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.databinding.ItemRenderPdfBinding
-import com.creamaker.changli_planet_app.widget.View.OnAlreadyListener
+import com.creamaker.changli_planet_app.widget.view.OnAlreadyListener
 
 class PdfRenderAdapter: RecyclerView.Adapter<PdfRenderAdapter.PdfHolder>() {
     inner class PdfHolder(val binding: ItemRenderPdfBinding): RecyclerView.ViewHolder(binding.root)

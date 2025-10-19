@@ -34,9 +34,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -49,16 +46,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
-import com.creamaker.changli_planet_app.core.network.Resource
+import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.MoocHomework
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.PendingAssignmentCourse
 import com.creamaker.changli_planet_app.feature.mooc.viewmodel.MoocViewModel
-import kotlin.collections.get
 
 
 // 辅助函数：将字符串日期转换为Date对象
@@ -111,7 +104,7 @@ fun MoocScreen(
                 .background(Color.White)
         ) {
             when (pendingCourses) {
-                is Resource.Loading -> {
+                is ApiResponse.Loading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -122,21 +115,21 @@ fun MoocScreen(
                     }
                 }
 
-                is Resource.Error -> {
+                is ApiResponse.Error -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = "加载失败，${(pendingCourses as Resource.Error<List<PendingAssignmentCourse>>).msg}",
+                            text = "加载失败，${(pendingCourses as ApiResponse.Error<List<PendingAssignmentCourse>>).msg}",
                             color = Color.Black,
                             fontSize = 15.sp,
                         )
                     }
                 }
 
-                is Resource.Success -> {
-                    val courses = (pendingCourses as Resource.Success).data
+                is ApiResponse.Success -> {
+                    val courses = (pendingCourses as ApiResponse.Success).data
                     if (courses.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -169,7 +162,7 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
     val isExpanded by moocViewModel.expandedCourseIds.collectAsStateWithLifecycle()
     val expanded = isExpanded.contains(course.id)
     val pendingHomeworksByCourse by moocViewModel.pendingHomeworksByCourse.collectAsStateWithLifecycle()
-    val homeworks = pendingHomeworksByCourse[course.id] ?: Resource.Loading()
+    val homeworks = pendingHomeworksByCourse[course.id] ?: ApiResponse.Loading()
     val rotationAngle by animateFloatAsState(targetValue = if (expanded) 180f else 0f, label = "rotationAngle")
 
     Card(
@@ -229,20 +222,20 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
         )
     ) {
         when (homeworks) {
-            is Resource.Loading -> {
+            is ApiResponse.Loading -> {
                 Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = colorResource(R.color.color_2878F3))
                 }
             }
 
-            is Resource.Error -> {
+            is ApiResponse.Error -> {
                 Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
                     Text(text = "作业加载失败", color = Color.Red, fontSize = 14.sp)
                 }
             }
 
-            is Resource.Success -> {
-                val homeworkList = (homeworks as Resource.Success).data
+            is ApiResponse.Success -> {
+                val homeworkList = (homeworks as ApiResponse.Success).data
                 if (homeworkList.isNotEmpty()) {
                     // 统一左右内边距为 16.dp，使对齐一致
                     Column(
@@ -271,7 +264,7 @@ fun HomeworkItem(homework: MoocHomework, moocViewModel: MoocViewModel) {
     val isDueSoonMap by moocViewModel.isDueSoonMap.collectAsStateWithLifecycle()
     val key = homework.title
     val isDueSoon = when (val res = isDueSoonMap[key]) {
-        is Resource.Success -> res.data
+        is ApiResponse.Success -> res.data
         else -> false
     }
     val titleColor = if (isDueSoon) Color(0xFFFF5252) else Color.Black // 使用亮红色 #FF5252

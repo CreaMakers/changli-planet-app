@@ -13,12 +13,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
-import com.creamaker.changli_planet_app.core.network.Resource
+import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.databinding.ActivityUserHomeBinding
 import com.creamaker.changli_planet_app.freshNews.viewModel.UserHomeViewModel
 import com.creamaker.changli_planet_app.utils.GlideUtils
 import com.creamaker.changli_planet_app.utils.PlanetConst
-import com.creamaker.changli_planet_app.widget.View.NestCollapsingToolbarLayout
+import com.creamaker.changli_planet_app.widget.view.NestCollapsingToolbarLayout
 import kotlinx.coroutines.launch
 
 /**
@@ -89,9 +89,9 @@ class UserHomeActivity : FullScreenActivity<ActivityUserHomeBinding>() {
                     viewModel.userProfile.collect { result ->
                         with(binding) {
                             when (result) {
-                                is Resource.Error -> {}
-                                is Resource.Loading -> {}
-                                is Resource.Success -> {
+                                is ApiResponse.Error -> {}
+                                is ApiResponse.Loading -> {}
+                                is ApiResponse.Success -> {
                                     val userProfile = result.data
                                     curAccount = userProfile.account
                                     curAvatarUrl = userProfile.avatarUrl

@@ -11,8 +11,8 @@ import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
 import com.creamaker.changli_planet_app.feature.common.data.remote.dto.EmptyClassroomResponse
 import com.creamaker.changli_planet_app.feature.common.redux.action.ClassInfoAction
 import com.creamaker.changli_planet_app.feature.common.redux.state.ClassInfoState
-import com.creamaker.changli_planet_app.widget.Dialog.EmptyClassroomDialog
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.dialog.EmptyClassroomDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import okhttp3.Response
 
 class ClassInfoStore : Store<ClassInfoState, ClassInfoAction>() {

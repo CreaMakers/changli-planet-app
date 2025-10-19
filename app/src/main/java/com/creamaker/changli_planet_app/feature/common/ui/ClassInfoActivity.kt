@@ -11,9 +11,9 @@ import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityClassInfoBinding
 import com.creamaker.changli_planet_app.feature.common.redux.action.ClassInfoAction
 import com.creamaker.changli_planet_app.feature.common.redux.store.ClassInfoStore
-import com.creamaker.changli_planet_app.widget.Dialog.ClassInfoBottomDialog
-import com.creamaker.changli_planet_app.widget.Picker.LessonPicker
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.dialog.ClassInfoBottomDialog
+import com.creamaker.changli_planet_app.widget.picker.LessonPicker
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import com.zhuangfei.timetable.model.ScheduleSupport
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.util.Calendar

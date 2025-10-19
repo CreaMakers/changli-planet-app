@@ -13,7 +13,6 @@ import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager.studentId
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager.studentPassword
 import com.creamaker.changli_planet_app.core.Route
-import com.creamaker.changli_planet_app.widget.View.CustomToast.Companion.showMessage
 
 class MoocActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

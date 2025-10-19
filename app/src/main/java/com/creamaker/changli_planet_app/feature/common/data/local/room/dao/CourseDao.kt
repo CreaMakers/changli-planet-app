@@ -13,11 +13,11 @@ interface CourseDao {
     fun getAllCourses(): Single<MutableList<TimeTableMySubject>>
 
     @Query("SELECT * FROM courses WHERE term = :term AND studentId = :studentId AND studentPassword = :studentPassword")
-    fun getCoursesByTerm(
+    suspend fun getCoursesByTerm(
         term: String,
         studentId: String,
         studentPassword: String
-    ): Single<MutableList<TimeTableMySubject>>
+    ): MutableList<TimeTableMySubject>
 
     @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)
     fun insertCourse(subject: TimeTableMySubject): Long
@@ -29,11 +29,11 @@ interface CourseDao {
     fun clearAllCourses()
 
     @Query("DELETE FROM courses WHERE start = :start AND weekday = :day AND :curDisplayWeek IN (weeks) AND isCustom = 1")
-    fun deleteCourse(start: Int, day: Int, curDisplayWeek: Int): Single<Int>
+    fun deleteCourse(start: Int, day: Int, curDisplayWeek: Int): Int
 
     @Query("SELECT COUNT(*) FROM courses")
-    fun getAllCourseCount(): Single<Int>
+    fun getAllCourseCount(): Int
 
     @Query("SELECT COUNT(*) FROM courses WHERE term = :term")
-    fun getCoursesCountByTerm(term: String):Single<Int>
+    fun getCoursesCountByTerm(term: String): Int
 }
