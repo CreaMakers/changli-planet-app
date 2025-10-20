@@ -19,7 +19,6 @@ import com.creamaker.changli_planet_app.core.network.OkHttpHelper
 import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
 import com.creamaker.changli_planet_app.feature.common.data.remote.dto.Course
-import com.creamaker.changli_planet_app.feature.common.redux.store.TimeTableStore.weekJsonInfo
 import com.creamaker.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.creamaker.changli_planet_app.utils.ResourceUtil
 import com.google.gson.reflect.TypeToken
@@ -421,3 +420,4 @@ private fun parseWeeks(weekJson: String): weekJsonInfo {
     // 返回空的结果
     return weekJsonInfo(listOf(), 0, 0)
 }
+data class weekJsonInfo(val weeks: List<Int>, val start: Int, val step: Int)

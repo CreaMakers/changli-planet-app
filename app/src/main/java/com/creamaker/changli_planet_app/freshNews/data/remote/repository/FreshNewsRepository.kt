@@ -2,7 +2,7 @@ package com.creamaker.changli_planet_app.freshNews.data.remote.repository
 
 import android.util.Log
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
-import com.creamaker.changli_planet_app.core.network.Resource
+import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.freshNews.data.remote.api.FreshNewsApi
 import com.creamaker.changli_planet_app.freshNews.data.remote.api.toImagePart
 import com.creamaker.changli_planet_app.freshNews.data.remote.api.IpService
@@ -59,68 +59,68 @@ class FreshNewsRepository private constructor() {
     }
 
     fun getNewsListByTime(page: Int, pageSize: Int) = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         try {
             val freshNewsResponse = service.value.getNewsListByTime(page, pageSize)
 
             when (freshNewsResponse.code) {
                 "200" -> {
                     val freshNewsList = freshNewsResponse.data ?: emptyList()
-                    emit(Resource.Success(freshNewsList))
+                    emit(ApiResponse.Success(freshNewsList))
                 }
 
                 else -> {
-                    emit(Resource.Error(freshNewsResponse.msg))
+                    emit(ApiResponse.Error(freshNewsResponse.msg))
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
             Log.d("FreshNews", e.message.toString())
-            emit(Resource.Error("网络错误"))
+            emit(ApiResponse.Error("网络错误"))
         }
     }
     //喜欢新鲜事
     fun likeNews(freshNewsId: Int) = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         try {
             val currentUserId = UserInfoManager.userId
 
             val result = service.value.likeNews(freshNewsId, currentUserId)
             when {
                 result.code == "200" -> {
-                    emit(Resource.Success(true))
+                    emit(ApiResponse.Success(true))
                 }
 
                 else -> {
-                    emit(Resource.Error(result.msg))
+                    emit(ApiResponse.Error(result.msg))
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("FreshNews", "点赞失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+            emit(ApiResponse.Error("网络错误"))
         }
     }
     //收藏新鲜事
     fun favoriteNews(freshNewsId: Int) = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         try {
             val currentUserId = UserInfoManager.userId
 
             val result = service.value.favoriteNews(currentUserId, freshNewsId)
             when {
                 result.code == "200" -> {
-                    emit(Resource.Success(true))
+                    emit(ApiResponse.Success(true))
                 }
 
                 else -> {
-                    emit(Resource.Error(result.msg ?: "收藏失败"))
+                    emit(ApiResponse.Error(result.msg ?: "收藏失败"))
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("FreshNews", "收藏失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+            emit(ApiResponse.Error("网络错误"))
         }
     }
 

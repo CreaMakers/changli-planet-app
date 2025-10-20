@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Looper
 import android.text.Editable
 import android.text.InputFilter
-import android.text.InputType
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextWatcher
@@ -30,7 +29,7 @@ import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.noOpDelegate
 import com.creamaker.changli_planet_app.databinding.ActivityLoginBinding
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
-import com.creamaker.changli_planet_app.widget.Dialog.ExpiredDialog
+import com.creamaker.changli_planet_app.widget.dialog.ExpiredDialog
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe

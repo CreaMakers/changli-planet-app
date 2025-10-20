@@ -18,8 +18,8 @@ import com.creamaker.changli_planet_app.profileSettings.ui.adapter.SettingAdapte
 import com.creamaker.changli_planet_app.profileSettings.ui.adapter.model.SettingItem
 import com.creamaker.changli_planet_app.utils.NetworkUtil
 import com.creamaker.changli_planet_app.utils.load
-import com.creamaker.changli_planet_app.widget.Dialog.NormalChosenDialog
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.dialog.NormalChosenDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
     private lateinit var settingAdapter: SettingAdapter

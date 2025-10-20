@@ -67,28 +67,28 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/dp15">
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/ngrade"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="@string/feature_function_grade_query" />
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/ncourse"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="@string/feature_function_course_schedule" />
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/nmap"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="@string/feature_function_campus_map" />
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/ncet"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -101,28 +101,28 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/dp15">
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/ntest"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="@string/feature_function_exam_schedule" />
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/ncalender"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="@string/feature_function_school_calendar" />
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/nelectronic"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="@string/feature_function_electricity_query" />
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/nmande"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -174,28 +174,28 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/dp15">
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/nlose"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="@string/feature_function_lost_found" />
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/nhomework"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="@string/inquiry_homework" />
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/nclassroom"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     app:itemTitle="@string/feature_function_classroom_availability" />
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/accountbook"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -208,7 +208,7 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/dp15">
 
-                <com.creamaker.changli_planet_app.widget.View.FunctionItem
+                <com.creamaker.changli_planet_app.widget.view.FunctionItem
                     android:id="@+id/ndocument"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"

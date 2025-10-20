@@ -9,7 +9,7 @@ import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.cache.LocationDataSource
 import com.creamaker.changli_planet_app.databinding.ActivityCityBinding
 import com.creamaker.changli_planet_app.settings.ui.adapter.CityAdapter
-import com.creamaker.changli_planet_app.widget.View.DividerItemDecoration
+import com.creamaker.changli_planet_app.widget.view.DividerItemDecoration
 
 /**
  * 个人主页设置城市选择Activity

@@ -8,54 +8,42 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.lifecycleScope
-import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.TimeTableAppWidget
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.cache.CommonInfo
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.core.MainActivity
-import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
+import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.databinding.ActivityTimeTableBinding
 import com.creamaker.changli_planet_app.databinding.CourseinfoDialogBinding
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
-import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
-import com.creamaker.changli_planet_app.feature.common.data.remote.dto.GetCourse
 import com.creamaker.changli_planet_app.feature.common.listener.ScrollController
-import com.creamaker.changli_planet_app.feature.common.redux.store.TimeTableStore
 import com.creamaker.changli_planet_app.feature.ledger.ui.AddCourseActivity
-import com.creamaker.changli_planet_app.feature.timetable.action.TimeTableAction
+import com.creamaker.changli_planet_app.feature.timetable.viewmodel.TimeTableViewModel
 import com.creamaker.changli_planet_app.utils.dp2Px
-import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
-import com.creamaker.changli_planet_app.widget.Dialog.TimetableWheelBottomDialog
-import com.creamaker.changli_planet_app.widget.View.ScrollTimeTableView
+import com.creamaker.changli_planet_app.widget.dialog.ErrorStuPasswordResponseDialog
+import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
+import com.creamaker.changli_planet_app.widget.dialog.TimetableWheelBottomDialog
+import com.creamaker.changli_planet_app.widget.view.ScrollTimeTableView
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
@@ -67,126 +55,45 @@ import com.zhuangfei.timetable.listener.OnItemClickAdapter
 import com.zhuangfei.timetable.listener.OnItemLongClickAdapter
 import com.zhuangfei.timetable.listener.OnSlideBuildAdapter
 import com.zhuangfei.timetable.model.Schedule
-import com.zhuangfei.timetable.model.ScheduleSupport
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.TimeZone
-import kotlin.or
+import java.util.*
+import androidx.core.graphics.toColorInt
 
 class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
+
+    private val viewModel: TimeTableViewModel by viewModels()
     private val mmkv by lazy { MMKV.defaultMMKV() }
-    private val isCurWeek by lazy { binding.isCurWeek }
-    private val courseTerm by lazy { binding.courseTerm }
-    private val courseWeek by lazy { binding.courseWeek }
-    private var curDisplayWeek = 0
-    private val timetableView: ScrollTimeTableView by lazy { binding.timetableView }
-    private lateinit var dataBase: CoursesDataBase
-
-    //    private val termList by lazy { generateTermsList() }
-    private val timeTableStore: TimeTableStore by lazy {
-        TimeTableStore(dataBase.courseDao(), myHandler)
-    }
-
-
-//    private var preWeek: String
-//        get() = mmkv.getString("pre_week", termList[0]) ?: termList[0]
-//        set(value) {
-//            mmkv.putString("pre_week", value)
-//        }
-
-    private val maxHeight by lazy {
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        displayMetrics.heightPixels / 2
-    }
-
-    private fun showLoading() {
-        binding.loadingLayout.visibility = View.VISIBLE
-        binding.timetableView.visibility = View.GONE
-    }
-
-    private fun hideLoading() {
-        binding.loadingLayout.visibility = View.GONE
-        binding.timetableView.visibility = View.VISIBLE
-    }
-
-
-
-    private lateinit var termList: List<String>
-
-    private fun getCurrentTerm(): String {
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1
-        return when {
-            currentMonth >= 7 -> "$currentYear-${currentYear + 1}-1"  // 第一学期
-            currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"  // 第二学期
-            else -> "${currentYear - 1}-${currentYear}-1"  // 上学年第一学期
-        }
-    }
-
-    private val weekList by lazy {
-        listOf(
-            "第1周",
-            "第2周",
-            "第3周",
-            "第4周",
-            "第5周",
-            "第6周",
-            "第7周",
-            "第8周",
-            "第9周",
-            "第10周",
-            "第11周",
-            "第12周",
-            "第13周",
-            "第14周",
-            "第15周",
-            "第16周",
-            "第17周",
-            "第18周",
-            "第19周",
-            "第20周"
-        )
-    }
-    lateinit var subjects: MutableList<TimeTableMySubject>
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
+    private val timetableView: ScrollTimeTableView by lazy { binding.timetableView }
 
-    companion object {
-        val CANCEL_LOADING = 164
+    private lateinit var termList: List<String>
+    private val weekList by lazy {
+        (1..20).map { "第${it}周" }
     }
 
-    private val myHandler = SafeHandler(this)
+    override fun createViewBinding(): ActivityTimeTableBinding =
+        ActivityTimeTableBinding.inflate(layoutInflater)
 
-    override fun createViewBinding(): ActivityTimeTableBinding = ActivityTimeTableBinding.inflate(layoutInflater)
-
-    @SuppressLint("WrongThread")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        // 检查用户绑定
         if (studentId.isEmpty() || studentPassword.isEmpty()) {
             showMessage("请先绑定学号和密码")
             Route.goBindingUser(this)
             finish()
             return
         }
-        showLoading()
-        dataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
-        if (mmkv.getBoolean("isFirstLaunch", true)) {
 
-            CoroutineScope(Dispatchers.IO).launch {
-                dataBase.clearAllTables()
-                withContext(Dispatchers.Main) {
-                    mmkv.encode("isFirstLaunch", false)
-                }
-            }
-        }
+        // 初始化
+        initViewModel()
+        initView()
+        initTimetable()
+        initObservers()
+        setBack()
+
+        // 首次对话框
         if (mmkv.getBoolean("isFirstDialog", true)) {
             NormalResponseDialog(
                 this,
@@ -195,9 +102,39 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
             ).show()
             mmkv.encode("isFirstDialog", false)
         }
+
+        // 设置学期列表
         setTermListById(studentId)
-        courseTerm.text = getCurrentTerm()
-        timetableView.setCurWeek(CommonInfo.termMap[courseTerm.text])
+
+        // 加载课程数据
+        val currentTerm = viewModel.getCurrentTerm()
+        binding.courseTerm.text = currentTerm
+        val currentWeek = viewModel.getCurWeek(currentTerm)
+        viewModel.selectWeek("第${currentWeek}周")
+        viewModel.selectTerm(currentTerm)
+    }
+
+    private fun initViewModel() {
+        viewModel.initFirstLaunch()
+    }
+
+    private fun initView() {
+        binding.headerLayout.courseRefresh.setOnClickListener {
+            val currentTerm = binding.courseTerm.text.toString()
+            viewModel.loadCourses(currentTerm, forceRefresh = true)
+        }
+        binding.courseWeek.setOnClickListener {
+            showWheelDialog(weekList)
+        }
+        binding.weeksExtendBtn.setOnClickListener {
+            showWheelDialog(weekList)
+        }
+        binding.courseTerm.setOnClickListener {
+            showWheelDialog(termList)
+        }
+    }
+
+    private fun initTimetable() {
         timetableView
             .maxSlideItem(10)
             .cornerAll(15)
@@ -205,140 +142,120 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
             .isShowNotCurWeek(false)
             .showView()
 
-        if (TimeTableStore.curState.subjects.isEmpty()) {
-            TimeTableStore.curState.lastUpdate = getValueInMMKV("lastUpdate")
-        }
-        initTimetableDate()
-        disposables.add(
-            timeTableStore.state().subscribe { curState ->
-                timetableView.setCurWeek(CommonInfo.termMap[curState.term])
-                subjects = curState.subjects
-                timetableView.source(subjects)
-                timetableView.updateView()
-                courseTerm.text = curState.term
-                courseWeek.text = curState.weekInfo
-                timetableView.changeWeekOnly(extractWeekNumber(courseWeek.text.toString()))
-                curDisplayWeek = extractWeekNumber(courseWeek.text.toString())
-                timetableView.onDateBuildListener()
-                    .onUpdateDate(timetableView.curWeek(), curDisplayWeek)
-                if (curDisplayWeek == timetableView.curWeek()) {
-                    isCurWeek.text = "本周"
-                } else {
-                    isCurWeek.text = "非本周"
-                }
-                hideLoading()
-                Log.d("Debug", "startTime : ${CommonInfo.termMap[curState.term]}")
-                Log.d("Debug", "curWeek : ${timetableView.curWeek()}")
-            }
-
-        )
-        timeTableStore.dispatch(
-            TimeTableAction.selectTerm(
-                this@TimeTableActivity,
-                studentId,
-                studentPassword,
-                courseTerm.text.toString(),
-                refresh = { upDateTimeTable() }
-            )
-        )
-        timeTableStore.dispatch(TimeTableAction.selectWeek("第${timetableView.curWeek()}周"))
-
         timetableView.apply {
-            showTime()     //显示侧边栏时间
-            showPopDialog()//课程点击事件,出现弹窗显示课程信息
-            buildItemText()//按要求显示课程信息
-            addCourse()    //添加自定义课程
+            showTime()
+            showPopDialog()
+            buildItemText()
+            addCourse()
             longClickToDeleteCourse()
-            setScrollListener()//设置左右滑动的监听
+            setScrollListener()
         }
 
-        findViewById<ImageButton>(R.id.courseRefresh).setOnClickListener {
-            upDateTimeTable()
-        }
-        binding.courseWeek.setOnClickListener {
-            ClickWheel(weekList)
-        }
-        binding.weeksExtendBtn.setOnClickListener {
-            ClickWheel(weekList)
-        }
-        binding.courseTerm.setOnClickListener {
-            ClickWheel(termList)
-        }
-        setBack()
-        // 暂时关闭选择学期
-//        binding.courseTerm.setOnClickListener {
-//            ClickWheel(termList)
-//        }
-
-//        timetableView.findViewById<View>(com.zhuangfei.android_timetableview.sample.R.id.contentPanel)
-//            .setOnTouchListener { _, event ->
-//                gestureDetector.onTouchEvent(event)
-//                true
-//            }
-//        timetableView.callback(object : OnScrollViewBuildAdapter() {
-//            override fun getScrollView(mInflate: LayoutInflater?): View {
-//                // 创建一个自定义的滚动视图
-//                val customScrollView = HorizontalScrollView(timetableView.context).apply {
-//                    // 添加触摸事件监听
-//                    setOnTouchListener { _, event ->
-//                        gestureDetector.onTouchEvent(event) // 将触摸事件传递给 GestureDetector
-//                        true // 消费事件
-//                    }
-//                }
-//                // 使用原本的课程内容视图
-//                val courseContentView = super.getScrollView(mInflate)
-//
-//                // 将课程内容视图添加到自定义滚动视图中
-//                customScrollView.addView(courseContentView)
-//
-//                return customScrollView
-//            }
-//        })
+        initTimetableDate()
     }
 
-    override fun onResume() {
-        super.onResume()
-        refreshWidget()
+    @SuppressLint("SetTextI18n")
+    private fun initObservers() {
+        // UI State 观察
+        viewModel.uiState.observe(this) { state ->
+            timetableView.updateCurWeek()
+            timetableView.source(state.subjects)
+            timetableView.updateView()
+
+            binding.courseTerm.text = state.term
+            binding.courseWeek.text = state.weekInfo
+
+            val displayWeek = extractWeekNumber(state.weekInfo)
+            timetableView.changeWeekOnly(displayWeek)
+            timetableView.onDateBuildListener()
+                .onUpdateDate(timetableView.curWeek(), displayWeek)
+            binding.isCurWeek.text = if (displayWeek == timetableView.curWeek()) {
+                "本周"
+            } else {
+                "非本周"
+            }
+            Log.d("TimeTableActivity", "State updated: term=${state.term}, subjects=${state.subjects.size}")
+        }
+
+        // Courses Response 观察
+        viewModel.coursesResponse.observe(this) { response ->
+            when (response) {
+                is ApiResponse.Loading -> {
+                    showLoading()
+                }
+                is ApiResponse.Success -> {
+                    hideLoading()
+                    showMessage("加载成功")
+                }
+                is ApiResponse.Error -> {
+                    hideLoading()
+                    handleError(response.msg)
+                }
+            }
+        }
+
+        // Add Course Response 观察
+        viewModel.addCourseResponse.observe(this) { response ->
+            when (response) {
+                is ApiResponse.Loading -> {
+                    // 可选：显示添加中的提示
+                }
+                is ApiResponse.Success -> {
+                    showMessage("添加课程成功")
+                }
+                is ApiResponse.Error -> {
+                    showMessage(response.msg)
+                }
+            }
+        }
+
+        // Delete Course Response 观察
+        viewModel.deleteCourseResponse.observe(this) { response ->
+            when (response) {
+                is ApiResponse.Loading -> {
+                    // 可选：显示删除中的提示
+                }
+                is ApiResponse.Success -> {
+                    showMessage("删除课程成功")
+                }
+                is ApiResponse.Error -> {
+                    showMessage(response.msg)
+                }
+            }
+        }
+
+        // Current Display Week 观察
+        viewModel.curDisplayWeek.observe(this) { week ->
+            Log.d("TimeTableActivity", "Display week changed: $week")
+        }
     }
-    private fun getCurTerm(instance: Calendar): String {
-        val month = instance.get(Calendar.MONTH) + 1
-        var year = instance.get(Calendar.YEAR)
+
+    private fun handleError(message: String) {
         when {
-            month in 9..12 -> return "$year-${year + 1}-1"
-            month == 1 -> return "${year - 1}-${year}-1"
-            else -> return "${year - 1}-${year}-2"
+            message.contains("学号") || message.contains("密码") -> {
+                ErrorStuPasswordResponseDialog(
+                    this,
+                    message,
+                    "查询失败"
+                ) {
+                    val currentTerm = binding.courseTerm.text.toString()
+                    viewModel.loadCourses(currentTerm, forceRefresh = true)
+                }.show()
+            }
+            message.contains("网络") -> {
+                NormalResponseDialog(
+                    this,
+                    message,
+                    "网络错误"
+                ).show()
+            }
+            else -> {
+                showMessage(message)
+            }
         }
     }
 
-
-    private fun showCourseDetailDialog(schedule: Schedule) {
-        val dialogBinding = CourseinfoDialogBinding.inflate(layoutInflater)
-        dialogBinding.dialogCourseName.text = schedule.name
-        dialogBinding.dialogTeacherpart.dialogTeacher.text = schedule.teacher
-        dialogBinding.dialogAlarmpart.dialogCourseStep.text =
-            "${schedule.start} - ${(schedule.start - 1 + schedule.step)} 节"
-
-        val first = schedule.weekList[0]
-        val last = schedule.weekList.last()
-        val allList = (first..last).toList()
-        dialogBinding.dialogWeekpart.dialogWeek.text = when {
-            schedule.weekList.size == 1 -> "${schedule.weekList.last()}(周)"
-            schedule.weekList == allList.filter { it % 2 == 0 } -> "${schedule.weekList[0]} - ${schedule.weekList.last()} (双周)"
-            schedule.weekList == allList.filter { it % 2 != 0 } -> "${schedule.weekList[0]} - ${schedule.weekList.last()} (单周)"
-            schedule.weekList == allList -> "${schedule.weekList[0]} - ${schedule.weekList.last()} (周)"
-            else -> schedule.weekList.joinToString(",") + "周"
-        }
-        schedule.room?.let { dialogBinding.dialogPlacepart.dialogPlace.text = it }
-        val dialog = AlertDialog.Builder(this).apply {
-            setView(dialogBinding.root)
-        }.create()
-
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.show()
-
-    }
-
-    fun TimetableView.showTime() {
+    private fun TimetableView.showTime() {
         val times = arrayOf(
             "8:00\n8:45", "8:55\n9:40", "10:10\n10:55", "11:05\n11:50",
             "14:00\n14:45", "14:55\n15:40", "16:10\n16:55", "17:05\n17:50",
@@ -347,32 +264,29 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         val slideBuildAdapter = OnSlideBuildAdapter()
         slideBuildAdapter.setTimes(times)
             .setTimeTextColor(Color.parseColor("#ADD8E6"))
-        timetableView.callback(slideBuildAdapter)
-        timetableView.updateSlideView()
+        callback(slideBuildAdapter)
+        updateSlideView()
     }
 
-    fun TimetableView.showPopDialog() {
-
-        timetableView.callback(object : OnItemClickAdapter() {
+    private fun TimetableView.showPopDialog() {
+        callback(object : OnItemClickAdapter() {
             override fun onItemClick(v: View, scheduleList: MutableList<Schedule>) {
+                val currentWeek = viewModel.curDisplayWeek.value ?: 1
                 if (scheduleList.size == 1) {
                     showCourseDetailDialog(scheduleList.last())
-                    return
                 } else {
                     scheduleList.forEach {
-                        if (curDisplayWeek in it.weekList) showCourseDetailDialog(it)
+                        if (currentWeek in it.weekList) {
+                            showCourseDetailDialog(it)
+                        }
                     }
                 }
-
             }
-        }
-        )
-
+        })
     }
 
-
-    fun TimetableView.buildItemText() {
-        timetableView.callback(object : OnItemBuildAdapter() {
+    private fun TimetableView.buildItemText() {
+        callback(object : OnItemBuildAdapter() {
             override fun onItemUpdate(
                 layout: FrameLayout?,
                 textView: TextView?,
@@ -383,35 +297,28 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
                 textView?.tag = schedule
                 textView?.text = when {
                     schedule?.room != null -> SpannableStringBuilder().apply {
-                        // 课程名称（加粗，大字）
                         append(schedule.name)
                         append("\n")
-
-                        // 教室（加粗，大字）
                         append("@${schedule.room}")
                         append("\n")
-
-                        // 教师名（普通字体，小字）
                         val teacherStart = length
                         append(schedule.teacher)
                         setSpan(
-                            StyleSpan(Typeface.NORMAL),  // 普通字体
+                            StyleSpan(Typeface.NORMAL),
                             teacherStart,
                             length,
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                         )
                         setSpan(
-                            RelativeSizeSpan(0.85f),  // 字体缩小到 0.9 倍
+                            RelativeSizeSpan(0.85f),
                             teacherStart,
                             length,
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                         )
                     }
-
                     else -> SpannableStringBuilder().apply {
                         append(schedule?.name ?: "")
                         append("\n")
-
                         val teacherStart = length
                         append(schedule?.teacher ?: "")
                         setSpan(
@@ -438,51 +345,36 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
                     typeface = Typeface.DEFAULT_BOLD
                     setLineSpacing(6f, 1f)
                 }
-
             }
-        })
-            .updateView()
+        }).updateView()
     }
 
-    fun TimetableView.addCourse() {
-        timetableView.hideFlaglayout()
-        timetableView.callback(object : OnFlaglayoutClickAdapter() {
+    private fun TimetableView.addCourse() {
+        hideFlaglayout()
+        callback(object : OnFlaglayoutClickAdapter() {
             override fun onFlaglayoutClick(day: Int, start: Int) {
-                val intent = Intent(context, AddCourseActivity::class.java)
-                intent.putExtra("day", day + 1)// 底层的索引从0开始，但计算时却进行了 - 1 ，所以这里要 + 1
-                intent.putExtra("start", start)
-                intent.putExtra("curWeek", curDisplayWeek)
-                intent.putExtra("curTerm", TimeTableStore.curState.term)
-                startActivityForResult(intent, 1)
+                val currentWeek = viewModel.curDisplayWeek.value ?: 1
+                val currentTerm = viewModel.uiState.value?.term ?: ""
+                val intent = Intent(context, AddCourseActivity::class.java).apply {
+                    putExtra("day", day + 1)
+                    putExtra("start", start)
+                    putExtra("curWeek", currentWeek)
+                    putExtra("curTerm", currentTerm)
+                }
+                startActivityForResult(intent, REQUEST_ADD_COURSE)
             }
         })
-
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK && requestCode == 1) {
-            val course = Gson().fromJson(data?.getStringExtra("newCourse"), TimeTableMySubject::class.java)
-            course?.let { timeTableStore.dispatch(TimeTableAction.AddCourse(it)) }
-//            subjects.add(course)
-        }
-
-    }
-
-    fun TimetableView.longClickToDeleteCourse() {
-        timetableView.callback(object : OnItemLongClickAdapter() {
-
+    private fun TimetableView.longClickToDeleteCourse() {
+        callback(object : OnItemLongClickAdapter() {
             override fun onLongClick(v: View, day: Int, start: Int) {
+                val currentWeek = viewModel.curDisplayWeek.value ?: 1
+                val currentTerm = viewModel.uiState.value?.term ?: ""
+
                 val snackbar = Snackbar.make(v, "删除自定义课程", Snackbar.LENGTH_SHORT)
                 snackbar.setAction("确定") {
-                    timeTableStore.dispatch(
-                        TimeTableAction.DeleteCourse(
-                            day,
-                            start,
-                            curDisplayWeek,
-                            TimeTableStore.curState.term
-                        )
-                    )
+                    viewModel.deleteCourse(day, start, currentWeek, currentTerm)
                 }
                 val params = snackbar.view.layoutParams as ViewGroup.MarginLayoutParams
                 params.bottomMargin = resources.displayMetrics.heightPixels / 7
@@ -493,208 +385,23 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
             }
         })
     }
-    override fun onDestroy() {
-        super.onDestroy()
-        storeInMMKV("lastUpdate", TimeTableStore.curState.lastUpdate)
-        disposables.dispose()
-    }
-    private fun setBack(){
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                // 检查是否从 Widget 启动
-                val fromWidget = intent.getBooleanExtra("from_timeTable_widget", false)
 
-                if (fromWidget) {
-                    // 如果是从 Widget 启动，跳转到 MainActivity
-                    val intent = Intent(this@TimeTableActivity, MainActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    }
-                    startActivity(intent)
-                    finish()
-                } else {
-                    // 正常返回，移除当前回调并触发默认行为
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
+    private fun setScrollListener() {
+        timetableView.setScrollInterface(object : ScrollController {
+            override fun onScrollLast() {
+                val currentWeek = viewModel.curDisplayWeek.value ?: 1
+                if (currentWeek > 1) {
+                    viewModel.selectWeek("第${currentWeek - 1}周")
+                }
+            }
+
+            override fun onScrollNext() {
+                val currentWeek = viewModel.curDisplayWeek.value ?: 1
+                if (currentWeek < 20) {
+                    viewModel.selectWeek("第${currentWeek + 1}周")
                 }
             }
         })
-    }
-    private fun upDateTimeTable() {
-        TimeTableStore.curState.lastUpdate = 0
-        hideLoading()
-        showLoading()
-        timeTableStore.dispatch(
-            TimeTableAction.FetchCourses(
-                this,
-                GetCourse(
-                    studentId,
-                    studentPassword,
-                    "",
-                    courseTerm.text.toString()
-                ),
-                refresh = { upDateTimeTable() },
-                refreshSuccess = { timetableView.updateView() }
-            )
-        )
-    }
-
-    private fun storeInMMKV(key: String, value: Long) = mmkv.encode(key, value)
-
-
-    private fun getValueInMMKV(key: String) = mmkv.decodeLong(key)
-
-    private fun ClickWheel(item: List<String>) {
-        val Wheel = TimetableWheelBottomDialog(
-            this@TimeTableActivity,
-            studentId,
-            studentPassword,
-            timeTableStore,
-            maxHeight,
-            refresh = { upDateTimeTable() }
-        )
-        Wheel.setItem(item)
-        Wheel.show(supportFragmentManager, "TimetableWheel")
-    }
-
-    // 初始化 GestureDetector
-//    private val gestureDetector by lazy {
-//        GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-//            private val SWIPE_THRESHOLD = 100 // 最小滑动距离
-//            private val SWIPE_VELOCITY_THRESHOLD = 100 // 最小滑动速度
-//
-//            override fun onFling(
-//                e1: MotionEvent?,
-//                e2: MotionEvent,
-//                velocityX: Float,
-//                velocityY: Float
-//            ): Boolean {
-//                if (e1 == null || e2 == null) return false
-//
-//                val diffX = e2.x - e1.x // 横向滑动距离
-//                val diffY = e2.y - e1.y // 纵向滑动距离
-//
-//                if (Math.abs(diffX) > Math.abs(diffY)) { // 判断是横向滑动
-//                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-//                        if (diffX > 0) {
-//                            if (curDisplayWeek - 1 in 1..20)
-//                                timeTableStore.dispatch(
-//                                    TimeTableAction.selectWeek(
-//                                        "第${curDisplayWeek - 1}周"
-//                                    )
-//                                ) // 右滑，切换到上一周
-//                        } else {
-//                            if (curDisplayWeek + 1 in 1..20)
-//                                timeTableStore.dispatch(
-//                                    TimeTableAction.selectWeek(
-//                                        "第${curDisplayWeek + 1}周"
-//                                    )
-//                                ) // 左滑，切换到下一周
-//                        }
-//                        return true
-//                    }
-//                }
-//                return false
-//            }
-//        })
-//    }
-
-    // 判断触摸事件是否在课程区域
-    private fun isTouchInCourseArea(event: MotionEvent): Boolean {
-        val timetableView = findViewById<View>(R.id.timetableView)
-        val location = IntArray(2)
-        timetableView.getLocationOnScreen(location)
-
-        val x = event.rawX
-        val y = event.rawY
-
-        val left = location[0].toFloat()
-        val top = location[1].toFloat()
-        val right = left + timetableView.width
-        val bottom = top + timetableView.height
-
-        return x in left..right && y in top..bottom
-    }
-
-//    // 重写触摸事件分发
-//    override fun onTouchEvent(event: MotionEvent?): Boolean {
-//        event?.let {
-//            if (isTouchInCourseArea(it)) {
-//                if(gestureDetector.onTouchEvent(it)){ // 在课程区域时触发手势检测
-//                    return true
-//                }
-//            }
-//        }
-//        return super.onTouchEvent(event)
-//    }
-
-
-    private fun generateTermsList(yearsBack: Int = 4): List<String> {
-        val terms = mutableListOf<String>()
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1
-        val startYear = when {
-            currentMonth >= 9 -> currentYear
-            else -> currentYear - 1
-        }
-        val currentTerm = when {
-            currentMonth >= 9 -> 1
-            currentMonth >= 2 -> 2
-            else -> 1
-        }
-        for (year in startYear downTo (startYear - yearsBack)) {
-            if (year == startYear) {
-                if (currentTerm == 1) {
-                    terms.add("$year-${year + 1}-1")
-                } else {
-                    terms.add("$year-${year + 1}-2")
-                    terms.add("$year-${year + 1}-1")
-                }
-            } else {
-                terms.add("$year-${year + 1}-2")
-                terms.add("$year-${year + 1}-1")
-            }
-        }
-        return terms
-    }
-
-    fun extractWeekNumber(weekString: String): Int {
-        val regex = Regex("\\d+")
-        val matchResult = regex.find(weekString)
-        return matchResult?.value?.toInt() ?: 0
-    }
-
-    private fun showMessage(message: String) {
-        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).apply {
-            val cardView = CardView(applicationContext).apply {
-                radius = 25f
-                cardElevation = 8f
-                setCardBackgroundColor(getColor(R.color.score_bar))
-                useCompatPadding = true
-            }
-
-            val textView = TextView(applicationContext).apply {
-                text = message
-                textSize = 17f
-                setTextColor(Color.BLACK)
-                gravity = Gravity.CENTER
-                setPadding(80, 40, 80, 40)
-            }
-            cardView.addView(textView)
-            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 140)
-            view = cardView
-            show()
-        }
-    }
-
-    private fun TimetableView.setCurWeek(startTime: String?) {
-        startTime?.let {
-            val week = ScheduleSupport.timeTransfrom(it).coerceIn(1, 20)
-            val curWeekField = TimetableView::class.java.getDeclaredField("curWeek")
-            curWeekField.isAccessible = true
-            curWeekField.set(timetableView, week)
-            onWeekChangedListener().onWeekChanged(week)
-        }
     }
 
     private fun initTimetableDate() {
@@ -706,6 +413,7 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
                 layout?.alpha = alpha
             }
 
+            @SuppressLint("SetTextI18n")
             override fun getDateViews(
                 mInflate: LayoutInflater?,
                 monthWidth: Float,
@@ -715,15 +423,12 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
                 val heightPx = 130
                 views = Array(8) { TextView(this@TimeTableActivity) }
 
-                // 第一个视图（月份）
                 val firstParams = LinearLayout.LayoutParams(monthWidth.toInt(), heightPx)
                 val firstView = TextView(this@TimeTableActivity).apply {
                     layoutParams = firstParams
                     gravity = Gravity.CENTER
-                    text = "${
-                        Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-                            .get(Calendar.MONTH) + 1
-                    }月"
+                    text = "${Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
+                        .get(Calendar.MONTH) + 1}月"
                     setTextColor(Color.BLACK)
                     textSize = 14f
                     typeface = Typeface.DEFAULT_BOLD
@@ -735,7 +440,6 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
                 weekParams.gravity = Gravity.CENTER
                 val dateArray = arrayOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
 
-                // 创建周一至周日的视图
                 for (i in 1..7) {
                     val weekView = TextView(this@TimeTableActivity).apply {
                         layoutParams = LinearLayout.LayoutParams(
@@ -766,26 +470,24 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
             }
 
             override fun onHighLight() {
-                // 初始化背景色
-                val defaultColor = Color.parseColor("#F4F8F8")
-                val highlightColor = Color.parseColor("#BFF6F4")
+                val defaultColor = "#F4F8F8".toColorInt()
+                val highlightColor = "#BFF6F4".toColorInt()
 
-                // 重置所有背景色
                 for (i in 1..7) {
                     layouts[i]?.setBackgroundColor(defaultColor)
                 }
 
-                // 获取当前日期
                 val today = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-                val startTime = CommonInfo.termMap[courseTerm.text.toString()]
-                Log.d(TAG, "startTime: $startTime")
+                val currentTerm = binding.courseTerm.text.toString()
+                val startTime = CommonInfo.termMap[currentTerm]
+
                 startTime?.let {
+                    val currentWeek = viewModel.curDisplayWeek.value ?: 1
                     val weekStart = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-                    weekStart.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(it)
-                    weekStart.add(Calendar.WEEK_OF_YEAR, curDisplayWeek - 1)
+                    weekStart.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(it)!!
+                    weekStart.add(Calendar.WEEK_OF_YEAR, currentWeek - 1)
                     weekStart.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
 
-                    // 遍历本周的每一天
                     for (i in 1..7) {
                         if (weekStart.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
                             weekStart.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
@@ -801,37 +503,31 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
 
             override fun onUpdateDate(curWeek: Int, targetWeek: Int) {
                 val calendar = Calendar.getInstance()
-                val startTime = CommonInfo.termMap[courseTerm.text.toString()]
-                Log.d(TAG, "onUpdateDate startTime: $startTime")
+                val currentTerm = binding.courseTerm.text.toString()
+                val startTime = CommonInfo.termMap[currentTerm]
+
                 startTime?.let {
-                    calendar.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(it)
+                    calendar.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(it)!!
                     calendar.add(Calendar.WEEK_OF_YEAR, targetWeek - 1)
                     calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
 
-                    // 获取今天的日期
                     val today = Calendar.getInstance()
-
-                    // 更新月份显示
                     (views[0] as? TextView)?.text = "${calendar.get(Calendar.MONTH) + 1}月"
 
-                    // 更新日期显示和高亮
                     for (i in 1..7) {
                         val weekView = (layouts[i]?.getChildAt(0) as? TextView)
                         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-                        // 检查是否是今天
                         val isToday = calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
                                 calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
                                 calendar.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)
 
-                        // 更新文本
                         weekView?.text = buildString {
                             append("周${getWeekDay(i)}")
                             append("\n")
                             append("${day}日")
                         }
 
-                        // 设置背景色和文字颜色
                         if (isToday) {
                             layouts[i]?.setBackgroundColor(Color.parseColor("#BFF6F4"))
                             weekView?.setTextColor(Color.parseColor("#1E88E5"))
@@ -860,28 +556,101 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         })
     }
 
-    private fun setScrollListener() {
-        timetableView.setScrollInterface(object : ScrollController {
-            override fun onScrollLast() {
-                if (curDisplayWeek > 1) {
-                    timeTableStore.dispatch(
-                        TimeTableAction.selectWeek(
-                            "第${curDisplayWeek - 1}周"
-                        )
-                    ) // 右滑，切换到上一周
-                }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == REQUEST_ADD_COURSE) {
+            val courseJson = data?.getStringExtra("newCourse")
+            courseJson?.let {
+                val course = Gson().fromJson(it, TimeTableMySubject::class.java)
+                viewModel.addCourse(course)
             }
+        }
+    }
 
-            override fun onScrollNext() {
-                if (curDisplayWeek < 20) {
-                    timeTableStore.dispatch(
-                        TimeTableAction.selectWeek(
-                            "第${curDisplayWeek + 1}周"
-                        )
-                    ) // 左滑，切换到下一周
-                }
-            }
-        })
+    override fun onResume() {
+        super.onResume()
+        refreshWidget()
+    }
+
+    private fun showCourseDetailDialog(schedule: Schedule) {
+        val dialogBinding = CourseinfoDialogBinding.inflate(layoutInflater)
+        dialogBinding.dialogCourseName.text = schedule.name
+        dialogBinding.dialogTeacherpart.dialogTeacher.text = schedule.teacher
+        dialogBinding.dialogAlarmpart.dialogCourseStep.text =
+            "${schedule.start} - ${(schedule.start - 1 + schedule.step)} 节"
+
+        val first = schedule.weekList[0]
+        val last = schedule.weekList.last()
+        val allList = (first..last).toList()
+        dialogBinding.dialogWeekpart.dialogWeek.text = when {
+            schedule.weekList.size == 1 -> "${schedule.weekList.last()}(周)"
+            schedule.weekList == allList.filter { it % 2 == 0 } ->
+                "${schedule.weekList[0]} - ${schedule.weekList.last()} (双周)"
+            schedule.weekList == allList.filter { it % 2 != 0 } ->
+                "${schedule.weekList[0]} - ${schedule.weekList.last()} (单周)"
+            schedule.weekList == allList ->
+                "${schedule.weekList[0]} - ${schedule.weekList.last()} (周)"
+            else -> schedule.weekList.joinToString(",") + "周"
+        }
+        schedule.room?.let { dialogBinding.dialogPlacepart.dialogPlace.text = it }
+
+        val dialog = AlertDialog.Builder(this).apply {
+            setView(dialogBinding.root)
+        }.create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
+
+    private fun showLoading() {
+        binding.loadingLayout.visibility = View.VISIBLE
+        binding.timetableView.visibility = View.GONE
+    }
+
+    private fun hideLoading() {
+        binding.loadingLayout.visibility = View.GONE
+        binding.timetableView.visibility = View.VISIBLE
+    }
+
+    private fun showMessage(message: String) {
+        val cardView = CardView(applicationContext).apply {
+            radius = 25f
+            cardElevation = 8f
+            setCardBackgroundColor(getColor(R.color.score_bar))
+            useCompatPadding = true
+        }
+
+        val textView = TextView(applicationContext).apply {
+            text = message
+            textSize = 17f
+            setTextColor(Color.BLACK)
+            gravity = Gravity.CENTER
+            setPadding(80, 40, 80, 40)
+        }
+        cardView.addView(textView)
+
+        android.widget.Toast(applicationContext).apply {
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 140)
+            view = cardView
+            duration = android.widget.Toast.LENGTH_SHORT
+            show()
+        }
+    }
+
+    private fun showWheelDialog(items: List<String>) {
+        val maxHeight = resources.displayMetrics.heightPixels / 2
+        val dialog = TimetableWheelBottomDialog(
+            this,
+            studentId,
+            studentPassword,
+            viewModel,
+            maxHeight
+        ) {
+            val currentTerm = binding.courseTerm.text.toString()
+            viewModel.loadCourses(currentTerm, forceRefresh = true)
+        }
+        dialog.setItem(items)
+        dialog.show(supportFragmentManager, "TimetableWheel")
     }
 
     private fun setTermListById(studentId: String) {
@@ -894,6 +663,36 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         }
         termList = list
     }
+
+    private fun extractWeekNumber(weekString: String): Int {
+        val regex = Regex("\\d+")
+        return regex.find(weekString)?.value?.toInt() ?: 1
+    }
+
+    private fun TimetableView.updateCurWeek() {
+        val week = viewModel.getCurWeek(binding.courseTerm.text.toString())
+        timetableView.curWeek(week)
+        onWeekChangedListener().onWeekChanged(week)
+    }
+
+    private fun setBack() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val fromWidget = intent.getBooleanExtra("from_timeTable_widget", false)
+                if (fromWidget) {
+                    val intent = Intent(this@TimeTableActivity, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+    }
+
     private fun refreshWidget() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
         val componentName = ComponentName(this, TimeTableAppWidget::class.java)
@@ -907,17 +706,8 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
             sendBroadcast(intent)
         }
     }
-    private class SafeHandler(activity: TimeTableActivity) : Handler(Looper.getMainLooper()) {
-        private val weakActivity = WeakReference(activity)
 
-        override fun handleMessage(msg: Message) {
-            val activity = weakActivity.get() ?: return
-            Log.d("safeHandler", "接受msg.what: ${msg.what}")
-            when (msg.what) {
-                CANCEL_LOADING -> {
-                    activity.hideLoading()
-                }
-            }
-        }
+    companion object {
+        private const val REQUEST_ADD_COURSE = 1
     }
 }

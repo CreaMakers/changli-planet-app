@@ -3,7 +3,6 @@ package com.creamaker.changli_planet_app.feature.common.ui
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
-import android.icu.util.TimeUnit
 import android.os.Bundle
 import android.text.InputFilter
 import android.util.DisplayMetrics
@@ -13,14 +12,12 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Switch
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 import com.creamaker.changli_planet_app.ElectronicAppWidget
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.TimeTableAppWidget
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.databinding.ActivityElectronicBinding
@@ -28,8 +25,7 @@ import com.creamaker.changli_planet_app.feature.common.data.remote.dto.CheckElec
 import com.creamaker.changli_planet_app.feature.common.redux.action.ElectronicAction
 import com.creamaker.changli_planet_app.feature.common.redux.store.ElectronicStore
 import com.creamaker.changli_planet_app.utils.load
-import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
-import com.creamaker.changli_planet_app.widget.Dialog.WheelBottomDialog
+import com.creamaker.changli_planet_app.widget.dialog.WheelBottomDialog
 import com.google.android.material.imageview.ShapeableImageView
 import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

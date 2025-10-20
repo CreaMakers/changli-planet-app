@@ -2,7 +2,7 @@ package com.creamaker.changli_planet_app.feature.mooc.data.remote.repository
 
 import android.util.Log
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.core.network.Resource
+import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.api.MoocApi
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.api.SSOAuthApi
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.api.SSOEhallApi
@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.regex.Pattern
-import kotlin.compareTo
 
 class MoocRepository private constructor() {
     companion object {
@@ -85,24 +84,24 @@ class MoocRepository private constructor() {
 
     // SSO 登录
     fun login(username: String, password: String) = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         Log.d(TAG, "进入Mooc登陆")
         // 1. 获取登录表单
         val (loginForm, isAlreadyLoggedIn) = getLoginForm()
         if (isAlreadyLoggedIn) {
-            emit(Resource.Success(true))
+            emit(ApiResponse.Success(true))
             return@flow
         }
 
         if (loginForm == null) {
-            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+            emit(ApiResponse.Error(ResourceUtil.getStringRes(R.string.network_error)))
             return@flow
         }
 
         // 2. 检查是否需要验证码
         val needCaptcha = checkNeedCaptcha(username)
         if (needCaptcha) {
-            emit(Resource.Error(ResourceUtil.getStringRes(R.string.account_status_abnormal_login_on_web)))
+            emit(ApiResponse.Error(ResourceUtil.getStringRes(R.string.account_status_abnormal_login_on_web)))
             return@flow
         }
         // 3. 加密密码
@@ -120,60 +119,60 @@ class MoocRepository private constructor() {
         ) {
 //            emit(Resource.Success(true))
         } else {
-            emit(Resource.Error("登录失败，请检查用户名和密码"))
+            emit(ApiResponse.Error("登录失败，请检查用户名和密码"))
             return@flow
         }
 
         val response = api.loginToMooc()
         finalUrl = response.raw().request.url.toString()
         if (finalUrl.contains("pt.csust.edu.cn/meol/personal.do")) {
-            emit(Resource.Success(true))
+            emit(ApiResponse.Success(true))
         } else {
-            emit(Resource.Error("MOOC 登录失败"))
+            emit(ApiResponse.Error("MOOC 登录失败"))
         }
     }.catch { e ->
         e.printStackTrace()
         Log.e(TAG, "获取待完成作业课程失败: ${e.message}")
-        emit(Resource.Error("网络错误"))
+        emit(ApiResponse.Error("网络错误"))
     }
 
     // 获取登录用户信息
     fun getLoginUser() = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         try {
             val response = ssoEhallApi.getLoginUser()
             if (!response.isSuccessful) {
-                emit(Resource.Error("HTTP ${response.code()}"))
+                emit(ApiResponse.Error("HTTP ${response.code()}"))
                 return@flow
             }
 
             val user = response.body()?.data
             if (user == null) {
-                emit(Resource.Error("用户信息不存在"))
+                emit(ApiResponse.Error("用户信息不存在"))
                 return@flow
             }
 
-            emit(Resource.Success(user))
+            emit(ApiResponse.Success(user))
 
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "获取用户信息失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+            emit(ApiResponse.Error("网络错误"))
         }
     }
 
     fun getProfile() = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         try {
             val response = api.getProfile()
             if (!response.isSuccessful) {
-                emit(Resource.Error("HTTP ${response.code()}"))
+                emit(ApiResponse.Error("HTTP ${response.code()}"))
                 return@flow
             }
 
             val html = response.body()
             if (html.isNullOrEmpty()) {
-                emit(Resource.Error("Empty response"))
+                emit(ApiResponse.Error("Empty response"))
                 return@flow
             }
 
@@ -181,7 +180,7 @@ class MoocRepository private constructor() {
             val elements = document.select(".userinfobody > ul > li")
 
             if (elements.size < 5) {
-                emit(Resource.Error("Unexpected profile format"))
+                emit(ApiResponse.Error("Unexpected profile format"))
                 return@flow
             }
 
@@ -192,7 +191,7 @@ class MoocRepository private constructor() {
 
             val loginCount = loginCountText.toIntOrNull()
             if (loginCount == null) {
-                emit(Resource.Error("Invalid login count format"))
+                emit(ApiResponse.Error("Invalid login count format"))
                 return@flow
             }
 
@@ -203,40 +202,40 @@ class MoocRepository private constructor() {
                 loginCount = loginCount
             )
 
-            emit(Resource.Success(profile))
+            emit(ApiResponse.Success(profile))
 
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "获取个人资料失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+            emit(ApiResponse.Error("网络错误"))
         }
     }
 
     fun getCourses() = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         try {
             val response = api.getCourses()
             if (!response.isSuccessful) {
-                emit(Resource.Error("HTTP ${response.code()}"))
+                emit(ApiResponse.Error("HTTP ${response.code()}"))
                 return@flow
             }
 
             val html = response.body()
             if (html.isNullOrEmpty()) {
-                emit(Resource.Error("Empty response"))
+                emit(ApiResponse.Error("Empty response"))
                 return@flow
             }
 
             val document = Jsoup.parse(html)
             val tableElement = document.getElementById("table2")
             if (tableElement == null) {
-                emit(Resource.Error("Course table not found"))
+                emit(ApiResponse.Error("Course table not found"))
                 return@flow
             }
 
             val rows = tableElement.select("tr")
             if (rows.isEmpty()) {
-                emit(Resource.Error("Invalid course table format"))
+                emit(ApiResponse.Error("Invalid course table format"))
                 return@flow
             }
 
@@ -274,17 +273,17 @@ class MoocRepository private constructor() {
                 )
             }
 
-            emit(Resource.Success(courses))
+            emit(ApiResponse.Success(courses))
 
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "获取课程列表失败: ${e.message}")
-            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+            emit(ApiResponse.Error(ResourceUtil.getStringRes(R.string.network_error)))
         }
     }
 
     fun getCourseHomeworks(courseId: String) = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         val response = api.getCourseHomeworks(courseId = courseId)
         if (response.code() == 200) {
             val homeworks = response.body()?.datas?.hwtList?.map { item ->
@@ -332,42 +331,42 @@ class MoocRepository private constructor() {
                 }
             }
 
-            emit(Resource.Success(sorted))
+            emit(ApiResponse.Success(sorted))
         } else {
             Log.d(TAG, "获取作业失败")
-            emit(Resource.Error(response.message() ?: "获取作业失败"))
+            emit(ApiResponse.Error(response.message() ?: "获取作业失败"))
         }
     }.catch { e ->
         if (e is CancellationException) throw e
         Log.e(TAG, "获取课程作业失败: ${e.message}", e)
-        emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+        emit(ApiResponse.Error(ResourceUtil.getStringRes(R.string.network_error)))
     }
 
     fun getCourseTests(courseId: String) = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         try {
             val response = api.getCourseTests(cateId = courseId)
             if (!response.isSuccessful) {
-                emit(Resource.Error("HTTP ${response.code()}"))
+                emit(ApiResponse.Error("HTTP ${response.code()}"))
                 return@flow
             }
 
             val html = response.body()
             if (html.isNullOrEmpty()) {
-                emit(Resource.Error("Empty response"))
+                emit(ApiResponse.Error("Empty response"))
                 return@flow
             }
 
             val document = Jsoup.parse(html)
             val tableElement = document.getElementsByClass("valuelist").firstOrNull()
             if (tableElement == null) {
-                emit(Resource.Error("Test table not found"))
+                emit(ApiResponse.Error("Test table not found"))
                 return@flow
             }
 
             val rows = tableElement.getElementsByTag("tr")
             if (rows.isEmpty()) {
-                emit(Resource.Error("Invalid test table format"))
+                emit(ApiResponse.Error("Invalid test table format"))
                 return@flow
             }
 
@@ -402,34 +401,34 @@ class MoocRepository private constructor() {
                 )
             }
 
-            emit(Resource.Success(tests))
+            emit(ApiResponse.Success(tests))
 
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "获取课程测试失败: ${e.message}")
-            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+            emit(ApiResponse.Error(ResourceUtil.getStringRes(R.string.network_error)))
         }
     }
 
-    fun getCourseNamesWithPendingHomeworks(): Flow<Resource<List<PendingAssignmentCourse>>> = flow {
-        emit(Resource.Loading())
+    fun getCourseNamesWithPendingHomeworks(): Flow<ApiResponse<List<PendingAssignmentCourse>>> = flow {
+        emit(ApiResponse.Loading())
 
         val response = api.getCourseNamesWithPendingHomeworks()
         if (!response.isSuccessful) {
-            emit(Resource.Error("HTTP ${response.code()}"))
+            emit(ApiResponse.Error("HTTP ${response.code()}"))
             return@flow
         }
 
         val html = response.body()
         if (html.isNullOrEmpty()) {
-            emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+            emit(ApiResponse.Error(ResourceUtil.getStringRes(R.string.network_error)))
             return@flow
         }
 
         val document = Jsoup.parse(html)
         val reminderElement = document.getElementById("reminder")
         if (reminderElement == null) {
-            emit(Resource.Error(ResourceUtil.getStringRes(R.string.reminder_area_not_found)))
+            emit(ApiResponse.Error(ResourceUtil.getStringRes(R.string.reminder_area_not_found)))
             return@flow
         }
 
@@ -439,13 +438,13 @@ class MoocRepository private constructor() {
             }
 
         if (homeworkListElement == null){
-            emit(Resource.Success(emptyList()))
+            emit(ApiResponse.Success(emptyList()))
             return@flow
         }
 
         val courseNameElements = homeworkListElement.select("ul > li > a")
         if (courseNameElements.isEmpty()){
-            emit(Resource.Success(emptyList()))
+            emit(ApiResponse.Success(emptyList()))
             return@flow
         }
 
@@ -466,15 +465,15 @@ class MoocRepository private constructor() {
                 Log.w(TAG,"解析课程元素失败:${e.message}")
             }
         }
-        emit(Resource.Success(courseNames.toList()))
+        emit(ApiResponse.Success(courseNames.toList()))
     }.catch { e ->
         e.printStackTrace()
         Log.e("MoocRepository", "获取待完成作业课程失败: ${e.message}")
-        emit(Resource.Error(ResourceUtil.getStringRes(R.string.network_error)))
+        emit(ApiResponse.Error(ResourceUtil.getStringRes(R.string.network_error)))
     }
 
     fun logout() = flow {
-        emit(Resource.Loading())
+        emit(ApiResponse.Loading())
         try {
             // 1. 先登出 MOOC
             api.logout()
@@ -485,16 +484,16 @@ class MoocRepository private constructor() {
             // 3. 登出 SSO 认证服务器
             ssoAuthApi.logoutAuthserver()
 
-            emit(Resource.Success(true))
+            emit(ApiResponse.Success(true))
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("MoocRepository", "登出失败: ${e.message}")
-            emit(Resource.Error("网络错误"))
+            emit(ApiResponse.Error("网络错误"))
         }
     }
 
-     fun isHomeworkDueWithinOneDay(deadline: String): Flow<Resource<Boolean>> = flow {
-        emit(Resource.Loading())
+     fun isHomeworkDueWithinOneDay(deadline: String): Flow<ApiResponse<Boolean>> = flow {
+        emit(ApiResponse.Loading())
         try {
             fun parseDateOrNull(dateString: String?): Date? {
                 if (dateString.isNullOrBlank()) return null
@@ -517,7 +516,7 @@ class MoocRepository private constructor() {
             }
 
             val deadlineDate = parseDateOrNull(deadline) ?: run {
-                emit(Resource.Success(false))
+                emit(ApiResponse.Success(false))
                 return@flow
             }
 
@@ -525,7 +524,7 @@ class MoocRepository private constructor() {
             val deadlineTime = deadlineDate.time
 
             if (deadlineTime <= currentTime) {
-                emit(Resource.Success(false))
+                emit(ApiResponse.Success(false))
                 return@flow
             }
 
@@ -548,11 +547,11 @@ class MoocRepository private constructor() {
             val diffInMillis = deadlineCalendar.timeInMillis - currentCalendar.timeInMillis
             val diffInDays = diffInMillis / (24 * 60 * 60 * 1000)
 
-            emit(Resource.Success(diffInDays <= 1))
+            emit(ApiResponse.Success(diffInDays <= 1))
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             e.printStackTrace()
-            emit(Resource.Error("计算截止时间失败"))
+            emit(ApiResponse.Error("计算截止时间失败"))
         }
     }
 }

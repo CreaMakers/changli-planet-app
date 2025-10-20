@@ -13,10 +13,10 @@ import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCach
 import com.creamaker.changli_planet_app.feature.common.data.remote.dto.ScoreDetail
 import com.creamaker.changli_planet_app.feature.common.redux.action.ScoreInquiryAction
 import com.creamaker.changli_planet_app.feature.common.redux.state.ScoreInquiryState
-import com.creamaker.changli_planet_app.widget.Dialog.ErrorStuPasswordResponseDialog
-import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
-import com.creamaker.changli_planet_app.widget.Dialog.ScoreDetailDialog
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.dialog.ErrorStuPasswordResponseDialog
+import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
+import com.creamaker.changli_planet_app.widget.dialog.ScoreDetailDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

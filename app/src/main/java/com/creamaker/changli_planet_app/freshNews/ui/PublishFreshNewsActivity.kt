@@ -36,8 +36,8 @@ import com.creamaker.changli_planet_app.freshNews.contract.FreshNewsContract
 import com.creamaker.changli_planet_app.freshNews.viewModel.FreshNewsViewModel
 import com.creamaker.changli_planet_app.utils.PlanetConst
 import com.creamaker.changli_planet_app.utils.singleClick
-import com.creamaker.changli_planet_app.widget.Dialog.PhotoPickerDialog
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.dialog.PhotoPickerDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import com.google.android.flexbox.FlexboxLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -20,11 +20,10 @@ import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.toEntity
-import com.creamaker.changli_planet_app.widget.Dialog.BindingFromWebDialog
-import com.creamaker.changli_planet_app.widget.Dialog.ErrorStuPasswordResponseDialog
-import com.creamaker.changli_planet_app.widget.Dialog.NormalResponseDialog
-import com.creamaker.changli_planet_app.widget.Dialog.UpdateDialog
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.dialog.BindingFromWebDialog
+import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
+import com.creamaker.changli_planet_app.widget.dialog.UpdateDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import com.dcelysia.csust_spider.core.RetrofitUtils
 import com.dcelysia.csust_spider.education.data.remote.EducationData
 import com.dcelysia.csust_spider.education.data.remote.services.AuthService

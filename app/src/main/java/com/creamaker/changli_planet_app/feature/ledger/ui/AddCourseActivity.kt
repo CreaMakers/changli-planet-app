@@ -1,10 +1,12 @@
 package com.creamaker.changli_planet_app.feature.ledger.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
@@ -16,16 +18,16 @@ import com.creamaker.changli_planet_app.core.noOpDelegate
 import com.creamaker.changli_planet_app.databinding.ActivityAddCourseInTimetableBinding
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
-import com.creamaker.changli_planet_app.feature.common.redux.store.TimeTableStore
+import com.creamaker.changli_planet_app.feature.timetable.viewmodel.TimeTableViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import kotlin.getValue
 
 /**
  * 在课表中添加自定义课程类
  */
 class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding>() {
     lateinit var coursesDataBase: CoursesDataBase
-    lateinit var timeTableStore: TimeTableStore
     private val gson by lazy { Gson() }
     private val courseName by lazy { binding.customCourseName }
     private val courseRoom by lazy { binding.customCourseRoom }
@@ -50,19 +52,19 @@ class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         coursesDataBase = CoursesDataBase.getDatabase(PlanetApplication.appContext)
-        timeTableStore = TimeTableStore(coursesDataBase.courseDao())
         initView()
         initListener()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initView() {
         setContentView(binding.root)
         supportActionBar?.hide()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val startCourse = intent.getIntExtra("start", 0)
         curWeek = intent.getIntExtra("curWeek", 0)
-        courseStep.setText("0$startCourse - 0${startCourse + 1} 节")
-        courseWeek.setText(weekDayMap[intent.getIntExtra("day", 0)])
+        courseStep.text = "0$startCourse - 0${startCourse + 1} 节"
+        courseWeek.text = weekDayMap[intent.getIntExtra("day", 0)]
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){view,windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())

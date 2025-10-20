@@ -28,9 +28,9 @@ import com.creamaker.changli_planet_app.databinding.ActivityUserProfileBinding
 import com.creamaker.changli_planet_app.settings.data.remote.dto.UserProfileRequest
 import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.utils.GlideUtils
-import com.creamaker.changli_planet_app.widget.Dialog.PhotoPickerDialog
-import com.creamaker.changli_planet_app.widget.Dialog.UserProfileWheelBottomDialog
-import com.creamaker.changli_planet_app.widget.View.CustomToast
+import com.creamaker.changli_planet_app.widget.dialog.PhotoPickerDialog
+import com.creamaker.changli_planet_app.widget.dialog.UserProfileWheelBottomDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import com.yalantis.ucrop.UCrop
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers

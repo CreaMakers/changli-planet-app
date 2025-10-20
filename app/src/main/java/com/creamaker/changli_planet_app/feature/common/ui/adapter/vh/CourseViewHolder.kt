@@ -8,7 +8,7 @@ import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCach
 import com.creamaker.changli_planet_app.feature.common.redux.action.ScoreInquiryAction
 import com.creamaker.changli_planet_app.feature.common.redux.store.ScoreInquiryStore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.CourseScore
-import com.creamaker.changli_planet_app.widget.Dialog.ScoreDetailDialog
+import com.creamaker.changli_planet_app.widget.dialog.ScoreDetailDialog
 
 class CourseViewHolder(
     private val binding: ScoreItemCourseBinding,

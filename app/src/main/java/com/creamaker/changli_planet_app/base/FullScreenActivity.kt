@@ -5,15 +5,12 @@ import android.app.Application
 import android.content.ComponentCallbacks
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
-import com.creamaker.changli_planet_app.widget.Dialog.LoadingDialog
+import com.creamaker.changli_planet_app.widget.dialog.LoadingDialog
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 abstract class FullScreenActivity<VB: ViewBinding> : AppCompatActivity() {
