@@ -88,7 +88,7 @@ class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
             ntest.setOnClickListener { activity?.let { Route.goExamArrangement(it) } }
             ncet.setOnClickListener { activity?.let { Route.goCet(it) } }
             nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
-            nclassroom.setOnClickListener { showNormalDialog("该功能暂时关闭") }
+            nclassroom.setOnClickListener { activity?.let{Route.goClassInfo(it)} }
             accountbook.setOnClickListener { activity?.let { Route.goAccountBook(it) } }
             ndocument.setOnClickListener { activity?.let { Route.goContract(it) } }
             nhomework.setOnClickListener { activity?.let { Route.goMooc(it) } }

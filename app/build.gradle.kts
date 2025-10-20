@@ -190,7 +190,7 @@ dependencies {
     implementation(project(":CP_Common"))
     //csustDataGet
 //    implementation("com.github.CreaMakers:CSUSTDataGet:28c105c2a7")
-    implementation("com.github.CreaMakers:CSUSTDataGet:2621828cf6")
+    implementation("com.github.CreaMakers:CSUSTDataGet:749935c885")
 }
 kapt {
     arguments {
