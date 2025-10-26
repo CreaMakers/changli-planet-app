@@ -6,6 +6,5 @@ data class CourseScore(
     val credit: Double,
     val earnedCredit: Double,
     val courseType: String,
-    val pscjUrl: String?,
-    val cookie: String?
+    val pscjUrl: String?
 )
