@@ -189,4 +189,17 @@
     <string name="check_input">请输入验证码</string>
     <string name="password_get_back">找回密码</string>
     <string name="email_input">请输入邮箱</string>
+    <string name="freshNewsTime">时间:</string>
+    <string name="all_comments">全部评论</string>
+    <string name="comments_num">(0)</string>
+    <string name="post_comment">发表评论</string>
+    <string name="response">回复</string>
+    <string name="comment_hint">请友善评论</string>
+    <string name="send">发送</string>
+    <string name="et_tint">&#160;&#160;请友善评论</string>
+    <string name="on_process">加载中</string>
+    <string name="comments_empty">暂无评论，快来抢沙发吧~</string>
+    <string name="comments_error">&#160;&#160;加载失败\n┭┮﹏┭┮</string>
+    <string name="comments_no_more">没有更多评论了</string>
+    <string name="top_bar_comments">评论区</string>
 </resources>

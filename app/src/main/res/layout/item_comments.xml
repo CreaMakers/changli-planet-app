@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/postman_info_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/dp3"
+        android:layout_marginTop="@dimen/dp10"
+        android:paddingTop="@dimen/dp10"
+        android:background="@drawable/bg_response_count"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/postman_avatar"
+            android:layout_width="@dimen/dp50"
+            android:layout_height="@dimen/dp50"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/dp15"
+            android:elevation="@dimen/dp2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/CircleStyle"
+            tools:src="@drawable/fulilian" />
+
+        <TextView
+            android:id="@+id/postman_username"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp10"
+            android:layout_marginEnd="@dimen/dp10"
+            android:layout_marginBottom="@dimen/dp5"
+            android:textSize="@dimen/sp16"
+            android:textStyle="bold"
+            android:textColor="@color/md_theme_onSurface"
+            app:layout_constraintEnd_toStartOf="@id/btn_menu"
+            app:layout_constraintStart_toEndOf="@id/postman_avatar"
+            app:layout_constraintTop_toTopOf="@id/postman_avatar"
+            tools:text="用户id" />
+
+        <ImageView
+            android:id="@+id/btn_menu"
+            android:layout_width="@dimen/dp24"
+            android:layout_height="@dimen/dp24"
+            android:layout_marginEnd="@dimen/dp15"
+            android:src="@drawable/ic_more"
+            app:layout_constraintBottom_toBottomOf="@id/postman_username"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/postman_username"
+            tools:src="@drawable/ic_more" />
+
+        <TextView
+            android:id="@+id/postman_time"
+            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/freshNewsTime"
+            app:layout_constraintStart_toEndOf="@id/postman_avatar"
+            app:layout_constraintTop_toBottomOf="@id/postman_username" />
+
+        <ImageView
+            android:id="@+id/dot_separator"
+            android:layout_width="@dimen/dp15"
+            android:layout_height="@dimen/dp15"
+            android:src="@drawable/ic_one_point"
+            app:layout_constraintBottom_toBottomOf="@id/postman_time"
+            app:layout_constraintEnd_toStartOf="@id/postman_location"
+            app:layout_constraintStart_toEndOf="@id/postman_time"
+            app:layout_constraintTop_toTopOf="@id/postman_time" />
+
+        <TextView
+            android:id="@+id/postman_location"
+            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp12"
+            android:drawablePadding="@dimen/dp4"
+            app:layout_constraintBottom_toBottomOf="@id/postman_time"
+            app:layout_constraintStart_toEndOf="@id/postman_time"
+            app:layout_constraintTop_toTopOf="@id/postman_time"
+            tools:text="北京" />
+
+        <TextView
+            android:id="@+id/news_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp15"
+            android:layout_marginTop="@dimen/dp6"
+            android:textSize="@dimen/sp20"
+            android:textStyle="bold"
+            android:textColor="@color/md_theme_onSurface"
+            app:layout_constraintTop_toBottomOf="@id/postman_avatar"
+            tools:text="标题" />
+
+        <TextView
+            android:id="@+id/news_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp15"
+            android:paddingVertical="@dimen/dp3"
+            android:textSize="@dimen/sp18"
+            android:textColor="@color/md_theme_onSurface"
+            app:layout_constraintTop_toBottomOf="@id/news_title"
+            tools:text="正文正文正文正文正文正文正文正文正文正文正文正文正文正文正文" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/images_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp15"
+            android:padding="@dimen/dp10"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/news_content"
+            app:spanCount="3" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_outline"
+        app:layout_constraintBottom_toTopOf="@+id/tv_all_comments"
+        app:layout_constraintTop_toBottomOf="@+id/postman_info_layout"
+        app:layout_constraintStart_toStartOf="@+id/tv_all_comments"
+        app:layout_constraintEnd_toEndOf="@+id/tv_post_comment"/>
+    <TextView
+        android:id="@+id/tv_all_comments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="@string/all_comments"
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_marginStart="@dimen/dp15"
+        app:layout_constraintTop_toBottomOf="@id/postman_info_layout"
+        app:layout_constraintStart_toStartOf="parent"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_comments_count"
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_marginStart="@dimen/dp8"
+        android:textStyle="bold"
+        android:text="@string/comments_num"
+        app:layout_constraintTop_toBottomOf="@id/postman_info_layout"
+        app:layout_constraintStart_toEndOf="@id/tv_all_comments"/>
+    <TextView
+        android:id="@+id/tv_post_comment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/post_comment"
+        android:textColor="@color/color_on_functional_text"
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_marginEnd="@dimen/dp15"
+        app:layout_constraintTop_toBottomOf="@id/postman_info_layout"
+        app:layout_constraintEnd_toEndOf="parent"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_comments"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="@dimen/dp15"
+        app:layout_constraintTop_toBottomOf="@id/tv_all_comments"
+        tools:listitem="@layout/item_comment_level1"
+        tools:itemCount="3"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingVertical="@dimen/dp15"
-    android:background="@color/white">
+    android:background="@color/md_theme_primaryContainer">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/news_item_avatar"
@@ -49,14 +49,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp10"
-        android:text="时间: "
+        android:text="@string/freshNewsTime"
         app:layout_constraintStart_toEndOf="@id/news_item_avatar"
         app:layout_constraintTop_toBottomOf="@id/news_item_username" />
 
     <ImageView
         android:id="@+id/dot_separator"
-        android:layout_width="@dimen/dp10"
-        android:layout_height="@dimen/dp10"
+        android:layout_width="@dimen/dp15"
+        android:layout_height="@dimen/dp15"
         android:src="@drawable/ic_one_point"
         app:layout_constraintBottom_toBottomOf="@id/news_item_time"
         app:layout_constraintEnd_toStartOf="@id/news_item_location"
