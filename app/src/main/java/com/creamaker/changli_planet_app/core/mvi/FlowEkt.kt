@@ -25,6 +25,17 @@ suspend fun <T, A, B> StateFlow<T>.observeState(
     }
 }
 
+suspend fun <T, A, B, C> StateFlow<T>.observeState(
+    prop1: (T) -> A,
+    prop2: (T) -> B,
+    prop3: (T) -> C,
+    action: (a: A, b: B, c: C) -> Unit
+) {
+    this.map { StateTuple3(prop1(it), prop2(it), prop3(it)) }
+        .distinctUntilChanged()
+        .collect { action(it.a, it.b, it.c) }
+}
+
 fun <T> MutableStateFlow<T>.setValue(newValue: T) {
     this.value = newValue
 }
@@ -39,4 +50,11 @@ value class StateTuple1<A>(val a: A)
 value class StateTuple2<A, B>(private val data: Pair<A, B>) {
     val a: A get() = data.first
     val b: B get() = data.second
+}
+@JvmInline
+value class StateTuple3<A, B, C>(private val data: Triple<A, B, C>) {
+    constructor(a: A, b: B, c: C) : this(Triple(a, b, c))
+    val a: A get() = data.first
+    val b: B get() = data.second
+    val c: C get() = data.third
 }
