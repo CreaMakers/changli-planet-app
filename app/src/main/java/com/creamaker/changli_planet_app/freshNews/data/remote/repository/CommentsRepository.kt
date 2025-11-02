@@ -9,6 +9,7 @@ import com.creamaker.changli_planet_app.freshNews.data.remote.api.CommentsApi
 import com.creamaker.changli_planet_app.freshNews.data.remote.api.IpService
 import com.creamaker.changli_planet_app.utils.RetrofitUtils
 import com.gradle.scan.agent.serialization.scan.serializer.kryo.ip
+import com.tencent.mmkv.MMKV.pageSize
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlin.jvm.java
@@ -20,9 +21,9 @@ class CommentsRepository private constructor() {
     private val TAG = "CommentsRepository"
     private val service = lazy { RetrofitUtils.instanceComments.create(CommentsApi::class.java) }
     private val ipService = lazy { RetrofitUtils.instanceIP.create(IpService::class.java) }
-    fun loadLevel1Comments(freshNewsItem: FreshNewsItem,page:Int,pageSize:Int) = flow{
+    fun loadLevel1Comments(freshNewsItem: FreshNewsItem,page:Int,pageSize:Int,userId: Int) = flow{
 //            Log.d(TAG, "loadLevel1Comments: loading level 1 comments for freshNewsId ${freshNewsItem.freshNewsId}, page $page, pageSize $pageSize")
-            val response = service.value.getLevel1Comments(freshNewsItem.freshNewsId,page,pageSize)
+            val response = service.value.getLevel1Comments(freshNewsItem.freshNewsId,page,pageSize,userId)
             if (response.code == "200"){
                 Log.d(TAG, "loadLevel1Comments: success")
                 emit(ApiResponse.Success(response.data))

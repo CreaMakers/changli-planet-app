@@ -24,7 +24,8 @@ interface CommentsApi {
     suspend fun getLevel1Comments(
         @Path("fresh_news_id") freshNewsId: Int,
         @Query("page") page: Int,
-        @Query("page_size") pageSize: Int
+        @Query("page_size") pageSize: Int,
+        @Query("user_id") userId: Int
     ): CommonResult<Level1Comments>
     @GET("comments/{fresh_news_id}/replies")
     suspend fun getLevel2Comments(
@@ -32,6 +33,7 @@ interface CommentsApi {
         @Query("page") page: Int,
         @Query("page_size") pageSize: Int,
         @Query("comment_id") parentId: Int,
+        @Query("user_id") userId: Int
     ): CommonResult<Level2Comments>
     @POST("comments/{comment_id}/likes/{user_id}/{is_Parent}")
     suspend fun likeComment(

@@ -93,23 +93,26 @@ class CommentsViewModel: MviViewModel<CommentsContract.Intent, CommentsContract.
                     }
                 }
 
-                val response = CommentsRepository.instance.loadLevel1Comments(freshNewsItem,page,pageSize)
+                val response = CommentsRepository.instance.loadLevel1Comments(freshNewsItem,page,pageSize,
+                    UserInfoManager.userId)
                 response.collect { apiResponse ->
                     when (apiResponse) {
                         is ApiResponse.Success -> {
                             val newComments = apiResponse.data?.commentsList
-                            val level1CommentsResultList = newComments?.map {
+
+                            val level1CommentsResultList = newComments?.mapIndexed {index, it ->
                                 Level1CommentsResult.Success(
                                     comment = Level1CommentItem(
                                         freshNewsId = it.freshNewsId,
                                         commentId = it.commentId,
-                                        liked = it.liked,
+                                        liked = it.likedCount,
                                         userAvatar = it.userAvatar,
                                         userName = it.userName,
                                         createTime = it.createTime,
                                         userIp = it.commentIp,
                                         content = it.content,
-                                        userId = it.userId
+                                        userId = it.userId,
+                                        isLiked = apiResponse.data.isLikedList[index] == "true"
                                     )
                                 )
                             }?.toList() ?: emptyList()
@@ -295,6 +298,10 @@ class CommentsViewModel: MviViewModel<CommentsContract.Intent, CommentsContract.
     }
     private fun likeLevel1Comment(level1CommentItem: Level1CommentItem) {
         viewModelScope.launch {
+            val previousState = level1CommentItem.isLiked
+            val previousLikedCount = level1CommentItem.liked
+            val newLikedState = !previousState
+            val newLikedCount = if (newLikedState) previousLikedCount + 1 else (previousLikedCount - 1)
             val response = CommentsRepository.instance.likeComment(
                 commentId = level1CommentItem.commentId,
                 userId = UserInfoManager.userId,
@@ -303,12 +310,6 @@ class CommentsViewModel: MviViewModel<CommentsContract.Intent, CommentsContract.
             response.collect { apiResponse ->
                 when (apiResponse) {
                     is ApiResponse.Success -> {
-                        val isLikedNow = level1CommentItem.isLiked.not()
-                        val updatedLikedCount = if (isLikedNow) {
-                            level1CommentItem.liked + 1
-                        } else {
-                            (level1CommentItem.liked - 1).coerceAtLeast(0)
-                        }
                         updateState {
                             copy(
                                 level1CommentsResults = level1CommentsResults.map {
@@ -317,8 +318,8 @@ class CommentsViewModel: MviViewModel<CommentsContract.Intent, CommentsContract.
                                     ) {
                                         it.copy(
                                             comment = it.comment.copy(
-                                                liked = updatedLikedCount,
-                                                isLiked = isLikedNow
+                                                liked = newLikedCount,
+                                                isLiked = newLikedState
                                             )
                                         )
                                     } else it

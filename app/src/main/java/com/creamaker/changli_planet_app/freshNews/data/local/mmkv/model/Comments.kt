@@ -7,14 +7,15 @@ data class Level1Comments(
     //一级评论数量
     val firstCommentCount:Int,
     val isActive:Int,
-    val commentsList: List<Level1Comment>
+    val commentsList: List<Level1Comment>,
+    val isLikedList:List<String>
 ){
     data class Level1Comment(
         val commentId: Int,
         // 所属新鲜事ID
         val freshNewsId: Int,
         // 点赞数
-        val liked:Int,
+        val likedCount:Int,
         // 评论ID
         val content: String,
         val userId: Int,
