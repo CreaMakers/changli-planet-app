@@ -18,7 +18,6 @@ data class Grade(
     val attribute: String, //课程属性
     val reItem: String,
     val pscjUrl: String? = null, //详细成绩链接
-    val cookie: String? = null,
 )
 
 data class GradeResponse(
