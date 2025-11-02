@@ -13,6 +13,7 @@ class FreshNewsContract {
         class AddImage(val file: File) : Intent()
         class RemoveImage(val index: Int) : Intent()
         class Publish : Intent()
+        class LoadIp: Intent()
         class ClearAll : Intent()
         class RefreshNewsByTime(val page: Int, val pageSize: Int) : Intent()
         class UpdateTabIndex(val currentIndex: Int) : Intent()
@@ -21,6 +22,7 @@ class FreshNewsContract {
 
         class LikeNews(val freshNewsItem: FreshNewsItem) : Intent()
         class FavoriteNews(val freshNewsItem: FreshNewsItem) : Intent()
+        class OpenComments(val freshNewsItem: FreshNewsItem) : Intent()
     }
 
     data class State(
@@ -29,13 +31,14 @@ class FreshNewsContract {
         var publishNews: FreshNewsPublish,
         var images: MutableList<File>,
         var isEnable: Boolean,
-        var page: Int,
+        var page: Int
     ) : MviViewState
 
     sealed class Event {
         object showOverlay : Event()
         object closePublish : Event()
         object RefreshNewsList : Event()
+        object openComments : Event()
     }
 
 }

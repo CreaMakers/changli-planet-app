@@ -1,5 +1,6 @@
 package com.creamaker.changli_planet_app.freshNews.data.remote.api
 
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNews
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsResponse
 import com.creamaker.changli_planet_app.freshNews.data.remote.dto.CommonResult
@@ -22,7 +23,7 @@ interface FreshNewsApi {
     suspend fun postFreshNews(
         @Part images: List<MultipartBody.Part>,
         @Part("fresh_news") freshNews: RequestBody,
-    ): CommonResult<FreshNewsItem>
+    ): CommonResult<FreshNews>
 
     @GET("fresh_news/all/by_time")
     suspend fun getNewsListByTime(
