@@ -114,24 +114,25 @@ class FreshNewsRepository private constructor() {
         }
     }
     //收藏新鲜事
-    fun favoriteNews(freshNewsId: Int) = flow {
+    fun favoriteNews(freshNewsId: Int, isFavoriting: Boolean) = flow {
         emit(ApiResponse.Loading())
         try {
             val currentUserId = UserInfoManager.userId
+            // 根据收藏状态来调用不同的网络请求
+            val result = if (isFavoriting) {
+                service.value.addFavorite(currentUserId, freshNewsId)
+            } else {
+                service.value.deleteFavorite(currentUserId, freshNewsId)
+            }
 
-            val result = service.value.favoriteNews(currentUserId, freshNewsId)
-            when {
-                result.code == "200" -> {
-                    emit(ApiResponse.Success(true))
-                }
-
-                else -> {
-                    emit(ApiResponse.Error(result.msg ?: "收藏失败"))
-                }
+            if (result.code == "200") {
+                emit(ApiResponse.Success(true))
+            } else {
+                emit(ApiResponse.Error(result.msg ?: "操作失败"))
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e("FreshNews", "收藏失败: ${e.message}")
+            Log.e("FreshNews", "收藏操作失败: ${e.message}")
             emit(ApiResponse.Error("网络错误"))
         }
     }
