@@ -8,6 +8,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -38,10 +39,17 @@ interface FreshNewsApi {
     ): CommonResult<Boolean>
 
     @POST("/app/fresh_news/favorites/add/{user_id}/{news_id}")
-    suspend fun favoriteNews(
+    suspend fun addFavorite(
         @Path("user_id") userId: Int,
         @Path("news_id") freshNewsId: Int
     ): CommonResult<Boolean>
+
+    @DELETE("/app/fresh_news/favorites/delete/{user_id}/{news_id}")
+    suspend fun deleteFavorite(
+        @Path("user_id") userId: Int,
+        @Path("news_id") freshNewsId: Int
+    ): CommonResult<Boolean>
+
 
 }
 

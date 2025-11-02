@@ -382,6 +382,14 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                             when (resource) {
                                 is ApiResponse.Success -> {
                                     Log.d("FreshNewsVM", "点赞操作成功: id=$newsId")
+                                    val actionText =
+                                        if (newLikeState) "已点赞" else "已取消点赞"
+                                    handler.post {
+                                        CustomToast.Companion.showMessage(
+                                            PlanetApplication.Companion.appContext,
+                                            actionText
+                                        )
+                                    }
                                 }
 
                                 is ApiResponse.Error -> {
@@ -430,7 +438,6 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                                     liked = currentLikeCount
                                 ).apply {
                                     isLiked = isCurrentlyLiked
-                                    RefreshNewsCache.saveFavoriteNum(newsId, liked)
                                 }
                             } else {
                                 item
@@ -495,7 +502,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 // 发送网络请求
                 withContext(Dispatchers.IO) {
                     Log.d("FreshNewsVM", "发送收藏请求: id=$newsId")
-                    val result = FreshNewsRepository.Companion.instance.favoriteNews(newsId)
+                    val result = FreshNewsRepository.Companion.instance.favoriteNews(newsId, newFavoriteState)
 
                     result.collect { resource ->
                         withContext(Dispatchers.Main) {
