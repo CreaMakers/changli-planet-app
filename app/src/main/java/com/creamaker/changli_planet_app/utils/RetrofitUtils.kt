@@ -19,9 +19,10 @@ import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
 object RetrofitUtils {
-    private const val FreshNewsIp = "http://113.44.47.220:8085/app/"
-    private const val UserIp = "http://113.44.47.220:8083/app/users/"
-    private const val IpLocation ="http://ip-api.com/json/"
+    private const val CommentsIp = "https://freshnews.csust.creamaker.cn/app/fresh_news/"
+    private const val FreshNewsIp = "https://freshnews.csust.creamaker.cn/app/"
+    private const val UserIp = "https://user.csust.creamaker.cn/"
+    private const val IpLocation ="http://ip-api.com/"
     private const val MOOC_LOCATION = "http://pt.csust.edu.cn"
     private const val SSO_AUTH_URL = "https://authserver.csust.edu.cn"
     private const val SSO_EHALL_URL = "https://ehall.csust.edu.cn"
@@ -143,6 +144,13 @@ object RetrofitUtils {
             .baseUrl(SSO_EHALL_URL)
             .client(moocClient)
             .addConverterFactory(retrofit2.converter.scalars.ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+    val instanceComments : Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(CommentsIp)
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

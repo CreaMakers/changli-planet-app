@@ -2,6 +2,7 @@ package com.creamaker.changli_planet_app.feature.common.redux.store
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Store
@@ -13,6 +14,11 @@ import com.creamaker.changli_planet_app.feature.common.redux.action.ClassInfoAct
 import com.creamaker.changli_planet_app.feature.common.redux.state.ClassInfoState
 import com.creamaker.changli_planet_app.widget.dialog.EmptyClassroomDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
+import com.dcelysia.csust_spider.core.Resource
+import com.dcelysia.csust_spider.education.data.remote.EducationHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.Response
 
 class ClassInfoStore : Store<ClassInfoState, ClassInfoAction>() {
@@ -51,23 +57,13 @@ class ClassInfoStore : Store<ClassInfoState, ClassInfoAction>() {
             }
 
             is ClassInfoAction.QueryEmptyClassInfo -> {
-                val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .get(PlanetApplication.ToolIp + "/classroom")
-                    .addQueryParam("stuNum", StudentInfoManager.studentId)
-                    .addQueryParam("password", StudentInfoManager.studentPassword)
-                    .addQueryParam("term", action.term)
-                    .addQueryParam("week", currentState.week)
-                    .addQueryParam(
-                        "region", when (currentState.region) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response = EducationHelper.getRelexClassroom(
+                        action.term, (when (currentState.region) {
                             "金盆岭校区" -> "2"
                             "云塘校区" -> "1"
-                            else -> "-1"
-                        }
-                    )
-                    .addQueryParam("start", currentState.start)
-                    .addQueryParam("end", currentState.end)
-                    .addQueryParam(
-                        "day", when (currentState.day) {
+                            else -> "1"
+                        }), currentState.week, currentState.week, (when (currentState.day) {
                             "星期天" -> "0"
                             "星期一" -> "1"
                             "星期二" -> "2"
@@ -76,40 +72,100 @@ class ClassInfoStore : Store<ClassInfoState, ClassInfoAction>() {
                             "星期五" -> "5"
                             "星期六" -> "6"
                             else -> "-1"
-                        }
+                        }), (when (currentState.day) {
+                            "星期天" -> "0"
+                            "星期一" -> "1"
+                            "星期二" -> "2"
+                            "星期三" -> "3"
+                            "星期四" -> "4"
+                            "星期五" -> "5"
+                            "星期六" -> "6"
+                            else -> "-1"
+                        }), currentState.start, currentState.end
                     )
-                    .build()
-                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-                    override fun onSuccess(response: Response) {
-                        val fromJson = OkHttpHelper.gson.fromJson(
-                            response.body?.string(),
-                            EmptyClassroomResponse::class.java
-                        )
-                        when (fromJson.code) {
-                            "200" -> {
-                                handler.post {
-                                    EmptyClassroomDialog.showDialog(action.context,fromJson.data)
-                                }
+                    when(response){
+                        is Resource.Success -> {
+                            handler.post {
+                                CustomToast.showMessage(
+                                    action.context,
+                                    "成功查询到空闲教室数据 "
+                                )
                             }
-
-                            else -> {
-                                handler.post {
-                                    CustomToast.showMessage(
-                                        action.context,
-                                        "出错啦，${fromJson.msg}"
-                                    )
-                                }
+                            Log.d("ClassInfoStore","空闲教室数据：${response.data}")
+                        }
+                        is Resource.Error -> {
+                            handler.post {
+                                CustomToast.showMessage(
+                                    action.context,
+                                    "出错啦，${response.msg}"
+                                )
                             }
                         }
-                    }
-
-                    override fun onFailure(error: String) {
-                        handler.post {
-                            CustomToast.showMessage(action.context, "出错啦，${error}")
+                        is Resource.Loading -> {
+                            // do nothing
                         }
                     }
+                }
 
-                })
+//                val httpUrlHelper = HttpUrlHelper.HttpRequest()
+//                    .get(PlanetApplication.ToolIp + "/classroom")
+//                    .addQueryParam("stuNum", StudentInfoManager.studentId)
+//                    .addQueryParam("password", StudentInfoManager.studentPassword)
+//                    .addQueryParam("term", action.term)
+//                    .addQueryParam("week", currentState.week)
+//                    .addQueryParam(
+//                        "region", when (currentState.region) {
+//                            "金盆岭校区" -> "2"
+//                            "云塘校区" -> "1"
+//                            else -> "-1"
+//                        }
+//                    )
+//                    .addQueryParam("start", currentState.start)
+//                    .addQueryParam("end", currentState.end)
+//                    .addQueryParam(
+//                        "day", when (currentState.day) {
+//                            "星期天" -> "0"
+//                            "星期一" -> "1"
+//                            "星期二" -> "2"
+//                            "星期三" -> "3"
+//                            "星期四" -> "4"
+//                            "星期五" -> "5"
+//                            "星期六" -> "6"
+//                            else -> "-1"
+//                        }
+//                    )
+//                    .build()
+//                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
+//                    override fun onSuccess(response: Response) {
+//                        val fromJson = OkHttpHelper.gson.fromJson(
+//                            response.body?.string(),
+//                            EmptyClassroomResponse::class.java
+//                        )
+//                        when (fromJson.code) {
+//                            "200" -> {
+//                                handler.post {
+//                                    EmptyClassroomDialog.showDialog(action.context,fromJson.data)
+//                                }
+//                            }
+//
+//                            else -> {
+//                                handler.post {
+//                                    CustomToast.showMessage(
+//                                        action.context,
+//                                        "出错啦，${fromJson.msg}"
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    override fun onFailure(error: String) {
+//                        handler.post {
+//                            CustomToast.showMessage(action.context, "出错啦，${error}")
+//                        }
+//                    }
+//
+//                })
                 currentState
             }
         }

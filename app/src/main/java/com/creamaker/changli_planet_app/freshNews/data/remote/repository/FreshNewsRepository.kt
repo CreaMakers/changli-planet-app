@@ -9,6 +9,7 @@ import com.creamaker.changli_planet_app.freshNews.data.remote.api.IpService
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsPublish
 import com.creamaker.changli_planet_app.utils.RetrofitUtils
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -19,7 +20,7 @@ class FreshNewsRepository private constructor() {
     companion object {
         val instance by lazy { FreshNewsRepository() }
     }
-
+    private val TAG = "FreshNewsRepository"
     private val service = lazy { RetrofitUtils.instanceNewFresh.create(FreshNewsApi::class.java) }
     private val ipService by lazy {
         RetrofitUtils.instanceIP.create(IpService::class.java)
@@ -27,7 +28,7 @@ class FreshNewsRepository private constructor() {
 
     fun postFreshNews(images: List<File>, freshNews: FreshNewsPublish) = flow {
         Log.e("FreshNewsRepository", "enter flow")
-        try {
+
 
             val imagesPart = if (images.isNotEmpty()) {
                 images.map { it.toImagePart("images") }
@@ -40,22 +41,33 @@ class FreshNewsRepository private constructor() {
                     )
                 )
             }
-            //解析IP
-            val ipResponse = ipService.getLocation()
-            if (ipResponse.code == "200" && ipResponse.data?.status == "success") {
-                val city = ipResponse.data!!.city
-                freshNews.address = city
-                Log.d("FreshNewsRepository", "发布城市: $city")
-            } else {
-                freshNews.address = "未知"
-            }
-
             val FreshNewsBody =
                 Gson().toJson(freshNews).toRequestBody("application/json".toMediaType())
             emit(service.value.postFreshNews(imagesPart, FreshNewsBody))
-        } catch (e: Exception) {
+
+    }.catch { e->
+        Log.d(TAG,"发布新鲜事错误:${e}")
+
+    }
+    fun getIp(freshNews: FreshNewsPublish) = flow {
+        try {
+            val ipResponse = ipService.getLocation()
+            if (ipResponse.status == "success") {
+                val city = ipResponse.regionName
+                if (city != null) {
+                    freshNews.address = city
+                }
+                Log.d("FreshNewsRepository", "发布城市: $city")
+                emit("success")
+            } else {
+                Log.d("FreshNewsRepository", "response:$ipResponse")
+                emit("failed")
+                freshNews.address = "未知"
+            }
+        }catch (e: Exception){
             e.printStackTrace()
         }
+
     }
 
     fun getNewsListByTime(page: Int, pageSize: Int) = flow {

@@ -10,9 +10,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
+import android.os.MessageQueue
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageButton
@@ -42,6 +46,7 @@ import com.google.android.flexbox.FlexboxLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.io.File
@@ -51,12 +56,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+
 class PublishFreshNewsActivity : FullScreenActivity<ActivityPublishFreshNewsBinding>() {
     private val viewModel: FreshNewsViewModel by viewModels()
     private var currentPhotoUri: Uri? = null
     private val maxImagesAll = 9
     private var maxImageSize: Int = -1
-
+    private var ip = "未知"
     companion object {
         private const val REQUEST_CAMERA = 1001
         private const val REQUEST_GALLERY = 1002
@@ -95,6 +101,10 @@ class PublishFreshNewsActivity : FullScreenActivity<ActivityPublishFreshNewsBind
             viewModel.processIntent(FreshNewsContract.Intent.ClearAll())
             finish()
         }
+        Looper.myQueue().addIdleHandler {
+            viewModel.processIntent(FreshNewsContract.Intent.LoadIp())
+            false
+        }
     }
 
     override fun onDestroy() {
@@ -106,8 +116,14 @@ class PublishFreshNewsActivity : FullScreenActivity<ActivityPublishFreshNewsBind
     public fun closeActivity(event: FreshNewsContract.Event) {
         when (event) {
             FreshNewsContract.Event.closePublish -> {
-                setResult(PlanetConst.RESULT_OK)
-                finish()
+                Log.d(TAG, "收到关闭发布动态的事件")
+                // Check if activity is still active before setting result
+                if (!isFinishing && !isDestroyed) {
+
+                    finish()
+                } else {
+                    Log.w(TAG, "Activity is finishing or destroyed, skipping setResult")
+                }
             }
             else -> {}
         }

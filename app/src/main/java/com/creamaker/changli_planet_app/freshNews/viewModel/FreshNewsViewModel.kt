@@ -11,11 +11,13 @@ import com.creamaker.changli_planet_app.core.mvi.MviViewModel
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.freshNews.contract.FreshNewsContract
 import com.creamaker.changli_planet_app.core.network.ApiResponse
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNews
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsPublish
 import com.creamaker.changli_planet_app.freshNews.data.remote.repository.FreshNewsRepository
 import com.creamaker.changli_planet_app.freshNews.data.remote.repository.UserProfileRepository
 import com.creamaker.changli_planet_app.widget.view.CustomToast
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -26,6 +28,7 @@ import org.greenrobot.eventbus.EventBus
 import java.io.File
 
 class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
+    private val TAG = "FreshNewsViewModel"
     private val handler = Handler(Looper.getMainLooper())
 
     override fun processIntent(intent: FreshNewsContract.Intent) {
@@ -34,6 +37,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.AddImage -> addImage(intent.file)
             is FreshNewsContract.Intent.RemoveImage -> removeImage(intent.index)
             is FreshNewsContract.Intent.Publish -> publish()
+            is FreshNewsContract.Intent.LoadIp -> loadIp()
             is FreshNewsContract.Intent.ClearAll -> clearAll()
             is FreshNewsContract.Intent.RefreshNewsByTime -> refreshNewsByTime(
                 intent.page,
@@ -46,6 +50,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
 
             is FreshNewsContract.Intent.LikeNews -> likeNewsItem(intent.freshNewsItem)
             is FreshNewsContract.Intent.FavoriteNews -> favoriteNewsItem(intent.freshNewsItem)
+            is FreshNewsContract.Intent.OpenComments -> openComments(intent.freshNewsItem)
         }
 
     }
@@ -57,7 +62,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
         FreshNewsPublish(),
         mutableListOf(),
         false,
-        0,
+        0
     )
 
     private fun changeCurrentTab(currentTab: Int) {
@@ -96,7 +101,8 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
     }
 
     private fun checkEnable(): Boolean = with(state.value.publishNews) {
-        title.isNotEmpty() && content.isNotEmpty()
+        val boolean = title.isNotEmpty() && content.isNotEmpty()
+        boolean
     }
 
     private fun publish() {
@@ -166,6 +172,20 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 }
             })
             */*/
+            if (state.value.publishNews.address == "未知"){
+                Log.d(TAG,"从网络获取ip地址")
+                val isSuccess = FreshNewsRepository.Companion.instance.getIp(state.value.publishNews).first()
+                if (isSuccess == "success"){
+                    Log.d("FreshNewsViewModel","ip解析成功")
+                }
+                else{
+                    Log.d("FreshNewsViewModel","ip解析失败")
+                }
+            }
+            else{
+                Log.d(TAG,"使用缓存的ip地址:${state.value.publishNews.address}")
+            }
+
             val result = FreshNewsRepository.Companion.instance.postFreshNews(
                 state.value.images,
                 state.value.publishNews
@@ -173,9 +193,11 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             result.onEach { response ->
                 when (response.code) {
                     "200" -> {
+                        Log.d(TAG,"发送成功")
                         clearAll()
                         cleanupTempFiles(state.value.images) //清理临时压缩文件
                         EventBus.getDefault().post(FreshNewsContract.Event.closePublish)    //关闭发布界面
+                        EventBus.getDefault().post(FreshNewsContract.Event.RefreshNewsList) //刷新新鲜事列表
                         handler.post {
                             CustomToast.Companion.showMessage(
                                 PlanetApplication.Companion.appContext,
@@ -185,6 +207,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                     }
 
                     else -> {
+                        Log.d(TAG,"发送失败")
                         handler.post {
                             CustomToast.Companion.showMessage(
                                 PlanetApplication.Companion.appContext,
@@ -257,14 +280,21 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                                     authorAvatar = profile?.avatarUrl ?: "",
                                     title = freshNews.title,
                                     content = freshNews.content,
-                                    images = freshNews.images,
-                                    tags = freshNews.tags,
+                                    images = when(freshNews.images){
+                                        "图片正在审核中"-> listOf()
+                                        ""-> listOf()
+                                        else-> freshNews.images.split(",")
+                                    },
+                                    tags = when(freshNews.tags){
+                                        ""-> listOf()
+                                        else-> freshNews.tags.split(",")
+                                    },
                                     liked = finalLikeNum,
                                     createTime = freshNews.createTime,
                                     comments = freshNews.comments,
                                     allowComments = freshNews.allowComments,
                                     favoritesCount = finalFavoriteNum,
-                                    location = "北京"
+                                    location = freshNews.address
                                 ).apply {
                                     isLiked = localIsLiked
                                     isFavorited = localIsFavorited
@@ -550,6 +580,31 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                         )
                     }
                 }
+            }
+        }
+    }
+    private fun openComments(freshNewsItem: FreshNewsItem) {
+        try {
+            EventBus.getDefault().removeStickyEvent(FreshNewsItem::class.java)
+        } catch (e: Exception) {
+            // ignore
+        }
+        EventBus.getDefault().postSticky(freshNewsItem)
+
+        viewModelScope.launch {
+
+            EventBus.getDefault().post(FreshNewsContract.Event.openComments)
+        }
+
+    }
+    private fun loadIp(){
+        viewModelScope.launch {
+            val isSuccess = FreshNewsRepository.Companion.instance.getIp(state.value.publishNews).first()
+            if (isSuccess == "success"){
+                Log.d("FreshNewsViewModel","ip解析成功")
+            }
+            else{
+                Log.d("FreshNewsViewModel","ip解析失败")
             }
         }
     }

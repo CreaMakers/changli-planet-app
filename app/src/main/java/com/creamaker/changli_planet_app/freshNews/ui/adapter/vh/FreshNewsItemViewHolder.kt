@@ -1,6 +1,7 @@
 package com.creamaker.changli_planet_app.freshNews.ui.adapter.vh
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.ImageAdapter
@@ -46,7 +47,6 @@ class FreshNewsItemViewHolder(
             val time = news.createTime.replace("T", "   ").replace("Z", " ")
             newsItemTime.text = "$time"
             newsContent.text = news.content
-
             imagesRecyclerView.adapter = ImageAdapter(
                 news.images
             ) { imageUrl, position -> onImageClick(news.images, position) }
@@ -58,8 +58,10 @@ class FreshNewsItemViewHolder(
 
             if (news.images.isEmpty()) {
                 imagesRecyclerView.visibility = View.GONE
+//                Log.d("wsc","No images for news id: ${news.freshNewsId}")
             } else {
                 imagesRecyclerView.visibility = View.VISIBLE
+//                Log.d("wsc","Images found for news id: ${news.freshNewsId}, count: ${news.images.size}")
             }
 
             newsItemAvatar.setOnClickListener { onUserClick(news.userId) }
