@@ -47,6 +47,7 @@ class FreshNewsItemViewHolder(
             val time = news.createTime.replace("T", "   ").replace("Z", " ")
             newsItemTime.text = "$time"
             newsContent.text = news.content
+            Log.d("wsc","images:"+"${news.images} ")
             imagesRecyclerView.adapter = ImageAdapter(
                 news.images
             ) { imageUrl, position -> onImageClick(news.images, position) }

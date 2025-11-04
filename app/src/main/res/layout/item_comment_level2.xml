@@ -8,7 +8,7 @@
         android:id="@+id/iv_comment_avatar_level2"
         android:layout_width="@dimen/dp35"
         android:layout_height="@dimen/dp35"
-        android:layout_marginStart="@dimen/dp10"
+        android:layout_marginStart="@dimen/dp18"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,10 +38,11 @@
         android:textColor="@color/md_theme_onPrimaryContainer"
         android:textSize="@dimen/sp12"
         android:gravity="center"
+        android:text="@string/response"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/tv_comment_item_username_level2"
         app:layout_constraintBottom_toBottomOf="@id/tv_comment_item_username_level2"
-        tools:text="@string/response" />
+        />
 
     <TextView
         android:id="@+id/comment_item_time_level2"

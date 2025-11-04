@@ -9,7 +9,7 @@ data class Level2CommentItem(
     val createTime: String,
     val userIp: String,
     val content: String,
-    val userId: String,
-    val commentId: String,
+    val userId: Int,
+    val commentId: Int,
     val isLiked: Boolean = false,
 )
