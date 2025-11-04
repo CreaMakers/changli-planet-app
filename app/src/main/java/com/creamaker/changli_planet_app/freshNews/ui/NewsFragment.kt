@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -30,7 +31,9 @@ import com.creamaker.changli_planet_app.utils.PlanetConst
 import com.creamaker.changli_planet_app.widget.dialog.ImageSliderDialog
 import com.creamaker.changli_planet_app.widget.dialog.ShowImageDialog
 import com.creamaker.changli_planet_app.widget.view.AddNewsFloats
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import com.google.android.material.tabs.TabLayout
+import com.gradle.scan.agent.serialization.scan.serializer.kryo.by
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
@@ -51,7 +54,7 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
     private val avatar by lazy { binding.newsAvatar }
     private val to: TabLayout by lazy { binding.to }
     private var mFloatView: AddNewsFloats? = null
-
+    private val newsSearch: LinearLayout by lazy { binding.newsSearch }
     private val viewModel: FreshNewsViewModel by viewModels()
     private lateinit var adapter: FreshNewsAdapter
     private var page: Int = 1
@@ -108,6 +111,9 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
             val intent = Intent(requireContext(), PublishFreshNewsActivity::class.java)
 //            startForResult.launch(intent)
             startActivity(intent)
+        }
+        newsSearch.setOnClickListener {
+            CustomToast.showMessage(requireContext(), "搜索功能正在开发中，敬请期待！")
         }
 
         adapter = FreshNewsAdapter(
