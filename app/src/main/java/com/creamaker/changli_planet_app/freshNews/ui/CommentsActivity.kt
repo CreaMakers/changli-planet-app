@@ -31,19 +31,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
+import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager.userId
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.mvi.observeState
 import com.creamaker.changli_planet_app.databinding.ActivityCommentsBinding
 import com.creamaker.changli_planet_app.freshNews.contract.CommentsContract
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1CommentsResult
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.CommentsResult
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.CommentsAdapter
 import com.creamaker.changli_planet_app.freshNews.viewModel.CommentsViewModel
 import com.creamaker.changli_planet_app.utils.PlanetConst
 import com.creamaker.changli_planet_app.utils.load
 import com.creamaker.changli_planet_app.widget.dialog.ImageSliderDialog
+import com.creamaker.changli_planet_app.widget.dialog.Level2CommentsDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 import com.gradle.scan.agent.serialization.scan.serializer.kryo.ge
+import com.gradle.scan.agent.serialization.scan.serializer.kryo.it
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import kotlin.math.max
@@ -160,7 +163,33 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
                 )
             },
             onCommentResponseCountClick = { level1CommentItem ->
-                //TODO 显示二级评论对话框
+                Log.d(TAG,"level1CommentId: ${level1CommentItem.commentId} response count click")
+                val dialog = Level2CommentsDialog(
+                     this,
+                    binding.root.height * 9 / 10,
+                    level1CommentItem,
+                    commentsViewModel,
+                    onUserClick = { userId ->
+                        startActivity(Intent(this, UserHomeActivity::class.java).apply {
+                            putExtra("userId", userId)
+                        })
+                    },
+                    onLevel1LikedClick = { level1CommentItem ->
+                        commentsViewModel.processIntent(
+                            CommentsContract.Intent.Level1CommentLikedClick(
+                                level1CommentItem, true
+                            )
+                        )
+                    },
+                    onLevel2LikedClick = { level2CommentItem ->
+                        commentsViewModel.processIntent(
+                            CommentsContract.Intent.Level2CommentLikedClick(
+                                level2CommentItem
+                            )
+                        )
+                    }
+                )
+                dialog.show(supportFragmentManager, "Level2CommentsDialog")
             },
             onPostLevel1CommentClick = {
                 etComment.requestFocus()
@@ -215,6 +244,8 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
                     inputLayout.paddingEnd,
                     15
                 )
+                etComment.hint = getString(R.string.comment_hint)
+                parentCommentId = 0
             }
 
             // 返回原始的 insets，让系统继续处理
@@ -305,9 +336,9 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
                             val count = b.size
                             val lastResult = b[count - 1]
                             hasMore = {
-                                lastResult !is Level1CommentsResult.noMore &&
-                                        lastResult !is Level1CommentsResult.Empty &&
-                                        lastResult !is Level1CommentsResult.Error
+                                lastResult !is CommentsResult.noMore &&
+                                        lastResult !is CommentsResult.Empty &&
+                                        lastResult !is CommentsResult.Error
                             }()
 
                         }

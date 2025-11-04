@@ -12,8 +12,7 @@ import com.creamaker.changli_planet_app.databinding.ItemCommentsErrorBinding
 import com.creamaker.changli_planet_app.databinding.ItemCommentsLoadingBinding
 import com.creamaker.changli_planet_app.databinding.ItemCommentsNoMoreDataBinding
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1CommentItem
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1CommentsResult
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level2CommentsResult
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.CommentsResult
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsEmptyViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsErrorViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsLoadingViewHolder
@@ -27,22 +26,22 @@ class Level1CommentsAdapter(
     val onPostLevel2CommentClick: (Int, Level1CommentItem) -> Unit,
     val onLevel1CommentLikeClick: (Level1CommentItem) -> Unit,
     val onCommentResponseCountClick: (Level1CommentItem) -> Unit
-) : ListAdapter<Level1CommentsResult, RecyclerView.ViewHolder>(object :
-    androidx.recyclerview.widget.DiffUtil.ItemCallback<Level1CommentsResult>() {
+) : ListAdapter<CommentsResult, RecyclerView.ViewHolder>(object :
+    androidx.recyclerview.widget.DiffUtil.ItemCallback<CommentsResult>() {
     override fun areItemsTheSame(
-        oldItem: Level1CommentsResult,
-        newItem: Level1CommentsResult
+        oldItem: CommentsResult,
+        newItem: CommentsResult
     ): Boolean {
-        return if (oldItem is Level1CommentsResult.Success && newItem is Level1CommentsResult.Success) {
-            oldItem.comment.commentId == newItem.comment.commentId
+        return if (oldItem is CommentsResult.Success.Level1CommentsSuccess && newItem is CommentsResult.Success.Level1CommentsSuccess) {
+            oldItem.level1Comment.commentId == newItem.level1Comment.commentId
         } else {
             oldItem::class == newItem::class
         }
     }
 
     override fun areContentsTheSame(
-        oldItem: Level1CommentsResult,
-        newItem: Level1CommentsResult
+        oldItem: CommentsResult,
+        newItem: CommentsResult
     ): Boolean {
         return oldItem == newItem
     }
@@ -106,39 +105,40 @@ class Level1CommentsAdapter(
         position: Int
     ) {
         when (val item = getItem(position)) {
-            is Level1CommentsResult.Loading -> {
+            is CommentsResult.Loading -> {
                 // No binding needed for loading
             }
 
-            is Level1CommentsResult.Empty -> {
+            is CommentsResult.Empty -> {
                 // No binding needed for empty
             }
 
-            is Level1CommentsResult.Success -> {
+            is CommentsResult.Success.Level1CommentsSuccess -> {
                 if (holder is Level1CommentsViewHolder) {
-                    holder.bind(item.comment)
+                    holder.bind(item.level1Comment)
                 }
 
             }
 
-            is Level1CommentsResult.Error -> {
+            is CommentsResult.Error -> {
                 // No binding needed for error
             }
 
-            is Level1CommentsResult.noMore -> {
+            is CommentsResult.noMore -> {
                 // No binding needed for no more data
             }
 
+            is CommentsResult.Success.Level2CommentsSuccess -> {}
         }
     }
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is Level1CommentsResult.Loading -> 0
-            is Level1CommentsResult.Empty -> 1
-            is Level1CommentsResult.Success -> 2
-            is Level1CommentsResult.Error -> 3
-            is Level1CommentsResult.noMore -> 4
+            is CommentsResult.Loading -> 0
+            is CommentsResult.Empty -> 1
+            is CommentsResult.Success -> 2
+            is CommentsResult.Error -> 3
+            is CommentsResult.noMore -> 4
         }
     }
 

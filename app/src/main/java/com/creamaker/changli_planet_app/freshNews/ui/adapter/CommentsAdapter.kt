@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.databinding.ItemCommentsBinding
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.CommentsItem
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.CommentsResult
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1CommentItem
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1CommentsResult
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsViewHolder
 
 class CommentsAdapter(
@@ -22,7 +22,7 @@ class CommentsAdapter(
 ): RecyclerView.Adapter<CommentsViewHolder>() {
     private val commentsItem =  CommentsItem(
         freshNewsItem = null,
-        level1CommentsResults = listOf(Level1CommentsResult.Loading)
+        level1CommentsResults = listOf(CommentsResult.Loading)
     )
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -52,9 +52,9 @@ class CommentsAdapter(
     override fun getItemCount(): Int {
         return 1
     }
-    fun submitLevel1Comments(level1CommentsResults: List<Level1CommentsResult>) {
+    fun submitLevel1Comments(level1CommentsResults: List<CommentsResult>) {
         if (level1CommentsResults.isEmpty()) {
-            commentsItem.level1CommentsResults = listOf(Level1CommentsResult.Empty)
+            commentsItem.level1CommentsResults = listOf(CommentsResult.Empty)
             notifyDataSetChanged()
         }
         else{

@@ -120,5 +120,25 @@ class CommentsRepository private constructor() {
         Log.e(TAG, "refreshLikeCount: exception ${e.message}",e)
         emit(ApiResponse.Error(e.message ?: "Unknown error"))
     }
+    fun loadLevel2Comments(
+        freshNewsId: Int,
+        parentCommentId: Int,
+        page: Int,
+        pageSize: Int,
+        userId: Int
+    ) = flow {
+        val response =
+            service.value.getLevel2Comments(freshNewsId, page, pageSize, parentCommentId, userId)
+        if (response.code == "200") {
+            Log.d(TAG, "loadLevel2Comments: success")
+            emit(ApiResponse.Success(response.data))
+        } else {
+            Log.d(TAG, "loadLevel2Comments: failed with code ${response.code}")
+            emit(ApiResponse.Error(response.msg))
+        }
+    }.catch { e ->
+        Log.e(TAG, "loadLevel2Comments: exception ${e.message}", e)
+        emit(ApiResponse.Error(e.message ?: "Unknown error"))
+    }
 
 }

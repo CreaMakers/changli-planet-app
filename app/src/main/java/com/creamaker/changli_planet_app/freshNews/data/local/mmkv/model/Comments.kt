@@ -1,5 +1,6 @@
 package com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model
 
+import com.creamaker.changli_planet_app.freshNews.contract.CommentsContract
 import com.google.gson.annotations.SerializedName
 
 data class Level1Comments(
@@ -16,6 +17,7 @@ data class Level1Comments(
         val freshNewsId: Int,
         // 点赞数
         val likedCount:Int,
+        val childCount:Int,
         // 评论ID
         val content: String,
         val userId: Int,
@@ -30,16 +32,17 @@ data class Level1Comments(
     )
 }
 data class Level2Comments(
-    val list: List<Level2Comment>
+    val freshNewsId:Int,
+    val firstCommentId:Int,
+    val isActive:Int,
+    val commentsList: List<Level2Comment>,
+    val isLikedList:List<String>
 ){
     data class Level2Comment(
         val commentId: Int,
-        // 所属新鲜事ID
-        val freshNewsId: Int,
-        // 所属一级评论ID
         val parentCommentId: Int,
-        // 点赞数
-        val liked:Int,
+        val freshNewsId: Int,
+        val likedCount:Int,
         // 评论ID
         val content: String,
         val userId: Int,

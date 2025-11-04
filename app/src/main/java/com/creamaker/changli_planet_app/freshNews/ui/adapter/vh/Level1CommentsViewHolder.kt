@@ -26,6 +26,11 @@ class Level1CommentsViewHolder(
             tvCommentItemTime.text = level1CommentItem.createTime.replace("T", "   ").replace("Z", " ")
             tvCommentItemLocation.text = level1CommentItem.userIp
             tvCommentItemContent.text = level1CommentItem.content
+            if (level1CommentItem.level2CommentsCount == 0){
+                tvCommentResponseCount.visibility = android.view.View.INVISIBLE
+            } else {
+                tvCommentResponseCount.visibility = android.view.View.VISIBLE
+            }
             tvCommentResponseCount.text = "共${level1CommentItem.level2CommentsCount}条回复  >"
             tvCommentResponseCount.setOnClickListener {
                 onCommentResponseCountClick(level1CommentItem)
