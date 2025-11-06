@@ -62,7 +62,7 @@ class FreshNewsAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is FreshNewsItemViewHolder -> {
-                holder.bind(newsList[position])
+                holder.bind(newsList[position],position)
             }
 
             is LoadingViewHolder -> {

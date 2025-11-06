@@ -20,6 +20,7 @@ class FreshNewsItemViewHolder(
     private val onCommentClick: (FreshNewsItem) -> Unit,
     private val onCollectClick: (FreshNewsItem) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
+    private val TAG = "FreshNewsItemViewHolder"
 
     fun updateAccountAndAvatar(account: String, avatarUrl: String) {
         with(binding) {
@@ -39,8 +40,10 @@ class FreshNewsItemViewHolder(
         }
     }
 
-    fun bind(news: FreshNewsItem) {
+    fun bind(news: FreshNewsItem,pos: Int) {
+        Log.d(TAG,"Binding news at position: $pos with ID: ${news.freshNewsId}")
         with(binding) {
+            Log.d(TAG,"Binding news item: ${news.freshNewsId},images:${news.images}")
             GlideUtils.load(context, newsItemAvatar, news.authorAvatar)
             newsItemUsername.text = news.authorName
             newsTitle.text = news.title

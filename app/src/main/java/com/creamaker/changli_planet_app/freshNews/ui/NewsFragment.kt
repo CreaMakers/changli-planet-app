@@ -119,6 +119,7 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
         adapter = FreshNewsAdapter(
             PlanetApplication.Companion.appContext,
             onImageClick = { imageList, position ->
+                Log.d(TAG, "点击图片列表：$imageList ,位置：$position")
                 ImageSliderDialog(requireContext(), imageList, position).show()
             },
             onUserClick = { userId ->
