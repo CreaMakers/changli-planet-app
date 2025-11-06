@@ -1,12 +1,14 @@
 package com.creamaker.changli_planet_app.freshNews.ui
 
 import android.content.Intent
+import android.graphics.Outline
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
@@ -18,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.base.BaseFragment
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.creamaker.changli_planet_app.core.PlanetApplication
-import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.mvi.observeState
 import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.databinding.FragmentNewsBinding
@@ -30,15 +31,12 @@ import com.creamaker.changli_planet_app.utils.ItemDecorationWrapper
 import com.creamaker.changli_planet_app.utils.PlanetConst
 import com.creamaker.changli_planet_app.widget.dialog.ImageSliderDialog
 import com.creamaker.changli_planet_app.widget.dialog.ShowImageDialog
-import com.creamaker.changli_planet_app.widget.view.AddNewsFloats
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 import com.google.android.material.tabs.TabLayout
-import com.gradle.scan.agent.serialization.scan.serializer.kryo.by
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
-import kotlin.jvm.java
 
 class NewsFragment : BaseFragment<FragmentNewsBinding>() {
 
@@ -53,7 +51,6 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
     private val recyclerView: RecyclerView by lazy { binding.newsRecyclerView }
     private val avatar by lazy { binding.newsAvatar }
     private val to: TabLayout by lazy { binding.to }
-    private var mFloatView: AddNewsFloats? = null
     private val newsSearch: LinearLayout by lazy { binding.newsSearch }
     private val viewModel: FreshNewsViewModel by viewModels()
     private lateinit var adapter: FreshNewsAdapter
@@ -90,6 +87,7 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
     override fun createViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentNewsBinding {
         return FragmentNewsBinding.inflate(inflater, container, false)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -105,8 +103,7 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
 
     override fun initView() {
 //        binding.ivUnderConstruction.load(R.drawable.under_construction)
-        addFloatView()
-        mFloatView?.setOnClickListener {
+        binding.bvAddFns.setOnClickListener {
             Log.d(TAG, " 点击新鲜事悬浮窗")
             val intent = Intent(requireContext(), PublishFreshNewsActivity::class.java)
 //            startForResult.launch(intent)
@@ -188,8 +185,23 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
                 refreshLayout.finishLoadMoreWithNoMoreData()
             }
         }
-
+        setBlurView()
         refreshLayout.autoRefresh()
+    }
+
+    private fun setBlurView() {
+        // Rounded corners + casting elevation shadow with transparent background
+        binding.bvAddFns.setClipToOutline(true)
+        binding.bvAddFns.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View?, outline: Outline) {
+                binding.bvAddFns.background.getOutline(outline)
+                outline.alpha = 1f
+            }
+        }
+        val windowBackground = requireActivity().window.decorView.background
+        binding.bvAddFns.setupWith(binding.blurTarget)
+            .setFrameClearDrawable(windowBackground)
+            .setBlurRadius(6f)
     }
 
     override fun initData() {
@@ -232,7 +244,6 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
                                 isLoading = true
                             }
                         }
-                        addFloatView()
                     }
                 }
             }
@@ -259,23 +270,6 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
         refreshNewsList(page, pageSize)
     }
 
-    private fun addFloatView() {
-        if (mFloatView != null) {
-            (mFloatView?.parent as? ViewGroup)?.removeView(mFloatView)
-        }
-        // 创建新的悬浮窗
-        mFloatView = AddNewsFloats(requireContext())
-
-        mFloatView?.setOnFloatClickListener { view ->
-            Route.goPublishFreshNews(requireContext())
-        }
-
-        // 设置初始位置 (右下角)
-        mFloatView?.x = resources.displayMetrics.widthPixels - 200f
-        mFloatView?.y = resources.displayMetrics.heightPixels - 500f
-        mFloatView?.elevation = 100f
-        binding.root.addView(mFloatView)
-    }
     @Subscribe
     fun openComments(event: FreshNewsContract.Event) {
         when(event){
