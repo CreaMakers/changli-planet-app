@@ -5,8 +5,10 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import androidx.core.view.doOnLayout
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestListener
 import com.creamaker.changli_planet_app.R
@@ -145,6 +147,7 @@ fun ImageView.load(
     useMemoryCache: Boolean = true,
     listener: RequestListener<Drawable>? = null
 ) {
+    Log.d("dcelysia", "ImageViewId: ${hashCode()} enter isLayoutRequested:$isLayoutRequested width:$width height:$height")
     try {
         when {
             pxWidth != 0 || pxHeight != 0 -> {
@@ -158,7 +161,7 @@ fun ImageView.load(
                 )
             }
 
-            !isLayoutRequested && width > 0 && height > 0 -> {
+            width > 0 && height > 0 -> {
                 Log.d("dcelysia", "ImageViewId: ${hashCode()}, width: $width, height: $height")
                 loadImageDirectly(
                     imageSource,
@@ -171,16 +174,9 @@ fun ImageView.load(
             }
 
             else -> {
-                Log.d("dcelysia", "ImageViewId: ${hashCode()}, width: $width, height: $height")
-                doOnPreDraw {
-                    loadImageDirectly(
-                        imageSource,
-                        useDiskCache,
-                        useMemoryCache,
-                        width,
-                        height,
-                        listener
-                    )
+                doOnLayout {
+                    Log.d("dcelysia", "ImageViewId: ${hashCode()} doOnLayout, width: $width, height: $height")
+                    loadImageDirectly(imageSource, useDiskCache, useMemoryCache, width, height, listener)
                 }
             }
         }
