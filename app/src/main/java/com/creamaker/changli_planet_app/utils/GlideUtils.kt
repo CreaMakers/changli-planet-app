@@ -1,19 +1,12 @@
 package com.creamaker.changli_planet_app.utils
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import androidx.core.view.doOnLayout
-import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.core.GlideApp
