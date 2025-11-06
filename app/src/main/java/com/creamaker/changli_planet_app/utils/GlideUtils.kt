@@ -1,7 +1,9 @@
 package com.creamaker.changli_planet_app.utils
 
 import android.content.Context
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -9,7 +11,9 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.core.GlideApp
@@ -147,43 +151,7 @@ fun ImageView.load(
     useMemoryCache: Boolean = true,
     listener: RequestListener<Drawable>? = null
 ) {
-    Log.d("dcelysia", "ImageViewId: ${hashCode()} enter isLayoutRequested:$isLayoutRequested width:$width height:$height")
-    try {
-        when {
-            pxWidth != 0 || pxHeight != 0 -> {
-                loadImageDirectly(
-                    imageSource,
-                    useDiskCache,
-                    useMemoryCache,
-                    pxWidth,
-                    pxHeight,
-                    listener
-                )
-            }
-
-            width > 0 && height > 0 -> {
-                Log.d("dcelysia", "ImageViewId: ${hashCode()}, width: $width, height: $height")
-                loadImageDirectly(
-                    imageSource,
-                    useDiskCache,
-                    useMemoryCache,
-                    width,
-                    height,
-                    listener
-                )
-            }
-
-            else -> {
-                doOnLayout {
-                    Log.d("dcelysia", "ImageViewId: ${hashCode()} doOnLayout, width: $width, height: $height")
-                    loadImageDirectly(imageSource, useDiskCache, useMemoryCache, width, height, listener)
-                }
-            }
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        Log.e("dcelysia", "load error: ${e.message}")
-    }
+    loadImageDirectly(imageSource, useDiskCache, useMemoryCache, pxWidth, pxHeight, listener)
 }
 
 private fun ImageView.loadImageDirectly(
