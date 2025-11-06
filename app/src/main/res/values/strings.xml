@@ -191,7 +191,7 @@
     <string name="email_input">请输入邮箱</string>
     <string name="freshNewsTime">时间:</string>
     <string name="all_comments">全部评论</string>
-    <string name="comments_num">(0)</string>
+    <string name="comments_num">(%1$d)</string>
     <string name="post_comment">发表评论</string>
     <string name="response">回复</string>
     <string name="comment_hint">请友善评论</string>
