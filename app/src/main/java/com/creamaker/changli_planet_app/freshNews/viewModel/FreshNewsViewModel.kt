@@ -604,15 +604,20 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
         }
 
     }
-    private fun loadIp(){
+    private fun loadIp() {
         viewModelScope.launch {
-            val isSuccess = FreshNewsRepository.Companion.instance.getIp(state.value.publishNews).first()
-            if (isSuccess == "success"){
-                Log.d("FreshNewsViewModel","ip解析成功")
+            try {
+                val isSuccess =
+                    FreshNewsRepository.Companion.instance.getIp(state.value.publishNews).first()
+                if (isSuccess == "success") {
+                    Log.d("FreshNewsViewModel", "ip解析成功")
+                } else {
+                    Log.d("FreshNewsViewModel", "ip解析失败")
+                }
+            }catch (e:Exception){
+                Log.e("FreshNewsViewModel","获取ip异常:${e.message}")
             }
-            else{
-                Log.d("FreshNewsViewModel","ip解析失败")
-            }
+
         }
     }
 }
