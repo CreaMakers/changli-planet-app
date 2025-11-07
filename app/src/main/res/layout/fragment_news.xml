@@ -1,91 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragmentContainerNews"
     android:layout_width="match_parent"
-    android:paddingTop="@dimen/dp35"
     android:layout_height="match_parent"
+    android:paddingTop="@dimen/dp35"
     tools:context=".freshNews.ui.NewsFragment">
 
-        <LinearLayout
-            android:id="@+id/news_search"
-            android:orientation="horizontal"
-            android:layout_width="0dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@drawable/main_search"
-            android:layout_marginTop="10dp"
-            android:layout_height="40dp"
-            app:layout_constraintEnd_toStartOf="@id/news_avatar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+    <LinearLayout
+        android:id="@+id/news_search"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/main_search"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@id/news_avatar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="15dp"
-                android:src="@drawable/component2" />
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="15dp"
+            android:src="@drawable/component2" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="15dp"
-                android:text="点击搜索想要的群组"
-                android:textColor="@color/game1_gray"
-                android:textSize="17sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="15dp"
+            android:text="点击搜索想要的群组"
+            android:textColor="@color/game1_gray"
+            android:textSize="17sp" />
 
-        </LinearLayout>
+    </LinearLayout>
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/news_avatar"
-            android:layout_marginEnd="10dp"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_marginTop="10dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="5dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearance="@style/CircleStyle" />
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/news_avatar"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/CircleStyle" />
 
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/to"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.05"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/news_search"
-            app:layout_constraintWidth_percent="0.5"
-            app:tabIndicatorColor="@color/primary_blue"
-            app:tabRippleColor="@color/login_gray"
-            app:tabSelectedTextColor="@color/primary_blue"
-            app:tabTextAppearance="@style/MyTabLayout"
-            tools:layout_editor_absoluteX="0dp">
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/to"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/news_search"
+        app:layout_constraintWidth_percent="0.5"
+        app:tabIndicatorColor="@color/primary_blue"
+        app:tabRippleColor="@color/login_gray"
+        app:tabSelectedTextColor="@color/primary_blue"
+        app:tabTextAppearance="@style/MyTabLayout"
+        tools:layout_editor_absoluteX="0dp">
 
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="推荐" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="推荐" />
 
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="热门" />
-        </com.google.android.material.tabs.TabLayout>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="热门" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <com.creamaker.changli_planet_app.utils.blur.BlurTarget
+        android:id="@+id/blur_target"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/to">
 
         <com.scwang.smart.refresh.layout.SmartRefreshLayout
             android:id="@+id/refreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
             android:background="@color/fresh_news_common_bg"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/to"
-            app:layout_constraintVertical_bias="1.0"
             app:srlAccentColor="@color/login_gray"
             app:srlEnableOverScrollDrag="false"
             app:srlEnablePreviewInEditMode="true"
@@ -106,14 +110,34 @@
                 android:layout_height="wrap_content" />
         </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
-        <FrameLayout
-            android:id="@+id/floatViewContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+    </com.creamaker.changli_planet_app.utils.blur.BlurTarget>
 
-<!--    <ImageView-->
-<!--        android:id="@+id/iv_under_construction"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent" />-->
+
+    <com.creamaker.changli_planet_app.utils.blur.BlurView
+        android:id="@+id/bv_add_fns"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp30"
+        android:layout_marginBottom="@dimen/dp80"
+        android:background="@drawable/bg_16_rounded"
+        android:elevation="@dimen/dp6"
+        app:blurOverlayColor="@color/colorOverlay"
+        android:padding="@dimen/dp10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="@dimen/dp40"
+            android:layout_height="@dimen/dp40"
+            android:layout_gravity="center"
+            android:src="@drawable/ele_add" />
+
+    </com.creamaker.changli_planet_app.utils.blur.BlurView>
+
+
+    <!--    <ImageView-->
+    <!--        android:id="@+id/iv_under_construction"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

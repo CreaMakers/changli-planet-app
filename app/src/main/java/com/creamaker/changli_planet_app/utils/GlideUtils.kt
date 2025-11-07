@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestListener
@@ -145,49 +144,7 @@ fun ImageView.load(
     useMemoryCache: Boolean = true,
     listener: RequestListener<Drawable>? = null
 ) {
-    try {
-        when {
-            pxWidth != 0 || pxHeight != 0 -> {
-                loadImageDirectly(
-                    imageSource,
-                    useDiskCache,
-                    useMemoryCache,
-                    pxWidth,
-                    pxHeight,
-                    listener
-                )
-            }
-
-            !isLayoutRequested && width > 0 && height > 0 -> {
-                Log.d("dcelysia", "ImageViewId: ${hashCode()}, width: $width, height: $height")
-                loadImageDirectly(
-                    imageSource,
-                    useDiskCache,
-                    useMemoryCache,
-                    width,
-                    height,
-                    listener
-                )
-            }
-
-            else -> {
-                Log.d("dcelysia", "ImageViewId: ${hashCode()}, width: $width, height: $height")
-                doOnPreDraw {
-                    loadImageDirectly(
-                        imageSource,
-                        useDiskCache,
-                        useMemoryCache,
-                        width,
-                        height,
-                        listener
-                    )
-                }
-            }
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        Log.e("dcelysia", "load error: ${e.message}")
-    }
+    loadImageDirectly(imageSource, useDiskCache, useMemoryCache, pxWidth, pxHeight, listener)
 }
 
 private fun ImageView.loadImageDirectly(
