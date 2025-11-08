@@ -134,8 +134,8 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
                 // 评论点击处理
                 viewModel.processIntent(FreshNewsContract.Intent.OpenComments(newsItem) )
             },
-            onCollectClick = { newsItem ->
-                viewModel.processIntent(FreshNewsContract.Intent.FavoriteNews(newsItem))
+            onCollectClick = { Id ->
+                viewModel.processIntent(FreshNewsContract.Intent.FavoriteNews(Id))
             }
         )
 
@@ -225,6 +225,7 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
                                 if (page == 1) {
                                     adapter.updateData(newsList)
                                     if (refreshLayout.isRefreshing) refreshLayout.finishRefresh()
+                                    hasMoreData = newsList.size >= pageSize
 //                                    recyclerView.smoothScrollToPosition(0)
                                 } else {
                                     if (newsList.isEmpty()) {
