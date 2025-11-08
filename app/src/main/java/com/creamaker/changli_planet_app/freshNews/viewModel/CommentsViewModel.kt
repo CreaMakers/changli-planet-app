@@ -4,26 +4,19 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import androidx.room.util.copy
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.mvi.MviViewModel
 import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.freshNews.contract.CommentsContract
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.CommentsCache
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNews
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.CommentsResult
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1CommentItem
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1Comments
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.CommentsResult
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level2CommentItem
 import com.creamaker.changli_planet_app.freshNews.data.remote.repository.CommentsRepository
 import com.creamaker.changli_planet_app.widget.view.CustomToast
-import com.gradle.scan.agent.serialization.scan.serializer.kryo.it
-import com.tencent.mmkv.MMKV.pageSize
 import kotlinx.coroutines.launch
-import kotlin.collections.addAll
-import kotlin.compareTo
 
 class CommentsViewModel: MviViewModel<CommentsContract.Intent, CommentsContract.State>() {
     private val TAG = "CommentsViewModel"
@@ -88,9 +81,7 @@ class CommentsViewModel: MviViewModel<CommentsContract.Intent, CommentsContract.
 
     private fun loadFreshNews(freshNewsItem: FreshNewsItem){
         updateState {
-            copy(
-                freshNewsItem = freshNewsItem
-            )
+            copy(freshNewsItem = freshNewsItem)
         }
     }
     private fun loadLevel1Comments(freshNewsItem: FreshNewsItem, page: Int, pageSize: Int) {

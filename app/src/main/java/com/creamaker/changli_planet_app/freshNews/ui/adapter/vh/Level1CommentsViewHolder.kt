@@ -1,6 +1,5 @@
 package com.creamaker.changli_planet_app.freshNews.ui.adapter.vh
 
-import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.databinding.ItemCommentLevel1Binding
@@ -53,6 +52,25 @@ class Level1CommentsViewHolder(
             tvResponse.setOnClickListener {
                 onPostLevel2CommentClick(level1CommentItem.commentId, level1CommentItem)
             }
+        }
+    }
+
+    // 拉了一坨屎 嘻嘻
+    fun updateLike(isLiked: Boolean, likedCount: Int, level1CommentItem: Level1CommentItem) {
+        with(binding) {
+            ivLevel1Liked.apply {
+                if (isLiked) {
+                    load(R.drawable.ic_news_liked)
+                    imageTintList = root.context.getColorStateList(R.color.ele_low)
+                } else {
+                    load(R.drawable.ic_like)
+                    imageTintList = root.context.getColorStateList(R.color.md_theme_outline)
+                }
+                setOnClickListener {
+                    onLevel1CommentLikeClick(level1CommentItem)
+                }
+            }
+            tvLevel1LikeCount.text = likedCount.toString()
         }
     }
 

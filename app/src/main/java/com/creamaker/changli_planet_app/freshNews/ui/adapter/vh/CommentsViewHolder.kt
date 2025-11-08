@@ -9,7 +9,6 @@ import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Comments
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1CommentItem
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.ImageAdapter
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.Level1CommentsAdapter
-import com.creamaker.changli_planet_app.utils.GlideUtils
 import com.creamaker.changli_planet_app.utils.load
 
 //import com.creamaker.changli_planet_app.freshNews.ui.adapter.Level1CommentsAdapter
@@ -24,38 +23,46 @@ class CommentsViewHolder(
     val onCommentResponseCountClick: (Level1CommentItem) -> Unit,
     val onPostLevel1CommentClick: () -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
-    //    private val adapter = Level1CommentsAdapter()
+
+    private val level1CommentsAdapter = Level1CommentsAdapter(
+        context,
+        onUserClick,
+        onPostLevel2CommentClick,
+        onLevel1CommentLikeClick,
+        onCommentResponseCountClick
+    )
+
+    private val imageAdapter = ImageAdapter(emptyList()) { _, _ -> }
+
+    init {
+        with(binding) {
+            imagesRecyclerView.apply {
+                adapter = imageAdapter
+                isNestedScrollingEnabled = false
+            }
+
+            rvComments.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = level1CommentsAdapter
+                isNestedScrollingEnabled = false
+            }
+        }
+    }
+
     fun bind(commentsItem: CommentsItem) = with(binding) {
         val context = root.context
         val fresh = commentsItem.freshNewsItem
 
         // 设置图片 RecyclerView
         val images = fresh?.images ?: emptyList()
-        imagesRecyclerView.apply {
-            adapter = ImageAdapter(images) { _, position ->
-                onImageClick(images, position)
-            }
-            isNestedScrollingEnabled = false
+        (imagesRecyclerView.adapter as? ImageAdapter)?.updateImages(images) { _, position ->
+            onImageClick(images, position)
         }
-
-        // 设置评论 RecyclerView
-        rvComments.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = Level1CommentsAdapter(
-                context,
-                onUserClick,
-                onPostLevel2CommentClick,
-                onLevel1CommentLikeClick,
-                onCommentResponseCountClick
-            ).apply {
-                submitList(commentsItem.level1CommentsResults)
-            }
-            isNestedScrollingEnabled = false
-        }
+        level1CommentsAdapter.submitList(commentsItem.level1CommentsResults)
 
         if (fresh != null) {
             // 新鲜事绑定
-            GlideUtils.load(context, postmanAvatar, fresh.authorAvatar)
+            postmanAvatar.load(fresh.authorAvatar)
             postmanUsername.text = fresh.authorName
             postmanTime.text = fresh.createTime.replace("T", "   ").replace("Z", " ")
             postmanLocation.text = fresh.location
