@@ -1,29 +1,16 @@
 package com.creamaker.changli_planet_app.freshNews.ui
 
-import android.R.attr.bottom
-import android.R.attr.lineHeight
-import android.accessibilityservice.AccessibilityService
 import android.content.Intent
-import android.inputmethodservice.InputMethodService
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -31,13 +18,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
-import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager.userId
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.mvi.observeState
 import com.creamaker.changli_planet_app.databinding.ActivityCommentsBinding
 import com.creamaker.changli_planet_app.freshNews.contract.CommentsContract
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.CommentsResult
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.CommentsAdapter
 import com.creamaker.changli_planet_app.freshNews.viewModel.CommentsViewModel
 import com.creamaker.changli_planet_app.utils.PlanetConst
@@ -45,8 +31,6 @@ import com.creamaker.changli_planet_app.utils.load
 import com.creamaker.changli_planet_app.widget.dialog.ImageSliderDialog
 import com.creamaker.changli_planet_app.widget.dialog.Level2CommentsDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
-import com.gradle.scan.agent.serialization.scan.serializer.kryo.ge
-import com.gradle.scan.agent.serialization.scan.serializer.kryo.it
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import kotlin.math.max
@@ -324,17 +308,17 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
                     observeState(
                         { value.freshNewsItem },
                         { value.level1CommentsResults },
-                        {value.level1CommentPostState}) { a, b, c ->
-                        if (c == 2){
+                        { value.level1CommentPostState }) { freshNewsItem, level1CommentsResults, level1CommentPostState ->
+                        if (level1CommentPostState == 2) {
                             rvParent.scrollToPosition(0)
                         }
-                        if (a.freshNewsId != -1) {
-                            commentsAdapter.submitFreshNews(a)
+                        if (freshNewsItem.freshNewsId != -1) {
+                            commentsAdapter.submitFreshNews(freshNewsItem)
                         }
-                        if (b.isNotEmpty()) {
-                            commentsAdapter.submitLevel1Comments(b)
-                            val count = b.size
-                            val lastResult = b[count - 1]
+                        if (level1CommentsResults.isNotEmpty()) {
+                            commentsAdapter.submitLevel1Comments(level1CommentsResults)
+                            val count = level1CommentsResults.size
+                            val lastResult = level1CommentsResults[count - 1]
                             hasMore = {
                                 lastResult !is CommentsResult.noMore &&
                                         lastResult !is CommentsResult.Empty &&

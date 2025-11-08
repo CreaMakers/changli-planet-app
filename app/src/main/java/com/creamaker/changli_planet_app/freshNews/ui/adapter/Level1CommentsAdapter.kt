@@ -6,19 +6,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.databinding.ItemCommentLevel1Binding
-import com.creamaker.changli_planet_app.databinding.ItemCommentsBinding
 import com.creamaker.changli_planet_app.databinding.ItemCommentsEmptyBinding
 import com.creamaker.changli_planet_app.databinding.ItemCommentsErrorBinding
 import com.creamaker.changli_planet_app.databinding.ItemCommentsLoadingBinding
 import com.creamaker.changli_planet_app.databinding.ItemCommentsNoMoreDataBinding
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1CommentItem
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.CommentsResult
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.Level1CommentItem
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsEmptyViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsErrorViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsLoadingViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsNoMoreViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.Level1CommentsViewHolder
-import com.gradle.scan.agent.serialization.scan.serializer.kryo.it
 
 class Level1CommentsAdapter(
     val context: Context,
@@ -45,13 +43,45 @@ class Level1CommentsAdapter(
     ): Boolean {
         return oldItem == newItem
     }
+
+    override fun getChangePayload(
+        oldItem: CommentsResult,
+        newItem: CommentsResult
+    ): Any? {
+        if (oldItem is CommentsResult.Success.Level1CommentsSuccess &&
+            newItem is CommentsResult.Success.Level1CommentsSuccess
+        ) {
+            val oldComment = oldItem.level1Comment
+            val newComment = newItem.level1Comment
+            val changes = mutableMapOf<String, Any>()
+            if (oldComment.isLiked != newComment.isLiked) {
+                changes[PAYLOAD_IS_LIKED] = newComment.isLiked
+            }
+            if (oldComment.liked != newComment.liked) {
+                changes[PAYLOAD_LIKED_COUNT] = newComment.liked
+            }
+            return changes.ifEmpty { null }
+        }
+        return null
+    }
 }) {
+
+    companion object {
+        const val STATE_LOADING = 0
+        const val STATE_EMPTY = 1
+        const val STATE_SUCCESS = 2
+        const val STATE_ERROR = 3
+        const val STATE_NO_MORE = 4
+        const val PAYLOAD_IS_LIKED = "isLiked" // 是否点赞 用于payload
+        const val PAYLOAD_LIKED_COUNT = "liked" // 点赞数量 用于payload
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): RecyclerView.ViewHolder {
         return when (viewType) {
-            0 -> {
+            STATE_LOADING -> {
                 val binding = ItemCommentsLoadingBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
@@ -59,7 +89,7 @@ class Level1CommentsAdapter(
                 // Loading ViewHolder
             }
 
-            1 -> {
+            STATE_EMPTY -> {
                 // Empty ViewHolder
                 val binding = ItemCommentsEmptyBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
@@ -67,7 +97,7 @@ class Level1CommentsAdapter(
                 CommentsEmptyViewHolder(binding)
             }
 
-            2 -> {
+            STATE_SUCCESS -> {
                 val binding = ItemCommentLevel1Binding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
@@ -80,14 +110,14 @@ class Level1CommentsAdapter(
                 )
             }
 
-            3 -> {
+            STATE_ERROR -> {
                 val binding = ItemCommentsErrorBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
                 CommentsErrorViewHolder(binding)
             }
 
-            4 -> {
+            STATE_NO_MORE -> {
                 val binding = ItemCommentsNoMoreDataBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
@@ -96,6 +126,32 @@ class Level1CommentsAdapter(
 
             else -> {
                 throw IllegalArgumentException("Invalid view type")
+            }
+        }
+    }
+
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position)
+        } else {
+            val item = getItem(position)
+            if (holder is Level1CommentsViewHolder &&
+                item is CommentsResult.Success.Level1CommentsSuccess
+            ) {
+
+                payloads.forEach { payload ->
+                    if (payload is Map<*, *>) {
+                        payload[PAYLOAD_IS_LIKED]?.let { isLiked ->
+                            val likedCount = payload[PAYLOAD_LIKED_COUNT] as? Int
+                                ?: item.level1Comment.liked
+                            holder.updateLike(isLiked as Boolean, likedCount, item.level1Comment)
+                        }
+                    }
+                }
             }
         }
     }
@@ -134,11 +190,11 @@ class Level1CommentsAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is CommentsResult.Loading -> 0
-            is CommentsResult.Empty -> 1
-            is CommentsResult.Success -> 2
-            is CommentsResult.Error -> 3
-            is CommentsResult.noMore -> 4
+            is CommentsResult.Loading -> STATE_LOADING
+            is CommentsResult.Empty -> STATE_EMPTY
+            is CommentsResult.Success -> STATE_SUCCESS
+            is CommentsResult.Error -> STATE_ERROR
+            is CommentsResult.noMore -> STATE_NO_MORE
         }
     }
 

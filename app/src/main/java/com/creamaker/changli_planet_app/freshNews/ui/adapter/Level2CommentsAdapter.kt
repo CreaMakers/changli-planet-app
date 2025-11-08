@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager.userAvatar
-import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager.userId
 import com.creamaker.changli_planet_app.databinding.ItemCommentLevel1Binding
 import com.creamaker.changli_planet_app.databinding.ItemCommentLevel2Binding
 import com.creamaker.changli_planet_app.databinding.ItemCommentsEmptyBinding
@@ -23,8 +21,6 @@ import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsLoadingV
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.CommentsNoMoreViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.Level1CommentsViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.Level2CommentsViewHolder
-import com.gradle.scan.plugin.internal.dep.com.fasterxml.jackson.annotation.JsonAutoDetect
-import kotlin.Int
 
 
 class Level2CommentsAdapter(
@@ -39,8 +35,8 @@ class Level2CommentsAdapter(
         oldItem: CommentsResult,
         newItem: CommentsResult
     ): Boolean {
-        return if (oldItem is CommentsResult.Success.Level1CommentsSuccess && newItem is CommentsResult.Success.Level1CommentsSuccess) {
-            oldItem.level1Comment.commentId == newItem.level1Comment.commentId
+        return if (oldItem is CommentsResult.Success.Level2CommentsSuccess && newItem is CommentsResult.Success.Level2CommentsSuccess) {
+            oldItem.level2Comment.commentId == newItem.level2Comment.commentId
         } else {
             oldItem::class == newItem::class
         }
@@ -52,13 +48,47 @@ class Level2CommentsAdapter(
     ): Boolean {
         return oldItem == newItem
     }
+
+    override fun getChangePayload(
+        oldItem: CommentsResult,
+        newItem: CommentsResult
+    ): Any? {
+        if (oldItem is CommentsResult.Success.Level2CommentsSuccess &&
+            newItem is CommentsResult.Success.Level2CommentsSuccess
+        ) {
+            val oldComment = oldItem.level2Comment
+            val newComment = newItem.level2Comment
+            val changes = mutableMapOf<String, Any>()
+            if (oldComment.isLiked != newComment.isLiked) {
+                changes[Level1CommentsAdapter.Companion.PAYLOAD_IS_LIKED] = newComment.isLiked
+            }
+            if (oldComment.liked != newComment.liked) {
+                changes[Level1CommentsAdapter.Companion.PAYLOAD_LIKED_COUNT] = newComment.liked
+            }
+            return changes.ifEmpty { null }
+        }
+        return null
+    }
+
 }) {
+
+    companion object {
+        const val VIEW_TYPE_LOADING = 0
+        const val VIEW_TYPE_EMPTY = 1
+        const val VIEW_TYPE_LEVEL1_COMMENT = 2
+        const val VIEW_TYPE_LEVEL2_COMMENT = 3
+        const val VIEW_TYPE_ERROR = 4
+        const val VIEW_TYPE_NO_MORE = 5
+        const val PAYLOAD_IS_LIKED = "isLiked" // 是否点赞 用于payload
+        const val PAYLOAD_LIKED_COUNT = "liked" // 点赞数量 用于payload
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): RecyclerView.ViewHolder {
-        when(viewType){
-            0->{
+        when (viewType) {
+            VIEW_TYPE_LOADING -> {
                 //Loading ViewHolder
                 val binding = ItemCommentsLoadingBinding.inflate(
                     LayoutInflater.from(parent.context),
@@ -67,7 +97,8 @@ class Level2CommentsAdapter(
                 )
                 return CommentsLoadingViewHolder(binding)
             }
-            1->{
+
+            VIEW_TYPE_EMPTY -> {
                 //Empty ViewHolder
                 val binding = ItemCommentsEmptyBinding.inflate(
                     LayoutInflater.from(parent.context),
@@ -76,7 +107,8 @@ class Level2CommentsAdapter(
                 )
                 return CommentsEmptyViewHolder(binding)
             }
-            2->{
+
+            VIEW_TYPE_LEVEL1_COMMENT -> {
                 //Level1Comments ViewHolder
                 val binding = ItemCommentLevel1Binding.inflate(
                     LayoutInflater.from(parent.context),
@@ -89,9 +121,10 @@ class Level2CommentsAdapter(
                     {_,_->},
                     onLevel1CommentLikedClick,
                     {_->}
-                    )
+                )
             }
-            3->{
+
+            VIEW_TYPE_LEVEL2_COMMENT -> {
                 //Level2Comments ViewHolder
                 val binding = ItemCommentLevel2Binding.inflate(
                     LayoutInflater.from(parent.context),
@@ -103,9 +136,10 @@ class Level2CommentsAdapter(
                     onResponseLevel2CommentClick,
                     onUserClick,
                     onLevel2CommentLikedClick
-                    )
+                )
             }
-            4->{
+
+            VIEW_TYPE_ERROR -> {
                 //Error ViewHolder
                 val binding = ItemCommentsErrorBinding.inflate(
                     LayoutInflater.from(parent.context),
@@ -114,7 +148,8 @@ class Level2CommentsAdapter(
                 )
                 return CommentsErrorViewHolder(binding)
             }
-            5->{
+
+            VIEW_TYPE_NO_MORE -> {
                 //NoMore ViewHolder
                 val binding = ItemCommentsNoMoreDataBinding.inflate(
                     LayoutInflater.from(parent.context),
@@ -123,8 +158,9 @@ class Level2CommentsAdapter(
                 )
                 return CommentsNoMoreViewHolder(binding)
             }
-            else->{
-                throw IllegalArgumentException("Invalid view type")
+
+            else -> {
+                throw IllegalArgumentException("Invalid view type: $viewType")
             }
         }
     }
@@ -163,14 +199,41 @@ class Level2CommentsAdapter(
         }
     }
 
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position)
+        } else {
+            val item = getItem(position)
+            if (holder is Level2CommentsViewHolder &&
+                item is CommentsResult.Success.Level2CommentsSuccess
+            ) {
+                payloads.forEach { payload ->
+                    if (payload is Map<*, *>) {
+                        payload[Level1CommentsAdapter.Companion.PAYLOAD_IS_LIKED]?.let { isLiked ->
+                            val likedCount =
+                                payload[Level1CommentsAdapter.Companion.PAYLOAD_LIKED_COUNT] as? Int
+                                    ?: item.level2Comment.liked
+                            holder.updateLike(isLiked as Boolean, likedCount, item.level2Comment)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is CommentsResult.Loading -> 0
-            is CommentsResult.Empty -> 1
-            is CommentsResult.Success.Level1CommentsSuccess -> 2
-            is CommentsResult.Success.Level2CommentsSuccess -> 3
-            is CommentsResult.Error -> 4
-            is CommentsResult.noMore -> 5
+            is CommentsResult.Loading -> VIEW_TYPE_LOADING
+            is CommentsResult.Empty -> VIEW_TYPE_EMPTY
+            is CommentsResult.Success.Level1CommentsSuccess -> VIEW_TYPE_LEVEL1_COMMENT
+            is CommentsResult.Success.Level2CommentsSuccess -> VIEW_TYPE_LEVEL2_COMMENT
+            is CommentsResult.Error -> VIEW_TYPE_ERROR
+            is CommentsResult.noMore -> VIEW_TYPE_NO_MORE
         }
     }
 
