@@ -9,6 +9,7 @@ import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNew
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.utils.GlideUtils
 import com.creamaker.changli_planet_app.databinding.FreshNewsItemBinding
+import com.gradle.scan.plugin.internal.dep.com.esotericsoftware.kryo.kryo5.util.Util.pos
 
 class FreshNewsItemViewHolder(
     val binding: FreshNewsItemBinding,
@@ -16,10 +17,11 @@ class FreshNewsItemViewHolder(
     private val onImageClick: (List<String?>, Int) -> Unit,
     private val onUserClick: (userId: Int) -> Unit,
     private val onNewsDetailClick: (FreshNewsItem) -> Unit,
-    private val onLikeClick: (FreshNewsItem) -> Unit,
+    private val onLikeClick: (Int) -> Unit,
     private val onCommentClick: (FreshNewsItem) -> Unit,
     private val onCollectClick: (FreshNewsItem) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
+    private val TAG = "FreshNewsItemViewHolder"
 
     fun updateAccountAndAvatar(account: String, avatarUrl: String) {
         with(binding) {
@@ -29,6 +31,7 @@ class FreshNewsItemViewHolder(
     }
 
     fun updateIsLike(liked: Int, isLiked: Boolean) {
+//        Log.d(TAG,"invoked")
         with(binding) {
             if (isLiked) {
                 newsFavor.setImageResource(R.drawable.ic_news_liked)
@@ -40,7 +43,9 @@ class FreshNewsItemViewHolder(
     }
 
     fun bind(news: FreshNewsItem) {
+        Log.d(TAG, "Binding news item: ${news}")
         with(binding) {
+
             GlideUtils.load(context, newsItemAvatar, news.authorAvatar)
             newsItemUsername.text = news.authorName
             newsTitle.text = news.title
@@ -85,7 +90,7 @@ class FreshNewsItemViewHolder(
                 newsShare.setImageResource(R.drawable.ic_un_collect)
             }
 
-            favorContainer.setOnClickListener { onLikeClick(news) }
+            favorContainer.setOnClickListener { onLikeClick(news.freshNewsId) }
             commentContainer.setOnClickListener { onCommentClick(news) }
             shareContainer.setOnClickListener { onCollectClick(news) }
         }

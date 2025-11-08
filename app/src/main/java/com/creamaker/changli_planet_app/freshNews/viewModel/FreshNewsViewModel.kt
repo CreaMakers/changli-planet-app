@@ -48,7 +48,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.UpdateTabIndex -> changeCurrentTab(intent.currentIndex)
             is FreshNewsContract.Intent.Initialization -> {}
 
-            is FreshNewsContract.Intent.LikeNews -> likeNewsItem(intent.freshNewsItem)
+            is FreshNewsContract.Intent.LikeNews -> likeNewsItem(intent.freshNewsId)
             is FreshNewsContract.Intent.FavoriteNews -> favoriteNewsItem(intent.freshNewsItem)
             is FreshNewsContract.Intent.OpenComments -> openComments(intent.freshNewsItem)
         }
@@ -339,23 +339,25 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
 
 
     // 点赞
-    private fun likeNewsItem(freshNewsItem: FreshNewsItem) {
+    private fun likeNewsItem(freshNewsId: Int) {
         viewModelScope.launch {
-            val newsId = freshNewsItem.freshNewsId
-            val currentLikeCount = freshNewsItem.liked ?: 0
-            val isCurrentlyLiked = freshNewsItem.isLiked
+            val currentItem = (state.value.freshNewsList as? ApiResponse.Success)?.data?.find {
+                it.freshNewsId == freshNewsId
+            } ?: return@launch
+            val currentLikeCount = currentItem.liked
+            val isCurrentlyLiked = currentItem.isLiked
             val newLikeState = !isCurrentlyLiked
 
             try {
                 // 乐观更新状态
                 updateState {
-                    val updatedList = (freshNewsList as? ApiResponse.Success)?.data?.map { item ->
-                        if (item.freshNewsId == newsId) {
-                            item.copy(
-                                liked = if (newLikeState) currentLikeCount + 1 else currentLikeCount - 1
-                            ).apply {
+                    val updatedList = (state.value.freshNewsList as? ApiResponse.Success)?.data?.map { item ->
+                        if (item.freshNewsId == freshNewsId) {
+                            val newCount = if (newLikeState) currentLikeCount + 1 else currentLikeCount - 1
+                            item.copy(liked = newCount).apply {
                                 isLiked = newLikeState
-                                RefreshNewsCache.saveLikeNum(newsId,liked)
+                                // 保存最新的数值到本地缓存
+                                RefreshNewsCache.saveLikeNum(freshNewsId, newCount)
                             }
                         } else {
                             item
@@ -370,18 +372,17 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 }
 
                 // 保存点赞状态到 MMKV
-                RefreshNewsCache.saveLikeState(newsId, newLikeState)
+                RefreshNewsCache.saveLikeState(freshNewsId, newLikeState)
 
                 // 发送网络请求
                 withContext(Dispatchers.IO) {
-                    Log.d("FreshNewsVM", "发送点赞请求: id=$newsId")
-                    val result = FreshNewsRepository.Companion.instance.likeNews(newsId)
+
+                    val result = FreshNewsRepository.Companion.instance.likeNews(freshNewsId)
 
                     result.collect { resource ->
                         withContext(Dispatchers.Main) {
                             when (resource) {
                                 is ApiResponse.Success -> {
-                                    Log.d("FreshNewsVM", "点赞操作成功: id=$newsId")
                                     val actionText =
                                         if (newLikeState) "已点赞" else "已取消点赞"
                                     handler.post {
@@ -393,11 +394,11 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                                 }
 
                                 is ApiResponse.Error -> {
-                                    Log.d("FreshNewsVM", "点赞请求失败，回滚状态: id=$newsId")
+                                    Log.d("FreshNewsVM", "点赞请求失败，回滚状态: id=$freshNewsId")
                                     updateState {
                                         val updatedList =
                                             (freshNewsList as? ApiResponse.Success)?.data?.map { item ->
-                                                if (item.freshNewsId == newsId) {
+                                                if (item.freshNewsId == freshNewsId) {
                                                     item.copy(
                                                         liked = currentLikeCount
                                                     ).apply {
@@ -433,7 +434,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 withContext(Dispatchers.Main) {
                     updateState {
                         val updatedList = (freshNewsList as? ApiResponse.Success)?.data?.map { item ->
-                            if (item.freshNewsId == newsId) {
+                            if (item.freshNewsId == freshNewsId) {
                                 item.copy(
                                     liked = currentLikeCount
                                 ).apply {

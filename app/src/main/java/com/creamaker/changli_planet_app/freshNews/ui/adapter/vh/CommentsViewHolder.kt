@@ -28,7 +28,8 @@ class CommentsViewHolder(
     fun bind(commentsItem: CommentsItem) = with(binding) {
         val context = root.context
         val fresh = commentsItem.freshNewsItem
-
+        val commentsCount = commentsItem.level1CommentsResults.size-1
+        tvCommentsCount.text = context.getString(R.string.comments_num, commentsCount)
         // 设置图片 RecyclerView
         val images = fresh?.images ?: emptyList()
         imagesRecyclerView.apply {

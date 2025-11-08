@@ -21,7 +21,7 @@ class FreshNewsAdapter(
     private val onImageClick: (List<String?>, Int) -> Unit,
     private val onUserClick: (userId: Int) -> Unit,
     private val onMenuClick: (FreshNewsItem) -> Unit = {},
-    private val onLikeClick: (FreshNewsItem) -> Unit = {},
+    private val onLikeClick: (Int) -> Unit = {},
     private val onCommentClick: (FreshNewsItem) -> Unit = {},
     private val onCollectClick: (FreshNewsItem) -> Unit = {}
 ) : ListAdapter<FreshNewsItem, RecyclerView.ViewHolder>(object :
@@ -80,7 +80,8 @@ class FreshNewsAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is FreshNewsItemViewHolder && position < currentList.size){
-            holder.bind(currentList[position])
+            Log.d("FreshNewsAdapter","currentItem: ${getItem(position)}")
+            holder.bind(getItem(position))
         } else if (holder is LoadingViewHolder){
             holder.bind(isLoading)
         }
@@ -101,7 +102,7 @@ class FreshNewsAdapter(
             val changePart = payloads[0] as String
             when (holder) {
                 is FreshNewsItemViewHolder -> {
-                    val item = currentList[position]
+                    val item = getItem(position)
                     if (changePart == "UPDATE_AVATAR_AND_NAME") {
                         holder.updateAccountAndAvatar(item.authorName, item.authorAvatar)
                     } else if (changePart == "UPDATE_isLIKED") {
