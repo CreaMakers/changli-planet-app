@@ -127,8 +127,8 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
             onMenuClick = { newsItem ->
                 // 菜单点击处理
             },
-            onLikeClick = { newsItem ->
-                viewModel.processIntent(FreshNewsContract.Intent.LikeNews(newsItem))
+            onLikeClick = { Id ->
+                viewModel.processIntent(FreshNewsContract.Intent.LikeNews(Id))
             },
             onCommentClick = { newsItem ->
                 // 评论点击处理
@@ -210,7 +210,7 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
     }
 
     override fun initObserve() {
-        viewLifecycleOwner.lifecycleScope.launch {.3
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.run {
                     observeState({ value.freshNewsList }) {
@@ -218,11 +218,14 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
 
                             is ApiResponse.Success -> {
                                 Log.d(TAG, "新鲜事刷新成功")
+                                freshNewsList.data.forEach { it->
+//                                    Log.d(TAG, "新闻项ID: ${it.freshNewsId}, 点赞数：${it.liked}, 点赞状态：${it.isLiked}" )
+                                }
                                 val newsList = freshNewsList.data
                                 if (page == 1) {
                                     adapter.updateData(newsList)
                                     if (refreshLayout.isRefreshing) refreshLayout.finishRefresh()
-                                    recyclerView.smoothScrollToPosition(0)
+//                                    recyclerView.smoothScrollToPosition(0)
                                 } else {
                                     if (newsList.isEmpty()) {
                                         hasMoreData = false

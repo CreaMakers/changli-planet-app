@@ -20,7 +20,7 @@ class FreshNewsContract {
         class Initialization : Intent()
         class UpdateUserProfile(val userId: Int) : Intent()
 
-        class LikeNews(val freshNewsItem: FreshNewsItem) : Intent()
+        class LikeNews(val freshNewsId: Int) : Intent()
         class FavoriteNews(val freshNewsItem: FreshNewsItem) : Intent()
         class OpenComments(val freshNewsItem: FreshNewsItem) : Intent()
     }
