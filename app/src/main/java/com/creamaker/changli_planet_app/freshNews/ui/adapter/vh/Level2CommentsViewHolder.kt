@@ -81,6 +81,26 @@ RecyclerView.ViewHolder(binding.root) {
             }
         }
     }
+
+    // 拉了一坨屎 嘻嘻
+    fun updateLike(isLiked: Boolean, likedCount: Int, level2CommentItem: Level2CommentItem) {
+        with(binding) {
+            ivLevel2Liked.apply {
+                if (isLiked) {
+                    load(R.drawable.ic_news_liked)
+                    imageTintList = root.context.getColorStateList(R.color.ele_low)
+                } else {
+                    load(R.drawable.ic_like)
+                    imageTintList = root.context.getColorStateList(R.color.md_theme_outline)
+                }
+                setOnClickListener {
+                    onLevel2CommentLikedClick(level2CommentItem)
+                }
+            }
+            tvLevel2LikeCount.text = likedCount.toString()
+        }
+    }
+
     private fun highlightMentions(text: String, colorRes: Int): SpannableStringBuilder {
         val ssb = SpannableStringBuilder(text)
         val color = ContextCompat.getColor(binding.root.context, colorRes)
