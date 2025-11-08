@@ -21,7 +21,7 @@ class FreshNewsContract {
         class UpdateUserProfile(val userId: Int) : Intent()
 
         class LikeNews(val freshNewsId: Int) : Intent()
-        class FavoriteNews(val freshNewsItem: FreshNewsItem) : Intent()
+        class FavoriteNews(val freshNewsId: Int) : Intent()
         class OpenComments(val freshNewsItem: FreshNewsItem) : Intent()
     }
 

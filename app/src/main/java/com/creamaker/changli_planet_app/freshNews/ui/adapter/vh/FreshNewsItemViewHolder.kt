@@ -19,7 +19,7 @@ class FreshNewsItemViewHolder(
     private val onNewsDetailClick: (FreshNewsItem) -> Unit,
     private val onLikeClick: (Int) -> Unit,
     private val onCommentClick: (FreshNewsItem) -> Unit,
-    private val onCollectClick: (FreshNewsItem) -> Unit
+    private val onCollectClick: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
     private val TAG = "FreshNewsItemViewHolder"
 
@@ -39,6 +39,17 @@ class FreshNewsItemViewHolder(
                 newsFavor.setImageResource(R.drawable.ic_like)
             }
             newsFavorCount.text = liked.toString()
+        }
+    }
+
+    fun updateIsFavorited(favouritesCount: Int, isFavorited: Boolean) {
+        with(binding) {
+            if (isFavorited) {
+                newsShare.setImageResource(R.drawable.ic_collect)
+            } else {
+                newsShare.setImageResource(R.drawable.ic_un_collect)
+            }
+            newsShareCount.text = favouritesCount.toString()
         }
     }
 
@@ -92,7 +103,7 @@ class FreshNewsItemViewHolder(
 
             favorContainer.setOnClickListener { onLikeClick(news.freshNewsId) }
             commentContainer.setOnClickListener { onCommentClick(news) }
-            shareContainer.setOnClickListener { onCollectClick(news) }
+            shareContainer.setOnClickListener { onCollectClick(news.freshNewsId) }
         }
     }
 }
