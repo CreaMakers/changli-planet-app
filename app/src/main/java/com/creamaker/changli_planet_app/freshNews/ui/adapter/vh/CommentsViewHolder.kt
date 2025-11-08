@@ -1,5 +1,6 @@
 package com.creamaker.changli_planet_app.freshNews.ui.adapter.vh
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -49,6 +50,7 @@ class CommentsViewHolder(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     fun bind(commentsItem: CommentsItem) = with(binding) {
         val context = root.context
         val fresh = commentsItem.freshNewsItem
@@ -68,7 +70,7 @@ class CommentsViewHolder(
             postmanLocation.text = fresh.location
             newsTitle.text = fresh.title
             newsContent.text = fresh.content
-
+            tvCommentsCount.text = "(${fresh.comments})"
             postmanAvatar.setOnClickListener { onUserClick(fresh.userId) }
             tvPostComment.setOnClickListener { onPostLevel1CommentClick() }
 
