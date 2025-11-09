@@ -23,7 +23,7 @@ class FreshNewsAdapter(
     private val onMenuClick: (FreshNewsItem) -> Unit = {},
     private val onLikeClick: (Int) -> Unit = {},
     private val onCommentClick: (FreshNewsItem) -> Unit = {},
-    private val onCollectClick: (FreshNewsItem) -> Unit = {}
+    private val onCollectClick: (Int) -> Unit = {}
 ) : ListAdapter<FreshNewsItem, RecyclerView.ViewHolder>(object :
     DiffUtil.ItemCallback<FreshNewsItem>() {
     override fun areItemsTheSame(oldItem: FreshNewsItem, newItem: FreshNewsItem): Boolean =
@@ -36,6 +36,7 @@ class FreshNewsAdapter(
         return when {
             oldItem.authorName != newItem.authorName || oldItem.authorAvatar != newItem.authorAvatar -> "UPDATE_AVATAR_AND_NAME"
             oldItem.liked != newItem.liked || oldItem.isLiked != newItem.isLiked -> "UPDATE_isLIKED"
+            oldItem.favoritesCount != newItem.favoritesCount || oldItem.isFavorited != newItem.isFavorited -> "UPDATE_ISFAVORITED"
             else -> null
         }
     }
@@ -107,6 +108,8 @@ class FreshNewsAdapter(
                         holder.updateAccountAndAvatar(item.authorName, item.authorAvatar)
                     } else if (changePart == "UPDATE_isLIKED") {
                         holder.updateIsLike(item.liked, item.isLiked)
+                    } else if (changePart == "UPDATE_ISFAVORITED") {
+                        holder.updateIsFavorited(item.favoritesCount, item.isFavorited)
                     }
                 }
 
@@ -118,11 +121,11 @@ class FreshNewsAdapter(
     }
 
     fun updateData(newNewsList: List<FreshNewsItem>) {
-        submitList(newNewsList)
+        submitList(newNewsList.map { it.copy() })
     }
 
     fun addData(newItems: List<FreshNewsItem>) {
-        submitList(currentList + newItems)
+        submitList(currentList.map { it.copy() } + newItems.map { it.copy() })
     }
 
     fun updateDataByUserId(userId: Int, newAccount: String, newAvatarUrl: String) {
