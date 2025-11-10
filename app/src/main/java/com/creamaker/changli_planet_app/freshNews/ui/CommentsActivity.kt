@@ -58,6 +58,7 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
 
     private var parentCommentId: Int = 0
     private var isLevel1CommentsCountChanged = false
+    private var newLevel1CommentsCount = 0
     override fun createViewBinding(): ActivityCommentsBinding {
         return ActivityCommentsBinding.inflate(layoutInflater)
     }
@@ -74,7 +75,14 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (isLevel1CommentsCountChanged) setResult(PlanetConst.RESULT_OK)
+                if (newLevel1CommentsCount > 0) {
+                    setResult(PlanetConst.RESULT_OK, Intent().apply {
+                        putExtra("newLevel1CommentsCount", newLevel1CommentsCount)
+                        putExtra("freshNewsId", freshNewsItem!!.freshNewsId)
+                    })
+                } else if (isLevel1CommentsCountChanged) {
+                    setResult(PlanetConst.RESULT_OK)
+                }
                 finish()
             }
         })
@@ -109,11 +117,19 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
         binding.ivBack.apply {
             load(R.drawable.ic_back)
             setOnClickListener {
-                if (isLevel1CommentsCountChanged) setResult(PlanetConst.RESULT_OK)
+                if (newLevel1CommentsCount > 0) {
+                    setResult(PlanetConst.RESULT_OK, Intent().apply {
+                        putExtra("newLevel1CommentsCount", newLevel1CommentsCount)
+                        putExtra("freshNewsId", freshNewsItem!!.freshNewsId)
+                    })
+                } else if (isLevel1CommentsCountChanged) {
+                    setResult(PlanetConst.RESULT_OK)
+                }
                 finish()
             }
         }
         ivSend.setOnClickListener {
+            newLevel1CommentsCount++
             isLevel1CommentsCountChanged = true
             sendComment()
             val imm  = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager

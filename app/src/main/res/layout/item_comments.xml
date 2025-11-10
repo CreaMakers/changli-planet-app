@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/dp3"
         android:layout_marginTop="@dimen/dp10"
-        android:background="@drawable/bg_response_count"
+        android:background="@drawable/bg_freshnews_item"
         android:paddingTop="@dimen/dp10"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

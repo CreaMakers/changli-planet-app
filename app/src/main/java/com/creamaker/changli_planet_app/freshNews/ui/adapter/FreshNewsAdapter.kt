@@ -167,4 +167,14 @@ class FreshNewsAdapter(
     }
 
     fun getData(): List<FreshNewsItem> = currentList
+    fun updateCommentCount(newsId: Int, commentCount: Int) {
+        val position = currentList.indexOfFirst { it.freshNewsId == newsId }
+        if (position != -1) {
+            val newList = currentList.toMutableList()
+            val oldItem = newList[position]
+            val newItem = oldItem.copy(comments = commentCount+oldItem.comments)
+            newList[position] = newItem
+            submitList(newList)
+        }
+    }
 }
