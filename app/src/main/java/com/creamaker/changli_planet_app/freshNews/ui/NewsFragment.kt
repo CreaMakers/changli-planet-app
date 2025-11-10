@@ -72,7 +72,14 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
             when (result.resultCode) {
                 PlanetConst.RESULT_OK -> {
                     Log.d(TAG, "评论发布成功，刷新列表")
-                    refreshLayout.autoRefresh()
+                    val data: Intent? = result.data
+                    data?.let {
+                        val newsId = it.getIntExtra("freshNewsId", -1)
+                        val newCommentCount = it.getIntExtra("newLevel1CommentsCount", -1)
+                        if (newsId != -1 && newCommentCount != -1) {
+                            adapter.updateCommentCount(newsId, newCommentCount)
+                        }
+                    }
                 }
                 PlanetConst.RESULT_OK_NEWS_REFRESH -> {
                     val data: Intent? = result.data
@@ -174,11 +181,7 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
             // 设置item的底部margin
             addItemDecoration(
                 ItemDecorationWrapper.Builder(requireContext())
-                    .setVerticalMarginDp(0f, NEWS_ITEM_BOTTOM_MARGIN)
-                    .setMarginCondition { position, parent ->
-                        // 最后一个也不需要
-                        position != parent.adapter?.itemCount?.minus(1)
-                    }
+                    .setVerticalMarginDp(NEWS_ITEM_BOTTOM_MARGIN,0f )
                     .build()
             )
         }

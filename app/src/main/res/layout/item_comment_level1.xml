@@ -105,7 +105,7 @@
         android:layout_height="@dimen/dp32"
         android:layout_marginStart="@dimen/dp16"
         android:layout_marginTop="@dimen/dp8"
-        android:textColor="@color/md_theme_onPrimaryContainer"
+        android:textColor="@color/color_on_secondary_text"
         android:textSize="@dimen/sp13"
         android:background="@drawable/bg_response_count"
         app:layout_constraintStart_toStartOf="parent"

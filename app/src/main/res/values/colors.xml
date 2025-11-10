@@ -57,6 +57,8 @@
     <color name="color_on_functional_text">#3A90FB</color>
     <color name="color_on_functional_bg">#D0D3DB</color>
     <color name="color_on_primary_text">#222222</color>
+    <color name="color_on_primary_bg">#F8F8F8</color>
+    <color name="color_on_secondary_text">#6C9AE5</color>
     <color name="md_theme_primary">#35618E</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
     <color name="md_theme_primaryContainer">#D1E4FF</color>
