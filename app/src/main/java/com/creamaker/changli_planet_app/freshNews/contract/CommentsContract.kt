@@ -18,7 +18,7 @@ class CommentsContract {
         data class Level2CommentLikedClick(
             val level2CommentItem: Level2CommentItem
         ): Intent()
-        data class LoadLevel1Comment(val level1CommentItem: Level1CommentItem) : Intent()
+        data class LoadLevel1Comment(val level1CommentId: Int) : Intent()
         data class LoadLevel1Comments(val freshNewsItem: FreshNewsItem,val page:Int,val pageSize: Int): Intent()
         data class LoadLevel2Comments(val level1CommentItem: Level1CommentItem,val page:Int,val pageSize: Int): Intent()
         data object ResetLevel2Comments: Intent()

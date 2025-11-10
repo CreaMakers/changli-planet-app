@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -37,6 +38,11 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import kotlin.text.compareTo
+import androidx.core.view.isVisible
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItemResult
+import com.tencent.mmkv.MMKV.pageSize
 
 class NewsFragment : BaseFragment<FragmentNewsBinding>() {
 
@@ -95,6 +101,11 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
     ): View? {
         EventBus.getDefault().register(this)
         return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setBackToTopButton()
     }
     override fun onDestroyView() {
         super.onDestroyView()
@@ -213,27 +224,32 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.run {
-                    observeState({ value.freshNewsList }) {
-                        when (val freshNewsList = it) {
+                    observeState({ value.freshNewsListResults }) {
+                        Log.d(TAG, "观察到新鲜事列表数据变化")
+                        when (val freshNewsListResults = it) {
 
                             is ApiResponse.Success -> {
                                 Log.d(TAG, "新鲜事刷新成功")
-                                freshNewsList.data.forEach { it->
-//                                    Log.d(TAG, "新闻项ID: ${it.freshNewsId}, 点赞数：${it.liked}, 点赞状态：${it.isLiked}" )
-                                }
-                                val newsList = freshNewsList.data
+                                val freshNewsList = freshNewsListResults.data
+                                    .filterIsInstance<FreshNewsItemResult.Success>()
+                                    .map { it.freshNewsItem }
+                                val newsList = freshNewsList
                                 if (page == 1) {
                                     adapter.updateData(newsList)
                                     if (refreshLayout.isRefreshing) refreshLayout.finishRefresh()
                                     hasMoreData = newsList.size >= pageSize
 //                                    recyclerView.smoothScrollToPosition(0)
                                 } else {
-                                    if (newsList.isEmpty()) {
-                                        hasMoreData = false
-                                        refreshLayout.finishLoadMoreWithNoMoreData()
-                                    } else {
-                                        adapter.addData(newsList)
-                                        refreshLayout.finishLoadMore()
+                                    adapter.updateData(newsList)
+                                    when(freshNewsListResults.data.last()){
+                                        is FreshNewsItemResult.NoMore -> {
+                                            hasMoreData = false
+                                            refreshLayout.finishLoadMoreWithNoMoreData()
+                                        }
+                                        else -> {
+                                            hasMoreData = newsList.size >= pageSize
+                                            refreshLayout.finishLoadMore()
+                                        }
                                     }
                                 }
                                 isLoading = false
@@ -273,6 +289,38 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
         isLoading = true
         page++
         refreshNewsList(page, pageSize)
+    }
+    private fun setBackToTopButton() {
+        binding.appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+            val searchHeight = binding.appBarLayout.getChildAt(0).height
+            // 当搜索栏完全滑出屏幕时显示按钮(滚动超过搜索栏高度)
+            if (Math.abs(verticalOffset) >= searchHeight) {
+                showBackToTopButton()
+            } else {
+                hideBackToTopButton()
+            }
+        }
+        // 点击按钮回到顶部
+        binding.ivBackToTop.setOnClickListener {
+            scrollToTop()
+        }
+    }
+    private fun showBackToTopButton() {
+        if (binding.ivBackToTop.visibility != View.VISIBLE) {
+            binding.ivBackToTop.visibility = View.VISIBLE
+            binding.ivBackToTop.animate().alpha(1.0f).setDuration(300).start()
+        }
+    }
+    private fun hideBackToTopButton() {
+        if (binding.ivBackToTop.isVisible) {
+            binding.ivBackToTop.animate().alpha(0.0f).setDuration(300).withEndAction {
+                binding.ivBackToTop.visibility = View.GONE
+            }.start()
+        }
+    }
+    private fun scrollToTop() {
+        binding.appBarLayout.setExpanded(true, true)
+        recyclerView.smoothScrollToPosition(0)
     }
 
     @Subscribe

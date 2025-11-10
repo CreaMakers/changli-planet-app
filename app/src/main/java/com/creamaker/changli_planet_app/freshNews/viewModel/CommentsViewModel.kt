@@ -43,7 +43,7 @@ class CommentsViewModel: MviViewModel<CommentsContract.Intent, CommentsContract.
             )
 
             is CommentsContract.Intent.Level2CommentLikedClick -> likeLevel2Comment(intent.level2CommentItem)
-            is CommentsContract.Intent.LoadLevel1Comment -> loadLevel1Comment(intent.level1CommentItem)
+            is CommentsContract.Intent.LoadLevel1Comment -> loadLevel1Comment(intent.level1CommentId)
             is CommentsContract.Intent.LoadLevel2Comments -> loadLevel2Comments(
                 intent.level1CommentItem,
                 intent.page,
@@ -494,13 +494,27 @@ class CommentsViewModel: MviViewModel<CommentsContract.Intent, CommentsContract.
             }
         }
     }
-    private fun loadLevel1Comment(level1CommentItem: Level1CommentItem){
-        updateState {
-            copy(
-                level2CommentsResults = listOf(CommentsResult.Success.Level1CommentsSuccess(level1CommentItem))
-            )
+    private fun loadLevel1Comment(level1CommentId: Int){
+        val id = level1CommentId
+        //从state查找最新的Item状态
+        val currentItem = state.value.level1CommentsResults.filterIsInstance<CommentsResult.Success.Level1CommentsSuccess>()
+            .find { it.level1Comment.commentId == id }?.level1Comment
+        if (currentItem == null)
+        {
+            updateState {
+                copy(
+                    level2CommentsResults = listOf(CommentsResult.Error)
+                )
+            }
+        }else{
+            updateState {
+                copy(
+                    level2CommentsResults = listOf(CommentsResult.Success.Level1CommentsSuccess(currentItem))
+                )
+            }
         }
-    }
+        }
+
     private fun loadLevel2Comments(
         level1CommentItem: Level1CommentItem,
         page: Int,

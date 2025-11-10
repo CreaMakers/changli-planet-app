@@ -151,7 +151,7 @@
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" /> <!-- 添加 FileProvider 配置 -->
+            android:theme="@style/UCropTheme" /> <!-- 添加 FileProvider 配置 -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

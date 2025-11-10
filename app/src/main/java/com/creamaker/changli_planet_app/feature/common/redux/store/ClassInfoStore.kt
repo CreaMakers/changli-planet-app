@@ -57,55 +57,55 @@ class ClassInfoStore : Store<ClassInfoState, ClassInfoAction>() {
             }
 
             is ClassInfoAction.QueryEmptyClassInfo -> {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val response = EducationHelper.getRelexClassroom(
-                        action.term, (when (currentState.region) {
-                            "金盆岭校区" -> "2"
-                            "云塘校区" -> "1"
-                            else -> "1"
-                        }), currentState.week, currentState.week, (when (currentState.day) {
-                            "星期天" -> "0"
-                            "星期一" -> "1"
-                            "星期二" -> "2"
-                            "星期三" -> "3"
-                            "星期四" -> "4"
-                            "星期五" -> "5"
-                            "星期六" -> "6"
-                            else -> "-1"
-                        }), (when (currentState.day) {
-                            "星期天" -> "0"
-                            "星期一" -> "1"
-                            "星期二" -> "2"
-                            "星期三" -> "3"
-                            "星期四" -> "4"
-                            "星期五" -> "5"
-                            "星期六" -> "6"
-                            else -> "-1"
-                        }), currentState.start, currentState.end
-                    )
-                    when(response){
-                        is Resource.Success -> {
-                            handler.post {
-                                CustomToast.showMessage(
-                                    action.context,
-                                    "成功查询到空闲教室数据 "
-                                )
-                            }
-                            Log.d("ClassInfoStore","空闲教室数据：${response.data}")
-                        }
-                        is Resource.Error -> {
-                            handler.post {
-                                CustomToast.showMessage(
-                                    action.context,
-                                    "出错啦，${response.msg}"
-                                )
-                            }
-                        }
-                        is Resource.Loading -> {
-                            // do nothing
-                        }
-                    }
-                }
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    val response = EducationHelper.getRelexClassroom(
+//                        action.term, (when (currentState.region) {
+//                            "金盆岭校区" -> "2"
+//                            "云塘校区" -> "1"
+//                            else -> "1"
+//                        }), currentState.week, currentState.week, (when (currentState.day) {
+//                            "星期天" -> "0"
+//                            "星期一" -> "1"
+//                            "星期二" -> "2"
+//                            "星期三" -> "3"
+//                            "星期四" -> "4"
+//                            "星期五" -> "5"
+//                            "星期六" -> "6"
+//                            else -> "-1"
+//                        }), (when (currentState.day) {
+//                            "星期天" -> "0"
+//                            "星期一" -> "1"
+//                            "星期二" -> "2"
+//                            "星期三" -> "3"
+//                            "星期四" -> "4"
+//                            "星期五" -> "5"
+//                            "星期六" -> "6"
+//                            else -> "-1"
+//                        }), currentState.start, currentState.end
+//                    )
+//                    when(response){
+//                        is Resource.Success -> {
+//                            handler.post {
+//                                CustomToast.showMessage(
+//                                    action.context,
+//                                    "成功查询到空闲教室数据 "
+//                                )
+//                            }
+//                            Log.d("ClassInfoStore","空闲教室数据：${response.data}")
+//                        }
+//                        is Resource.Error -> {
+//                            handler.post {
+//                                CustomToast.showMessage(
+//                                    action.context,
+//                                    "出错啦，${response.msg}"
+//                                )
+//                            }
+//                        }
+//                        is Resource.Loading -> {
+//                            // do nothing
+//                        }
+//                    }
+//                }
 
 //                val httpUrlHelper = HttpUrlHelper.HttpRequest()
 //                    .get(PlanetApplication.ToolIp + "/classroom")

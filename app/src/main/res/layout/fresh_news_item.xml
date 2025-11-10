@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingVertical="@dimen/dp15"
-    android:background="@color/md_theme_primaryContainer">
+    android:layout_marginHorizontal="@dimen/dp5"
+    android:background="@drawable/bg_freshnews_item">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/news_item_avatar"

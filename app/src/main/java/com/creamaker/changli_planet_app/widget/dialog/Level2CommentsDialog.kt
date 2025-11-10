@@ -90,7 +90,7 @@ class Level2CommentsDialog(
         }
         //加载一级评论
         if (!initialLoaded) {
-            commentsViewModel.processIntent(CommentsContract.Intent.LoadLevel1Comment(level1CommentItem))
+            commentsViewModel.processIntent(CommentsContract.Intent.LoadLevel1Comment(level1CommentItem.commentId))
             initialLoaded = true
         }
 
