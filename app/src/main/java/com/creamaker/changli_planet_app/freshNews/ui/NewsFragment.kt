@@ -181,11 +181,7 @@ class NewsFragment : BaseFragment<FragmentNewsBinding>() {
             // 设置item的底部margin
             addItemDecoration(
                 ItemDecorationWrapper.Builder(requireContext())
-                    .setVerticalMarginDp(0f, NEWS_ITEM_BOTTOM_MARGIN)
-                    .setMarginCondition { position, parent ->
-                        // 最后一个也不需要
-                        position != parent.adapter?.itemCount?.minus(1)
-                    }
+                    .setVerticalMarginDp(NEWS_ITEM_BOTTOM_MARGIN,0f )
                     .build()
             )
         }
