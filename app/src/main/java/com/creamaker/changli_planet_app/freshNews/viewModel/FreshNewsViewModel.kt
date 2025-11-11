@@ -3,6 +3,7 @@ package com.creamaker.changli_planet_app.freshNews.viewModel
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.lifecycle.viewModelScope
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.RefreshNewsCache
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
@@ -11,11 +12,15 @@ import com.creamaker.changli_planet_app.core.mvi.MviViewModel
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.freshNews.contract.FreshNewsContract
 import com.creamaker.changli_planet_app.core.network.ApiResponse
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNews
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItemResult
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsPublish
 import com.creamaker.changli_planet_app.freshNews.data.remote.repository.FreshNewsRepository
 import com.creamaker.changli_planet_app.freshNews.data.remote.repository.UserProfileRepository
 import com.creamaker.changli_planet_app.widget.view.CustomToast
+import com.gradle.scan.agent.serialization.scan.serializer.kryo.it
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -26,6 +31,7 @@ import org.greenrobot.eventbus.EventBus
 import java.io.File
 
 class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContract.State>() {
+    private val TAG = "FreshNewsViewModel"
     private val handler = Handler(Looper.getMainLooper())
 
     override fun processIntent(intent: FreshNewsContract.Intent) {
@@ -34,6 +40,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.AddImage -> addImage(intent.file)
             is FreshNewsContract.Intent.RemoveImage -> removeImage(intent.index)
             is FreshNewsContract.Intent.Publish -> publish()
+            is FreshNewsContract.Intent.LoadIp -> loadIp()
             is FreshNewsContract.Intent.ClearAll -> clearAll()
             is FreshNewsContract.Intent.RefreshNewsByTime -> refreshNewsByTime(
                 intent.page,
@@ -44,8 +51,9 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.UpdateTabIndex -> changeCurrentTab(intent.currentIndex)
             is FreshNewsContract.Intent.Initialization -> {}
 
-            is FreshNewsContract.Intent.LikeNews -> likeNewsItem(intent.freshNewsItem)
-            is FreshNewsContract.Intent.FavoriteNews -> favoriteNewsItem(intent.freshNewsItem)
+            is FreshNewsContract.Intent.LikeNews -> likeNewsItem(intent.freshNewsId)
+            is FreshNewsContract.Intent.FavoriteNews -> favoriteNewsItem(intent.freshNewsId)
+            is FreshNewsContract.Intent.OpenComments -> openComments(intent.freshNewsItem)
         }
 
     }
@@ -57,7 +65,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
         FreshNewsPublish(),
         mutableListOf(),
         false,
-        0,
+        0
     )
 
     private fun changeCurrentTab(currentTab: Int) {
@@ -96,7 +104,8 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
     }
 
     private fun checkEnable(): Boolean = with(state.value.publishNews) {
-        title.isNotEmpty() && content.isNotEmpty()
+        val boolean = title.isNotEmpty() && content.isNotEmpty()
+        boolean
     }
 
     private fun publish() {
@@ -166,6 +175,20 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 }
             })
             */*/
+            if (state.value.publishNews.address == "未知"){
+                Log.d(TAG,"从网络获取ip地址")
+                val isSuccess = FreshNewsRepository.Companion.instance.getIp(state.value.publishNews).first()
+                if (isSuccess == "success"){
+                    Log.d("FreshNewsViewModel","ip解析成功")
+                }
+                else{
+                    Log.d("FreshNewsViewModel","ip解析失败")
+                }
+            }
+            else{
+                Log.d(TAG,"使用缓存的ip地址:${state.value.publishNews.address}")
+            }
+
             val result = FreshNewsRepository.Companion.instance.postFreshNews(
                 state.value.images,
                 state.value.publishNews
@@ -173,9 +196,11 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             result.onEach { response ->
                 when (response.code) {
                     "200" -> {
+                        Log.d(TAG,"发送成功")
                         clearAll()
                         cleanupTempFiles(state.value.images) //清理临时压缩文件
                         EventBus.getDefault().post(FreshNewsContract.Event.closePublish)    //关闭发布界面
+                        EventBus.getDefault().post(FreshNewsContract.Event.RefreshNewsList) //刷新新鲜事列表
                         handler.post {
                             CustomToast.Companion.showMessage(
                                 PlanetApplication.Companion.appContext,
@@ -185,6 +210,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                     }
 
                     else -> {
+                        Log.d(TAG,"发送失败")
                         handler.post {
                             CustomToast.Companion.showMessage(
                                 PlanetApplication.Companion.appContext,
@@ -209,79 +235,109 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
 
     private fun refreshNewsByTime(page: Int, pageSize: Int) {
         viewModelScope.launch {
-            updateState { copy(freshNewsList = ApiResponse.Loading()) }
+            val oldList = (state.value.freshNewsListResults as? ApiResponse.Success)?.data ?: emptyList()
+            Log.d("wxy","${oldList}")
+
+            if (page == 1) updateState { copy(freshNewsListResults = ApiResponse.Loading()) }
 
             val newsResult = FreshNewsRepository.Companion.instance.getNewsListByTime(page, pageSize)
             newsResult.collect { resource ->
                 when (resource) {
                     is ApiResponse.Success -> {
-                        val freshNewsItems = mutableListOf<FreshNewsItem>()
-                        resource.data.forEach { freshNews ->
-                            try {
-                                // 获取用户信息
-                                val userApiResponse = withContext(Dispatchers.IO) {
-                                    UserProfileRepository.Companion.instance
-                                        .getUserInformationById(freshNews.userId)
-                                        .first { it is ApiResponse.Success || it is ApiResponse.Error }
+                        val freshNewsItems = mutableListOf<FreshNewsItemResult>()
+                        if (resource.data.isEmpty() && page > 1) {
+                            // 如果是加载更多且没有数据，添加一个 no more 项
+                            freshNewsItems.add(FreshNewsItemResult.NoMore)
+                        }
+                        else{
+                            resource.data.forEach { freshNews ->
+                                try {
+                                    // 获取用户信息
+                                    val userApiResponse = withContext(Dispatchers.IO) {
+                                        UserProfileRepository.Companion.instance
+                                            .getUserInformationById(freshNews.userId)
+                                            .first { it is ApiResponse.Success || it is ApiResponse.Error }
+                                    }
+
+                                    val profile = when (userApiResponse) {
+                                        is ApiResponse.Success -> userApiResponse.data
+                                        else -> null
+                                    }
+
+                                    val localIsLiked = RefreshNewsCache.getLikeState(freshNews.freshNewsId)
+                                    val localIsFavorited = RefreshNewsCache.getFavoriteState(freshNews.freshNewsId)
+                                    val localLikeNum = RefreshNewsCache.getLikeNum(freshNews.freshNewsId)
+                                    val localFavoriteNum = RefreshNewsCache.getFavoriteNum(freshNews.freshNewsId)
+
+                                    var finalLikeNum = freshNews.liked ?: 0
+                                    if (localLikeNum > finalLikeNum) {
+                                        finalLikeNum = localLikeNum
+                                    } else if (finalLikeNum > localLikeNum) {
+                                        RefreshNewsCache.saveLikeNum(freshNews.freshNewsId, finalLikeNum)
+                                    }
+
+                                    var finalFavoriteNum = freshNews.favoritesCount ?: 0
+                                    if (localFavoriteNum > finalFavoriteNum) {
+                                        finalFavoriteNum = localFavoriteNum
+                                    } else if (finalFavoriteNum > localFavoriteNum) {
+                                        RefreshNewsCache.saveFavoriteNum(freshNews.freshNewsId, finalFavoriteNum)
+                                    }
+
+                                    // 构建最终的 FreshNewsItem
+                                    val freshNewsItem = FreshNewsItem(
+                                        freshNewsId = freshNews.freshNewsId,
+                                        userId = profile?.userId ?: -1,
+                                        authorName = profile?.account ?: "未知用户",
+                                        authorAvatar = profile?.avatarUrl ?: "",
+                                        title = freshNews.title,
+                                        content = freshNews.content,
+                                        images = when(freshNews.images){
+                                            "图片正在审核中"-> listOf()
+                                            ""-> listOf()
+                                            else-> freshNews.images.split(",")
+                                        },
+                                        tags = when(freshNews.tags){
+                                            ""-> listOf()
+                                            else-> freshNews.tags.split(",")
+                                        },
+                                        liked = finalLikeNum,
+                                        createTime = freshNews.createTime,
+                                        comments = freshNews.comments,
+                                        allowComments = freshNews.allowComments,
+                                        favoritesCount = finalFavoriteNum,
+                                        location = freshNews.address
+                                    ).apply {
+                                        isLiked = localIsLiked
+                                        isFavorited = localIsFavorited
+                                    }
+
+                                    freshNewsItems.add(FreshNewsItemResult.Success(freshNewsItem))
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    freshNewsItems.add(FreshNewsItemResult.Error(e.message?:"未知错误"))
+                                    Log.e("FreshNews", "Error processing news item: ${e.message}")
+                                    return@forEach
                                 }
-
-                                val profile = when (userApiResponse) {
-                                    is ApiResponse.Success -> userApiResponse.data
-                                    else -> null
-                                }
-
-                                val localIsLiked = RefreshNewsCache.getLikeState(freshNews.freshNewsId)
-                                val localIsFavorited = RefreshNewsCache.getFavoriteState(freshNews.freshNewsId)
-                                val localLikeNum = RefreshNewsCache.getLikeNum(freshNews.freshNewsId)
-                                val localFavoriteNum = RefreshNewsCache.getFavoriteNum(freshNews.freshNewsId)
-
-                                var finalLikeNum = freshNews.liked ?: 0
-                                if (localLikeNum > finalLikeNum) {
-                                    finalLikeNum = localLikeNum
-                                } else if (finalLikeNum > localLikeNum) {
-                                    RefreshNewsCache.saveLikeNum(freshNews.freshNewsId, finalLikeNum)
-                                }
-
-                                var finalFavoriteNum = freshNews.favoritesCount ?: 0
-                                if (localFavoriteNum > finalFavoriteNum) {
-                                    finalFavoriteNum = localFavoriteNum
-                                } else if (finalFavoriteNum > localFavoriteNum) {
-                                    RefreshNewsCache.saveFavoriteNum(freshNews.freshNewsId, finalFavoriteNum)
-                                }
-
-                                // 构建最终的 FreshNewsItem
-                                val freshNewsItem = FreshNewsItem(
-                                    freshNewsId = freshNews.freshNewsId,
-                                    userId = profile?.userId ?: -1,
-                                    authorName = profile?.account ?: "未知用户",
-                                    authorAvatar = profile?.avatarUrl ?: "",
-                                    title = freshNews.title,
-                                    content = freshNews.content,
-                                    images = freshNews.images,
-                                    tags = freshNews.tags,
-                                    liked = finalLikeNum,
-                                    createTime = freshNews.createTime,
-                                    comments = freshNews.comments,
-                                    allowComments = freshNews.allowComments,
-                                    favoritesCount = finalFavoriteNum,
-                                    location = "北京"
-                                ).apply {
-                                    isLiked = localIsLiked
-                                    isFavorited = localIsFavorited
-                                }
-
-                                freshNewsItems.add(freshNewsItem)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                Log.e("FreshNews", "Error processing news item: ${e.message}")
                             }
                         }
 
-                        updateState { copy(freshNewsList = ApiResponse.Success(freshNewsItems)) }
+//                        Log.d("wxy","${freshNewsItems}")
+                        updateState {
+                            val mergedList = if (page == 1) {
+                                // 下拉刷新：直接替换
+                                freshNewsItems
+                            } else {
+                                // 加载更多：拼接旧列表
+                                oldList + freshNewsItems
+                            }
+
+                            copy(freshNewsListResults = ApiResponse.Success(mergedList))
+                        }
+
 
                     }
                     is ApiResponse.Error -> {
-                        updateState { copy(freshNewsList = ApiResponse.Error(resource.msg)) }
+                        if (page == 1) updateState { copy(freshNewsListResults = ApiResponse.Error(resource.msg)) }
                         handler.post {
                             CustomToast.Companion.showMessage(
                                 PlanetApplication.Companion.appContext,
@@ -309,69 +365,98 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
 
 
     // 点赞
-    private fun likeNewsItem(freshNewsItem: FreshNewsItem) {
+    private fun likeNewsItem(freshNewsId: Int) {
         viewModelScope.launch {
-            val newsId = freshNewsItem.freshNewsId
-            val currentLikeCount = freshNewsItem.liked ?: 0
-            val isCurrentlyLiked = freshNewsItem.isLiked
+            // 在新的数据结构中需要先找到包含该 news 的 Success 项
+            val currentItemResult = (state.value.freshNewsListResults as? ApiResponse.Success)?.data?.find { itemResult ->
+                when (itemResult) {
+                    is FreshNewsItemResult.Success -> itemResult.freshNewsItem.freshNewsId == freshNewsId
+                    else -> false
+                }
+            } as? FreshNewsItemResult.Success
+
+            val currentItem = currentItemResult?.freshNewsItem ?: return@launch
+            val currentLikeCount = currentItem.liked
+            val isCurrentlyLiked = currentItem.isLiked
             val newLikeState = !isCurrentlyLiked
 
             try {
                 // 乐观更新状态
                 updateState {
-                    val updatedList = (freshNewsList as? ApiResponse.Success)?.data?.map { item ->
-                        if (item.freshNewsId == newsId) {
-                            item.copy(
-                                liked = if (newLikeState) currentLikeCount + 1 else currentLikeCount - 1
-                            ).apply {
-                                isLiked = newLikeState
-                                RefreshNewsCache.saveLikeNum(newsId,liked)
+                    val updatedList = (state.value.freshNewsListResults as? ApiResponse.Success)?.data?.map { itemResult ->
+                        when (itemResult) {
+                            is FreshNewsItemResult.Success -> {
+                                if (itemResult.freshNewsItem.freshNewsId == freshNewsId) {
+                                    val newCount = if (newLikeState) currentLikeCount + 1 else currentLikeCount - 1
+                                    val updatedItem = itemResult.freshNewsItem.copy(
+                                        liked = newCount,
+                                        isLiked = newLikeState
+                                    ).apply {
+                                        // 保存最新的数值到本地缓存
+                                        RefreshNewsCache.saveLikeNum(freshNewsId, newCount)
+                                    }
+                                    FreshNewsItemResult.Success(updatedItem)
+                                } else {
+                                    itemResult
+                                }
                             }
-                        } else {
-                            item
+                            else -> itemResult
                         }
                     }
 
                     if (updatedList != null) {
-                        copy(freshNewsList = ApiResponse.Success(updatedList))
+                        copy(freshNewsListResults = ApiResponse.Success(updatedList))
                     } else {
                         this
                     }
                 }
 
                 // 保存点赞状态到 MMKV
-                RefreshNewsCache.saveLikeState(newsId, newLikeState)
+                RefreshNewsCache.saveLikeState(freshNewsId, newLikeState)
 
                 // 发送网络请求
                 withContext(Dispatchers.IO) {
-                    Log.d("FreshNewsVM", "发送点赞请求: id=$newsId")
-                    val result = FreshNewsRepository.Companion.instance.likeNews(newsId)
+
+                    val result = FreshNewsRepository.Companion.instance.likeNews(freshNewsId)
 
                     result.collect { resource ->
                         withContext(Dispatchers.Main) {
                             when (resource) {
                                 is ApiResponse.Success -> {
-                                    Log.d("FreshNewsVM", "点赞操作成功: id=$newsId")
+                                    val actionText =
+                                        if (newLikeState) "已点赞" else "已取消点赞"
+                                    handler.post {
+                                        CustomToast.Companion.showMessage(
+                                            PlanetApplication.Companion.appContext,
+                                            actionText
+                                        )
+                                    }
                                 }
 
                                 is ApiResponse.Error -> {
-                                    Log.d("FreshNewsVM", "点赞请求失败，回滚状态: id=$newsId")
+                                    Log.d("FreshNewsVM", "点赞请求失败，回滚状态: id=$freshNewsId")
                                     updateState {
                                         val updatedList =
-                                            (freshNewsList as? ApiResponse.Success)?.data?.map { item ->
-                                                if (item.freshNewsId == newsId) {
-                                                    item.copy(
-                                                        liked = currentLikeCount
-                                                    ).apply {
-                                                        isLiked = isCurrentlyLiked  // 回滚到原始状态
+                                            (freshNewsListResults as? ApiResponse.Success)?.data?.map { itemResult ->
+                                                when (itemResult) {
+                                                    is FreshNewsItemResult.Success -> {
+                                                        if (itemResult.freshNewsItem.freshNewsId == freshNewsId) {
+                                                            val updatedItem = itemResult.freshNewsItem.copy(
+                                                                liked = currentLikeCount
+                                                            ).apply {
+                                                                isLiked = isCurrentlyLiked  // 回滚到原始状态
+                                                            }
+                                                            FreshNewsItemResult.Success(updatedItem)
+                                                        } else {
+                                                            itemResult
+                                                        }
                                                     }
-                                                } else {
-                                                    item
+                                                    else -> itemResult
                                                 }
                                             }
 
                                         if (updatedList != null) {
-                                            copy(freshNewsList = ApiResponse.Success(updatedList))
+                                            copy(freshNewsListResults = ApiResponse.Success(updatedList))
                                         } else {
                                             this
                                         }
@@ -394,21 +479,26 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 Log.e("FreshNewsVM", "点赞操作异常: ${e.message}", e)
                 withContext(Dispatchers.Main) {
                     updateState {
-                        val updatedList = (freshNewsList as? ApiResponse.Success)?.data?.map { item ->
-                            if (item.freshNewsId == newsId) {
-                                item.copy(
-                                    liked = currentLikeCount
-                                ).apply {
-                                    isLiked = isCurrentlyLiked
-                                    RefreshNewsCache.saveFavoriteNum(newsId, liked)
+                        val updatedList = (freshNewsListResults as? ApiResponse.Success)?.data?.map { itemResult ->
+                            when (itemResult) {
+                                is FreshNewsItemResult.Success -> {
+                                    if (itemResult.freshNewsItem.freshNewsId == freshNewsId) {
+                                        val updatedItem = itemResult.freshNewsItem.copy(
+                                            liked = currentLikeCount
+                                        ).apply {
+                                            isLiked = isCurrentlyLiked
+                                        }
+                                        FreshNewsItemResult.Success(updatedItem)
+                                    } else {
+                                        itemResult
+                                    }
                                 }
-                            } else {
-                                item
+                                else -> itemResult
                             }
                         }
 
                         if (updatedList != null) {
-                            copy(freshNewsList = ApiResponse.Success(updatedList))
+                            copy(freshNewsListResults = ApiResponse.Success(updatedList))
                         } else {
                             this
                         }
@@ -426,10 +516,17 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
     }
 
 
-    private fun favoriteNewsItem(freshNewsItem: FreshNewsItem) {
+    private fun favoriteNewsItem(freshNewsId: Int) {
         viewModelScope.launch {
             // 保存初始状态
-            val newsId = freshNewsItem.freshNewsId
+            val currentItemResult = (state.value.freshNewsListResults as? ApiResponse.Success)?.data?.find { itemResult ->
+                when (itemResult) {
+                    is FreshNewsItemResult.Success -> itemResult.freshNewsItem.freshNewsId == freshNewsId
+                    else -> false
+                }
+            } as? FreshNewsItemResult.Success
+
+            val freshNewsItem = currentItemResult?.freshNewsItem ?: return@launch
             val currentFavoriteCount = freshNewsItem.favoritesCount ?: 0
             val isCurrentlyFavorited = freshNewsItem.isFavorited
             // 计算新的收藏状态
@@ -438,21 +535,29 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             try {
                 // 乐观更新状态
                 updateState {
-                    val updatedList = (freshNewsList as? ApiResponse.Success)?.data?.map { item ->
-                        if (item.freshNewsId == newsId) {
-                            item.copy(
-                                favoritesCount = if (newFavoriteState) currentFavoriteCount + 1 else currentFavoriteCount - 1
-                            ).apply {
-                                isFavorited = newFavoriteState  // 使用计算好的新状态
-                                RefreshNewsCache.saveFavoriteNum(newsId,favoritesCount)
+                    val updatedList = (freshNewsListResults as? ApiResponse.Success)?.data?.map { itemResult ->
+                        when (itemResult) {
+                            is FreshNewsItemResult.Success -> {
+                                if (itemResult.freshNewsItem.freshNewsId == freshNewsId) {
+                                    val newCount = if (newFavoriteState) currentFavoriteCount + 1 else currentFavoriteCount - 1
+                                    val updatedItem = itemResult.freshNewsItem.copy(
+                                        favoritesCount = newCount,
+                                        isFavorited = newFavoriteState
+                                    ).apply {
+                                        // 使用计算好的新状态
+                                        RefreshNewsCache.saveFavoriteNum(freshNewsId, favoritesCount)
+                                    }
+                                    FreshNewsItemResult.Success(updatedItem)
+                                } else {
+                                    itemResult
+                                }
                             }
-                        } else {
-                            item
+                            else -> itemResult
                         }
                     }
 
                     if (updatedList != null) {
-                        copy(freshNewsList = ApiResponse.Success(updatedList))
+                        copy(freshNewsListResults = ApiResponse.Success(updatedList))
                     } else {
                         this
                     }
@@ -460,12 +565,12 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
 
 
                 // 保存收藏状态到 MMKV
-                RefreshNewsCache.saveFavoriteState(newsId, newFavoriteState)
+                RefreshNewsCache.saveFavoriteState(freshNewsId, newFavoriteState)
 
                 // 发送网络请求
                 withContext(Dispatchers.IO) {
-                    Log.d("FreshNewsVM", "发送收藏请求: id=$newsId")
-                    val result = FreshNewsRepository.Companion.instance.favoriteNews(newsId)
+                    Log.d("FreshNewsVM", "发送收藏请求: id=$freshNewsId")
+                    val result = FreshNewsRepository.Companion.instance.favoriteNews(freshNewsId, newFavoriteState)
 
                     result.collect { resource ->
                         withContext(Dispatchers.Main) {
@@ -484,23 +589,29 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
 
                                 is ApiResponse.Error -> {
                                     // 请求失败，回滚状态
-                                    Log.d("FreshNewsVM", "收藏请求失败，回滚状态: id=$newsId")
+                                    Log.d("FreshNewsVM", "收藏请求失败，回滚状态: id=$freshNewsId")
                                     updateState {
                                         val updatedList =
-                                            (freshNewsList as? ApiResponse.Success)?.data?.map { item ->
-                                                if (item.freshNewsId == newsId) {
-                                                    item.copy(
-                                                        favoritesCount = currentFavoriteCount
-                                                    ).apply {
-                                                        isFavorited =
-                                                            isCurrentlyFavorited  // 回滚到原始状态
+                                            (freshNewsListResults as? ApiResponse.Success)?.data?.map { itemResult ->
+                                                when (itemResult) {
+                                                    is FreshNewsItemResult.Success -> {
+                                                        if (itemResult.freshNewsItem.freshNewsId == freshNewsId) {
+                                                            val updatedItem = itemResult.freshNewsItem.copy(
+                                                                favoritesCount = currentFavoriteCount
+                                                            ).apply {
+                                                                isFavorited =
+                                                                    isCurrentlyFavorited  // 回滚到原始状态
+                                                            }
+                                                            FreshNewsItemResult.Success(updatedItem)
+                                                        } else {
+                                                            itemResult
+                                                        }
                                                     }
-                                                } else {
-                                                    item
+                                                    else -> itemResult
                                                 }
                                             }
                                         if (updatedList != null) {
-                                            copy(freshNewsList = ApiResponse.Success(updatedList))
+                                            copy(freshNewsListResults = ApiResponse.Success(updatedList))
                                         } else {
                                             this
                                         }
@@ -524,20 +635,26 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 withContext(Dispatchers.Main) {
                     // 发生异常时回滚状态
                     updateState {
-                        val updatedList = (freshNewsList as? ApiResponse.Success)?.data?.map { item ->
-                            if (item.freshNewsId == newsId) {
-                                item.copy(
-                                    favoritesCount = currentFavoriteCount
-                                ).apply {
-                                    isFavorited = isCurrentlyFavorited  // 回滚到原始状态
+                        val updatedList = (freshNewsListResults as? ApiResponse.Success)?.data?.map { itemResult ->
+                            when (itemResult) {
+                                is FreshNewsItemResult.Success -> {
+                                    if (itemResult.freshNewsItem.freshNewsId == freshNewsId) {
+                                        val updatedItem = itemResult.freshNewsItem.copy(
+                                            favoritesCount = currentFavoriteCount
+                                        ).apply {
+                                            isFavorited = isCurrentlyFavorited  // 回滚到原始状态
+                                        }
+                                        FreshNewsItemResult.Success(updatedItem)
+                                    } else {
+                                        itemResult
+                                    }
                                 }
-                            } else {
-                                item
+                                else -> itemResult
                             }
                         }
 
                         if (updatedList != null) {
-                            copy(freshNewsList = ApiResponse.Success(updatedList))
+                            copy(freshNewsListResults = ApiResponse.Success(updatedList))
                         } else {
                             this
                         }
@@ -551,6 +668,36 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                     }
                 }
             }
+        }
+    }
+    private fun openComments(freshNewsItem: FreshNewsItem) {
+        try {
+            EventBus.getDefault().removeStickyEvent(FreshNewsItem::class.java)
+        } catch (e: Exception) {
+            // ignore
+        }
+        EventBus.getDefault().postSticky(freshNewsItem)
+
+        viewModelScope.launch {
+
+            EventBus.getDefault().post(FreshNewsContract.Event.openComments)
+        }
+
+    }
+    private fun loadIp() {
+        viewModelScope.launch {
+            try {
+                val isSuccess =
+                    FreshNewsRepository.Companion.instance.getIp(state.value.publishNews).first()
+                if (isSuccess == "success") {
+                    Log.d("FreshNewsViewModel", "ip解析成功")
+                } else {
+                    Log.d("FreshNewsViewModel", "ip解析失败")
+                }
+            }catch (e:Exception){
+                Log.e("FreshNewsViewModel","获取ip异常:${e.message}")
+            }
+
         }
     }
 }

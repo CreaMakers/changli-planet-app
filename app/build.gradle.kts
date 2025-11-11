@@ -30,7 +30,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 14
-        versionName = "1.2.6"
+        versionName = "1.2.6.1-rc"
 
 
         ndk {
@@ -189,8 +189,7 @@ dependencies {
     implementation("androidx.work:work-rxjava2:2.10.3")
     implementation(project(":CP_Common"))
     //csustDataGet
-//    implementation("com.github.CreaMakers:CSUSTDataGet:28c105c2a7")
-    implementation("com.github.CreaMakers:CSUSTDataGet:2621828cf6")
+    implementation("com.github.CreaMakers:CSUSTDataGet:7c257d707e")
 }
 kapt {
     arguments {

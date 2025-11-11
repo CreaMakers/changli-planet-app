@@ -382,8 +382,7 @@ class ScoreInquiryStore : Store<ScoreInquiryState, ScoreInquiryAction>() {
             property = examNature,
             attribute = courseAttribute,
             reItem = groupName,
-            pscjUrl = gradeDetailUrl,
-            cookie = null // 如果 App 需要 cookie，你可以在 Repository 层补进去
+            pscjUrl = gradeDetailUrl
         )
     }
 

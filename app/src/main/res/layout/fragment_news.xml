@@ -1,118 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragmentContainerNews"
     android:layout_width="match_parent"
-    android:paddingTop="@dimen/dp35"
     android:layout_height="match_parent"
+    android:paddingTop="@dimen/dp35"
     tools:context=".freshNews.ui.NewsFragment">
 
-    <!--    <LinearLayout-->
-    <!--        android:id="@+id/news_search"-->
-    <!--        android:orientation="horizontal"-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_marginHorizontal="20dp"-->
-    <!--        android:background="@drawable/main_search"-->
-    <!--        android:layout_marginTop="10dp"-->
-    <!--        android:layout_height="40dp"-->
-    <!--        app:layout_constraintEnd_toStartOf="@id/news_avatar"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent">-->
-
-    <!--        <ImageView-->
-    <!--            android:layout_width="25dp"-->
-    <!--            android:layout_height="25dp"-->
-    <!--            android:layout_gravity="center"-->
-    <!--            android:layout_marginStart="15dp"-->
-    <!--            android:src="@drawable/component2" />-->
-
-    <!--        <TextView-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:layout_gravity="center"-->
-    <!--            android:layout_marginStart="15dp"-->
-    <!--            android:text="点击搜索想要的群组"-->
-    <!--            android:textColor="@color/game1_gray"-->
-    <!--            android:textSize="17sp" />-->
-
-    <!--    </LinearLayout>-->
-
-    <!--    <com.google.android.material.imageview.ShapeableImageView-->
-    <!--        android:id="@+id/news_avatar"-->
-    <!--        android:layout_marginEnd="10dp"-->
-    <!--        android:layout_width="42dp"-->
-    <!--        android:layout_height="42dp"-->
-    <!--        android:layout_marginTop="10dp"-->
-    <!--        android:layout_gravity="center_vertical"-->
-    <!--        android:layout_marginStart="5dp"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent"-->
-    <!--        app:shapeAppearance="@style/CircleStyle" />-->
-
-
-    <!--    <com.google.android.material.tabs.TabLayout-->
-    <!--        android:id="@+id/to"-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_height="0dp"-->
-    <!--        android:background="@color/white"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintHeight_percent="0.05"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@+id/news_search"-->
-    <!--        app:layout_constraintWidth_percent="0.5"-->
-    <!--        app:tabIndicatorColor="@color/primary_blue"-->
-    <!--        app:tabRippleColor="@color/login_gray"-->
-    <!--        app:tabSelectedTextColor="@color/primary_blue"-->
-    <!--        app:tabTextAppearance="@style/MyTabLayout"-->
-    <!--        tools:layout_editor_absoluteX="0dp">-->
-
-    <!--        <com.google.android.material.tabs.TabItem-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:text="推荐" />-->
-
-    <!--        <com.google.android.material.tabs.TabItem-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:text="热门" />-->
-    <!--    </com.google.android.material.tabs.TabLayout>-->
-
-    <!--    <com.scwang.smart.refresh.layout.SmartRefreshLayout-->
-    <!--        android:id="@+id/refreshLayout"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="0dp"-->
-    <!--        android:background="@color/fresh_news_common_bg"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@+id/to"-->
-    <!--        app:layout_constraintVertical_bias="1.0"-->
-    <!--        app:srlAccentColor="@color/login_gray"-->
-    <!--        app:srlEnableOverScrollDrag="false"-->
-    <!--        app:srlEnablePreviewInEditMode="true"-->
-    <!--        tools:layout_editor_absoluteX="168dp">-->
-
-    <!--        <com.scwang.smart.refresh.header.MaterialHeader-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            app:srlDrawableSize="20dp" />-->
-
-    <!--        <androidx.recyclerview.widget.RecyclerView-->
-    <!--            android:id="@+id/news_recyclerView"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="match_parent" />-->
-
-    <!--        <com.scwang.smart.refresh.footer.ClassicsFooter-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content" />-->
-    <!--    </com.scwang.smart.refresh.layout.SmartRefreshLayout>-->
-
-    <!--    <FrameLayout-->
-    <!--        android:id="@+id/floatViewContainer"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent" />-->
-
-    <ImageView
-        android:id="@+id/iv_under_construction"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="0dp"
+        app:elevation="0dp"
+        android:stateListAnimator="@null">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- 搜索栏部分 - 会被滑出屏幕 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <LinearLayout
+                android:id="@+id/news_search"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/main_search"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toStartOf="@id/news_avatar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="15dp"
+                    android:src="@drawable/component2" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="15dp"
+                    android:text="点击搜索想要的群组"
+                    android:textColor="@color/game1_gray"
+                    android:textSize="17sp" />
+
+            </LinearLayout>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/news_avatar"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearance="@style/CircleStyle" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- TabLayout - 吸顶部分 -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/to"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                app:tabIndicatorColor="@color/primary_blue"
+                app:tabRippleColor="@color/login_gray"
+                app:tabSelectedTextColor="@color/primary_blue"
+                app:tabTextAppearance="@style/MyTabLayout">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="推荐" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="热门" />
+            </com.google.android.material.tabs.TabLayout>
+
+            <ImageView
+                android:id="@+id/iv_back_to_top"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:src="@drawable/ic_up_arrow"
+                android:visibility="gone"
+                app:tint="@color/primary_blue"
+                tools:visibility="visible" />
+
+        </FrameLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- 内容区域 -->
+    <com.creamaker.changli_planet_app.utils.blur.BlurTarget
+        android:id="@+id/blur_target"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <com.scwang.smart.refresh.layout.SmartRefreshLayout
+            android:id="@+id/refreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/fresh_news_common_bg"
+            app:srlAccentColor="@color/login_gray"
+            app:srlEnableOverScrollDrag="false">
+
+            <com.scwang.smart.refresh.header.MaterialHeader
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srlDrawableSize="20dp"
+                />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/news_recyclerView"
+                android:background="@color/white"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/fresh_news_item"/>
+
+            <com.scwang.smart.refresh.footer.ClassicsFooter
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+    </com.creamaker.changli_planet_app.utils.blur.BlurTarget>
+
+    <com.creamaker.changli_planet_app.utils.blur.BlurView
+        android:id="@+id/bv_add_fns"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/dp30"
+        android:layout_marginBottom="@dimen/dp80"
+        android:background="@drawable/bg_16_rounded"
+        android:elevation="@dimen/dp6"
+        android:padding="@dimen/dp10"
+        app:blurOverlayColor="@color/colorOverlay">
+
+        <ImageView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:src="@drawable/ele_add" />
+
+    </com.creamaker.changli_planet_app.utils.blur.BlurView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

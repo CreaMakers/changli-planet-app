@@ -162,8 +162,7 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
                     credit = grade.score.toDoubleOrNull() ?: 0.0,
                     earnedCredit = grade.point.toDoubleOrNull() ?: 0.0,
                     courseType = grade.attribute,
-                    pscjUrl = grade.pscjUrl,
-                    cookie = grade.cookie
+                    pscjUrl = grade.pscjUrl
                 )
             }
 

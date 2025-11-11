@@ -15,10 +15,10 @@ import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.utils.load
 
 class ImageAdapter(
-    private val imageList: List<String?>,
-    private val onImageClick: (String?, Int) -> Unit
+    private var imageList: List<String?>,
+    private var onImageClick: (String?, Int) -> Unit
 ) : RecyclerView.Adapter<ImageAdapter.ViewModel>() {
-
+    private val TAG = "ImageAdapter"
     inner class ViewModel(val view: View) : RecyclerView.ViewHolder(view) {
         private val imageView: ImageView = view.findViewById(R.id.item_image_view)
 
@@ -33,6 +33,7 @@ class ImageAdapter(
                             target: Target<Drawable>,
                             isFirstResource: Boolean
                         ): Boolean {
+//                            Log.d(TAG,"Failed to load image at position $position: $imageUrl", e)
                             imageView.visibility = View.GONE
                             return true
                         }
@@ -44,6 +45,7 @@ class ImageAdapter(
                             dataSource: DataSource,
                             isFirstResource: Boolean
                         ): Boolean {
+//                            Log.d(TAG,"Successfully loaded image at position $position: $imageUrl")
                             imageView.setOnClickListener {
                                 onImageClick(imageUrl, position)
                             }
@@ -64,5 +66,11 @@ class ImageAdapter(
 
     override fun onBindViewHolder(holder: ViewModel, position: Int) {
         holder.bind(imageList[position], position)
+    }
+
+    fun updateImages(newImages: List<String?>, onClick: (String?, Int) -> Unit) {
+        this.imageList = newImages
+        this.onImageClick = onClick
+        notifyDataSetChanged()
     }
 }

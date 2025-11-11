@@ -1,6 +1,7 @@
 package com.creamaker.changli_planet_app.freshNews.ui.adapter.vh
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.ImageAdapter
@@ -8,6 +9,7 @@ import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNew
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.utils.GlideUtils
 import com.creamaker.changli_planet_app.databinding.FreshNewsItemBinding
+import com.gradle.scan.plugin.internal.dep.com.esotericsoftware.kryo.kryo5.util.Util.pos
 
 class FreshNewsItemViewHolder(
     val binding: FreshNewsItemBinding,
@@ -15,10 +17,11 @@ class FreshNewsItemViewHolder(
     private val onImageClick: (List<String?>, Int) -> Unit,
     private val onUserClick: (userId: Int) -> Unit,
     private val onNewsDetailClick: (FreshNewsItem) -> Unit,
-    private val onLikeClick: (FreshNewsItem) -> Unit,
+    private val onLikeClick: (Int) -> Unit,
     private val onCommentClick: (FreshNewsItem) -> Unit,
-    private val onCollectClick: (FreshNewsItem) -> Unit
+    private val onCollectClick: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
+    private val TAG = "FreshNewsItemViewHolder"
 
     fun updateAccountAndAvatar(account: String, avatarUrl: String) {
         with(binding) {
@@ -28,6 +31,7 @@ class FreshNewsItemViewHolder(
     }
 
     fun updateIsLike(liked: Int, isLiked: Boolean) {
+//        Log.d(TAG,"invoked")
         with(binding) {
             if (isLiked) {
                 newsFavor.setImageResource(R.drawable.ic_news_liked)
@@ -38,15 +42,28 @@ class FreshNewsItemViewHolder(
         }
     }
 
-    fun bind(news: FreshNewsItem) {
+    fun updateIsFavorited(favouritesCount: Int, isFavorited: Boolean) {
         with(binding) {
+            if (isFavorited) {
+                newsShare.setImageResource(R.drawable.ic_collect)
+            } else {
+                newsShare.setImageResource(R.drawable.ic_un_collect)
+            }
+            newsShareCount.text = favouritesCount.toString()
+        }
+    }
+
+    fun bind(news: FreshNewsItem) {
+        Log.d(TAG, "Binding news item: ${news}")
+        with(binding) {
+
             GlideUtils.load(context, newsItemAvatar, news.authorAvatar)
             newsItemUsername.text = news.authorName
             newsTitle.text = news.title
             val time = news.createTime.replace("T", "   ").replace("Z", " ")
             newsItemTime.text = "$time"
             newsContent.text = news.content
-
+            Log.d("wsc","images:"+"${news.images} ")
             imagesRecyclerView.adapter = ImageAdapter(
                 news.images
             ) { imageUrl, position -> onImageClick(news.images, position) }
@@ -58,8 +75,10 @@ class FreshNewsItemViewHolder(
 
             if (news.images.isEmpty()) {
                 imagesRecyclerView.visibility = View.GONE
+//                Log.d("wsc","No images for news id: ${news.freshNewsId}")
             } else {
                 imagesRecyclerView.visibility = View.VISIBLE
+//                Log.d("wsc","Images found for news id: ${news.freshNewsId}, count: ${news.images.size}")
             }
 
             newsItemAvatar.setOnClickListener { onUserClick(news.userId) }
@@ -82,9 +101,9 @@ class FreshNewsItemViewHolder(
                 newsShare.setImageResource(R.drawable.ic_un_collect)
             }
 
-            favorContainer.setOnClickListener { onLikeClick(news) }
+            favorContainer.setOnClickListener { onLikeClick(news.freshNewsId) }
             commentContainer.setOnClickListener { onCommentClick(news) }
-            shareContainer.setOnClickListener { onCollectClick(news) }
+            shareContainer.setOnClickListener { onCollectClick(news.freshNewsId) }
         }
     }
 }

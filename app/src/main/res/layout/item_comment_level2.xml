@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_comment_avatar_level2"
+        android:layout_width="@dimen/dp35"
+        android:layout_height="@dimen/dp35"
+        android:layout_marginStart="@dimen/dp18"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/CircleStyle"
+        tools:src="@drawable/fulilian" />
+
+    <TextView
+        android:id="@+id/tv_comment_item_username_level2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp10"
+        android:layout_marginEnd="@dimen/dp10"
+        android:textSize="@dimen/sp14"
+        android:textStyle="bold"
+        android:textColor="@color/md_theme_onSurface"
+        app:layout_constraintStart_toEndOf="@id/iv_comment_avatar_level2"
+        app:layout_constraintEnd_toStartOf="@id/tv_response_level2"
+        app:layout_constraintTop_toTopOf="@id/iv_comment_avatar_level2"
+        tools:text="回复者" />
+
+    <TextView
+        android:id="@+id/tv_response_level2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp15"
+        android:textColor="@color/md_theme_onPrimaryContainer"
+        android:textSize="@dimen/sp12"
+        android:gravity="center"
+        android:text="@string/response"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_comment_item_username_level2"
+        app:layout_constraintBottom_toBottomOf="@id/tv_comment_item_username_level2"
+        />
+
+    <TextView
+        android:id="@+id/comment_item_time_level2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textSize="@dimen/sp12"
+        android:textColor="@color/md_theme_onSurfaceVariant"
+        app:layout_constraintStart_toEndOf="@id/iv_comment_avatar_level2"
+        app:layout_constraintTop_toBottomOf="@id/tv_comment_item_username_level2"
+        app:layout_constraintBottom_toBottomOf="@id/iv_comment_avatar_level2"
+        tools:text="@string/freshNewsTime" />
+
+    <ImageView
+        android:id="@+id/dot_separator_level2"
+        android:layout_width="@dimen/dp12"
+        android:layout_height="@dimen/dp12"
+        android:src="@drawable/ic_one_point"
+        app:layout_constraintStart_toEndOf="@id/comment_item_time_level2"
+        app:layout_constraintBottom_toBottomOf="@id/comment_item_time_level2"
+        app:layout_constraintTop_toTopOf="@id/comment_item_time_level2"
+        app:layout_constraintEnd_toStartOf="@id/comment_item_location_level2" />
+
+    <TextView
+        android:id="@+id/comment_item_location_level2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp8"
+        android:drawablePadding="@dimen/dp4"
+        android:textSize="@dimen/sp12"
+        android:textColor="@color/md_theme_onSurfaceVariant"
+        app:layout_constraintStart_toEndOf="@id/comment_item_time_level2"
+        app:layout_constraintTop_toTopOf="@id/comment_item_time_level2"
+        app:layout_constraintBottom_toBottomOf="@id/comment_item_time_level2"
+        tools:text="北京市" />
+
+    <TextView
+        android:id="@+id/tv_comment_item_content_level2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp10"
+        android:layout_marginEnd="@dimen/dp16"
+        android:layout_marginTop="@dimen/dp8"
+        android:layout_marginBottom="@dimen/dp12"
+        android:textSize="14sp"
+        android:textColor="@color/md_theme_onSurface"
+        app:layout_constraintStart_toEndOf="@id/iv_comment_avatar_level2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_comment_avatar_level2"
+        tools:text="这是二级回复的内容示例，用于预览。" />
+    <ImageView
+        android:layout_width="@dimen/dp20"
+        android:layout_height="@dimen/dp20"
+        android:layout_marginEnd="@dimen/dp5"
+        android:id="@+id/iv_level2_liked"
+        app:layout_constraintEnd_toStartOf="@id/tv_level2_like_count"
+        app:layout_constraintTop_toBottomOf="@+id/tv_comment_item_content_level2"
+        app:tint="@color/md_theme_outline"
+        tools:src="@drawable/ic_like" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_level2_like_count"
+        android:textColor="@color/md_theme_onSurface"
+        app:layout_constraintEnd_toEndOf="@id/tv_comment_item_content_level2"
+        app:layout_constraintStart_toStartOf="@id/tv_comment_item_content_level2"
+        app:layout_constraintTop_toBottomOf="@+id/tv_comment_item_content_level2"
+        app:layout_constraintHorizontal_bias="1.0"
+        tools:text="123" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp1"
+        android:layout_marginTop="@dimen/dp5"
+        android:background="@color/md_theme_outline"
+        android:layout_marginHorizontal="@dimen/dp15"
+        app:layout_constraintTop_toBottomOf="@+id/tv_level2_like_count"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

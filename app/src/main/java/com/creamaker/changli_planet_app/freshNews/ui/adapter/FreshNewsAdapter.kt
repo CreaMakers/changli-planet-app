@@ -1,26 +1,46 @@
 package com.creamaker.changli_planet_app.freshNews.ui.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.util.copy
 import com.creamaker.changli_planet_app.databinding.FreshNewsItemBinding
 import com.creamaker.changli_planet_app.databinding.LoadingViewBinding
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.diffUtil.NewsDiffCallback
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.FreshNewsItemViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.LoadingViewHolder
+import com.gradle.scan.agent.serialization.scan.serializer.kryo.it
 
 class FreshNewsAdapter(
     val context: Context,
     private val onImageClick: (List<String?>, Int) -> Unit,
     private val onUserClick: (userId: Int) -> Unit,
     private val onMenuClick: (FreshNewsItem) -> Unit = {},
-    private val onLikeClick: (FreshNewsItem) -> Unit = {},
+    private val onLikeClick: (Int) -> Unit = {},
     private val onCommentClick: (FreshNewsItem) -> Unit = {},
-    private val onCollectClick: (FreshNewsItem) -> Unit = {}
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val onCollectClick: (Int) -> Unit = {}
+) : ListAdapter<FreshNewsItem, RecyclerView.ViewHolder>(object :
+    DiffUtil.ItemCallback<FreshNewsItem>() {
+    override fun areItemsTheSame(oldItem: FreshNewsItem, newItem: FreshNewsItem): Boolean =
+        oldItem.freshNewsId == newItem.freshNewsId
+
+    override fun areContentsTheSame(oldItem: FreshNewsItem, newItem: FreshNewsItem): Boolean =
+        oldItem == newItem
+
+    override fun getChangePayload(oldItem: FreshNewsItem, newItem: FreshNewsItem): Any? {
+        return when {
+            oldItem.authorName != newItem.authorName || oldItem.authorAvatar != newItem.authorAvatar -> "UPDATE_AVATAR_AND_NAME"
+            oldItem.liked != newItem.liked || oldItem.isLiked != newItem.isLiked -> "UPDATE_isLIKED"
+            oldItem.favoritesCount != newItem.favoritesCount || oldItem.isFavorited != newItem.isFavorited -> "UPDATE_ISFAVORITED"
+            else -> null
+        }
+    }
+})  {
     companion object {
         private const val VIEW_TYPE_ITEM = 0
         private const val VIEW_TYPE_LOADING = 1
@@ -29,8 +49,8 @@ class FreshNewsAdapter(
         setMaxRecycledViews(0, 15) // 设置最大复用数量
     }
 
-    private val newsList = mutableListOf<FreshNewsItem>()
     private var isLoading = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             VIEW_TYPE_ITEM -> {
@@ -60,21 +80,18 @@ class FreshNewsAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (holder) {
-            is FreshNewsItemViewHolder -> {
-                holder.bind(newsList[position])
-            }
-
-            is LoadingViewHolder -> {
-                holder.bind(isLoading)
-            }
+        if (holder is FreshNewsItemViewHolder && position < currentList.size){
+            Log.d("FreshNewsAdapter","currentItem: ${getItem(position)}")
+            holder.bind(getItem(position))
+        } else if (holder is LoadingViewHolder){
+            holder.bind(isLoading)
         }
     }
 
-    override fun getItemCount(): Int = newsList.size + if (isLoading) 1 else 0
+    override fun getItemCount(): Int = currentList.size + if (isLoading) 1 else 0
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == newsList.size) VIEW_TYPE_LOADING else VIEW_TYPE_ITEM
+        return if (isLoading && position == currentList.size) VIEW_TYPE_LOADING else VIEW_TYPE_ITEM
     }
 
     override fun onBindViewHolder(
@@ -86,11 +103,13 @@ class FreshNewsAdapter(
             val changePart = payloads[0] as String
             when (holder) {
                 is FreshNewsItemViewHolder -> {
-                    val item = newsList[position]
+                    val item = getItem(position)
                     if (changePart == "UPDATE_AVATAR_AND_NAME") {
                         holder.updateAccountAndAvatar(item.authorName, item.authorAvatar)
                     } else if (changePart == "UPDATE_isLIKED") {
                         holder.updateIsLike(item.liked, item.isLiked)
+                    } else if (changePart == "UPDATE_ISFAVORITED") {
+                        holder.updateIsFavorited(item.favoritesCount, item.isFavorited)
                     }
                 }
 
@@ -102,58 +121,60 @@ class FreshNewsAdapter(
     }
 
     fun updateData(newNewsList: List<FreshNewsItem>) {
-        val diffResult = DiffUtil.calculateDiff(NewsDiffCallback(newsList, newNewsList), false)
-        newsList.clear()
-        newsList.addAll(newNewsList)
-        diffResult.dispatchUpdatesTo(this)
+        submitList(newNewsList.map { it.copy() })
     }
 
     fun addData(newItems: List<FreshNewsItem>) {
-        val startPosition = newsList.size
-        newsList.addAll(newItems)
-        notifyItemRangeInserted(startPosition, newItems.size)
+        submitList(currentList.map { it.copy() } + newItems.map { it.copy() })
     }
 
     fun updateDataByUserId(userId: Int, newAccount: String, newAvatarUrl: String) {
-        for ((index, item) in newsList.withIndex()) {
-            if (item.userId == userId) {
-                if (item.authorName == newAccount && item.authorAvatar == newAvatarUrl) {
-                    continue
-                }
-                item.authorName = newAccount
-                item.authorAvatar = newAvatarUrl
-            }
-            notifyItemChanged(index, "UPDATE_AVATAR_AND_NAME")
+        val newList = currentList.map {
+            if (it.userId == userId) it.copy(authorName = newAccount, authorAvatar = newAvatarUrl) else it
         }
+        submitList(newList)
     }
 
     private fun getCurrentPosition(item: FreshNewsItem): Int {
-        return newsList.indexOfFirst { it.freshNewsId == item.freshNewsId }
+        return currentList.indexOfFirst { it.freshNewsId == item.freshNewsId }
     }
 
     fun updateIsLiked(item: FreshNewsItem, currentLikeCount: Int, isLiked: Boolean) {
         val position = getCurrentPosition(item)
-        newsList[position].liked = currentLikeCount
-        newsList[position].isLiked = isLiked
-        notifyItemChanged(position, "UPDATE_isLIKED")
+        if (position == -1) return
+        val newItem = currentList[position].copy(liked = currentLikeCount, isLiked = isLiked)
+        val newList = currentList.toMutableList().apply { set(position, newItem) }
+        submitList(newList)
     }
 
     fun updateItem(position: Int, item: FreshNewsItem) {
-        if (position in 0 until newsList.size) {
-            newsList[position] = item
-            notifyItemChanged(position)
+        if (position in 0 until currentList.size) {
+            val newList = currentList.toMutableList()
+            newList[position] = item
+            submitList(newList)
         }
     }
 
     fun updateItemById(freshNewsId: Int, updater: (FreshNewsItem) -> FreshNewsItem) {
-        val position = newsList.indexOfFirst { it.freshNewsId == freshNewsId }
+        val position = currentList.indexOfFirst { it.freshNewsId == freshNewsId }
         if (position != -1) {
-            val oldItem = newsList[position]
+            val newList = currentList.toMutableList()
+            val oldItem = newList[position]
             val newItem = updater(oldItem)
-            newsList[position] = newItem
-            notifyItemChanged(position)
+            newList[position] = newItem
+            submitList(newList)
         }
     }
 
-    fun getData(): List<FreshNewsItem> = newsList.toList()
+    fun getData(): List<FreshNewsItem> = currentList
+    fun updateCommentCount(newsId: Int, commentCount: Int) {
+        val position = currentList.indexOfFirst { it.freshNewsId == newsId }
+        if (position != -1) {
+            val newList = currentList.toMutableList()
+            val oldItem = newList[position]
+            val newItem = oldItem.copy(comments = commentCount+oldItem.comments)
+            newList[position] = newItem
+            submitList(newList)
+        }
+    }
 }

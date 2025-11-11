@@ -42,4 +42,15 @@
         <!-- Apply padding to avoid the content of the widget colliding with the rounded corners -->
         <item name="appWidgetPadding">7dp</item>
     </style>
+    <!-- UCrop 专用主题，避免被状态栏遮挡 -->
+    <style name="UCropTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- 确保窗口绘制系统栏背景，这样 statusBarColor 生效 -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!-- 设定状态栏颜色（替换为你的颜色资源） -->
+        <item name="android:statusBarColor">@color/white</item>
+        <!-- 控制图标颜色：true -> 黑色图标，false -> 白色图标 -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- 保留 fitsSystemWindows 行为（可选） -->
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
 </resources>

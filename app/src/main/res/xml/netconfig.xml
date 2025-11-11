@@ -12,5 +12,9 @@
 
         <!-- 校园卡系统 -->
         <domain includeSubdomains="true">yktwd.csust.edu.cn</domain>
+
+        <domain includeSubdomains="true">ip-api.com</domain>
+        <!-- 评论系统 -->
+        <domain includeSubdomains="true">freshnews.csust.creamaker.cn</domain>
     </domain-config>
 </network-security-config>
