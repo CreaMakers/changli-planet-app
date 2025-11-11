@@ -159,9 +159,10 @@
         app:blurOverlayColor="@color/colorOverlay">
 
         <ImageView
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:src="@drawable/ele_add" />
+            android:layout_width="@dimen/dp30"
+            android:layout_height="@dimen/dp30"
+            android:padding="@dimen/dp5"
+            android:src="@drawable/ic_blue_add" />
 
     </com.creamaker.changli_planet_app.utils.blur.BlurView>
 
