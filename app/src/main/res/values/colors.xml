@@ -213,6 +213,6 @@
     <color name="colorOnCustomColor1_highContrast">#FFFFFF</color>
     <color name="colorCustomColor1Container_highContrast">#104D75</color>
     <color name="colorOnCustomColor1Container_highContrast">#FFFFFF</color>
-    <color name="colorOverlay">#3003A9F4</color>
+    <color name="colorOverlay">#30FFFFFF</color>
 
 </resources>
