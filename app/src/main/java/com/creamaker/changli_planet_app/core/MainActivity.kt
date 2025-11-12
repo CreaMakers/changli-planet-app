@@ -31,6 +31,7 @@ import com.creamaker.changli_planet_app.freshNews.ui.NewsFragment
 import com.creamaker.changli_planet_app.im.ui.IMFragment
 import com.creamaker.changli_planet_app.profileSettings.ui.ProfileSettingsFragment
 import com.creamaker.changli_planet_app.utils.Event.SelectEvent
+import com.creamaker.changli_planet_app.widget.dialog.GuestLimitedAccessDialog
 import com.google.android.material.tabs.TabLayout
 import com.gradle.scan.plugin.internal.dep.io.netty.util.internal.StringUtil
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -54,6 +55,7 @@ class MainActivity : AppCompatActivity(), DrawerController {
     private val disposables by lazy { CompositeDisposable() }
 
     private val store by lazy { UserStore() }
+    private var suppress = false
 
 
     fun setCustomDensity(activity: Activity, application: Application, designWidthDp: Int) {
@@ -247,7 +249,19 @@ class MainActivity : AppCompatActivity(), DrawerController {
     private fun setupTabSelectionListener() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
+                if (suppress) return
                 if (currentTabPosition == tab.position) return
+
+                val needBlock = (tab.position == 1 && PlanetApplication.is_tourist) // 自行替换条件
+                if (needBlock) {
+                    GuestLimitedAccessDialog(this@MainActivity).show()
+
+                    // 还原到上一个Tab，不触发你的切换逻辑
+                    suppress = true
+                    tabLayout.getTabAt(currentTabPosition)?.let { tabLayout.selectTab(it) }
+                    suppress = false
+                    return
+                }
 
                 val fragment = fragments.getOrPut(tab.position) {
                     when (tab.position) {

@@ -165,7 +165,7 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
             onCommentResponseCountClick = { level1CommentItem ->
                 Log.d(TAG,"level1CommentId: ${level1CommentItem.commentId} response count click")
                 val dialog = Level2CommentsDialog(
-                     this,
+                    this,
                     binding.root.height * 9 / 10,
                     level1CommentItem,
                     commentsViewModel,
