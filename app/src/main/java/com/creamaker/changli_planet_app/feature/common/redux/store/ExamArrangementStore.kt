@@ -32,80 +32,36 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
         }
     }
 
-    private fun updateExamDate(action: ExamInquiryAction.UpdateExamData){
-//        val httpUrlHelper = HttpUrlHelper.HttpRequest()
-//            .get(PlanetApplication.ToolIp + "/exams")
-//            .addQueryParam("stuNum", action.studentId)
-//            .addQueryParam("password", action.password)
-//            .addQueryParam("term", action.termTime)
-//            .addQueryParam("examType", "")
-//            .build()
-//        OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-//            override fun onSuccess(response: Response) {
-//                val examArrangementResponse = OkHttpHelper.gson.fromJson(
-//                    response.body?.string(),
-//                    ExamArrangementResponse::class.java
-//                )
-//                currentState.exams = when (examArrangementResponse.code) {
-//                    "200" -> {
-//                        handler.post{
-//                            CustomToast.showMessage(PlanetApplication.appContext,"刷新成功")
-//                        }
-//                        examArrangementResponse.data
-//                    }
-//                    "403" -> {
-//                        handler.post {
-//                            ErrorStuPasswordResponseDialog(
-//                                action.context,
-//                                "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
-//                                "查询失败",
-//                                action.refresh
-//                            ).show()
-//                        }
-//                        emptyList()
-//                    }
-//                    "404" -> {
-//                        handler.post {
-//                            NormalResponseDialog(
-//                                action.context,
-//                                " 暂时查询不到考试场次喵~₍ᐢ..ᐢ₎♡",
-//                                "查询失败"
-//                            ).show()
-//                        }
-//                        emptyList()
-//                    }
-//                    else -> {
-//                        emptyList()
-//                    }
-//                }
-//                _state.onNext(currentState)
-//            }
-//
-//            override fun onFailure(error: String) {
-//                currentState.exams = emptyList()
-//                _state.onNext(currentState)
-//            }
-//        })
-//        currentState
+    private fun updateExamDate(action: ExamInquiryAction.UpdateExamData) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val middle_list = ExamArrangeService.getExamArrange(action.termTime,"期中")
-                val end_list = ExamArrangeService.getExamArrange(action.termTime,"期末")
-                if ( middle_list== null && end_list == null){
+                val middle_list = ExamArrangeService.getExamArrange(action.termTime, "期中")
+                val end_list = ExamArrangeService.getExamArrange(action.termTime, "期末")
+                if (middle_list == null && end_list == null) {
                     handler.post {
-                                ErrorStuPasswordResponseDialog(
-                                    action.context,
-                                    "暂时无法查询数据喵ʕ⸝⸝⸝˙Ⱉ˙ʔ",
-                                    "查询失败",
-                                    action.refresh
-                                ).show()
-                            }
-                    _state.onNext(currentState)
-                }else{
-                    handler.post {
-                        CustomToast.showMessage(PlanetApplication.appContext,"刷新成功")
+                        ErrorStuPasswordResponseDialog(
+                            action.context,
+                            "暂时无法查询数据喵ʕ⸝⸝⸝˙Ⱉ˙ʔ",
+                            "查询失败",
+                            action.refresh
+                        ).show()
                     }
-                    currentState.exams = middle_list?.plus(end_list) as List<ExamArrange>
+                    _state.onNext(currentState)
+                } else {
+                    handler.post {
+                        CustomToast.showMessage(PlanetApplication.appContext, "刷新成功")
+                    }
+                    // 合并并去重（以课程名、考试时间、校区、考场为去重键）
+                    val combined = (middle_list ?: emptyList()) + (end_list ?: emptyList())
+                    val deduped = combined.distinctBy { exam ->
+                        listOf(
+                            exam.courseNameval,
+                            exam.examTime,
+                            exam.campus,
+                            exam.examRoomval
+                        )
+                    }
+                    currentState.exams = deduped
                     _state.onNext(currentState)
                 }
             } catch (e: EduHelperError.examScheduleRetrievalFailed) {
@@ -118,7 +74,7 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
                     ).show()
                 }
                 _state.onNext(currentState)
-            }catch (e: EduHelperError.NotLoggedIn) {
+            } catch (e: EduHelperError.NotLoggedIn) {
                 handler.post {
                     ErrorStuPasswordResponseDialog(
                         action.context,
@@ -128,7 +84,7 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
                     ).show()
                 }
                 _state.onNext(currentState)
-            }catch (e: EduHelperError) {
+            } catch (e: EduHelperError) {
                 handler.post {
                     ErrorStuPasswordResponseDialog(
                         action.context,
@@ -138,9 +94,7 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
                     ).show()
                 }
                 _state.onNext(currentState)
-            }finally {
-                    currentState
-                }
             }
         }
+    }
     }
