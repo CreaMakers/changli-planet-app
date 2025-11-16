@@ -31,7 +31,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@color/color_bg_primary">
 
             <TextView
                 android:id="@+id/group_name"
@@ -41,7 +42,7 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:text="Brooke Davis"
-                android:textColor="@color/black"
+                android:textColor="@color/color_text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -54,7 +55,7 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:text="I am who I am. No excuses."
-                android:textColor="#666666"
+                android:textColor="@color/color_text_grey"
                 android:textSize="15sp" />
         </LinearLayout>
 
@@ -70,7 +71,7 @@
             android:minWidth="23dp"
             android:minHeight="23dp"
             android:text="2"
-            android:textColor="@color/white"
+            android:textColor="@color/color_base_white"
             android:textSize="12sp" />
 
     </LinearLayout>

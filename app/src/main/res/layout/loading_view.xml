@@ -1,7 +1,7 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:gravity="center"
     android:padding="16dp">
@@ -10,13 +10,14 @@
         android:id="@+id/loading_View_progress"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:indeterminate="true" />
+        android:indeterminate="true"
+        android:indeterminateTint="@color/color_primary_blue"/>
 
     <TextView
         android:id="@+id/loading_view_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="加载中..."
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/color_text_grey"
         android:layout_marginTop="8dp" />
 </LinearLayout>

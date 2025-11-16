@@ -43,7 +43,7 @@
         android:id="@+id/email"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:background="@drawable/login_edit_shape"
+        android:background="@drawable/edit_text_background"
         android:gravity="center"
         android:hint="请输入邮箱"
         android:singleLine="true"
@@ -69,7 +69,7 @@
             android:id="@+id/captcha"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/login_edit_shape"
+            android:background="@drawable/edit_text_background"
             android:gravity="center"
             android:hint="请输入验证码"
             android:singleLine="true"
@@ -82,7 +82,7 @@
             android:textSize="15sp"
             android:gravity="center"
             android:text="获取验证码"
-            android:textColor="@color/primary_blue"
+            android:textColor="@color/color_text_functional"
             android:layout_height="match_parent"/>
     </FrameLayout>
 
@@ -93,7 +93,7 @@
         android:background="@drawable/enable_button"
         android:gravity="center"
         android:text="绑定并登录"
-        android:textColor="@color/white"
+        android:textColor="@color/color_text_button"
         app:cornerRadius="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/color_bg_primary"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <TextView
         android:layout_marginTop="@dimen/dp20"
@@ -10,7 +11,7 @@
         android:text="@string/comments_empty"
         android:textStyle="bold"
         android:textSize="@dimen/sp16"
-        android:textColor="@color/md_theme_onSurface"
+        android:textColor="@color/color_text_primary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>

@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#93DAED"
+    android:background="@color/color_bg_top_bar"
     android:paddingTop="@dimen/dp35"
     android:paddingBottom="@dimen/dp10"
     tools:showIn="@layout/activity_time_table">
@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="课程表"
-        android:textColor="@color/white"
+        android:textColor="@color/color_title_top"
         android:textSize="23sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -34,7 +34,8 @@
         android:layout_marginEnd="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint = "@color/color_title_top"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

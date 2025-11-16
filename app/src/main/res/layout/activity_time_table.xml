@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".feature.timetable.ui.TimeTableActivity">
 
@@ -28,7 +29,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/coursetable_ic_calendar"
-
+                app:tint = "@color/color_icon_secondary"
                 />
 
             <TextView
@@ -39,7 +40,7 @@
                 android:layout_marginStart="5dp"
                 android:gravity="center"
                 android:text="2024-2025-1"
-                android:textColor="#000000"
+                android:textColor="@color/color_text_primary"
                 android:textSize="18sp"
 
                 />
@@ -65,7 +66,7 @@
                 android:layout_marginRight="5dp"
                 android:gravity="center"
                 android:text="第8周"
-                android:textColor="#000000"
+                android:textColor="@color/color_text_primary"
                 android:textSize="18sp" />
 
             <ImageButton
@@ -75,7 +76,7 @@
                 android:layout_marginEnd="16dp"
                 android:background="?attr/selectableItemBackground"
                 android:src="@drawable/coursetable_ic_extend"
-
+                app:tint = "@color/color_icon_secondary"
                 />
 
             <TextView
@@ -85,7 +86,7 @@
                 android:layout_marginRight="5dp"
                 android:gravity="center"
                 android:text="本周"
-                android:textColor="#000000"
+                android:textColor="@color/color_text_primary"
                 android:textSize="18sp" />
         </LinearLayout>
     </LinearLayout>
@@ -99,7 +100,7 @@
             android:id="@+id/timetableView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/app_white" />
+            android:background="@color/color_bg_primary" />
 
         <RelativeLayout
             android:id="@+id/loadingLayout"

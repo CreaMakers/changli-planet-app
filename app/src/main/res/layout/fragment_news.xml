@@ -12,7 +12,7 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/color_base_white"
         android:elevation="0dp"
         app:elevation="0dp"
         android:stateListAnimator="@null">
@@ -29,7 +29,7 @@
                 android:layout_height="40dp"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/main_search"
+                android:background="@drawable/edit_text_background"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toStartOf="@id/news_avatar"
                 app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +48,7 @@
                     android:layout_gravity="center"
                     android:layout_marginStart="15dp"
                     android:text="点击搜索想要的群组"
-                    android:textColor="@color/game1_gray"
+                    android:textColor="@color/color_text_grey"
                     android:textSize="17sp" />
 
             </LinearLayout>
@@ -77,10 +77,11 @@
                 android:id="@+id/to"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                app:tabIndicatorColor="@color/primary_blue"
-                app:tabRippleColor="@color/login_gray"
-                app:tabSelectedTextColor="@color/primary_blue"
+                android:background="@color/color_bg_primary"
+                app:tabTextColor="@color/color_text_primary"
+                app:tabIndicatorColor="@color/color_post_hint_bar"
+                app:tabRippleColor="@color/color_tab_ripped"
+                app:tabSelectedTextColor="@color/color_post_hint_bar"
                 app:tabTextAppearance="@style/MyTabLayout">
 
                 <com.google.android.material.tabs.TabItem
@@ -104,7 +105,7 @@
                 android:padding="8dp"
                 android:src="@drawable/ic_up_arrow"
                 android:visibility="gone"
-                app:tint="@color/primary_blue"
+                app:tint="@color/color_icon_primary"
                 tools:visibility="visible" />
 
         </FrameLayout>
@@ -122,8 +123,8 @@
             android:id="@+id/refreshLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/fresh_news_common_bg"
-            app:srlAccentColor="@color/login_gray"
+            android:background="@color/color_bg_secondary"
+            app:srlAccentColor="@color/light_gray"
             app:srlEnableOverScrollDrag="false">
 
             <com.scwang.smart.refresh.header.MaterialHeader
@@ -134,7 +135,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/news_recyclerView"
-                android:background="@color/white"
+                android:background="@color/color_base_white"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:listitem="@layout/fresh_news_item"/>
@@ -156,13 +157,14 @@
         android:background="@drawable/bg_16_rounded"
         android:elevation="@dimen/dp6"
         android:padding="@dimen/dp10"
-        app:blurOverlayColor="@color/colorOverlay">
+        app:blurOverlayColor="@color/color_base_white">
 
         <ImageView
             android:layout_width="@dimen/dp30"
             android:layout_height="@dimen/dp30"
             android:padding="@dimen/dp5"
-            android:src="@drawable/ic_blue_add" />
+            android:src="@drawable/ic_blue_add"
+            app:tint = "@color/color_icon_primary"/>
 
     </com.creamaker.changli_planet_app.utils.blur.BlurView>
 

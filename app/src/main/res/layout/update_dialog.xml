@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="发现新版本"
-        android:textColor="#333333"
+        android:textColor="@color/color_text_primary"
         android:textSize="19sp"
         android:textStyle="bold" />
 
@@ -30,7 +30,7 @@
         android:maxHeight="400dp"
         android:scrollbars="vertical"
         android:text="更新内容..."
-        android:textColor="#666666"
+        android:textColor="@color/color_text_grey"
         android:textSize="15sp"
         android:fadeScrollbars="false"
         android:scrollbarStyle="insideOverlay"
@@ -59,7 +59,7 @@
             android:background="?attr/selectableItemBackground"
             android:gravity="center"
             android:text="取消"
-            android:textColor="#666666"
+            android:textColor="@color/color_text_grey"
             android:textSize="16sp"/>
 
         <View
@@ -75,7 +75,7 @@
             android:background="?attr/selectableItemBackground"
             android:gravity="center"
             android:text="立即更新"
-            android:textColor="#4285F4"
+            android:textColor="@color/color_text_functional"
             android:textSize="16sp"
             android:textStyle="bold"/>
     </LinearLayout>

@@ -2,8 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_bottom_sheet"
-    android:orientation="vertical">
+    android:background="@color/color_bg_primary"
+    android:orientation="vertical"
+    >
 
 
     <TextView
@@ -14,13 +15,13 @@
         android:gravity="center"
         android:paddingVertical="8dp"
         android:text="拍照"
-        android:textColor="#333333"
+        android:textColor="@color/color_text_primary"
         android:textSize="16sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/grey" />
+        android:background="@color/color_divider" />
 
     <TextView
         android:id="@+id/tv_gallery"
@@ -31,13 +32,13 @@
         android:paddingVertical="8dp"
         android:paddingBottom="16dp"
         android:text="从相册选择"
-        android:textColor="#333333"
+        android:textColor="@color/color_text_primary"
         android:textSize="16sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="12dp"
-        android:background="@color/grey" />
+        android:background="@color/color_divider" />
 
 
     <TextView
@@ -49,7 +50,7 @@
         android:layout_marginHorizontal="10dp"
         android:paddingVertical="8dp"
         android:text="取消"
-        android:textColor="#333333"
+        android:textColor="@color/color_text_primary"
         android:textSize="16sp" />
 
 </LinearLayout>

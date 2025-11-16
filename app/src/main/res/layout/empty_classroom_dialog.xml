@@ -18,7 +18,7 @@
         android:gravity="center"
         android:layout_marginEnd="8dp"
         android:text="空闲教室查询结果"
-        android:textColor="#333333"
+        android:textColor="@color/color_text_primary"
         android:maxLines="1"
         android:ellipsize="end"
         android:textSize="20sp"
@@ -30,7 +30,8 @@
         android:id="@+id/empty_classroom_recycler"
         android:layout_width="match_parent"
         android:layout_height="460dp"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:background="@color/color_bg_recycler_view"/>
 
 
     <!-- 分割线 -->
@@ -50,10 +51,10 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"
-            android:background="?attr/selectableItemBackground"
+            android:background="@drawable/enable_button"
             android:gravity="center"
             android:text="确定"
-            android:textColor="#4285F4"
+            android:textColor="@color/color_text_button"
             android:textSize="16sp"
             android:textStyle="bold" />
 

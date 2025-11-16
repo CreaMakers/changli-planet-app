@@ -20,6 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="高等数学"
+            android:textColor="@color/color_text_primary"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -32,7 +33,7 @@
             android:paddingHorizontal="8dp"
             android:paddingVertical="3dp"
             android:text="必修"
-            android:textColor="#3662E3"
+            android:textColor="@color/color_text_highlight"
             android:textSize="12sp" />
 
         <LinearLayout
@@ -45,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="学分：4.0"
-                android:textColor="#7E8491"
+                android:textColor="@color/color_text_grey"
                 android:textSize="14sp" />
 
             <TextView
@@ -54,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
                 android:text="绩点：3.0"
-                android:textColor="#7E8491"
+                android:textColor="@color/color_text_grey"
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -65,7 +66,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="98"
-        android:textColor="#3662E3"
+        android:textColor="@color/color_text_highlight"
         android:textSize="24sp"
         android:textStyle="bold" />
 </LinearLayout>

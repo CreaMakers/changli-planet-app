@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:elevation="4dp"
     android:padding="16dp"
-    app:cardBackgroundColor="#FFFCFA"
+    app:cardBackgroundColor="@color/color_bg_card"
     app:cardCornerRadius="12dp"
     app:cardUseCompatPadding="true">
 
@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="hhh"
-            android:textColor="@color/text_color"
+            android:textColor="@color/color_text_primary"
             android:textSize="15sp" />
 
     </LinearLayout>

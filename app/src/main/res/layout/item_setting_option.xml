@@ -32,7 +32,7 @@
             android:layout_gravity="center"
             android:layout_marginStart="@dimen/dp18"
             android:layout_weight="1"
-            android:textColor="@color/setting_item_text"
+            android:textColor="@color/color_text_primary"
             android:textSize="@dimen/sp18"
             tools:text="通知设置" />
 

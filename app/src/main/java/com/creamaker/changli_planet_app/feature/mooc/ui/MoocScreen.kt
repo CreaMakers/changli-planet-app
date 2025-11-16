@@ -110,7 +110,7 @@ fun MoocScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
-                            color = colorResource(R.color.color_2878F3)
+                            color = colorResource(R.color.color_loading)
                         )
                     }
                 }
@@ -175,7 +175,7 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
             },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = colorResource(R.color.color_bg_primary)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -186,15 +186,24 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = course.name, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
+                Text(
+                    text = course.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = colorResource(R.color.color_text_primary)
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "ID: ${course.id}", fontSize = 12.sp, color = Color.Gray)
+                Text(
+                    text = "ID: ${course.id}",
+                    fontSize = 12.sp,
+                    color = colorResource(R.color.color_text_grey)
+                )
             }
 
             androidx.compose.material3.Icon(
                 painter = painterResource(id = R.drawable.ic_expand),
                 contentDescription = if (expanded) "收起" else "展开",
-                tint = Color.Gray,
+                tint = colorResource(R.color.color_icon_secondary),
                 modifier = Modifier
                     .rotate(rotationAngle)
                     .size(24.dp) // 调整图标大小
@@ -207,7 +216,7 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
             .fillMaxWidth()
             .height(1.dp)
             .padding(horizontal = 16.dp)
-            .background(colorResource(R.color.divider_color_grey))
+            .background(colorResource(R.color.color_divider))
     )
 
     AnimatedVisibility(
@@ -223,13 +232,17 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
     ) {
         when (homeworks) {
             is ApiResponse.Loading -> {
-                Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = colorResource(R.color.color_2878F3))
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = colorResource(R.color.color_divider))
                 }
             }
 
             is ApiResponse.Error -> {
-                Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp), contentAlignment = Alignment.Center) {
                     Text(text = "作业加载失败", color = Color.Red, fontSize = 14.sp)
                 }
             }
@@ -250,7 +263,9 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
                         }
                     }
                 } else {
-                    Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp), contentAlignment = Alignment.Center) {
                         Text(text = "暂无作业", color = Color.Gray, fontSize = 14.sp)
                     }
                 }
@@ -267,7 +282,11 @@ fun HomeworkItem(homework: MoocHomework, moocViewModel: MoocViewModel) {
         is ApiResponse.Success -> res.data
         else -> false
     }
-    val titleColor = if (isDueSoon) Color(0xFFFF5252) else Color.Black // 使用亮红色 #FF5252
+    val titleColor = if (isDueSoon)
+        colorResource(R.color.color_base_red)
+    else
+        colorResource(R.color.color_text_primary)
+
 
     Card(
         modifier = Modifier
@@ -275,7 +294,7 @@ fun HomeworkItem(homework: MoocHomework, moocViewModel: MoocViewModel) {
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = colorResource(R.color.background_grey)
+            containerColor = colorResource(R.color.color_bg_secondary)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -298,12 +317,12 @@ fun HomeworkItem(homework: MoocHomework, moocViewModel: MoocViewModel) {
                 Text(
                     text = "发布人: ${homework.publisher}",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = colorResource(R.color.color_text_grey)
                 )
                 Text(
                     text = "截止时间: ${homework.deadline}",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = colorResource(R.color.color_text_grey)
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -314,12 +333,16 @@ fun HomeworkItem(homework: MoocHomework, moocViewModel: MoocViewModel) {
                 Text(
                     text = if (homework.submitStatus) "已提交" else "未提交",
                     fontSize = 12.sp,
-                    color = if (homework.submitStatus) Color.Green else Color.Red
+                    color = if (homework.submitStatus) colorResource(R.color.color_base_green) else colorResource(
+                        R.color.color_base_red
+                    )
                 )
                 Text(
                     text = if (homework.canSubmit) "可提交" else "不可提交",
                     fontSize = 12.sp,
-                    color = if (homework.canSubmit) Color.Green else Color.Red
+                    color = if (homework.canSubmit) colorResource(R.color.color_base_green) else colorResource(
+                        R.color.color_base_red
+                    )
                 )
             }
         }

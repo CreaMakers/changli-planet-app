@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/color_base_white"
     tools:context=".feature.lostfound.ui.PublishLoseThingActivity"
     android:orientation="vertical">
 
@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/dp35"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@color/color_bg_top_bar">
         <TextView
             android:id="@+id/lose_cancel"
             android:layout_width="0dp"
@@ -22,7 +23,7 @@
             android:backgroundTint="@android:color/transparent"
             android:text="取消"
             android:gravity="center"
-            android:textColor="#C1424242"
+            android:textColor="@color/color_text_grey"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="5dp"
@@ -34,6 +35,7 @@
             android:layout_height="match_parent"/>
         <TextView
             android:text="失物招领"
+            android:textColor="@color/color_text_primary"
             android:gravity="center"
             android:textSize="25sp"
             android:textStyle="bold"
@@ -57,10 +59,10 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="发布"
-            android:textColor="@color/white"
+            android:textColor="@color/color_text_button"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:background="@drawable/un_enable_button"
+            android:background="@drawable/enable_button"
             app:backgroundTint="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -69,6 +71,8 @@
         android:id="@+id/lose_thing_name"
         android:layout_width="match_parent"
         android:hint="物品名称"
+        android:textColorHint="@color/color_text_secondary"
+        android:textColor="@color/color_text_primary"
         android:layout_height="wrap_content"
         android:gravity="top"
         android:backgroundTint="@android:color/transparent"
@@ -79,6 +83,8 @@
     <EditText
         android:id="@+id/lose_thing_describe"
         android:hint="描述"
+        android:textColorHint="@color/color_text_secondary"
+        android:textColor="@color/color_text_primary"
         android:gravity="top"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -103,10 +109,13 @@
         android:layout_marginHorizontal="50dp"
         android:layout_marginBottom="40dp"
         android:background="@drawable/contacts_background"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:backgroundTint="@color/color_bg_secondary">
         <EditText
             android:id="@+id/lose_people"
             android:hint="联系人"
+            android:textColorHint="@color/color_text_secondary"
+            android:textColor="@color/color_text_primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -114,6 +123,8 @@
         <EditText
             android:id="@+id/lose_people_phone"
             android:hint="电话"
+            android:textColorHint="@color/color_text_secondary"
+            android:textColor="@color/color_text_primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="phone"

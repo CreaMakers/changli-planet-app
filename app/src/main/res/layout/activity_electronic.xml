@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/color_bg_primary"
     tools:context=".feature.common.ui.ElectronicActivity">
 
     <!-- 顶部标题栏 -->
@@ -13,7 +13,7 @@
         android:id="@+id/tb_query"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_blue"
+        android:background="@color/color_bg_top_bar"
         android:padding="10dp"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -24,18 +24,20 @@
             android:src="@drawable/back"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/electronicQuery"
-            android:textColor="@color/white"
+            android:textColor="@color/color_title_top"
             android:textSize="25sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -45,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/dorm_bind"
-        android:textColor="@color/text_color_grey"
+        android:textColor="@color/color_text_grey"
         android:textSize="@dimen/sp18"
         android:layout_marginTop="@dimen/dp10"
         android:layout_marginStart="@dimen/dp15"
@@ -62,6 +64,7 @@
         android:layout_marginStart="@dimen/dp10"
         android:layout_marginEnd="@dimen/dp10"
         android:elevation="@dimen/dp10"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="@dimen/dp15"
         app:layout_constraintTop_toBottomOf="@id/tv_dorm_bind">
 
@@ -80,8 +83,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearance="@style/CircleStyle"
-                app:strokeColor="@color/light_blue_200"
-                app:strokeWidth="@dimen/dp2" />
+                app:strokeColor="@color/color_outline_low_contrast"
+                app:strokeWidth="@dimen/dp2"
+                tools:src="@drawable/e_school"/>
             <TextView
                 android:id="@+id/tv_school_zone"
                 android:gravity="end"
@@ -90,7 +94,7 @@
                 android:layout_marginStart="@dimen/dp36"
                 android:text="@string/schoolZone"
                 android:textStyle="bold"
-                android:textColor="@color/color_2878F3"
+                android:textColor="@color/color_text_primary"
                 android:textSize="@dimen/sp18"
                 app:layout_constraintStart_toEndOf="@id/siv_school_region"
                 app:layout_constraintTop_toTopOf="@id/siv_school_region"
@@ -102,7 +106,7 @@
                 android:layout_marginStart="@dimen/dp10"
                 android:layout_marginEnd="@dimen/dp20"
                 android:text="@string/selectSchoolZone"
-                android:textColor="@color/feature_white"
+                android:textColor="@color/color_text_button"
                 android:textSize="@dimen/sp18"
                 android:textStyle="bold"
                 android:foreground="?attr/selectableItemBackground"
@@ -120,7 +124,7 @@
                 android:id="@+id/divider1"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/light_gray"
+                android:background="@color/color_divider"
                 android:layout_marginTop="@dimen/dp10"
                 app:layout_constraintTop_toBottomOf="@id/siv_school_region" />
 
@@ -134,8 +138,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/divider1"
                 app:shapeAppearance="@style/CircleStyle"
-                app:strokeColor="@color/light_blue_200"
-                app:strokeWidth="@dimen/dp2" />
+                app:strokeColor="@color/color_outline_low_contrast"
+                app:strokeWidth="@dimen/dp2"
+                tools:src="@drawable/e_dorm"/>
             <TextView
                 android:id="@+id/tv_dorm"
                 android:gravity="end"
@@ -144,7 +149,7 @@
                 android:layout_marginStart="@dimen/dp20"
                 android:text="@string/dorm"
                 android:textStyle="bold"
-                android:textColor="@color/color_2878F3"
+                android:textColor="@color/color_text_primary"
                 android:textSize="@dimen/sp18"
                 app:layout_constraintStart_toEndOf="@id/siv_dorm_building"
                 app:layout_constraintTop_toTopOf="@id/siv_dorm_building"
@@ -158,7 +163,7 @@
                 android:text="@string/selectDorm"
                 android:background="@drawable/electronic_button"
                 android:foreground="?attr/selectableItemBackground"
-                android:textColor="@color/feature_white"
+                android:textColor="@color/color_text_button"
                 android:textSize="@dimen/sp18"
                 android:textStyle="bold"
                 android:clickable="true"
@@ -174,7 +179,7 @@
                 android:id="@+id/divider2"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/light_gray"
+                android:background="@color/color_divider"
                 android:layout_marginTop="@dimen/dp10"
                 app:layout_constraintTop_toBottomOf="@id/siv_dorm_building" />
 
@@ -188,8 +193,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/divider2"
                 app:shapeAppearance="@style/CircleStyle"
-                app:strokeColor="@color/light_blue_200"
-                app:strokeWidth="@dimen/dp2" />
+                app:strokeColor="@color/color_outline_low_contrast"
+                app:strokeWidth="@dimen/dp2"
+                tools:src="@drawable/e_door"/>
             <TextView
                 android:id="@+id/tv_door"
                 android:gravity="end"
@@ -198,7 +204,7 @@
                 android:layout_marginStart="@dimen/dp20"
                 android:text="@string/doorNum"
                 android:textStyle="bold"
-                android:textColor="@color/color_2878F3"
+                android:textColor="@color/color_text_primary"
                 android:textSize="@dimen/sp18"
                 app:layout_constraintStart_toEndOf="@id/siv_room_number"
                 app:layout_constraintTop_toTopOf="@id/siv_room_number"
@@ -213,9 +219,9 @@
                 android:hint="@string/selectDoorNum"
                 android:imeOptions="actionDone"
                 android:selectAllOnFocus="true"
-                android:textColorHint="@color/low_blue"
-                android:background="@drawable/electronic_button"
-                android:textColor="@color/white"
+                android:textColorHint="@color/color_text_grey"
+                android:background="@drawable/edit_text_background"
+                android:textColor="@color/color_base_white"
                 android:textSize="@dimen/sp18"
                 android:textStyle="bold"
                 android:inputType="text"
@@ -229,7 +235,7 @@
     <View
         android:layout_width="0dp"
         android:layout_height="@dimen/dp1"
-        android:background="@color/color_7E7E7E"
+        android:background="@color/color_divider"
         app:layout_constraintTop_toBottomOf="@+id/main_card"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -259,7 +265,7 @@
                 android:layout_marginTop="@dimen/dp10"
                 android:layout_marginStart="@dimen/dp15"
                 android:text="@string/present_ele"
-                android:textColor="@color/text_color_grey"
+                android:textColor="@color/color_text_secondary"
                 android:textStyle="bold"
                 android:textSize="@dimen/sp16"
                 app:layout_constraintStart_toStartOf="parent"
@@ -283,7 +289,7 @@
                 android:layout_marginStart="@dimen/dp40"
                 android:layout_marginEnd="@dimen/dp10"
                 android:textStyle="bold"
-                android:textColor="@color/color_CC346EEB"
+                android:textColor="@color/color_text_primary"
                 app:layout_constraintBottom_toBottomOf="@id/ele_img"
                 app:layout_constraintEnd_toStartOf="@id/ele_state"
                 app:layout_constraintStart_toEndOf="@id/ele_img"
@@ -296,7 +302,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp10"
                 android:layout_marginEnd="@dimen/dp18"
-                android:textColor="@color/icon_gray"
+                android:textColor="@color/color_text_secondary"
                 android:textSize="@dimen/sp16"
                 android:gravity="center"
                 android:textStyle="bold"
@@ -313,7 +319,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp45"
         android:text="@string/e_query"
-        android:textColor="@color/feature_white"
+        android:textColor="@color/color_text_button"
         android:gravity="center"
         android:textStyle="italic"
         android:textSize="@dimen/sp25"

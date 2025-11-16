@@ -36,7 +36,7 @@
             android:layout_marginStart="@dimen/dp10"
             android:layout_marginEnd="@dimen/dp10"
             android:layout_marginBottom="@dimen/dp5"
-            android:textColor="@color/md_theme_onSurface"
+            android:textColor="@color/color_text_primary"
             android:textSize="@dimen/sp16"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/btn_menu"
@@ -50,6 +50,7 @@
             android:layout_height="@dimen/dp24"
             android:layout_marginEnd="@dimen/dp15"
             android:src="@drawable/ic_more"
+            app:tint = "@color/color_icon_primary"
             app:layout_constraintBottom_toBottomOf="@id/postman_username"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/postman_username"
@@ -61,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="@string/freshNewsTime"
-            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:textColor="@color/color_text_grey"
             app:layout_constraintStart_toEndOf="@id/postman_avatar"
             app:layout_constraintTop_toBottomOf="@id/postman_username" />
 
@@ -81,7 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp12"
             android:drawablePadding="@dimen/dp4"
-            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:textColor="@color/color_text_grey"
             app:layout_constraintBottom_toBottomOf="@id/postman_time"
             app:layout_constraintStart_toEndOf="@id/postman_time"
             app:layout_constraintTop_toTopOf="@id/postman_time"
@@ -93,7 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/dp15"
             android:layout_marginTop="@dimen/dp6"
-            android:textColor="@color/md_theme_onSurface"
+            android:textColor="@color/color_text_primary"
             android:textSize="@dimen/sp20"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/postman_avatar"
@@ -105,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/dp15"
             android:paddingVertical="@dimen/dp3"
-            android:textColor="@color/md_theme_onSurface"
+            android:textColor="@color/color_text_primary"
             android:textSize="@dimen/sp18"
             app:layout_constraintTop_toBottomOf="@id/news_title"
             tools:text="正文正文正文正文正文正文正文正文正文正文正文正文正文正文正文" />
@@ -124,7 +125,7 @@
     <View
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:background="@color/md_theme_outline"
+        android:background="@color/color_divider"
         app:layout_constraintBottom_toTopOf="@+id/tv_all_comments"
         app:layout_constraintEnd_toEndOf="@+id/tv_post_comment"
         app:layout_constraintStart_toStartOf="@+id/tv_all_comments"
@@ -159,7 +160,7 @@
         android:layout_marginTop="@dimen/dp10"
         android:layout_marginEnd="@dimen/dp15"
         android:text="@string/post_comment"
-        android:textColor="@color/color_on_functional_text"
+        android:textColor="@color/color_text_functional"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/postman_info_layout" />
 

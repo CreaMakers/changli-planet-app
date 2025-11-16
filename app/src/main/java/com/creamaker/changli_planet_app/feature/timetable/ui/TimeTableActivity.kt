@@ -25,6 +25,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
+import androidx.core.graphics.toColorInt
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.TimeTableAppWidget
 import com.creamaker.changli_planet_app.base.FullScreenActivity
@@ -56,8 +57,9 @@ import com.zhuangfei.timetable.listener.OnItemLongClickAdapter
 import com.zhuangfei.timetable.listener.OnSlideBuildAdapter
 import com.zhuangfei.timetable.model.Schedule
 import java.text.SimpleDateFormat
-import java.util.*
-import androidx.core.graphics.toColorInt
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
 
@@ -78,6 +80,7 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        resources
         // 检查用户绑定
         if (studentId.isEmpty() || studentPassword.isEmpty()) {
             showMessage("请先绑定学号和密码")
@@ -616,7 +619,7 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         val cardView = CardView(applicationContext).apply {
             radius = 25f
             cardElevation = 8f
-            setCardBackgroundColor(getColor(R.color.score_bar))
+            setCardBackgroundColor(getColor(R.color.color_base_white))
             useCompatPadding = true
         }
 

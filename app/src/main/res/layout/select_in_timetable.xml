@@ -20,16 +20,18 @@
             android:gravity="center"
             android:textSize="20sp"
             android:text="选择"
+            android:textColor="@color/color_text_primary"
             android:layout_height="match_parent" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/itractor" />
+        android:background="@color/color_divider" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/selectRecyclerTimetable"
+        android:background="@color/color_bg_recycler_view"
         android:paddingBottom="7dp"
         android:paddingTop="6dp"
         android:layout_width="match_parent"

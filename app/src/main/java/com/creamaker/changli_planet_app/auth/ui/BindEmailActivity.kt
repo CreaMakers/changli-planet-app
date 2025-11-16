@@ -53,7 +53,7 @@ class BindEmailActivity : FullScreenActivity<ActivityBindEmailBinding>() {
                 }
 
                 if(!state.isCountDown&&state.email.isNotEmpty()){
-                    getCaptcha.setTextColor(resources.getColor(R.color.primary_blue))
+                    getCaptcha.setTextColor(resources.getColor(R.color.color_text_functional))
                     getCaptcha.text="获取验证码"
                     getCaptcha.singleClick (delay = 3000){
                         store.dispatch(LoginAndRegisterAction.GetCaptcha)
@@ -61,7 +61,7 @@ class BindEmailActivity : FullScreenActivity<ActivityBindEmailBinding>() {
                 }else{
                     if(state.countDown>0)getCaptcha.text=state.countDown.toString()
                     else getCaptcha.text="获取验证码"
-                    getCaptcha.setTextColor(resources.getColor(R.color.color_7E7E7E))
+                    getCaptcha.setTextColor(resources.getColor(R.color.color_text_grey))
                     getCaptcha.setOnClickListener(null)
                 }
             }

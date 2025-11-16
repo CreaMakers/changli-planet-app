@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9FAFB"
+    android:background="@color/color_bg_primary"
     android:orientation="vertical">
 
     <LinearLayout
@@ -14,16 +14,16 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:background="#E8F3FE"
-        android:elevation="4dp"
-        app:titleTextColor="@android:color/white">
+        android:background="@color/color_bg_top_bar"
+        android:elevation="4dp">
 
         <ImageView
             android:id="@+id/binding_back"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/blue_left_back" />
+            android:src="@drawable/blue_left_back"
+            app:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"
@@ -32,7 +32,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="考试安排"
-            android:textColor="#4C81CE"
+            android:textColor="@color/color_title_top"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -42,7 +42,8 @@
             android:layout_height="28dp"
             android:layout_gravity="center|end"
             android:layout_marginEnd="4dp"
-            android:src="@drawable/shuaxin" />
+            android:src="@drawable/shuaxin"
+            app:tint = "@color/color_title_top"/>
 
     </LinearLayout>
 
@@ -56,7 +57,8 @@
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_marginHorizontal="7dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="@color/color_bg_recycler_view"/>
 
         <RelativeLayout
             android:id="@+id/loadingLayout"
@@ -71,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:indeterminateTintMode="src_atop"
-                android:indeterminateTint="#4C81CE"/>
+                android:indeterminateTint="@color/color_primary_blue"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -80,7 +82,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="8dp"
                 android:text="加载中..."
-                android:textColor="#4C81CE"
+                android:textColor="@color/color_primary_blue"
                 android:textSize="14sp"/>
 
         </RelativeLayout>
@@ -95,7 +97,7 @@
         android:lineSpacingMultiplier="1.1"
         android:padding="12dp"
         android:textSize="13sp"
-        android:textColor="#666666"
-        android:background="#F8F8F8"
+        android:textColor="@color/color_text_grey"
+        android:background="@color/color_bg_secondary"
         android:text="为防止网络波动优先读取上次查询缓存\n如有需要请及时点击刷新" />
 </LinearLayout>

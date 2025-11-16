@@ -101,7 +101,7 @@ class MandeActivity : FullScreenActivity<ActivityMandeBinding>() {
 
     private fun showMessage(message: String) {
         val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
-            .setBackgroundTint(getColor(R.color.score_bar))
+            .setBackgroundTint(getColor(R.color.color_base_white))
             .setTextColor(Color.BLACK)
         val snackerView = snackbar.view
 

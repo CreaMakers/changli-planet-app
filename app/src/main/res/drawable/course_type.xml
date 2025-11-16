@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <solid android:color="#DEE9FC" />
+    <solid android:color="@color/color_bg_button_lowlight" />
     <corners android:radius="16dp" />
 </shape>

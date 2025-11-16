@@ -37,11 +37,11 @@ class Level1CommentsViewHolder(
             ivLevel1Liked.apply {
                     if(level1CommentItem.isLiked){
                         load(R.drawable.ic_news_liked)
-                        imageTintList = root.context.getColorStateList(R.color.ele_low)
+                        imageTintList = null
                     }
                     else{
                         load(R.drawable.ic_like)
-                        imageTintList = root.context.getColorStateList(R.color.md_theme_outline)
+                        imageTintList = root.context.getColorStateList(R.color.color_icon_secondary)
                     }
                 setOnClickListener {
                     onLevel1CommentLikeClick(level1CommentItem)
@@ -59,12 +59,13 @@ class Level1CommentsViewHolder(
     fun updateLike(isLiked: Boolean, likedCount: Int, level1CommentItem: Level1CommentItem) {
         with(binding) {
             ivLevel1Liked.apply {
-                if (isLiked) {
+                if(level1CommentItem.isLiked){
                     load(R.drawable.ic_news_liked)
-                    imageTintList = root.context.getColorStateList(R.color.ele_low)
-                } else {
+                    imageTintList = null
+                }
+                else{
                     load(R.drawable.ic_like)
-                    imageTintList = root.context.getColorStateList(R.color.md_theme_outline)
+                    imageTintList = root.context.getColorStateList(R.color.color_icon_secondary)
                 }
                 setOnClickListener {
                     onLevel1CommentLikeClick(level1CommentItem)

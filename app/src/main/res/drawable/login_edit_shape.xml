@@ -1,5 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <corners android:radius="5dp"/>
-    <solid android:color="@color/white"/>
-</shape>
+<!-- xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 背景（白色或透明）并保留圆角 -->
+    <item>
+        <shape>
+            <corners android:radius="8dp"/>
+            <solid android:color="@color/color_base_white"/>
+        </shape>
+    </item>
+
+    <!-- 顶部细线（可调整高度和颜色） -->
+    <item android:gravity="top">
+        <shape>
+            <size android:height="3dp"/>
+            <corners android:topLeftRadius="8dp" android:topRightRadius="8dp"/>
+            <solid android:color="@color/color_outline_low_contrast"/>
+        </shape>
+    </item>
+
+    <!-- 底部细线 -->
+    <item android:gravity="bottom">
+        <shape>
+            <size android:height="3dp"/>
+            <corners android:bottomLeftRadius="8dp" android:bottomRightRadius="8dp"/>
+            <solid android:color="@color/color_outline_low_contrast"/>
+        </shape>
+    </item>
+</layer-list>

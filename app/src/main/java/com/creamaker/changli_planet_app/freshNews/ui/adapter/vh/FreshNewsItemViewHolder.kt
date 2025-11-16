@@ -35,8 +35,11 @@ class FreshNewsItemViewHolder(
         with(binding) {
             if (isLiked) {
                 newsFavor.setImageResource(R.drawable.ic_news_liked)
+                newsFavor.imageTintList = null
             } else {
                 newsFavor.setImageResource(R.drawable.ic_like)
+                newsFavor.imageTintList =
+                context.getColorStateList(R.color.color_icon_secondary)
             }
             newsFavorCount.text = liked.toString()
         }
@@ -46,8 +49,11 @@ class FreshNewsItemViewHolder(
         with(binding) {
             if (isFavorited) {
                 newsShare.setImageResource(R.drawable.ic_collect)
+                newsShare.imageTintList = null
             } else {
                 newsShare.setImageResource(R.drawable.ic_un_collect)
+                newsShare.imageTintList =
+                    context.getColorStateList(R.color.color_icon_secondary)
             }
             newsShareCount.text = favouritesCount.toString()
         }
@@ -91,14 +97,21 @@ class FreshNewsItemViewHolder(
 
             if (news.isLiked) {
                 newsFavor.setImageResource(R.drawable.ic_news_liked)
+                newsFavor.imageTintList =
+                    context.getColorStateList(R.color.color_base_red)
             } else {
                 newsFavor.setImageResource(R.drawable.ic_like)
+                newsFavor.imageTintList =
+                    context.getColorStateList(R.color.color_icon_secondary)
             }
 
             if (news.isFavorited) {
                 newsShare.setImageResource(R.drawable.ic_collect)
+                newsShare.imageTintList = null
             } else {
                 newsShare.setImageResource(R.drawable.ic_un_collect)
+                newsShare.imageTintList =
+                    context.getColorStateList(R.color.color_icon_secondary)
             }
 
             favorContainer.setOnClickListener { onLikeClick(news.freshNewsId) }

@@ -7,7 +7,7 @@
     android:orientation= "vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/dialog_background">
+    android:background="@color/color_bg_primary">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_level2Comments"
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
         android:id="@+id/v_divider"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp1"
-        android:background="@color/md_theme_outline"
+        android:background="@color/color_divider"
         app:layout_constraintBottom_toTopOf="@id/input_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -32,12 +32,12 @@
         android:paddingHorizontal="@dimen/dp10"
         android:paddingTop="@dimen/dp10"
         android:paddingBottom="@dimen/dp10"
-        android:background="@color/md_theme_onPrimary"
+        android:background="@color/color_bg_secondary"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <EditText
             android:id="@+id/et_comment"
-            android:background="@drawable/bg_response_edit"
+            android:background="@drawable/edit_text_background"
             android:layout_width="0dp"
             android:layout_height="@dimen/dp35"
             android:paddingHorizontal="@dimen/dp3"
@@ -57,6 +57,7 @@
             android:layout_width="@dimen/dp35"
             android:layout_height="@dimen/dp35"
             android:src="@drawable/ic_send"
+            app:tint = "@color/color_icon_primary"
             tools:srcCompat="@drawable/ic_send"
             />
     </LinearLayout>

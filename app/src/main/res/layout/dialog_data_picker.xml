@@ -13,7 +13,7 @@
         android:layout_marginStart="17dp"
         android:layout_marginTop="15dp"
         android:text="取消"
-        android:textColor="@color/color_777778"
+        android:textColor="@color/color_text_primary"
         android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@id/dialog_data_birthday"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:text="生日"
-        android:textColor="@color/black"
+        android:textColor="@color/color_text_primary"
         android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@id/dialog_data_confirm"
         app:layout_constraintStart_toEndOf="@id/dialog_data_cancel"
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:text="确认"
-        android:textColor="@color/color_346EEB"
+        android:textColor="@color/color_text_primary"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/dialog_data_birthday"
@@ -62,8 +62,8 @@
             app:wheel_curvedIndicatorSpace="4dp"
             app:wheel_curvedMaxAngle="70"
             app:wheel_itemSpace="50dp"
-            app:wheel_itemTextColor="@color/color_777778"
-            app:wheel_itemTextColorSelected="@color/black"
+            app:wheel_itemTextColor="@color/color_text_grey"
+            app:wheel_itemTextColorSelected="@color/color_text_primary"
             app:wheel_itemTextSize="20sp" />
 
         <com.github.gzuliyujiang.wheelview.widget.WheelView
@@ -76,8 +76,8 @@
             app:wheel_curvedIndicatorSpace="4dp"
             app:wheel_curvedMaxAngle="70"
             app:wheel_itemSpace="50dp"
-            app:wheel_itemTextColor="@color/color_777778"
-            app:wheel_itemTextColorSelected="@color/black"
+            app:wheel_itemTextColor="@color/color_text_grey"
+            app:wheel_itemTextColorSelected="@color/color_text_primary"
             app:wheel_itemTextSize="20sp" />
 
         <com.github.gzuliyujiang.wheelview.widget.WheelView
@@ -90,8 +90,8 @@
             app:wheel_curvedIndicatorSpace="4dp"
             app:wheel_curvedMaxAngle="70"
             app:wheel_itemSpace="50dp"
-            app:wheel_itemTextColor="#777778"
-            app:wheel_itemTextColorSelected="@color/black"
+            app:wheel_itemTextColor="@color/color_text_grey"
+            app:wheel_itemTextColorSelected="@color/color_text_primary"
             app:wheel_itemTextSize="20sp" />
 
     </LinearLayout>
