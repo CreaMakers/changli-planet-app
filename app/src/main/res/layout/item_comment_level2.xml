@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/bg_secondary"
+    android:layout_marginBottom="@dimen/dp5">
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_comment_avatar_level2"
         android:layout_width="@dimen/dp35"
@@ -24,7 +26,7 @@
         android:layout_marginEnd="@dimen/dp10"
         android:textSize="@dimen/sp14"
         android:textStyle="bold"
-        android:textColor="@color/md_theme_onSurface"
+        android:textColor="@color/color_text_primary"
         app:layout_constraintStart_toEndOf="@id/iv_comment_avatar_level2"
         app:layout_constraintEnd_toStartOf="@id/tv_response_level2"
         app:layout_constraintTop_toTopOf="@id/iv_comment_avatar_level2"
@@ -35,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/dp15"
-        android:textColor="@color/md_theme_onPrimaryContainer"
+        android:textColor="@color/color_text_functional"
         android:textSize="@dimen/sp12"
         android:gravity="center"
         android:text="@string/response"
@@ -50,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:textSize="@dimen/sp12"
-        android:textColor="@color/md_theme_onSurfaceVariant"
+        android:textColor="@color/color_text_grey"
         app:layout_constraintStart_toEndOf="@id/iv_comment_avatar_level2"
         app:layout_constraintTop_toBottomOf="@id/tv_comment_item_username_level2"
         app:layout_constraintBottom_toBottomOf="@id/iv_comment_avatar_level2"
@@ -73,7 +75,7 @@
         android:layout_marginStart="@dimen/dp8"
         android:drawablePadding="@dimen/dp4"
         android:textSize="@dimen/sp12"
-        android:textColor="@color/md_theme_onSurfaceVariant"
+        android:textColor="@color/color_text_grey"
         app:layout_constraintStart_toEndOf="@id/comment_item_time_level2"
         app:layout_constraintTop_toTopOf="@id/comment_item_time_level2"
         app:layout_constraintBottom_toBottomOf="@id/comment_item_time_level2"
@@ -88,7 +90,7 @@
         android:layout_marginTop="@dimen/dp8"
         android:layout_marginBottom="@dimen/dp12"
         android:textSize="14sp"
-        android:textColor="@color/md_theme_onSurface"
+        android:textColor="@color/color_text_primary"
         app:layout_constraintStart_toEndOf="@id/iv_comment_avatar_level2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_comment_avatar_level2"
@@ -100,23 +102,16 @@
         android:id="@+id/iv_level2_liked"
         app:layout_constraintEnd_toStartOf="@id/tv_level2_like_count"
         app:layout_constraintTop_toBottomOf="@+id/tv_comment_item_content_level2"
-        app:tint="@color/md_theme_outline"
+        app:tint="@color/color_icon_secondary"
         tools:src="@drawable/ic_like" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tv_level2_like_count"
-        android:textColor="@color/md_theme_onSurface"
+        android:textColor="@color/color_text_primary"
         app:layout_constraintEnd_toEndOf="@id/tv_comment_item_content_level2"
         app:layout_constraintStart_toStartOf="@id/tv_comment_item_content_level2"
         app:layout_constraintTop_toBottomOf="@+id/tv_comment_item_content_level2"
         app:layout_constraintHorizontal_bias="1.0"
         tools:text="123" />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp1"
-        android:layout_marginTop="@dimen/dp5"
-        android:background="@color/md_theme_outline"
-        android:layout_marginHorizontal="@dimen/dp15"
-        app:layout_constraintTop_toBottomOf="@+id/tv_level2_like_count"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

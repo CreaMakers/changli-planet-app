@@ -29,6 +29,7 @@
         android:layout_marginBottom="@dimen/dp5"
         android:textSize="@dimen/sp16"
         android:textStyle="bold"
+        android:textColor="@color/color_text_primary"
         app:layout_constraintEnd_toStartOf="@id/btn_menu"
         app:layout_constraintStart_toEndOf="@id/news_item_avatar"
         app:layout_constraintTop_toTopOf="@id/news_item_avatar"
@@ -43,7 +44,8 @@
         app:layout_constraintBottom_toBottomOf="@id/news_item_username"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/news_item_username"
-        tools:src="@drawable/ic_more" />
+        tools:src="@drawable/ic_more"
+        app:tint = "@color/color_icon_secondary"/>
 
     <TextView
         android:id="@+id/news_item_time"
@@ -51,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp10"
         android:text="@string/freshNewsTime"
+        android:textColor="@color/color_text_grey"
         app:layout_constraintStart_toEndOf="@id/news_item_avatar"
         app:layout_constraintTop_toBottomOf="@id/news_item_username" />
 
@@ -70,6 +73,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp12"
         android:drawablePadding="@dimen/dp4"
+        android:textColor="@color/color_text_grey"
         app:layout_constraintBottom_toBottomOf="@id/news_item_time"
         app:layout_constraintStart_toEndOf="@id/news_item_time"
         app:layout_constraintTop_toTopOf="@id/news_item_time"
@@ -83,6 +87,7 @@
         android:layout_marginTop="@dimen/dp6"
         android:textSize="@dimen/sp17"
         android:textStyle="bold"
+        android:textColor="@color/color_text_primary"
         app:layout_constraintTop_toBottomOf="@id/news_item_avatar"
         tools:text="标题" />
 
@@ -93,6 +98,7 @@
         android:layout_marginHorizontal="@dimen/dp15"
         android:paddingVertical="@dimen/dp3"
         android:textSize="@dimen/sp16"
+        android:textColor="@color/color_text_primary"
         app:layout_constraintTop_toBottomOf="@id/news_title"
         tools:text="正文正文正文正文正文正文正文正文正文正文正文正文正文正文正文" />
 
@@ -130,7 +136,8 @@
                 android:id="@+id/news_favor"
                 android:layout_width="@dimen/dp28"
                 android:layout_height="@dimen/dp28"
-                android:src="@drawable/ic_like" />
+                android:src="@drawable/ic_like"
+                app:tint = "@color/color_icon_secondary"/>
 
             <TextView
                 android:id="@+id/news_favor_count"
@@ -138,6 +145,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp4"
                 android:textSize="@dimen/sp14"
+                android:textColor="@color/color_text_primary"
                 tools:text="0" />
         </LinearLayout>
 
@@ -154,7 +162,8 @@
                 android:id="@+id/news_comment"
                 android:layout_width="@dimen/dp26"
                 android:layout_height="@dimen/dp26"
-                android:src="@drawable/ic_comment" />
+                android:src="@drawable/ic_comment"
+                app:tint = "@color/color_icon_secondary"/>
 
             <TextView
                 android:id="@+id/news_comment_count"
@@ -162,6 +171,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp4"
                 android:textSize="@dimen/sp14"
+                android:textColor="@color/color_text_primary"
                 tools:text="0" />
         </LinearLayout>
 
@@ -178,7 +188,8 @@
                 android:id="@+id/news_share"
                 android:layout_width="@dimen/dp26"
                 android:layout_height="@dimen/dp26"
-                android:src="@drawable/ic_un_collect" />
+                android:src="@drawable/ic_un_collect"
+                app:tint = "@color/color_icon_secondary"/>
 
             <TextView
                 android:id="@+id/news_share_count"
@@ -186,6 +197,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp4"
                 android:textSize="@dimen/sp14"
+                android:textColor="@color/color_text_primary"
                 tools:text="0" />
         </LinearLayout>
     </LinearLayout>

@@ -4,7 +4,7 @@
     android:id="@+id/location_item_layout"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:background="@color/white"
+    android:background="@color/color_bg_primary"
     android:clickable="true"
     android:focusable="true"
     android:padding="12dp"
@@ -18,7 +18,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginStart="@dimen/dp10"
         android:textSize="@dimen/sp18"
-        android:textColor="@color/text_color"
+        android:textColor="@color/color_text_primary"
         android:layout_centerVertical="true"
         tools:text="广东" />
 

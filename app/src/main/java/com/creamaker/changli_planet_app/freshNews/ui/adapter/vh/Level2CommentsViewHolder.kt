@@ -39,7 +39,7 @@ RecyclerView.ViewHolder(binding.root) {
             }
             
             // 设置评论内容
-            tvCommentItemContentLevel2.text = highlightMentions(level2CommentItem.content,R.color.md_theme_onPrimaryFixedVariant)
+            tvCommentItemContentLevel2.text = highlightMentions(level2CommentItem.content,R.color.color_primary_blue)
             
             // 设置点赞数
             tvLevel2LikeCount.text = if (level2CommentItem.liked > 999) {
@@ -52,11 +52,11 @@ RecyclerView.ViewHolder(binding.root) {
             ivLevel2Liked.apply {
                 if(level2CommentItem.isLiked){
                     load(R.drawable.ic_news_liked)
-                    imageTintList = root.context.getColorStateList(R.color.ele_low)
+                    imageTintList = null
                 }
                 else{
                     load(R.drawable.ic_like)
-                    imageTintList = root.context.getColorStateList(R.color.md_theme_outline)
+                    imageTintList = root.context.getColorStateList(R.color.color_icon_secondary)
                 }
                 setOnClickListener {
                     onLevel2CommentLikedClick(level2CommentItem)
@@ -86,12 +86,13 @@ RecyclerView.ViewHolder(binding.root) {
     fun updateLike(isLiked: Boolean, likedCount: Int, level2CommentItem: Level2CommentItem) {
         with(binding) {
             ivLevel2Liked.apply {
-                if (isLiked) {
+                if(level2CommentItem.isLiked){
                     load(R.drawable.ic_news_liked)
-                    imageTintList = root.context.getColorStateList(R.color.ele_low)
-                } else {
+                    imageTintList = null
+                }
+                else{
                     load(R.drawable.ic_like)
-                    imageTintList = root.context.getColorStateList(R.color.md_theme_outline)
+                    imageTintList = root.context.getColorStateList(R.color.color_icon_secondary)
                 }
                 setOnClickListener {
                     onLevel2CommentLikedClick(level2CommentItem)

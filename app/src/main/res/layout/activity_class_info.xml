@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/normal_background"
+    android:background="@color/color_bg_primary"
     tools:context=".feature.common.ui.ClassInfoActivity">
 
     <LinearLayout
@@ -17,7 +17,7 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:background="@color/white"
+        android:background="@color/color_base_white"
         android:elevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,7 +51,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:elevation="12dp"
-        android:background="@color/white"
+        android:background="@color/color_bg_card"
         app:cardCornerRadius="9dp"
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="20dp"
@@ -72,12 +72,12 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/grey" />
+                android:background="@color/color_divider" />
 
             <RelativeLayout
                 android:id="@+id/class_info_week_layout"
                 android:layout_width="match_parent"
-                android:background="@color/white"
+                android:background="@color/color_base_white"
                 android:paddingVertical="12dp"
                 android:layout_height="wrap_content">
 
@@ -89,7 +89,7 @@
                     android:gravity="center"
                     android:textSize="19sp"
                     android:layout_centerVertical="true"
-                    android:textColor="@color/text_color" />
+                    android:textColor="@color/color_text_primary" />
 
                 <TextView
                     android:id="@+id/class_info_week"
@@ -99,25 +99,26 @@
                     android:textSize="19sp"
                     android:layout_centerVertical="true"
                     android:layout_centerInParent="true"
-                    android:textColor="@color/text_color" />
+                    android:textColor="@color/color_text_primary" />
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_alignParentEnd="true"
                     android:src="@drawable/baseline_arrow_forward_ios_24"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    app:tint = "@color/color_icon_secondary"/>
             </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/grey" />
+                android:background="@color/color_divider" />
 
             <RelativeLayout
                 android:id="@+id/class_info_day_layout"
                 android:layout_width="match_parent"
-                android:background="@color/white"
+                android:background="@color/color_base_white"
                 android:paddingVertical="12dp"
                 android:layout_height="wrap_content">
 
@@ -129,7 +130,7 @@
                     android:gravity="center"
                     android:textSize="19sp"
                     android:layout_centerVertical="true"
-                    android:textColor="@color/text_color" />
+                    android:textColor="@color/color_text_primary" />
 
                 <TextView
                     android:id="@+id/class_info_day"
@@ -139,7 +140,7 @@
                     android:text="星期三"
                     android:textSize="19sp"
                     android:layout_centerInParent="true"
-                    android:textColor="@color/text_color" />
+                    android:textColor="@color/color_text_primary" />
 
                 <ImageView
                     android:layout_width="20dp"
@@ -147,18 +148,19 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:src="@drawable/baseline_arrow_forward_ios_24"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    app:tint = "@color/color_icon_secondary"/>
             </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/grey" />
+                android:background="@color/color_divider" />
 
             <RelativeLayout
                 android:id="@+id/class_info_class_layout"
                 android:layout_width="match_parent"
-                android:background="@color/white"
+                android:background="@color/color_base_white"
                 android:paddingVertical="12dp"
                 android:layout_height="wrap_content">
 
@@ -170,7 +172,7 @@
                     android:gravity="center"
                     android:textSize="19sp"
                     android:layout_centerVertical="true"
-                    android:textColor="@color/text_color" />
+                    android:textColor="@color/color_text_primary" />
 
                 <TextView
                     android:id="@+id/class_info_class"
@@ -180,7 +182,7 @@
                     android:text="第1节到第3节"
                     android:textSize="19sp"
                     android:layout_centerInParent="true"
-                    android:textColor="@color/text_color" />
+                    android:textColor="@color/color_text_primary" />
 
                 <ImageView
                     android:layout_width="20dp"
@@ -188,19 +190,20 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:src="@drawable/baseline_arrow_forward_ios_24"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    app:tint = "@color/color_icon_secondary"/>
             </RelativeLayout>
 
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/grey" />
+                android:background="@color/color_divider" />
 
             <RelativeLayout
                 android:id="@+id/class_info_region_layout"
                 android:layout_width="match_parent"
-                android:background="@color/white"
+                android:background="@color/color_base_white"
                 android:paddingVertical="12dp"
                 android:layout_height="wrap_content">
 
@@ -212,7 +215,7 @@
                     android:gravity="center"
                     android:textSize="19sp"
                     android:layout_centerVertical="true"
-                    android:textColor="@color/text_color" />
+                    android:textColor="@color/color_text_primary" />
 
                 <TextView
                     android:id="@+id/class_info_region"
@@ -222,7 +225,7 @@
                     android:text="金盆岭"
                     android:textSize="19sp"
                     android:layout_centerInParent="true"
-                    android:textColor="@color/text_color" />
+                    android:textColor="@color/color_text_primary" />
 
                 <ImageView
                     android:layout_width="20dp"
@@ -230,12 +233,13 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:src="@drawable/baseline_arrow_forward_ios_24"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    app:tint = "@color/color_icon_secondary"/>
             </RelativeLayout>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/grey" />
+                android:background="@color/color_divider" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/class_info_query"
@@ -244,6 +248,7 @@
                 android:layout_marginTop="30dp"
                 android:background="@drawable/gradient_button_background"
                 android:paddingVertical="10dp"
+                android:textColor="@color/color_text_button"
                 android:text="查询"
                 android:textSize="17sp"
                 android:textStyle="bold"

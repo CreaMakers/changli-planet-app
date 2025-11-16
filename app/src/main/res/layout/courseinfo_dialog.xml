@@ -5,18 +5,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="50dp"
     android:elevation="15dp"
-    android:background="@null"
     android:id="@+id/cardView"
-
-   >
+    app:cardBackgroundColor="@color/color_bg_card">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-
-        >
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/dialog_courseName"
@@ -30,6 +26,7 @@
             android:paddingBottom="10dp"
             android:singleLine="true"
             android:text="体育(三)(23计算机飞盘08)"
+            android:textColor="@color/color_text_primary"
             android:textSize="16sp" />
 
         <include

@@ -2,9 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/dp11"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_marginBottom="@dimen/dp15">
+    android:layout_marginBottom="@dimen/dp15"
+    android:background="@drawable/bg_primary">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="@dimen/dp40"
@@ -27,7 +29,7 @@
         android:layout_marginBottom="@dimen/dp5"
         android:textSize="@dimen/sp16"
         android:textStyle="bold"
-        android:textColor="@color/md_theme_onSurface"
+        android:textColor="@color/color_text_primary"
         app:layout_constraintEnd_toStartOf="@id/tv_response"
         app:layout_constraintStart_toEndOf="@id/iv_comment_avatar"
         app:layout_constraintTop_toTopOf="@id/iv_comment_avatar"
@@ -38,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/dp15"
-        android:textColor="@color/md_theme_onPrimaryContainer"
+        android:textColor="@color/color_text_functional"
         android:textSize="@dimen/sp14"
         android:text="@string/response"
         android:gravity="center"
@@ -52,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="@string/freshNewsTime"
-        android:textColor="@color/md_theme_onSurfaceVariant"
+        android:textColor="@color/color_text_grey"
         app:layout_constraintStart_toEndOf="@id/iv_comment_avatar"
         app:layout_constraintTop_toBottomOf="@id/tv_comment_item_username"
         app:layout_constraintBottom_toBottomOf="@id/iv_comment_avatar"/>
@@ -73,7 +75,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp12"
         android:drawablePadding="@dimen/dp4"
-        android:textColor="@color/md_theme_onSurfaceVariant"
+        android:textColor="@color/color_text_grey"
         app:layout_constraintBottom_toBottomOf="@id/tv_comment_item_time"
         app:layout_constraintStart_toEndOf="@id/tv_comment_item_time"
         app:layout_constraintTop_toTopOf="@id/tv_comment_item_time"
@@ -87,7 +89,7 @@
         android:layout_marginEnd="@dimen/dp16"
         android:layout_marginBottom="@dimen/dp12"
         android:layout_marginTop="@dimen/dp8"
-        android:textColor="@color/md_theme_onSurface"
+        android:textColor="@color/color_text_primary"
         android:textSize="15sp"
         app:layout_constraintTop_toBottomOf="@id/iv_comment_avatar"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,7 +107,7 @@
         android:layout_height="@dimen/dp32"
         android:layout_marginStart="@dimen/dp16"
         android:layout_marginTop="@dimen/dp8"
-        android:textColor="@color/color_on_secondary_text"
+        android:textColor="@color/color_text_functional"
         android:textSize="@dimen/sp13"
         android:background="@drawable/bg_response_count"
         app:layout_constraintStart_toStartOf="parent"
@@ -124,7 +126,7 @@
         app:layout_constraintStart_toEndOf="@id/tv_comment_response_count"
         app:layout_constraintTop_toBottomOf="@+id/tv_comment_item_content"
         app:layout_constraintBottom_toBottomOf="@id/tv_comment_response_count"
-        app:tint="@color/md_theme_outline"
+        app:tint="@color/color_icon_secondary"
         tools:src="@drawable/ic_like" />
 
     <!-- 新增：一级点赞数量 -->
@@ -134,7 +136,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp8"
         android:layout_marginEnd="@dimen/dp12"
-        android:textColor="@color/md_theme_onSurface"
+        android:textColor="@color/color_text_primary"
         android:textSize="@dimen/sp14"
         app:layout_constraintStart_toEndOf="@id/iv_level1_liked"
         app:layout_constraintTop_toBottomOf="@+id/tv_comment_item_content"
@@ -147,7 +149,7 @@
         android:layout_height="@dimen/dp1"
         android:layout_marginTop="@dimen/dp10"
         android:layout_marginHorizontal="@dimen/dp15"
-        android:background="@color/md_theme_outline"
+        android:background="@color/color_divider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_level1_like_count"/>

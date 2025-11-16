@@ -36,7 +36,7 @@ class MoocActivity : ComponentActivity() {
             val cardView = CardView(applicationContext).apply {
                 radius = 25f
                 cardElevation = 8f
-                setCardBackgroundColor(getColor(R.color.score_bar))
+                setCardBackgroundColor(getColor(R.color.color_base_white))
                 useCompatPadding = true
             }
 

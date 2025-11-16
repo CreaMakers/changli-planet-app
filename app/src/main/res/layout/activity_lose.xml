@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/color_base_white"
     tools:context=".feature.lostfound.ui.LoseActivity">
 
     <ImageView
@@ -14,22 +14,23 @@
         android:elevation="5dp"
         android:src="@drawable/back"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint = "@color/color_title_top"/>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/mytab"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@drawable/losebackground"
+        android:background="@color/color_bg_top_bar"
         android:paddingBottom="2dp"
         app:layout_constraintHeight_percent="0.1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tabIndicatorColor="@color/white"
+        app:tabIndicatorColor="@color/color_base_white"
         app:tabIndicatorGravity="bottom"
         app:tabPaddingTop="40dp"
         app:tabTextAppearance="@style/MyTabLayout"
-        app:tabTextColor="@color/white">
+        app:tabTextColor="@color/color_title_top">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -44,7 +45,7 @@
 
     <FrameLayout
         android:id="@+id/lose_FrameLayout"
-        android:background="@color/white"
+        android:background="@color/color_base_white"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

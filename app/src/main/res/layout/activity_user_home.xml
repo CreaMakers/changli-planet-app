@@ -33,7 +33,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/bg_user_home_header" />
+                        android:src="@drawable/bg_user_home_header"
+                        />
 
                     <androidx.cardview.widget.CardView
                         android:layout_width="wrap_content"
@@ -45,12 +46,12 @@
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivHead"
                         android:layout_width="65dp"
-                        android:background="@color/white"
+                        android:background="@color/color_base_white"
                         android:layout_height="65dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="125dp"
                         app:shapeAppearance="@style/CircleStyle"
-                        app:strokeColor="@color/white"
+                        app:strokeColor="@color/color_base_white"
                         app:strokeWidth="@dimen/dp2" />
 
                     <LinearLayout
@@ -68,7 +69,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="PG_KING"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/color_text_primary"
                             android:textSize="16sp" />
 
                         <ImageView
@@ -98,10 +99,10 @@
                         android:layout_alignTop="@+id/llAuthor"
                         android:layout_alignParentRight="true"
                         android:layout_marginRight="10dp"
-                        android:background="@drawable/bg_edit"
+                        android:background="@drawable/enable_button"
                         android:gravity="center"
                         android:text="编辑"
-                        android:textColor="#2077F0"
+                        android:textColor="@color/color_text_button"
                         android:textSize="15sp" />
                 </RelativeLayout>
             </com.creamaker.changli_planet_app.widget.view.NestCollapsingToolbarLayout>
@@ -123,14 +124,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="10000"
-                        android:textColor="@android:color/black"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="关注"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="@color/color_text_grey"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -145,14 +146,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="10000"
-                        android:textColor="@android:color/black"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="关注"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="@color/color_text_grey"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -167,14 +168,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="10000"
-                        android:textColor="@android:color/black"
+                        android:textColor="@color/color_text_primary"
                         android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="关注"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="@color/color_text_grey"
                         android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -182,7 +183,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="3dp"
-                android:background="@color/grey" />
+                android:background="@color/light_gray" />
 
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -219,7 +220,8 @@
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_back" />
+            android:src="@drawable/ic_back"
+            app:tint = "@color/color_icon_primary"/>
 
         <LinearLayout
             android:id="@+id/llSmallAuthor"

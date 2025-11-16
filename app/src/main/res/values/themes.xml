@@ -3,8 +3,8 @@
     <style name="Base.Theme.Changliplanetapp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="colorPrimary">@color/primary_blue</item>
-        <item name="android:windowBackground">@color/white</item>
+        <item name="colorPrimary">@color/color_primary_blue</item>
+        <item name="android:windowBackground">@color/color_base_white</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
@@ -47,7 +47,7 @@
         <!-- 确保窗口绘制系统栏背景，这样 statusBarColor 生效 -->
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <!-- 设定状态栏颜色（替换为你的颜色资源） -->
-        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:statusBarColor">@color/color_base_white</item>
         <!-- 控制图标颜色：true -> 黑色图标，false -> 白色图标 -->
         <item name="android:windowLightStatusBar">true</item>
         <!-- 保留 fitsSystemWindows 行为（可选） -->

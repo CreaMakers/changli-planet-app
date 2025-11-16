@@ -24,7 +24,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:text=" |成绩详细"
-            android:textColor="#333333"
+            android:textColor="@color/color_text_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -38,7 +38,7 @@
             android:layout_toStartOf="@id/detail_score_action"
             android:layout_marginEnd="8dp"
             android:text="高等数学数学数学"
-            android:textColor="#333333"
+            android:textColor="@color/color_text_primary"
             android:maxLines="1"
             android:ellipsize="end"
             android:textSize="20sp"
@@ -57,7 +57,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="24dp"
         android:text="账号或密码错误，请重新输入"
-        android:textColor="#666666"
+        android:textColor="@color/color_text_grey"
         android:textSize="15sp" />
 
     <!-- 分割线 -->
@@ -77,10 +77,10 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"
-            android:background="?attr/selectableItemBackground"
+            android:background="@drawable/enable_button"
             android:gravity="center"
             android:text="确定"
-            android:textColor="#4285F4"
+            android:textColor="@color/color_text_button"
             android:textSize="16sp"
             android:textStyle="bold" />
 

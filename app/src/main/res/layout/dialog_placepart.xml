@@ -26,7 +26,8 @@
         android:id="@+id/dialogPlace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" "
+        android:text="北京市 海淀区"
+        android:textColor="@color/color_text_primary"
         android:textSize="16sp" />
 
 </LinearLayout>

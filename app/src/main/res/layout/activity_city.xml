@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_grey"
+    android:background="@color/color_bg_primary"
     tools:context=".settings.ui.CityActivity">
 
     <LinearLayout
@@ -17,7 +17,7 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:background="@color/white"
+        android:background="@color/color_bg_top_bar"
         android:elevation="4dp">
 
         <ImageView
@@ -25,7 +25,8 @@
             android:layout_width="26dp"
             android:layout_height="26dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/fanhui" />
+            android:src="@drawable/fanhui"
+            app:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"
@@ -35,7 +36,8 @@
             android:gravity="center"
             android:text="选择你的地区"
             android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/color_title_top"/>
         <!-- 添加一个空视图来平衡布局，使标题居中 -->
         <View
             android:layout_width="26dp"
@@ -51,7 +53,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginBottom="10dp"
         android:text="全部"
-        android:textColor="@color/text_color_grey" />
+        android:textColor="@color/color_text_grey" />
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -59,14 +61,14 @@
         android:layout_weight="1"
         android:layout_marginHorizontal="10dp"
         app:cardCornerRadius="16dp"
-        app:cardElevation="0dp">
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/color_bg_card">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/city_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp"
-            android:background="@color/white" />
+            android:padding="8dp" />
 
     </androidx.cardview.widget.CardView>
 

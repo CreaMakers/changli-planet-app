@@ -10,14 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/md_theme_inversePrimary_highContrast"
+        android:background="@color/color_bg_top_bar"
         app:layout_constraintTop_toTopOf="parent">
         <ImageView
             android:id="@+id/iv_back"
             android:layout_width="@dimen/dp40"
             android:layout_height="@dimen/dp40"
             android:padding="@dimen/dp10"
-            app:tint = "@color/md_theme_onPrimaryContainer"
+            app:tint = "@color/color_title_top"
             tools:src="@drawable/ic_back" />
         <TextView
             android:id="@+id/tv_title"
@@ -27,7 +27,7 @@
             android:gravity="center"
             android:layout_weight="1"
             android:textSize="@dimen/sp18"
-            android:textColor="@color/md_theme_onPrimaryContainer"
+            android:textColor="@color/color_title_top"
             android:textStyle="bold"
              android:text="@string/top_bar_comments"/>
         <Space
@@ -51,7 +51,7 @@
         android:id="@+id/v_divider"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp1"
-        android:background="@color/md_theme_outline"
+        android:background="@color/color_divider"
         app:layout_constraintBottom_toTopOf="@id/input_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -63,14 +63,14 @@
         android:paddingHorizontal="@dimen/dp10"
         android:paddingTop="@dimen/dp10"
         android:paddingBottom="@dimen/dp10"
-        android:background="@color/md_theme_onPrimary"
+        android:background="@color/color_bg_secondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
         
         <EditText
             android:id="@+id/et_comment"
-            android:background="@drawable/bg_response_edit"
+            android:background="@drawable/edit_text_background"
             android:layout_width="0dp"
             android:layout_height="@dimen/dp35"
             android:paddingHorizontal="@dimen/dp3"
@@ -79,6 +79,7 @@
             android:layout_marginEnd="8dp"
             android:textSize="@dimen/sp15"
             android:hint="@string/et_tint"
+            android:textColorHint="@color/color_text_grey"
             android:maxLines="5"
             android:inputType="textMultiLine|textCapSentences"
             android:scrollbars="vertical"
@@ -91,6 +92,7 @@
             android:layout_height="@dimen/dp35"
             android:src="@drawable/ic_send"
             tools:srcCompat="@drawable/ic_send"
+            app:tint = "@color/color_icon_primary"
             />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

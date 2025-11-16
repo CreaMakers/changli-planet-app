@@ -164,19 +164,19 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                             ele_image.load(R.drawable.e_none)
                             ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
                             ele_state.text = getString(R.string.ele_state_low)
-                            ele_state.setTextColor(getColor(R.color.ele_low))
+                            ele_state.setTextColor(getColor(R.color.color_base_red))
                         }
                         electronicValue in 20.1f..100f ->{
                             ele_image.load(R.drawable.e_low)
                             ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
                             ele_state.text = getString(R.string.ele_state_normal)
-                            ele_state.setTextColor(getColor(R.color.ele_normal))
+                            ele_state.setTextColor(getColor(R.color.color_base_yellow))
                         }
                         electronicValue > 100f ->{
                             ele_image.load(R.drawable.e_high)
                             ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
                             ele_state.text = getString(R.string.ele_state_high)
-                            ele_state.setTextColor(getColor(R.color.ele_high))
+                            ele_state.setTextColor(getColor(R.color.color_base_green))
                         }
 
                     }

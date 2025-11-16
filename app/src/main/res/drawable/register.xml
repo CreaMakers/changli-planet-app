@@ -1,7 +1,0 @@
-<gradient xmlns:android="http://schemas.android.com/apk/res/android"
-    android:angle="45"
-    android:startColor="@color/navigtion_blue"
-    android:endColor="@color/primary_blue"
-    android:type="linear" >
-    <corners android:radius="16dp" /> <!-- 设置圆角 -->
-</gradient>

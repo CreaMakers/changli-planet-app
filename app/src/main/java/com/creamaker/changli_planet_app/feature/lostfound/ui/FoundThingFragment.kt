@@ -41,7 +41,7 @@ class FoundThingFragment: Fragment() {
         setUpImageView()
         setOnImageViewListener()
 
-        binding.swipeRefresh.setColorSchemeResources(R.color.black)
+        binding.swipeRefresh.setColorSchemeResources(R.color.color_text_primary)
         binding.swipeRefresh.setOnRefreshListener {
             refresh()
         }

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="120dp"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/white"
+    android:background="@color/color_base_white"
     android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,6 +24,7 @@
             <TextView
                 android:id="@+id/lose_user_Name"
                 tools:text="何同学"
+                android:textColor="@color/color_text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:layout_width="match_parent"
@@ -31,6 +32,7 @@
                 <TextView
                     android:id="@+id/lose_user_Faculty"
                     tools:text="计通学院 "
+                    android:textColor="@color/color_text_grey"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
         </LinearLayout>
@@ -48,6 +50,7 @@
             <TextView
                 android:id="@+id/lose_title"
                 tools:text="一本书"
+                android:textColor="@color/color_text_primary"
                 android:paddingHorizontal="10dp"
                 android:textStyle="bold"
                 android:gravity="center_vertical"
@@ -56,6 +59,7 @@
             <TextView
                 android:id="@+id/lose_content"
                 android:text="在6教104丢失"
+                android:textColor="@color/color_text_primary"
                 android:ellipsize="end"
                 android:maxLines="3"
                 android:paddingHorizontal="10dp"

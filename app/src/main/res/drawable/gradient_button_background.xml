@@ -3,7 +3,7 @@
     <!-- 按下状态 -->
     <item android:state_pressed="true">
         <shape>
-            <gradient android:angle="0" android:endColor="#4A71B0" android:startColor="#7498BC" android:type="linear" />
+            <gradient android:angle="0" android:endColor="@color/color_bg_card_high_contrast" android:startColor="@color/color_bg_card_high_contrast" android:type="linear" />
             <corners android:radius="5dp" />
         </shape>
     </item>
@@ -11,7 +11,7 @@
     <!-- 正常状态 -->
     <item>
         <shape>
-            <gradient android:angle="0" android:endColor="#5C8EDC" android:startColor="#91BEEB" android:type="linear" />
+            <gradient android:angle="0" android:endColor="@color/color_bg_button" android:startColor="@color/color_bg_button" android:type="linear" />
             <corners android:radius="5dp" />
         </shape>
     </item>

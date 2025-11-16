@@ -3,7 +3,7 @@
     <item android:gravity="bottom">
         <shape android:shape="rectangle">
             <size android:height="2dp" />
-            <solid android:color="@color/chat_group_blue" />
+            <solid android:color="@color/color_tab_ripped" />
         </shape>
     </item>
 </layer-list>

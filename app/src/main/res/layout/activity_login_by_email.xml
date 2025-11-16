@@ -43,11 +43,13 @@
         android:id="@+id/email"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:background="@drawable/login_edit_shape"
+        android:background="@drawable/edit_text_background"
         android:gravity="center"
         android:hint="请输入邮箱"
         android:singleLine="true"
         android:inputType="textEmailAddress"
+        android:textColorHint="@color/color_text_secondary"
+        android:textColor="@color/color_text_primary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,12 +71,14 @@
             android:id="@+id/captcha"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/login_edit_shape"
+            android:background="@drawable/edit_text_background"
             android:gravity="center"
             android:hint="请输入验证码"
             android:singleLine="true"
             android:maxLength="4"
-            android:inputType="number" />
+            android:inputType="number"
+            android:textColorHint="@color/color_text_secondary"
+            android:textColor="@color/color_text_primary"/>
         <TextView
             android:id="@+id/get_captcha"
             android:layout_width="100dp"
@@ -82,7 +86,7 @@
             android:textSize="15sp"
             android:gravity="center"
             android:text="获取验证码"
-            android:textColor="@color/primary_blue"
+            android:textColor="@color/color_text_functional"
             android:layout_height="match_parent"/>
     </FrameLayout>
 
@@ -103,7 +107,8 @@
         <CheckBox
             android:id="@+id/agreement_checkbox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/color_primary_blue"/>
 
         <TextView
             android:id="@+id/agreement_text"
@@ -117,7 +122,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="《长理星球用户协议》"
-            android:textColor="@color/primary_blue"
+            android:textColor="@color/color_text_functional"
             android:textSize="14sp"
             android:singleLine="true"
             />
@@ -131,7 +136,7 @@
         android:background="@drawable/enable_button"
         android:gravity="center"
         android:text="登录"
-        android:textColor="@color/white"
+        android:textColor="@color/color_base_white"
         app:cornerRadius="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -149,7 +154,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginStart="100dp"
         android:text="忘记密码"
-        android:textColor="@color/primary_blue"
+        android:textColor="@color/color_text_functional"
         android:textSize="15sp"
         app:layout_constraintTop_toBottomOf="@id/login"
         app:layout_constraintStart_toStartOf="parent"
@@ -164,7 +169,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="100dp"
         android:text="账户登录"
-        android:textColor="@color/primary_blue"
+        android:textColor="@color/color_text_functional"
         android:textSize="15sp"
         app:layout_constraintTop_toBottomOf="@id/login"
         app:layout_constraintEnd_toEndOf="parent"
@@ -189,7 +194,7 @@
         android:layout_height="0dp"
         android:gravity="center"
         android:text="没有账号？去注册"
-        android:textColor="@color/primary_blue"
+        android:textColor="@color/color_text_functional"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/regicremaker"

@@ -400,8 +400,8 @@ class UserProfileActivity : FullScreenActivity<ActivityUserProfileBinding>() {
             setShowCropGrid(false) // 隐藏网格
             setCompressionQuality(COMPRESS_QUALITY) // 设置压缩质量
             setHideBottomControls(true) // 隐藏底部控制栏
-            setToolbarColor(ContextCompat.getColor(this@UserProfileActivity, R.color.white))
-            setStatusBarColor(ContextCompat.getColor(this@UserProfileActivity, R.color.white))
+            setToolbarColor(ContextCompat.getColor(this@UserProfileActivity, R.color.color_base_white))
+            setStatusBarColor(ContextCompat.getColor(this@UserProfileActivity, R.color.color_base_white))
         }
     }
 

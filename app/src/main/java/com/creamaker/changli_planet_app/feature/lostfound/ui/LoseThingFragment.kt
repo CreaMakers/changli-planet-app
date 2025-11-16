@@ -36,7 +36,7 @@ class LoseThingFragment : BaseFragment<FragmentLoseThingBinding>() {
         setUpImageView()                                        //动态添加图片
         setOnImageViewListener()                                //添加addLoseThing的点击事件
 
-        binding.swipeRefresh.setColorSchemeResources(R.color.black)
+        binding.swipeRefresh.setColorSchemeResources(R.color.color_text_primary)
         binding.swipeRefresh.setOnRefreshListener {
             refresh()
         }

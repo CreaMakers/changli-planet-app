@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="@dimen/dp35"
+    android:background="@color/color_bg_primary"
     tools:context=".feature.common.ui.FeatureFragment">
 
     <ImageView
@@ -33,6 +34,7 @@
         android:elevation="@dimen/dp12"
         android:baselineAligned="false"
         android:layout_marginHorizontal="@dimen/dp15"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="@dimen/dp12"
         app:layout_constraintTop_toBottomOf="@+id/planet_logo">
 
@@ -58,6 +60,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/feature_title_common_functions"
+                    android:textColor="@color/color_text_primary"
                     android:textSize="@dimen/sp15"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -140,6 +143,7 @@
         android:elevation="@dimen/dp12"
         android:baselineAligned="false"
         android:layout_marginHorizontal="@dimen/dp15"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="@dimen/dp12"
         app:layout_constraintTop_toBottomOf="@+id/mainfunction">
 

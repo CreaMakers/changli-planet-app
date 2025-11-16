@@ -15,7 +15,8 @@
         android:layout_width="@dimen/circle_item_size"
         android:layout_height="@dimen/circle_item_size"
         app:cardCornerRadius="@dimen/circle_item_size_half"
-        app:cardElevation="0dp">
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/color_bg_card">
 
         <ImageView
             android:id="@+id/chat_left_img"
@@ -38,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
             android:textStyle="bold"
-            android:textColor="@drawable/text_color_selector"
+            android:textColor="@color/color_text_primary"
             android:textSize="18sp"
             android:paddingHorizontal="1dp"
             android:text="学习" />
@@ -47,7 +48,7 @@
             android:id="@+id/indicator"
             android:layout_width="match_parent"
             android:layout_height="3dp"
-            android:background="@color/chat_group_blue"
+            android:background="@color/color_primary_blue"
             android:visibility="visible"/>
 
     </LinearLayout>

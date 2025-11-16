@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6F9FE"
+    android:background="@color/color_bg_primary"
     android:orientation="vertical"
     tools:context=".settings.ui.BindingUserActivity">
 
@@ -17,7 +17,7 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:background="#E8F3FE"
+        android:background="@color/color_bg_top_bar"
         android:elevation="4dp"
         app:titleTextColor="@android:color/white">
 
@@ -26,7 +26,8 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/blue_left_back" />
+            android:src="@drawable/blue_left_back"
+            app:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"
@@ -36,7 +37,7 @@
             android:gravity="center"
             android:layout_marginStart="5dp"
             android:text="绑定学号"
-            android:textColor="#4C81CE"
+            android:textColor="@color/color_title_top"
 
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -55,7 +56,7 @@
         android:layout_marginTop="20dp"
         android:src="@drawable/binding_password"
         app:shapeAppearance="@style/CircleStyle"
-        app:strokeColor="@color/low_blue"
+        app:strokeColor="@color/color_outline_low_contrast"
         app:strokeWidth="3dp" />
 
     <!-- 输入框区域 -->
@@ -64,7 +65,7 @@
         android:layout_height="@dimen/dp310"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="40dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp">
 
@@ -115,7 +116,7 @@
                         android:hint="请输入长理学号"
                         android:maxLines="1"
                         android:inputType="number"
-                        android:textColorHint="#6C727F"
+                        android:textColorHint="@color/color_text_grey"
                         android:textSize="16sp" />
 
                 </LinearLayout>
@@ -179,6 +180,7 @@
                 android:background="@drawable/gradient_button_background"
                 android:paddingVertical="13dp"
                 android:text="绑定"
+                android:textColor="@color/color_text_button"
                 app:backgroundTint="@null"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -188,7 +190,6 @@
             android:id="@+id/loadingLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#80FFFFFF"
             android:visibility="gone">
 
             <ProgressBar
@@ -197,7 +198,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:indeterminateTintMode="src_atop"
-                android:indeterminateTint="#4C81CE" />
+                android:indeterminateTint="@color/color_primary_blue" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -206,7 +207,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="8dp"
                 android:text="登录中..."
-                android:textColor="#4C81CE"
+                android:textColor="@color/color_text_functional"
                 android:textSize="14sp" />
         </RelativeLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -219,7 +220,7 @@
         android:gravity="center"
         android:lineSpacingExtra="@dimen/dp3"
         android:text="@string/binding_privacy_statement"
-        android:textColor="#CCD4E4"
+        android:textColor="@color/color_text_grey"
         android:textSize="13sp" />
 
 </LinearLayout>

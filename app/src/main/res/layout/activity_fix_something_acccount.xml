@@ -12,7 +12,7 @@
         android:id="@+id/add_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_blue"
+        android:background="@color/color_bg_top_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -24,13 +24,14 @@
             android:layout_marginStart="@dimen/dp5"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="修改"
-            android:textColor="@color/white"
+            android:textColor="@color/color_title_top"
             android:textSize="24sp"
             android:paddingVertical="@dimen/dp10"
             app:layout_constraintEnd_toEndOf="parent"
@@ -44,6 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/dp16"
         android:layout_marginHorizontal="@dimen/dp10"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="@dimen/dp10"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/add_top">
@@ -54,7 +56,8 @@
             android:paddingVertical="@dimen/dp5"
             android:paddingHorizontal="@dimen/dp10"
             android:text="商品名称"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:textColor="@color/color_text_primary"/>
 
         <EditText
             android:id="@+id/something_name_edit"
@@ -67,7 +70,9 @@
             android:minWidth="48dp"
             android:background="@null"
             android:hint="物品名称"
-            android:textSize="18sp"/>
+            android:textSize="18sp"
+            android:textColorHint="@color/color_text_secondary"
+            android:textColor="@color/color_text_primary"/>
 
     </androidx.cardview.widget.CardView>
 
@@ -94,7 +99,8 @@
                 android:text="商品分类"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                android:textColor="@color/color_text_primary"/>
 
             <TextView
                 android:id="@+id/tv_category"
@@ -107,7 +113,9 @@
                 android:background="@android:color/transparent"
                 android:minHeight="48dp"
                 android:hint="请选择商品分类"
-                android:textSize="18sp"/>
+                android:textSize="18sp"
+                android:textColor="@color/color_text_primary"
+                android:textColorHint="@color/color_text_secondary"/>
 
             <ImageView
                 android:id="@+id/iv_expand"
@@ -140,7 +148,8 @@
             android:paddingVertical="@dimen/dp5"
             android:paddingHorizontal="@dimen/dp10"
             android:text="购买价格"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:textColor="@color/color_text_primary"/>
 
         <EditText
             android:id="@+id/something_price_edit"
@@ -152,7 +161,9 @@
             android:background="@null"
             android:minHeight="48dp"
             android:minWidth="48dp"
-            android:hint="价格" />
+            android:hint="价格"
+            android:textColorHint="@color/color_text_secondary"
+            android:textColor="@color/color_text_primary"/>
 
     </androidx.cardview.widget.CardView>
 
@@ -172,7 +183,8 @@
             android:paddingVertical="@dimen/dp5"
             android:paddingHorizontal="@dimen/dp10"
             android:text="购买时间"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:textColor="@color/color_text_primary"/>
 
         <TextView
             android:id="@+id/buy_time_edit"
@@ -184,7 +196,9 @@
             android:backgroundTint="#D6E2FB"
             android:minHeight="48dp"
             android:minWidth="48dp"
-            android:hint="请选择购买时间" />
+            android:hint="请选择购买时间"
+            android:textColorHint="@color/color_text_secondary"
+            android:textColor="@color/color_text_primary"/>
 
     </androidx.cardview.widget.CardView>
 
@@ -204,7 +218,8 @@
             android:paddingVertical="@dimen/dp5"
             android:paddingHorizontal="@dimen/dp10"
             android:text="备注信息"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:textColor="@color/color_text_primary"/>
 
         <EditText
             android:id="@+id/add_message"
@@ -221,7 +236,9 @@
             android:lines="7"
             android:minLines="7"
             android:maxLines="7"
-            android:scrollbarStyle="insideInset" />
+            android:scrollbarStyle="insideInset"
+            android:textColorHint="@color/color_text_secondary"
+            android:textColor="@color/color_text_primary"/>
 
     </androidx.cardview.widget.CardView>
 
@@ -231,7 +248,7 @@
         android:layout_height="wrap_content"
         android:text="保存"
         android:textSize="20sp"
-        android:textColor="@color/white"
+        android:textColor="@color/color_text_button"
         android:gravity="center"
         android:background="@drawable/shape_blue_rounded_button"
         android:paddingVertical="@dimen/dp8"
@@ -248,7 +265,7 @@
         android:layout_height="wrap_content"
         android:text="删除"
         android:textSize="20sp"
-        android:textColor="#E24F81"
+        android:textColor="@color/color_base_red"
         android:gravity="center"
         android:background="@drawable/shape_white_rounded_button"
         android:paddingVertical="@dimen/dp7"

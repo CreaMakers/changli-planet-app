@@ -5,7 +5,7 @@
     android:id="@+id/fragmentContainerChatGroup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/common_profile_bg">
+    android:background="@color/color_bg_primary">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -40,7 +40,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/CircleStyle"
-                app:strokeColor="@color/white"
+                app:strokeColor="@color/color_outline_low_contrast"
                 app:strokeWidth="@dimen/dp3"
                 tools:src="@drawable/fulilian" />
 
@@ -52,7 +52,8 @@
                 android:layout_marginStart="@dimen/dp2"
                 app:layout_constraintBottom_toBottomOf="@id/tv_username"
                 app:layout_constraintStart_toEndOf="@id/tv_username"
-                app:layout_constraintTop_toTopOf="@id/tv_username" />
+                app:layout_constraintTop_toTopOf="@id/tv_username"
+                app:tint = "@color/color_icon_secondary"/>
 
             <!-- 用户名字 -->
             <TextView
@@ -60,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp12"
-                android:textColor="@color/black"
+                android:textColor="@color/color_text_primary"
                 android:textSize="@dimen/sp20"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -101,10 +102,10 @@
                 android:layout_marginVertical="@dimen/dp16"
                 android:paddingVertical="@dimen/dp14"
                 android:text="@string/logout"
-                android:textColor="@color/logout_text_color"
+                android:textColor="@color/color_text_functional"
                 android:textSize="@dimen/sp18"
                 android:textStyle="bold"
-                app:backgroundTint="@color/logout_tint"
+                app:backgroundTint="@color/color_bg_button_lowlight"
                 app:cornerRadius="@dimen/dp8"
                 app:layout_constraintTop_toBottomOf="@id/rv_settings"
                 app:layout_constraintStart_toStartOf="@id/rv_settings"

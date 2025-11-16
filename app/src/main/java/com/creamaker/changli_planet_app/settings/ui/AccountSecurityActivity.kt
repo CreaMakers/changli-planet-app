@@ -159,8 +159,10 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
     fun updateCondition(isVisible: Boolean, img: ImageView) {
         if (isVisible) {
             img.setImageResource(R.drawable.dui)
+            img.setColorFilter(getColor(R.color.color_icon_primary))
         } else {
             img.setImageResource(R.drawable.cuo)
+            img.setColorFilter(getColor(R.color.color_base_red))
         }
     }
 
@@ -193,7 +195,7 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
             val cardView = CardView(applicationContext).apply {
                 radius = 25f
                 cardElevation = 8f
-                setCardBackgroundColor(getColor(R.color.score_bar))
+                setCardBackgroundColor(getColor(R.color.color_base_white))
                 useCompatPadding = true
             }
             val textView = TextView(applicationContext).apply {

@@ -88,14 +88,14 @@ fun AboutScreen(activity: Activity? = null) {
                 text = "这是什么",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = colorResource(id = R.color.text_color),
+                color = colorResource(id = R.color.color_text_primary),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
             Text(
                 text = "CreaMaker是由长沙理工大学计算机学院的学生自主创建的组织，旨在通过创新项目和实践活动，激发人的创造力和技术动手能力。在这个组织中，我们不仅会进行技术学习，还会开发有趣且实用的项目，致力于将创意转化为实际的产品和服务。我们的成员热衷于通过技术与创新解决问题，共同成长。",
                 fontSize = 16.sp,
-                color = colorResource(id = R.color.text_color),
+                color = colorResource(id = R.color.color_text_primary),
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
@@ -103,7 +103,7 @@ fun AboutScreen(activity: Activity? = null) {
                 text = "组织特色",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = colorResource(id = R.color.text_color),
+                color = colorResource(id = R.color.color_text_primary),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -133,7 +133,7 @@ fun AboutScreen(activity: Activity? = null) {
                 text = "我们的代表项目",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = colorResource(id = R.color.text_color),
+                color = colorResource(id = R.color.color_text_primary),
                 modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
             )
 
@@ -141,14 +141,14 @@ fun AboutScreen(activity: Activity? = null) {
                 text = "长理星球",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = colorResource(id = R.color.text_color),
+                color = colorResource(id = R.color.color_text_primary),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
             Text(
                 text = "长理星球是一款由CreaMaker为长沙理工大学开发的社区交流App，专为校内学生提供互动与互助的平台。该应用的核心功能是通过社区讨论、答疑等方式，促进学生之间的交流与合作，帮助解决学习和生活中的问题。除了社交功能外，长理星球还集成了多种实用工具，如：",
                 fontSize = 16.sp,
-                color = colorResource(id = R.color.text_color),
+                color = colorResource(id = R.color.color_text_primary),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -160,7 +160,7 @@ fun AboutScreen(activity: Activity? = null) {
             Text(
                 text = "此外，长理星球通过设立积分与奖励机制，激励用户参与讨论、解答问题，增强社区的活跃度与参与感。",
                 fontSize = 16.sp,
-                color = colorResource(id = R.color.text_color),
+                color = colorResource(id = R.color.color_text_primary),
                 modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
             )
         }
@@ -174,13 +174,13 @@ fun FeatureItem(title: String, description: String) {
             text = title,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = colorResource(id = R.color.text_color),
+            color = colorResource(id = R.color.color_text_primary),
             modifier = Modifier.padding(bottom = 4.dp)
         )
         Text(
             text = description,
             fontSize = 16.sp,
-            color = colorResource(id = R.color.text_color)
+            color = colorResource(id = R.color.color_text_primary)
         )
     }
 }
@@ -192,12 +192,12 @@ fun BulletPoint(text: String) {
             text = "• ",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = colorResource(id = R.color.text_color)
+            color = colorResource(id = R.color.color_text_primary)
         )
         Text(
             text = text,
             fontSize = 16.sp,
-            color = colorResource(id = R.color.text_color)
+            color = colorResource(id = R.color.color_text_primary)
         )
     }
 }

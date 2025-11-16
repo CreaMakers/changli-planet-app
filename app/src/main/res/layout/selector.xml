@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:textStyle="bold"
         android:text="选择"
+        android:textColor="@color/color_text_primary"
         android:gravity="center"
         android:layout_height="wrap_content"/>
 </FrameLayout>
