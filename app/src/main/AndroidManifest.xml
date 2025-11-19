@@ -141,10 +141,6 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".feature.common.ui.ScoreInquiryActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".settings.ui.ProvinceActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
