@@ -58,6 +58,8 @@
         android:background="@drawable/edit_text_background"
         android:gravity="center"
         android:hint="请输入账号"
+        android:textColorHint="@color/color_text_grey"
+        android:textColor="@color/color_text_primary"
         android:singleLine="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,7 +91,8 @@
             android:layout_marginLeft="5sp"
             android:layout_weight="1"
             android:clickable="true"
-            android:src="@drawable/line_invisible2" />
+            android:src="@drawable/line_invisible2"
+            android:tint="@color/color_icon_primary"/>
 
         <EditText
             android:id="@+id/password"
@@ -99,6 +102,8 @@
             android:background="@drawable/login_edit_shape"
             android:gravity="center"
             android:hint="请输入密码"
+            android:textColorHint="@color/color_text_grey"
+            android:textColor="@color/color_text_primary"
             android:inputType="textPassword"
             android:singleLine="true"/>
 
@@ -110,7 +115,8 @@
             android:layout_marginRight="5sp"
             android:layout_weight="1"
             android:clickable="true"
-            android:src="@drawable/dialog_login" />
+            android:src="@drawable/dialog_login"
+            android:tint="@color/color_bg_secondary"/>
 
     </LinearLayout>
 
@@ -140,7 +146,7 @@
             android:layout_height="wrap_content"
             android:text="我已阅读并同意"
             android:textSize="14sp"
-            android:textColor="@color/color_text_primary"/>
+            android:textColor="@color/color_text_secondary"/>
 
         <TextView
             android:id="@+id/agreement_link"

@@ -40,6 +40,7 @@
             android:layout_width="0dp"
             android:layout_weight="1.5"
             android:layout_height="wrap_content"
+            android:textColor="@color/color_title_top"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -53,8 +54,7 @@
             android:gravity="center"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:textColor="@color/color_text_button"
-            android:background="@drawable/enable_button"
+            android:textColor="@color/color_text_functional"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"

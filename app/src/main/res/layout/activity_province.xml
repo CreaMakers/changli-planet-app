@@ -26,7 +26,7 @@
             android:layout_height="26dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/fanhui"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"
@@ -92,7 +92,7 @@
         android:text="全部"
         android:textColor="@color/color_text_grey" />
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -107,7 +107,7 @@
             android:padding="8dp"
             android:background="@color/color_bg_secondary" />
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 
 </LinearLayout>

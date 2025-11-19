@@ -5,7 +5,14 @@
     android:layout_height="match_parent"
     android:background="@color/color_bg_primary"
     android:orientation="vertical">
-
+    <Button
+        android:paddingTop="@dimen/dp40"
+        android:id="@+id/test_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test Button"
+        android:background="@drawable/shape_blue_rounded_button"
+        android:textColor="@android:color/white"/>
     <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -23,7 +30,7 @@
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/blue_left_back"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"
@@ -43,7 +50,7 @@
             android:layout_gravity="center|end"
             android:layout_marginEnd="4dp"
             android:src="@drawable/shuaxin"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
     </LinearLayout>
 

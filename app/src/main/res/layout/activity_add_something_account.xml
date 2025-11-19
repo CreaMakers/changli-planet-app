@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FBFBFD"
+    android:background="@drawable/bg_primary"
     tools:context=".feature.ledger.ui.AddSomethingAccountActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,7 +25,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/color_title_top" />
+            android:tint="@color/color_title_top" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -124,7 +124,7 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="@dimen/dp10"
                 android:src="@drawable/ic_expand"
-                app:tint="@color/color_icon_secondary"
+                android:tint="@color/color_icon_secondary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/text1"/>

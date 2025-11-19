@@ -27,7 +27,7 @@
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/blue_left_back"
-            app:tint="@color/color_title_top" />
+            android:tint="@color/color_title_top" />
 
         <TextView
             android:layout_width="0dp"
@@ -47,7 +47,7 @@
 
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="15dp"
@@ -91,7 +91,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/buyincang"
-                    app:tint = "@color/color_icon_secondary"/>
+                    android:tint = "@color/color_icon_secondary"/>
 
             </LinearLayout>
 
@@ -125,7 +125,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/buyincang"
-                    app:tint = "@color/color_icon_secondary"/>
+                    android:tint = "@color/color_icon_secondary"/>
 
             </LinearLayout>
 
@@ -160,7 +160,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/buyincang"
-                    app:tint = "@color/color_icon_secondary"/>
+                    android:tint = "@color/color_icon_secondary"/>
 
             </LinearLayout>
 
@@ -177,7 +177,7 @@
                     android:layout_height="19dp"
                     android:layout_marginTop="3dp"
                     android:src="@drawable/dui"
-                    app:tint = "@color/color_icon_primary"/>
+                    android:tint = "@color/color_icon_primary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -239,7 +239,7 @@
 <!--            </LinearLayout>-->
 
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 
     <com.google.android.material.button.MaterialButton

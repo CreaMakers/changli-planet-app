@@ -12,7 +12,7 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_base_white"
+        android:background="@color/color_bg_primary"
         android:elevation="0dp"
         app:elevation="0dp"
         android:stateListAnimator="@null">
@@ -105,7 +105,7 @@
                 android:padding="8dp"
                 android:src="@drawable/ic_up_arrow"
                 android:visibility="gone"
-                app:tint="@color/color_icon_primary"
+                android:tint="@color/color_icon_primary"
                 tools:visibility="visible" />
 
         </FrameLayout>
@@ -135,7 +135,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/news_recyclerView"
-                android:background="@color/color_base_white"
+                android:background="@color/color_bg_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:listitem="@layout/fresh_news_item"/>
@@ -164,7 +164,7 @@
             android:layout_height="@dimen/dp30"
             android:padding="@dimen/dp5"
             android:src="@drawable/ic_blue_add"
-            app:tint = "@color/color_icon_primary"/>
+            android:tint = "@color/color_icon_primary"/>
 
     </com.creamaker.changli_planet_app.utils.blur.BlurView>
 

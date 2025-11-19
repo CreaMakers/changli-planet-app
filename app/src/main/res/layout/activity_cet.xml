@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:src="@drawable/back"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"

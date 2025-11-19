@@ -265,8 +265,12 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
             "19:30\n20:15", "20:25\n21:10"
         )
         val slideBuildAdapter = OnSlideBuildAdapter()
-        slideBuildAdapter.setTimes(times)
-            .setTimeTextColor(Color.parseColor("#ADD8E6"))
+
+        slideBuildAdapter
+            .setTimes(times)
+            .setTimeTextColor(getColor(R.color.color_text_primary))   // ← 修改字体颜色
+            .setBackground(getColor(R.color.color_bg_primary))           // ← 新增：修改背景颜色
+
         callback(slideBuildAdapter)
         updateSlideView()
     }
@@ -432,7 +436,8 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
                     gravity = Gravity.CENTER
                     text = "${Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
                         .get(Calendar.MONTH) + 1}月"
-                    setTextColor(Color.BLACK)
+                    setTextColor(getColor(R.color.color_text_primary))      // ← 字体颜色
+                    setBackgroundColor(getColor(R.color.color_bg_primary))  // ← 背景颜色
                     textSize = 14f
                     typeface = Typeface.DEFAULT_BOLD
                 }
@@ -448,12 +453,11 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
                         layoutParams = LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.MATCH_PARENT
-                        ).apply {
-                            gravity = Gravity.CENTER
-                        }
+                        ).apply { gravity = Gravity.CENTER }
                         gravity = Gravity.CENTER
                         text = dateArray[i - 1]
-                        setTextColor(Color.BLACK)
+                        setTextColor(getColor(R.color.color_text_primary))          // ← 字体颜色
+                        setBackgroundColor(getColor(R.color.color_bg_primary))      // ← 背景颜色
                         textSize = 12f
                         setLineSpacing(8f, 1f)
                         typeface = Typeface.DEFAULT_BOLD
@@ -473,9 +477,8 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
             }
 
             override fun onHighLight() {
-                val defaultColor = "#F4F8F8".toColorInt()
-                val highlightColor = "#BFF6F4".toColorInt()
-
+                val defaultColor = getColor(R.color.color_text_primary)
+                val highlightColor = getColor(R.color.color_base_red)
                 for (i in 1..7) {
                     layouts[i]?.setBackgroundColor(defaultColor)
                 }
@@ -532,11 +535,10 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
                         }
 
                         if (isToday) {
-                            layouts[i]?.setBackgroundColor(Color.parseColor("#BFF6F4"))
-                            weekView?.setTextColor(Color.parseColor("#1E88E5"))
+                            weekView?.setTextColor(getColor(R.color.color_text_highlight))
                         } else {
-                            layouts[i]?.setBackgroundColor(Color.parseColor("#F4F8F8"))
-                            weekView?.setTextColor(Color.BLACK)
+                            layouts[i]?.setBackgroundColor(getColor(R.color.color_bg_primary))
+                            weekView?.setTextColor(getColor(R.color.color_text_primary))
                         }
 
                         calendar.add(Calendar.DAY_OF_MONTH, 1)
@@ -619,14 +621,14 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         val cardView = CardView(applicationContext).apply {
             radius = 25f
             cardElevation = 8f
-            setCardBackgroundColor(getColor(R.color.color_base_white))
+            setCardBackgroundColor(getColor(R.color.color_bg_secondary))
             useCompatPadding = true
         }
 
         val textView = TextView(applicationContext).apply {
             text = message
             textSize = 17f
-            setTextColor(Color.BLACK)
+            setTextColor(getColor(R.color.color_text_primary))
             gravity = Gravity.CENTER
             setPadding(80, 40, 80, 40)
         }

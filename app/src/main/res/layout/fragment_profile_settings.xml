@@ -53,7 +53,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/tv_username"
                 app:layout_constraintStart_toEndOf="@id/tv_username"
                 app:layout_constraintTop_toTopOf="@id/tv_username"
-                app:tint = "@color/color_icon_secondary"/>
+                android:tint = "@color/color_icon_primary"/>
 
             <!-- 用户名字 -->
             <TextView

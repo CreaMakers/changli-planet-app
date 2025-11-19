@@ -27,7 +27,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearance="@style/CircleStyle" />
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/mainfunction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -134,9 +134,9 @@
             </LinearLayout>
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp20"
@@ -169,6 +169,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/feature_title_others"
+                    android:textColor="@color/color_text_primary"
                     android:textSize="@dimen/sp15"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -237,5 +238,5 @@
             </LinearLayout>
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -46,6 +46,8 @@
             android:layout_marginEnd="8dp"
             android:textSize="@dimen/sp15"
             android:hint="@string/et_tint"
+            android:textColorHint="@color/color_text_grey"
+            android:textColor="@color/color_text_primary"
             android:maxLines="5"
             android:inputType="textMultiLine|textCapSentences"
             android:scrollbars="vertical"
@@ -57,7 +59,7 @@
             android:layout_width="@dimen/dp35"
             android:layout_height="@dimen/dp35"
             android:src="@drawable/ic_send"
-            app:tint = "@color/color_icon_primary"
+            android:tint = "@color/color_icon_primary"
             tools:srcCompat="@drawable/ic_send"
             />
     </LinearLayout>

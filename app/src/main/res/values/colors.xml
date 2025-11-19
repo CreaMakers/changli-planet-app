@@ -31,7 +31,7 @@
     <color name="color_icon_secondary">#575A66</color>
     <!-- ====================== 按钮类 ====================== -->
     <color name="color_bg_button">#0099FA</color>
-<!--    <color name="color_text_button">#FFFFFF</color>-->
+    <!--    <color name="color_text_button">#FFFFFF</color>-->
     <color name="color_bg_button_lowlight">#DEE9FC</color>
     <!-- ====================== 主色 / 功能色 ====================== -->
     <color name="color_text_functional">#3683D4</color>
@@ -54,7 +54,7 @@
     <color name="color_base_green">#00C853</color>
     <color name="color_base_yellow">#FFD000</color>
     <!--    <color name="temp_low">#FF3D00</color>-->
-<!--    <color name="ele_low">#FF3D00</color>-->
-<!--    <color name="ele_normal">#FFA800</color>-->
-<!--    <color name="ele_high">#00C853</color>-->
+    <!--    <color name="ele_low">#FF3D00</color>-->
+    <!--    <color name="ele_normal">#FFA800</color>-->
+    <!--    <color name="ele_high">#00C853</color>-->
 </resources>

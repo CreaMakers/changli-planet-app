@@ -4,11 +4,10 @@
     android:id="@+id/location_item_layout"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:background="@color/color_base_white"
+    android:background="@color/color_bg_secondary"
     android:clickable="true"
     android:focusable="true"
     android:padding="12dp"
-
     android:layout_height="wrap_content">
 
     <TextView
@@ -28,6 +27,6 @@
         android:src="@drawable/grey_arrow_right_24"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        app:tint = "@color/color_icon_secondary"/>
+        android:tint = "@color/color_icon_secondary"/>
 
 </RelativeLayout>

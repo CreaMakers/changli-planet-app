@@ -25,7 +25,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -56,7 +56,7 @@
         app:layout_constraintTop_toBottomOf="@id/tb_query" />
 
     <!-- 主要内容卡片 -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/main_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -231,7 +231,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/siv_room_number" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
     <View
         android:layout_width="0dp"
         android:layout_height="@dimen/dp1"
@@ -242,7 +242,7 @@
         android:layout_marginHorizontal="@dimen/dp10"
         android:layout_marginTop="@dimen/dp10"/>
     <!-- 电量显示卡片 -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_electricity"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -252,7 +252,8 @@
         android:layout_marginEnd="@dimen/dp10"
         android:elevation="@dimen/dp10"
         app:cardCornerRadius="@dimen/dp15"
-        app:layout_constraintTop_toBottomOf="@id/main_card">
+        app:layout_constraintTop_toBottomOf="@id/main_card"
+        app:cardBackgroundColor="@color/color_bg_card">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -313,7 +314,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
     <TextView
         android:id="@+id/query_ele"
         android:layout_width="match_parent"

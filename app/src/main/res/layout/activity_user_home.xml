@@ -221,7 +221,7 @@
             android:layout_height="25dp"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_back"
-            app:tint = "@color/color_icon_primary"/>
+            android:tint = "@color/color_icon_primary"/>
 
         <LinearLayout
             android:id="@+id/llSmallAuthor"
