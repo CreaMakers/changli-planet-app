@@ -32,6 +32,7 @@
         android:layout_marginStart="15dp"
         android:gravity="center"
         android:text="邮箱登录"
+        android:textColor="@color/color_text_highlight"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -115,6 +116,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="我已阅读并同意"
+            android:textColor="@color/color_text_secondary"
             android:textSize="14sp" />
 
         <TextView

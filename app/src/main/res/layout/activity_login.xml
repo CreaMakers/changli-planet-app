@@ -118,7 +118,7 @@
             android:clickable="true"
             android:src="@drawable/dialog_login"
             android:tint="@color/color_icon_primary"
-            android:visibility="gone"/>
+            android:visibility="invisible"/>
 
     </LinearLayout>
 
