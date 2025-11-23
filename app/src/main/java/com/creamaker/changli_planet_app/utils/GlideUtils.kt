@@ -159,7 +159,8 @@ private fun ImageView.loadImageDirectly(
     GlideApp.with(context)
         .load(imageSource)
         .skipMemoryCache(!useMemoryCache)
-        .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
+        //暂定为DATA策略，更好地兼容各种图片来源
+        .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.DATA else DiskCacheStrategy.NONE)
         .listener(listener)
         .override(pxWidth, pxHeight) // 按需加载
         .error(R.drawable.ic_error_vector)

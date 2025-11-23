@@ -5,6 +5,7 @@
     android:id="@+id/fragmentContainerNews"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_bg_primary"
     android:paddingTop="@dimen/dp35"
     tools:context=".freshNews.ui.NewsFragment">
 
@@ -12,7 +13,6 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_bg_primary"
         android:elevation="0dp"
         app:elevation="0dp"
         android:stateListAnimator="@null">
@@ -21,6 +21,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/color_bg_primary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <LinearLayout

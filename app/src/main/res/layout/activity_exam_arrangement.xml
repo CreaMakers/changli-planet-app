@@ -5,14 +5,6 @@
     android:layout_height="match_parent"
     android:background="@color/color_bg_primary"
     android:orientation="vertical">
-    <Button
-        android:paddingTop="@dimen/dp40"
-        android:id="@+id/test_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Test Button"
-        android:background="@drawable/shape_blue_rounded_button"
-        android:textColor="@android:color/white"/>
     <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -99,12 +91,12 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="30dp"
+
         android:gravity="center"
         android:lineSpacingMultiplier="1.1"
         android:padding="12dp"
         android:textSize="13sp"
         android:textColor="@color/color_text_grey"
-        android:background="@color/color_bg_secondary"
+        android:background="@drawable/bg_secondary"
         android:text="为防止网络波动优先读取上次查询缓存\n如有需要请及时点击刷新" />
 </LinearLayout>

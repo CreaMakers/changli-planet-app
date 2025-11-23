@@ -20,13 +20,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.creamaker.changli_planet_app.core.Route
+import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
+import com.creamaker.changli_planet_app.core.theme.AppTheme
 
 data class SemesterItem(
     val semester: String,
@@ -38,11 +39,13 @@ class CalendarActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = Color.White
-            ) {
-                CalendarScreen()
+            AppSkinTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = AppTheme.colors.bgPrimaryColor
+                ) {
+                    CalendarScreen()
+                }
             }
         }
     }
@@ -68,7 +71,8 @@ fun CalendarScreen() {
             text = "学期校历",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            color = AppTheme.colors.primaryTextColor
         )
 
         LazyColumn {
@@ -90,7 +94,7 @@ fun SemesterItemCard(item: SemesterItem) {
             .clickable { Route.goWebView(context, "${preUrl}${item.semester}") },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = AppTheme.colors.bgSecondaryColor
         )
     ) {
         Column(
@@ -102,20 +106,20 @@ fun SemesterItemCard(item: SemesterItem) {
                 text = item.title,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.Black // 黑色文字
+                color = AppTheme.colors.primaryTextColor
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = item.subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray,
+                color = AppTheme.colors.greyTextColor,
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "学期代码: ${item.semester}",
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
+                color = AppTheme.colors.greyTextColor
             )
         }
     }

@@ -33,6 +33,7 @@ import com.creamaker.changli_planet_app.settings.ui.AccountSecurityActivity
 import com.creamaker.changli_planet_app.settings.ui.BindingUserActivity
 import com.creamaker.changli_planet_app.settings.ui.ChangeEmailActivity
 import com.creamaker.changli_planet_app.settings.ui.UserProfileActivity
+import com.creamaker.changli_planet_app.skin.ui.SkinSelectionActivity
 
 /**
  * 所有页面跳转逻辑都应卸载Route中，方便统一管理
@@ -232,6 +233,10 @@ object Route {
 
     fun goCalendar(context: Context) {
         val intent = Intent(context, CalendarActivity::class.java)
+        context.startActivity(intent)
+    }
+    fun goSkinSecletion(context: Context){
+        val intent = Intent(context, SkinSelectionActivity::class.java)
         context.startActivity(intent)
     }
 }

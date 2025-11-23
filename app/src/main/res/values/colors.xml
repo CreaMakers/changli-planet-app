@@ -26,9 +26,9 @@
     <!-- 顶部标题文字 -->
     <color name="color_title_top">#3683D4</color>
     <!-- ====================== 图标类 ====================== -->
-    <color name="color_icon_setting">#0D57ED</color>
-    <color name="color_icon_primary">#0D57ED</color>
-    <color name="color_icon_secondary">#575A66</color>
+    <color name="color_icon_setting">#4E7FEF</color>
+    <color name="color_icon_primary">#4E7FEF</color>
+    <color name="color_icon_secondary">#808080</color>
     <!-- ====================== 按钮类 ====================== -->
     <color name="color_bg_button">#0099FA</color>
     <!--    <color name="color_text_button">#FFFFFF</color>-->

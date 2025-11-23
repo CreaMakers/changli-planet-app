@@ -33,6 +33,7 @@
         android:layout_marginStart="15dp"
         android:gravity="center"
         android:text="账户登录"
+        android:textColor="@color/color_text_highlight"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -86,7 +87,7 @@
         <ImageView
             android:id="@+id/iv_eye"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp25"
             android:layout_gravity="center"
             android:layout_marginLeft="5sp"
             android:layout_weight="1"
@@ -99,8 +100,8 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="10"
-            android:background="@drawable/login_edit_shape"
             android:gravity="center"
+            android:background="@null"
             android:hint="请输入密码"
             android:textColorHint="@color/color_text_grey"
             android:textColor="@color/color_text_primary"
@@ -110,13 +111,14 @@
         <ImageView
             android:id="@+id/iv_ox"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp25"
             android:layout_gravity="center"
             android:layout_marginRight="5sp"
             android:layout_weight="1"
             android:clickable="true"
             android:src="@drawable/dialog_login"
-            android:tint="@color/color_bg_secondary"/>
+            android:tint="@color/color_icon_primary"
+            android:visibility="gone"/>
 
     </LinearLayout>
 
@@ -138,7 +140,8 @@
         <CheckBox
             android:id="@+id/agreement_checkbox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/color_icon_primary"/>
 
         <TextView
             android:id="@+id/agreement_text"

@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.DrawableRes
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.AppCompatTextView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.utils.load
 
@@ -16,8 +16,8 @@ class FunctionItem @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
-    private val icon: AppCompatImageView
-    private val title: AppCompatTextView
+    private val icon: ImageView
+    private val title: TextView
 
     init {
         val inflater = LayoutInflater.from(context)

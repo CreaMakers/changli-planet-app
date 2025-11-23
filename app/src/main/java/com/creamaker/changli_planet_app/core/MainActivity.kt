@@ -1,25 +1,19 @@
 package com.creamaker.changli_planet_app.core
 
 import android.Manifest
-import android.app.Activity
-import android.app.Application
-import android.content.ComponentCallbacks
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.pm.PackageInfoCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.creamaker.changli_planet_app.R
+import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.api.DrawerController
 import com.creamaker.changli_planet_app.common.cache.CommonInfo
 import com.creamaker.changli_planet_app.common.pool.TabAnimationPool
@@ -34,60 +28,22 @@ import com.creamaker.changli_planet_app.utils.Event.SelectEvent
 import com.creamaker.changli_planet_app.widget.dialog.GuestLimitedAccessDialog
 import com.google.android.material.tabs.TabLayout
 import com.gradle.scan.plugin.internal.dep.io.netty.util.internal.StringUtil
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class MainActivity : AppCompatActivity(), DrawerController {
-
-    private lateinit var binding: ActivityMainBinding
+class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController {
     private lateinit var drawerLayout: DrawerLayout
-
     private val fragments = mutableMapOf<Int, Fragment>()
     private var currentTabPosition: Int = 0
-
     private val tabLayout: TabLayout by lazy { binding.tabLayout }
-
-    private var isDrawerAnimating = false
-
-    private val disposables by lazy { CompositeDisposable() }
+    override fun createViewBinding(): ActivityMainBinding {
+        return ActivityMainBinding.inflate(layoutInflater)
+    }
 
     private val store by lazy { UserStore() }
     private var suppress = false
-
-
-    fun setCustomDensity(activity: Activity, application: Application, designWidthDp: Int) {
-        val appDisplayMetrics = application.resources.displayMetrics
-
-        val targetDensity = 1.0f * appDisplayMetrics.widthPixels / designWidthDp
-        val targetDensityDpi = (targetDensity * 160).toInt()
-        var sNonCompactScaleDensity = appDisplayMetrics.scaledDensity
-        application.registerComponentCallbacks(object : ComponentCallbacks {
-            override fun onConfigurationChanged(newConfig: Configuration) {
-                if (newConfig.fontScale > 0) {
-                    sNonCompactScaleDensity = application.resources.displayMetrics.scaledDensity
-                }
-            }
-            override fun onLowMemory() {
-            }
-
-        })
-        val targetScaleDensity =
-            targetDensity * (sNonCompactScaleDensity / appDisplayMetrics.density)
-
-
-        appDisplayMetrics.density = targetDensity
-        appDisplayMetrics.densityDpi = targetDensityDpi
-        appDisplayMetrics.scaledDensity = targetScaleDensity
-
-        val activityDisplayMetrics = activity.resources.displayMetrics
-        activityDisplayMetrics.density = targetDensity
-        activityDisplayMetrics.densityDpi = targetDensityDpi
-        activityDisplayMetrics.scaledDensity = targetScaleDensity
-    }
-
 
     override fun onResume() {
         super.onResume()
@@ -103,25 +59,11 @@ class MainActivity : AppCompatActivity(), DrawerController {
             return
         }
         CommonInfo.startTime = System.currentTimeMillis()
-        setCustomDensity(this, application, 412)
         enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
         val start = System.currentTimeMillis()
         PlanetApplication.Companion.startTime = System.currentTimeMillis()
         setContentView(binding.root)
         drawerLayout = binding.drawerLayout
-        ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // 主内容避开导航栏
-            binding.main.setPadding(
-                binding.main.paddingLeft,
-                binding.main.top,
-                binding.main.paddingRight,
-                systemBars.bottom
-            )
-            insets
-        }
-
         if (savedInstanceState == null) {
             val firstFragment = FeatureFragment.Companion.newInstance()
             fragments[0] = firstFragment

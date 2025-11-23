@@ -16,5 +16,6 @@
         <domain includeSubdomains="true">ip-api.com</domain>
         <!-- 评论系统 -->
         <domain includeSubdomains="true">freshnews.csust.creamaker.cn</domain>
+        <domain includeSubdomains="true">csust.creamaker.cn</domain>
     </domain-config>
 </network-security-config>

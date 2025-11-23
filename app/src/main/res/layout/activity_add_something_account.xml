@@ -39,7 +39,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/something_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -74,9 +74,9 @@
             android:hint="物品名称"
             android:textSize="18sp"/>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/something_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -111,7 +111,6 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/text1"
-                android:background="@android:color/transparent"
                 android:minHeight="48dp"
                 android:hint="请选择商品分类"
                 android:textSize="18sp"
@@ -132,9 +131,9 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/something_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -161,14 +160,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp40"
+            android:textColor="@color/color_text_primary"
+            android:textColorHint="@color/color_text_secondary"
             android:background="@null"
             android:minHeight="48dp"
             android:minWidth="48dp"
             android:hint="价格" />
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/buy_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -195,16 +196,15 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:layout_marginTop="@dimen/dp35"
-            android:backgroundTint="#D6E2FB"
             android:minHeight="48dp"
             android:minWidth="48dp"
             android:hint="请选择购买时间"
             android:textColor="@color/color_text_primary"
             android:textColorHint="@color/color_text_secondary"/>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -242,7 +242,7 @@
             android:textColor="@color/color_text_primary"
             android:textColorHint="@color/color_text_secondary"/>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/save_button"

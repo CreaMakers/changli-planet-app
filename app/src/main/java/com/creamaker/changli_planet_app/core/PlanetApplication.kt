@@ -8,10 +8,11 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.provider.Settings
 import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
 import com.creamaker.changli_planet_app.BuildConfig
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
+import com.creamaker.changli_planet_app.skin.SkinManager
+import com.creamaker.changli_planet_app.skin.data.cache.SkinCache
 import com.creamaker.changli_planet_app.utils.StartupTimeTracker
 import com.tencent.bugly.crashreport.CrashReport
 import com.tencent.mmkv.MMKV
@@ -92,8 +93,10 @@ class PlanetApplication : Application() {
     private val fpsHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(fpsHandlerThread.looper) }
 
     override fun onCreate() {
+
         super.onCreate()
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
+
         initMMKV()
         if (!BuildConfig.DEBUG) {
             CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
@@ -116,7 +119,17 @@ class PlanetApplication : Application() {
             startMemoryMonitor()
         }
         appContext = applicationContext
+        setSkin()
+        saveDefaultSkin()
     }
+
+    private fun setSkin() {
+        val skinPath = SkinCache.getAssetsName()
+        if (skinPath != "skin_default") {
+            SkinManager.setSkin(skinPath)
+        }
+    }
+
     private fun startMemoryMonitor() {
         fpsHandler.post(object : Runnable {
             override fun run() {
@@ -146,6 +159,10 @@ class PlanetApplication : Application() {
 
     private fun initMMKV() {
         MMKV.initialize(this@PlanetApplication)
+    }
+    private fun saveDefaultSkin(){
+        SkinCache.saveSkinDownloaded("skin_default")
+        SkinCache.saveSkinDownloaded("skin_dark.apk")
     }
 }
 
