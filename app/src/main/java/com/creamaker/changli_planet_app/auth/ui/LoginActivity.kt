@@ -209,7 +209,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
 
     private fun updateButtonClear(isClearPassword: Boolean) {
         if (!isClearPassword) {
-            ivOx.visibility = View.GONE
+            ivOx.visibility = View.INVISIBLE
             ivOx.setImageResource(R.drawable.dialog_login)
         } else {
             ivOx.visibility = View.VISIBLE
