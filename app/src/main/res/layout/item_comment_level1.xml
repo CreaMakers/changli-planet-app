@@ -126,7 +126,7 @@
         app:layout_constraintStart_toEndOf="@id/tv_comment_response_count"
         app:layout_constraintTop_toBottomOf="@+id/tv_comment_item_content"
         app:layout_constraintBottom_toBottomOf="@id/tv_comment_response_count"
-        app:tint="@color/color_icon_secondary"
+        android:tint="@color/color_icon_secondary"
         tools:src="@drawable/ic_like" />
 
     <!-- 新增：一级点赞数量 -->

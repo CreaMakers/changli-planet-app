@@ -96,9 +96,9 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             WindowInsetsCompat.CONSUMED
         }
         inputFilter(door_number)
+        binding.sivRoomNumber.load(R.drawable.e_door)
         binding.sivSchoolRegion.load(R.drawable.e_school)
         binding.sivDormBuilding.load(R.drawable.e_dorm)
-        binding.sivRoomNumber.load(R.drawable.e_door)
     }
 
     private fun initListener() {

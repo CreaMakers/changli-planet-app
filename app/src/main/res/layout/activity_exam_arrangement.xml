@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="@color/color_bg_primary"
     android:orientation="vertical">
-
     <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -23,7 +22,7 @@
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/blue_left_back"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"
@@ -43,7 +42,7 @@
             android:layout_gravity="center|end"
             android:layout_marginEnd="4dp"
             android:src="@drawable/shuaxin"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
     </LinearLayout>
 
@@ -92,12 +91,12 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="30dp"
+
         android:gravity="center"
         android:lineSpacingMultiplier="1.1"
         android:padding="12dp"
         android:textSize="13sp"
         android:textColor="@color/color_text_grey"
-        android:background="@color/color_bg_secondary"
+        android:background="@drawable/bg_secondary"
         android:text="为防止网络波动优先读取上次查询缓存\n如有需要请及时点击刷新" />
 </LinearLayout>

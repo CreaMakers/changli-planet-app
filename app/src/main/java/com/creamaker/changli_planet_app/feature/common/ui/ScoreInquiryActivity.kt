@@ -222,14 +222,14 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
             val cardView = CardView(applicationContext).apply {
                 radius = 25f
                 cardElevation = 8f
-                setCardBackgroundColor(getColor(R.color.color_base_white))
+                setCardBackgroundColor(getColor(R.color.color_bg_secondary))
                 useCompatPadding = true
             }
 
             val textView = TextView(applicationContext).apply {
                 text = message
                 textSize = 17f
-                setTextColor(Color.BLACK)
+                setTextColor(getColor(R.color.color_text_primary))
                 gravity = Gravity.CENTER
                 setPadding(80, 40, 80, 40)
             }

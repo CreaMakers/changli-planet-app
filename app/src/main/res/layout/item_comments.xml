@@ -50,7 +50,7 @@
             android:layout_height="@dimen/dp24"
             android:layout_marginEnd="@dimen/dp15"
             android:src="@drawable/ic_more"
-            app:tint = "@color/color_icon_primary"
+            android:tint = "@color/color_icon_primary"
             app:layout_constraintBottom_toBottomOf="@id/postman_username"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/postman_username"

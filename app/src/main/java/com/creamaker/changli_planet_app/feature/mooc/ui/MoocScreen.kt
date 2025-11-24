@@ -49,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.core.network.ApiResponse
+import com.creamaker.changli_planet_app.core.theme.AppTheme
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.MoocHomework
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.PendingAssignmentCourse
 import com.creamaker.changli_planet_app.feature.mooc.viewmodel.MoocViewModel
@@ -83,25 +84,25 @@ fun MoocScreen(
                 title = {
                     Text(
                         stringResource(R.string.pending_homework),
-                        color = Color.Black,
+                        color = AppTheme.colors.primaryTextColor,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-                    titleContentColor = Color.Black
+                    containerColor = AppTheme.colors.bgSecondaryColor,
+                    titleContentColor = AppTheme.colors.primaryTextColor
                 ),
                 modifier = Modifier
-                    .background(Color.White)
+                    .background(AppTheme.colors.bgSecondaryColor)
             )
         },
-        containerColor = Color.White
+        containerColor = AppTheme.colors.bgSecondaryColor
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
+                .background(AppTheme.colors.bgPrimaryColor)
         ) {
             when (pendingCourses) {
                 is ApiResponse.Loading -> {
@@ -110,7 +111,7 @@ fun MoocScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
-                            color = colorResource(R.color.color_loading)
+                            color = AppTheme.colors.loadingColor
                         )
                     }
                 }
@@ -175,7 +176,7 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
             },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = colorResource(R.color.color_bg_primary)
+            containerColor = AppTheme.colors.bgSecondaryColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -190,20 +191,20 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
                     text = course.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = colorResource(R.color.color_text_primary)
+                    color = AppTheme.colors.primaryTextColor
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "ID: ${course.id}",
                     fontSize = 12.sp,
-                    color = colorResource(R.color.color_text_grey)
+                    color = AppTheme.colors.greyTextColor
                 )
             }
 
             androidx.compose.material3.Icon(
                 painter = painterResource(id = R.drawable.ic_expand),
                 contentDescription = if (expanded) "收起" else "展开",
-                tint = colorResource(R.color.color_icon_secondary),
+                tint = AppTheme.colors.iconSecondaryColor,
                 modifier = Modifier
                     .rotate(rotationAngle)
                     .size(24.dp) // 调整图标大小
@@ -216,7 +217,7 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
             .fillMaxWidth()
             .height(1.dp)
             .padding(horizontal = 16.dp)
-            .background(colorResource(R.color.color_divider))
+            .background(AppTheme.colors.dividerColor)
     )
 
     AnimatedVisibility(
@@ -235,7 +236,7 @@ fun CourseItem(course: PendingAssignmentCourse, moocViewModel: MoocViewModel) {
                 Box(modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = colorResource(R.color.color_divider))
+                    CircularProgressIndicator(color = AppTheme.colors.dividerColor)
                 }
             }
 
@@ -285,7 +286,7 @@ fun HomeworkItem(homework: MoocHomework, moocViewModel: MoocViewModel) {
     val titleColor = if (isDueSoon)
         colorResource(R.color.color_base_red)
     else
-        colorResource(R.color.color_text_primary)
+        AppTheme.colors.primaryTextColor
 
 
     Card(
@@ -294,7 +295,7 @@ fun HomeworkItem(homework: MoocHomework, moocViewModel: MoocViewModel) {
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = colorResource(R.color.color_bg_secondary)
+            containerColor = AppTheme.colors.bgSecondaryColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -317,12 +318,12 @@ fun HomeworkItem(homework: MoocHomework, moocViewModel: MoocViewModel) {
                 Text(
                     text = "发布人: ${homework.publisher}",
                     fontSize = 12.sp,
-                    color = colorResource(R.color.color_text_grey)
+                    color = AppTheme.colors.greyTextColor
                 )
                 Text(
                     text = "截止时间: ${homework.deadline}",
                     fontSize = 12.sp,
-                    color = colorResource(R.color.color_text_grey)
+                    color = AppTheme.colors.greyTextColor
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))

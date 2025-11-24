@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FBFBFD"
+    android:background="@drawable/bg_primary"
     tools:context=".feature.ledger.ui.AddSomethingAccountActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,7 +25,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -39,7 +39,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/something_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -74,14 +74,15 @@
             android:textColorHint="@color/color_text_secondary"
             android:textColor="@color/color_text_primary"/>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/something_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/dp10"
         android:layout_marginHorizontal="@dimen/dp10"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="@dimen/dp10"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/something_name">
@@ -130,14 +131,15 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/something_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/dp10"
         android:layout_marginHorizontal="@dimen/dp10"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="@dimen/dp10"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/something_type">
@@ -165,14 +167,15 @@
             android:textColorHint="@color/color_text_secondary"
             android:textColor="@color/color_text_primary"/>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/buy_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/dp10"
         android:layout_marginHorizontal="@dimen/dp10"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="@dimen/dp10"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/something_price">
@@ -200,14 +203,15 @@
             android:textColorHint="@color/color_text_secondary"
             android:textColor="@color/color_text_primary"/>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/dp10"
         android:layout_marginHorizontal="@dimen/dp10"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="@dimen/dp10"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/buy_time">
@@ -240,7 +244,7 @@
             android:textColorHint="@color/color_text_secondary"
             android:textColor="@color/color_text_primary"/>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/save_button"

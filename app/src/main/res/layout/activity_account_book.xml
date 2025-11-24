@@ -8,12 +8,13 @@
     android:background="@color/color_bg_primary"
     tools:context=".feature.ledger.ui.AccountBookActivity">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/dp10"
         android:layout_marginHorizontal="@dimen/dp10"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:cardCornerRadius="@dimen/dp20"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -139,7 +140,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/something_vlume"

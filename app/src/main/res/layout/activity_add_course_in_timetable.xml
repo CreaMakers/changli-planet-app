@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/add_course_exit"
             android:background="?attr/selectableItemBackground"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
         <TextView
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -60,7 +60,7 @@
             android:id="@+id/customCourseName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/dp5"
+            android:padding="@dimen/dp5"
             android:background="@drawable/edit_text_background"
             android:hint=" 课程名字"
             android:textColor="@color/color_text_primary"
@@ -86,7 +86,7 @@
             android:id="@+id/customTeacherName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/dp5"
+            android:padding="@dimen/dp5"
             android:background="@drawable/edit_text_background"
             android:hint=" 授课老师"
             android:singleLine="true"
@@ -112,7 +112,7 @@
             android:id="@+id/customCourseRoom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/dp5"
+            android:padding="@dimen/dp5"
             android:background="@drawable/edit_text_background"
             android:hint=" 上课地点"
             android:singleLine="true"

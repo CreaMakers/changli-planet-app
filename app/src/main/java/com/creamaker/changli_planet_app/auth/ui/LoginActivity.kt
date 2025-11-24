@@ -11,6 +11,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.UnderlineSpan
+import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
@@ -208,8 +209,10 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
 
     private fun updateButtonClear(isClearPassword: Boolean) {
         if (!isClearPassword) {
+            ivOx.visibility = View.GONE
             ivOx.setImageResource(R.drawable.dialog_login)
         } else {
+            ivOx.visibility = View.VISIBLE
             ivOx.setImageResource(R.drawable.login_ox_24)
         }
     }
@@ -218,7 +221,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         if (isVisible) {
 
             password.transformationMethod = android.text.method.HideReturnsTransformationMethod.getInstance()
-            iVEye.setImageResource(R.drawable.login_visibiliby_eyes)
+            iVEye.setImageResource(R.drawable.login_visibility_eyes)
         } else {
             password.transformationMethod = android.text.method.PasswordTransformationMethod.getInstance()
             iVEye.setImageResource(R.drawable.line_invisible2)

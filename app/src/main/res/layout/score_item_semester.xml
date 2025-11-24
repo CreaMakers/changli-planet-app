@@ -5,14 +5,14 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="15dp"
     android:layout_marginVertical="10dp"
-    android:background="@color/color_base_white"
+    app:cardBackgroundColor="@color/color_bg_card"
     android:orientation="vertical"
     app:cardCornerRadius="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_base_white"
+        android:background="@color/color_bg_card"
         android:orientation="vertical">
 
         <LinearLayout
@@ -52,7 +52,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_expand"
-                app:tint = "@color/color_icon_secondary"/>
+                android:tint = "@color/color_icon_secondary"/>
 
         </LinearLayout>
         <!-- 课程列表 -->

@@ -27,7 +27,7 @@
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/blue_left_back"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"
@@ -85,7 +85,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="学号"
-                    android:textColor="#344E88"
+                    android:textColor="@color/color_text_highlight"
                     android:textSize="14sp" />
 
                 <LinearLayout
@@ -102,7 +102,8 @@
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:paddingTop="3dp"
-                        android:src="@drawable/gerenxinxi" />
+                        android:src="@drawable/gerenxinxi"
+                        android:tint="@color/color_icon_secondary"/>
 
                     <EditText
                         android:id="@+id/et_student_id"
@@ -114,9 +115,10 @@
                         android:background="@null"
                         android:gravity="center_vertical"
                         android:hint="请输入长理学号"
+                        android:textColorHint="@color/color_text_grey"
+                        android:textColor="@color/color_text_primary"
                         android:maxLines="1"
                         android:inputType="number"
-                        android:textColorHint="@color/color_text_grey"
                         android:textSize="16sp" />
 
                 </LinearLayout>
@@ -134,7 +136,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="密码"
-                    android:textColor="#344E88"
+                    android:textColor="@color/color_text_highlight"
                     android:textSize="14sp" />
 
                 <LinearLayout
@@ -151,7 +153,8 @@
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:paddingTop="3dp"
-                        android:src="@drawable/mima" />
+                        android:src="@drawable/mima"
+                        android:tint="@color/color_icon_secondary"/>
 
                     <EditText
                         android:id="@+id/et_student_password"
@@ -164,8 +167,9 @@
                         android:gravity="center_vertical"
                         android:inputType="textPassword"
                         android:hint="请输入教务密码"
+                        android:textColorHint="@color/color_text_grey"
+                        android:textColor="@color/color_text_primary"
                         android:maxLines="1"
-                        android:textColorHint="#6C727F"
                         android:textSize="16sp" />
 
                 </LinearLayout>

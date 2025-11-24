@@ -52,7 +52,8 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = createViewBinding(inflater, container)
+        val activeInflater = requireActivity().layoutInflater
+        binding = createViewBinding(activeInflater , container)
         return binding.root
     }
 

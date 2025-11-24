@@ -1,10 +1,10 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_centerVertical="true"
     android:layout_marginVertical="15dp"
-    android:background="@color/color_bg_card"
+    app:cardBackgroundColor="@color/color_bg_card"
     app:cardCornerRadius="8dp"
     app:cardElevation="5dp"
     android:orientation="vertical">
@@ -37,15 +37,6 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="2" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:gravity="center"
-                android:paddingVertical="2dp"
-                android:textColor="#4051AC"
-                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -57,7 +48,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
-                android:src="@drawable/kaoshishijian" />
+                android:src="@drawable/kaoshishijian"
+                android:tint="@color/color_icon_primary"/>
 
             <TextView
                 android:id="@+id/exam_time"
@@ -81,7 +73,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
-                android:src="@drawable/didian" />
+                android:src="@drawable/didian"
+                android:tint="@color/color_icon_primary"/>
 
             <TextView
                 android:id="@+id/exam_room"
@@ -106,7 +99,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
-                android:src="@drawable/xiaoqu" />
+                android:src="@drawable/xiaoqu"
+                android:tint="@color/color_icon_primary"/>
 
             <TextView
                 android:id="@+id/exam_place"
@@ -125,4 +119,4 @@
     </LinearLayout>
 
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

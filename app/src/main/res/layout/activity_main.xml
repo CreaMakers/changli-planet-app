@@ -37,15 +37,15 @@
             android:id="@+id/tabLayout"
             android:layout_width="416dp"
             android:layout_height="49dp"
-            android:background="@color/color_bg_secondary"
+            android:background="@drawable/bg_secondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintWidth_percent="0.35"
-            app:tabBackground="@color/color_base_white"
             app:tabIconTint="@null"
             app:tabIndicatorHeight="0dp"
             app:tabRippleColor="@android:color/transparent"
+            app:tabTextColor="@color/color_text_grey"
             app:tabSelectedTextColor="@color/color_primary_blue" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

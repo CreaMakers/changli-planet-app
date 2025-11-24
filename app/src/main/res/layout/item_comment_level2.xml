@@ -102,7 +102,7 @@
         android:id="@+id/iv_level2_liked"
         app:layout_constraintEnd_toStartOf="@id/tv_level2_like_count"
         app:layout_constraintTop_toBottomOf="@+id/tv_comment_item_content_level2"
-        app:tint="@color/color_icon_secondary"
+        android:tint="@color/color_icon_secondary"
         tools:src="@drawable/ic_like" />
     <TextView
         android:layout_width="wrap_content"

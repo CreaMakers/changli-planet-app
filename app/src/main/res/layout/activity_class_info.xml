@@ -17,7 +17,7 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:background="@color/color_base_white"
+        android:background="@color/color_bg_top_bar"
         android:elevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,7 +28,8 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/fanhui" />
+            android:src="@drawable/fanhui"
+            android:tint="@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"
@@ -37,6 +38,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="空闲教室"
+            android:textColor="@color/color_title_top"
             android:textSize="23sp"
             android:textStyle="bold" />
         <!-- 添加一个空视图来平衡布局，使标题居中 -->
@@ -47,7 +49,7 @@
     </LinearLayout>
 
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:elevation="12dp"
@@ -55,6 +57,7 @@
         app:cardCornerRadius="9dp"
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="20dp"
+        app:cardBackgroundColor="@color/color_bg_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar2">
@@ -77,7 +80,6 @@
             <RelativeLayout
                 android:id="@+id/class_info_week_layout"
                 android:layout_width="match_parent"
-                android:background="@color/color_base_white"
                 android:paddingVertical="12dp"
                 android:layout_height="wrap_content">
 
@@ -107,7 +109,7 @@
                     android:layout_alignParentEnd="true"
                     android:src="@drawable/baseline_arrow_forward_ios_24"
                     android:layout_gravity="center"
-                    app:tint = "@color/color_icon_secondary"/>
+                    android:tint = "@color/color_icon_secondary"/>
             </RelativeLayout>
 
             <View
@@ -118,7 +120,6 @@
             <RelativeLayout
                 android:id="@+id/class_info_day_layout"
                 android:layout_width="match_parent"
-                android:background="@color/color_base_white"
                 android:paddingVertical="12dp"
                 android:layout_height="wrap_content">
 
@@ -149,7 +150,7 @@
                     android:layout_centerVertical="true"
                     android:src="@drawable/baseline_arrow_forward_ios_24"
                     android:layout_gravity="center"
-                    app:tint = "@color/color_icon_secondary"/>
+                    android:tint = "@color/color_icon_secondary"/>
             </RelativeLayout>
 
             <View
@@ -160,7 +161,6 @@
             <RelativeLayout
                 android:id="@+id/class_info_class_layout"
                 android:layout_width="match_parent"
-                android:background="@color/color_base_white"
                 android:paddingVertical="12dp"
                 android:layout_height="wrap_content">
 
@@ -191,7 +191,7 @@
                     android:layout_centerVertical="true"
                     android:src="@drawable/baseline_arrow_forward_ios_24"
                     android:layout_gravity="center"
-                    app:tint = "@color/color_icon_secondary"/>
+                    android:tint = "@color/color_icon_secondary"/>
             </RelativeLayout>
 
 
@@ -203,7 +203,6 @@
             <RelativeLayout
                 android:id="@+id/class_info_region_layout"
                 android:layout_width="match_parent"
-                android:background="@color/color_base_white"
                 android:paddingVertical="12dp"
                 android:layout_height="wrap_content">
 
@@ -234,7 +233,7 @@
                     android:layout_centerVertical="true"
                     android:src="@drawable/baseline_arrow_forward_ios_24"
                     android:layout_gravity="center"
-                    app:tint = "@color/color_icon_secondary"/>
+                    android:tint = "@color/color_icon_secondary"/>
             </RelativeLayout>
             <View
                 android:layout_width="match_parent"
@@ -256,7 +255,7 @@
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -46,6 +46,8 @@
         android:background="@drawable/edit_text_background"
         android:gravity="center"
         android:hint="请输入邮箱"
+        android:textColorHint="@color/color_text_grey"
+        android:textColor="@color/color_text_primary"
         android:singleLine="true"
         android:inputType="textEmailAddress"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -72,6 +74,8 @@
             android:background="@drawable/edit_text_background"
             android:gravity="center"
             android:hint="请输入验证码"
+            android:textColorHint="@color/color_text_grey"
+            android:textColor="@color/color_text_primary"
             android:singleLine="true"
             android:maxLength="4"
             android:inputType="number" />

@@ -8,18 +8,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.cardview.widget.CardView
 import androidx.compose.material3.Surface
-import androidx.compose.ui.graphics.Color
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager.studentId
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager.studentPassword
 import com.creamaker.changli_planet_app.core.Route
+import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
+import com.creamaker.changli_planet_app.core.theme.AppTheme
 
 class MoocActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Surface(color = Color.White) {
-                MoocScreen()
+            AppSkinTheme {
+                Surface(color = AppTheme.colors.bgPrimaryColor) {
+                    MoocScreen()
+                }
             }
         }
         if (studentId.isEmpty() || studentPassword.isEmpty()) {
@@ -36,14 +39,14 @@ class MoocActivity : ComponentActivity() {
             val cardView = CardView(applicationContext).apply {
                 radius = 25f
                 cardElevation = 8f
-                setCardBackgroundColor(getColor(R.color.color_base_white))
+                setCardBackgroundColor(getColor(R.color.color_bg_secondary))
                 useCompatPadding = true
             }
 
             val textView = TextView(applicationContext).apply {
                 text = message
                 textSize = 17f
-                setTextColor(android.graphics.Color.BLACK)
+                setTextColor(getColor(R.color.color_text_primary))
                 gravity = Gravity.CENTER
                 setPadding(80, 40, 80, 40)
             }

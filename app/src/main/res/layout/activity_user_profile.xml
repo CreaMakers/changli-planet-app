@@ -28,7 +28,7 @@
             android:layout_height="28dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/fanhui"
-            app:tint = "@color/color_title_top"/>
+            android:tint = "@color/color_title_top"/>
 
         <TextView
             android:layout_width="0dp"
@@ -56,7 +56,7 @@
 
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_view_1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -183,8 +183,8 @@
                     android:maxLines="1"
                     android:scrollHorizontally="true"
                     android:hint="点击添加"
+                    android:textColorHint="@color/color_text_grey"
                     android:textColor="@color/color_text_primary"
-                    android:textColorHint="@color/color_text_secondary"
                     android:textSize="16sp" />
 
             </RelativeLayout>
@@ -266,17 +266,17 @@
                     android:maxLines="1"
                     android:scrollHorizontally="true"
                     android:hint="点击添加"
-                    android:textColor="#333333"
-                    android:textColorHint="#999999"
+                    android:textColorHint="@color/color_text_grey"
+                    android:textColor="@color/color_text_primary"
                     android:textSize="16sp" />
 
             </RelativeLayout>
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_view_2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -487,7 +487,7 @@
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <FrameLayout
         android:id="@+id/person_profile_loading_overlay"

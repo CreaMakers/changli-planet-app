@@ -9,7 +9,7 @@ import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNew
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.utils.GlideUtils
 import com.creamaker.changli_planet_app.databinding.FreshNewsItemBinding
-import com.gradle.scan.plugin.internal.dep.com.esotericsoftware.kryo.kryo5.util.Util.pos
+
 
 class FreshNewsItemViewHolder(
     val binding: FreshNewsItemBinding,

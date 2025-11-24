@@ -18,6 +18,7 @@
             android:gravity="center"
             android:textSize="20sp"
             android:text="选择宿舍楼"
+            android:textColor="@color/color_text_primary"
             android:layout_height="match_parent" />
     </LinearLayout>
 
@@ -30,6 +31,7 @@
         android:id="@+id/selector"
         android:paddingBottom="7dp"
         android:paddingTop="6dp"
+        android:background="@color/color_bg_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </com.creamaker.changli_planet_app.widget.view.MaxHeightLinearLayout>

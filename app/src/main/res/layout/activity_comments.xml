@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:background="@color/color_bg_primary"
     android:layout_height="match_parent"
     android:id="@+id/root_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -17,7 +18,7 @@
             android:layout_width="@dimen/dp40"
             android:layout_height="@dimen/dp40"
             android:padding="@dimen/dp10"
-            app:tint = "@color/color_title_top"
+            android:tint = "@color/color_title_top"
             tools:src="@drawable/ic_back" />
         <TextView
             android:id="@+id/tv_title"
@@ -80,6 +81,7 @@
             android:textSize="@dimen/sp15"
             android:hint="@string/et_tint"
             android:textColorHint="@color/color_text_grey"
+            android:textColor="@color/color_text_primary"
             android:maxLines="5"
             android:inputType="textMultiLine|textCapSentences"
             android:scrollbars="vertical"
@@ -92,7 +94,7 @@
             android:layout_height="@dimen/dp35"
             android:src="@drawable/ic_send"
             tools:srcCompat="@drawable/ic_send"
-            app:tint = "@color/color_icon_primary"
+            android:tint = "@color/color_icon_primary"
             />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

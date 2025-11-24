@@ -26,6 +26,7 @@ object RetrofitUtils {
     private const val MOOC_LOCATION = "http://pt.csust.edu.cn"
     private const val SSO_AUTH_URL = "https://authserver.csust.edu.cn"
     private const val SSO_EHALL_URL = "https://ehall.csust.edu.cn"
+    private const val TOOLS_IP = "https://csust.creamaker.cn/app/tools/"
 
     //添加公共请求头 - 用于需要认证的 API
     private val client: OkHttpClient by lazy {
@@ -116,6 +117,13 @@ object RetrofitUtils {
     val instanceIP: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(IpLocation)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+    val instanceSkin: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(TOOLS_IP)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

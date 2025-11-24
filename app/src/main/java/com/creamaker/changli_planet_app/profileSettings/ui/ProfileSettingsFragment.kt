@@ -150,7 +150,7 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
             SettingItem("常用功能", isHeader = true),
             SettingItem("清除缓存", R.drawable.qingchu, actionType = 4),
             SettingItem("绑定学号", R.drawable.bianji_, actionType = 5),
-//            SettingItem("主题设置", R.drawable.zhuti_tiaosepan, actionType = 6),
+            SettingItem("主题设置", R.drawable.zhuti_tiaosepan, actionType = 6),
 //            SettingItem("消息中心", R.drawable.xiaoxi, actionType = 7),
 
             SettingItem("帮助与支持", isHeader = true),
@@ -191,10 +191,9 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
                 activity?.let { Route.goBindingUser(it) }
             }
 
-//            6 -> {
-//                // 主题设置
-//                // TODO: 实现主题设置跳转
-//            }
+            6 -> {
+                activity?.let { Route.goSkinSecletion(it) }
+            }
 //
 //            7 -> {
 //                // 消息中心

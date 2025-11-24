@@ -45,7 +45,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/news_item_username"
         tools:src="@drawable/ic_more"
-        app:tint = "@color/color_icon_secondary"/>
+        android:tint = "@color/color_icon_secondary"/>
 
     <TextView
         android:id="@+id/news_item_time"
@@ -137,7 +137,7 @@
                 android:layout_width="@dimen/dp28"
                 android:layout_height="@dimen/dp28"
                 android:src="@drawable/ic_like"
-                app:tint = "@color/color_icon_secondary"/>
+                android:tint = "@color/color_icon_secondary"/>
 
             <TextView
                 android:id="@+id/news_favor_count"
@@ -163,7 +163,7 @@
                 android:layout_width="@dimen/dp26"
                 android:layout_height="@dimen/dp26"
                 android:src="@drawable/ic_comment"
-                app:tint = "@color/color_icon_secondary"/>
+                android:tint = "@color/color_icon_secondary"/>
 
             <TextView
                 android:id="@+id/news_comment_count"
@@ -189,7 +189,7 @@
                 android:layout_width="@dimen/dp26"
                 android:layout_height="@dimen/dp26"
                 android:src="@drawable/ic_un_collect"
-                app:tint = "@color/color_icon_secondary"/>
+                android:tint = "@color/color_icon_secondary"/>
 
             <TextView
                 android:id="@+id/news_share_count"

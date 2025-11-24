@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_base_white"
+    android:background="@color/color_bg_primary"
     tools:context=".feature.lostfound.ui.PublishLoseThingActivity"
     android:orientation="vertical">
 
@@ -59,10 +59,9 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="发布"
-            android:textColor="@color/color_text_button"
+            android:textColor="@color/color_text_functional"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:background="@drawable/enable_button"
             app:backgroundTint="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

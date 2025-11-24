@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import org.gradle.kotlin.dsl.debugImplementation
 
 plugins {
     alias(libs.plugins.android.application)
@@ -188,6 +189,11 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.10.3")
     implementation("androidx.work:work-rxjava2:2.10.3")
     implementation(project(":CP_Common"))
+    //CodeLocator
+    implementation("com.bytedance.tools.codelocator:codelocator-core:2.0.4")
+    debugImplementation ("com.bytedance.tools.codelocator:codelocator-lancet-all:2.0.4")
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.4.0")
     //csustDataGet
     implementation("com.github.CreaMakers:CSUSTDataGet:8559ffeacf")
 }

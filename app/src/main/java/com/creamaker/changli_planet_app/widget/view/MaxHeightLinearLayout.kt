@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
 
-class MaxHeightLinearLayout : LinearLayout {
+open class MaxHeightLinearLayout : LinearLayout {
     private var maxHeight: Int = 0
 
     constructor(context: Context) : super(context)

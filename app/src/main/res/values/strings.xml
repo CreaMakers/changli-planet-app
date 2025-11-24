@@ -202,4 +202,12 @@
     <string name="comments_error">&#160;&#160;加载失败\n┭┮﹏┭┮</string>
     <string name="comments_no_more">没有更多评论了</string>
     <string name="top_bar_comments">评论区</string>
+    <string name="skin_change_success">皮肤已切换</string>
+    <string name="skin_change_failure">切换失败</string>
+    <string name="skin_center">皮肤中心</string>
+    <string name="skin_using">使用中</string>
+    <string name="skin_use">使用</string>
+    <string name="skin_no_more">没有更多皮肤包了</string>
+    <string name="failure_internet">网络错误</string>
+    <string name="failure_process">加载失败</string>
 </resources>
