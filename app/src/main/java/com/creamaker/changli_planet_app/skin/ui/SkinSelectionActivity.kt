@@ -1,6 +1,5 @@
 package com.creamaker.changli_planet_app.skin.ui
 
-import com.creamaker.changli_planet_app.skin.viewmodel.SkinSelectionViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,24 +33,18 @@ import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.core.theme.AppTheme
 import com.creamaker.changli_planet_app.skin.data.model.Skin
+import com.creamaker.changli_planet_app.skin.viewmodel.SkinSelectionViewModel
 
 class SkinSelectionActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            AppSkinTheme {
-                SkinSelectionScreen(onBackClick = { finish() })
-            }
-        }
+        setContent { AppSkinTheme { SkinSelectionScreen(onBackClick = { finish() }) } }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SkinSelectionScreen(
-    viewModel: SkinSelectionViewModel = viewModel(),
-    onBackClick: () -> Unit
-) {
+fun SkinSelectionScreen(viewModel: SkinSelectionViewModel = viewModel(), onBackClick: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberLazyGridState()
 
@@ -71,51 +64,54 @@ fun SkinSelectionScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(PlanetApplication.appContext.getString(R.string.skin_center)) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AppTheme.colors.bgTopBarColor,
-                    titleContentColor = AppTheme.colors.titleTopColor,
-                    navigationIconContentColor = AppTheme.colors.titleTopColor
+            topBar = {
+                TopAppBar(
+                        title = {
+                            Text(PlanetApplication.appContext.getString(R.string.skin_center))
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onBackClick) {
+                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            }
+                        },
+                        colors =
+                                TopAppBarDefaults.topAppBarColors(
+                                        containerColor = AppTheme.colors.bgTopBarColor,
+                                        titleContentColor = AppTheme.colors.titleTopColor,
+                                        navigationIconContentColor = AppTheme.colors.titleTopColor
+                                )
                 )
-            )
-        }
+            }
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(AppTheme.colors.bgPrimaryColor)
+                modifier =
+                        Modifier.fillMaxSize()
+                                .padding(paddingValues)
+                                .background(AppTheme.colors.bgPrimaryColor)
         ) {
             if (uiState.error != null) {
                 // 简单的错误提示，点击重试逻辑可根据需要添加
                 Text(
-                    text = uiState.error!!,
-                    color = Color.Red,
-                    modifier = Modifier.align(Alignment.Center)
+                        text = uiState.error!!,
+                        color = Color.Red,
+                        modifier = Modifier.align(Alignment.Center)
                 )
             }
 
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2), // 每一行2个
-                state = scrollState,
-                contentPadding = PaddingValues(10.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxSize()
+                    columns = GridCells.Fixed(2), // 每一行2个
+                    state = scrollState,
+                    contentPadding = PaddingValues(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxSize()
             ) {
                 // 1. 正常的皮肤列表 Item
                 itemsIndexed(uiState.skinList) { _, skin ->
                     SkinItemView(
-                        skin = skin,
-                        currentUsingSkinName = uiState.currentUsingSkin,
-                        onApplyClick = { viewModel.applySkin(it) }
+                            skin = skin,
+                            currentUsingSkinName = uiState.currentUsingSkin,
+                            onApplyClick = { viewModel.applySkin(it) }
                     )
                 }
 
@@ -123,10 +119,8 @@ fun SkinSelectionScreen(
                 // span = { GridItemSpan(2) } 让它占满一行
                 item(span = { GridItemSpan(2) }) {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 20.dp),
-                        contentAlignment = Alignment.Center
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+                            contentAlignment = Alignment.Center
                     ) {
                         if (uiState.isLoading) {
                             // 正在加载时显示转圈
@@ -134,9 +128,12 @@ fun SkinSelectionScreen(
                         } else if (!uiState.hasMore) {
                             // 没有更多数据时显示提示文本
                             Text(
-                                text = PlanetApplication.appContext.getString(R.string.skin_no_more),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Gray
+                                    text =
+                                            PlanetApplication.appContext.getString(
+                                                    R.string.skin_no_more
+                                            ),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
                             )
                         } else {
                             // 还有更多数据但没在加载（通常不会长时间处于此状态，除非加载失败）
@@ -149,59 +146,51 @@ fun SkinSelectionScreen(
         }
     }
 }
+
 @Composable
-fun SkinItemView(
-    skin: Skin,
-    currentUsingSkinName: String,
-    onApplyClick: (Skin) -> Unit
-) {
+fun SkinItemView(skin: Skin, currentUsingSkinName: String, onApplyClick: (Skin) -> Unit) {
     val isUsing = skin.name == currentUsingSkinName
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp), // 固定高度以保证对齐
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = AppTheme.colors.bgSecondaryColor)
+            modifier = Modifier.fillMaxWidth().height(220.dp), // 固定高度以保证对齐
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            colors = CardDefaults.cardColors(containerColor = AppTheme.colors.bgSecondaryColor)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // 图片区域
                 AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(skin.imageUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = skin.name,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f) // 占据大部分空间
-                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                        .background(Color.LightGray) // 占位背景
+                        model =
+                                ImageRequest.Builder(LocalContext.current)
+                                        .data(skin.imageUrl)
+                                        .crossfade(true)
+                                        .build(),
+                        contentDescription = skin.name,
+                        contentScale = ContentScale.Fit,
+                        modifier =
+                                Modifier.fillMaxWidth()
+                                        .weight(1f) // 占据大部分空间
+                                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                                        .background(Color.LightGray) // 占位背景
                 )
 
                 // 底部信息区域
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
+                Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
                     Text(
-                        text = skin.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                            text = skin.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = skin.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                            text = skin.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                     )
                     // 预留按钮空间
                     Spacer(modifier = Modifier.height(30.dp))
@@ -210,24 +199,26 @@ fun SkinItemView(
 
             // 右下角按钮
             Button(
-                onClick = { onApplyClick(skin) },
-                enabled = !isUsing, // 如果正在使用则不可点击
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(8.dp)
-                    .height(36.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = AppTheme.colors.bgButtonColor
-                )
+                    onClick = { onApplyClick(skin) },
+                    enabled = !isUsing, // 如果正在使用则不可点击
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).height(36.dp),
+                    colors =
+                            ButtonDefaults.buttonColors(
+                                    containerColor = AppTheme.colors.bgButtonColor
+                            )
             ) {
                 Text(
-                    text = with(PlanetApplication.appContext) {
-                        if (isUsing) getString(R.string.skin_using) else getString(R.string.skin_use)
-                    },
-                    fontSize = 12.sp,
-                    color = if (!isUsing) AppTheme.colors.textButtonColor else AppTheme.colors.textHeighLightColor
+                        text =
+                                with(PlanetApplication.appContext) {
+                                    if (isUsing) getString(R.string.skin_using)
+                                    else getString(R.string.skin_use)
+                                },
+                        fontSize = 12.sp,
+                        color =
+                                if (!isUsing) AppTheme.colors.textButtonColor
+                                else AppTheme.colors.textHeighLightColor
                 )
             }
         }

@@ -67,9 +67,25 @@ object OkHttpHelper {
             }
 
             var response = chain.proceed(requestWithToken)
-            val responseBody = response.peekBody(Long.MAX_VALUE).string()
-            Log.d(TAG, responseBody)
-            val realResponse = gson.fromJson(responseBody, NormalResponse::class.java)
+
+            // 1. 获取响应的 Content-Type
+            val responseBody = response.body
+            val mediaType = responseBody?.contentType()
+
+            // 2. 判断是否是 JSON 类型
+            // 只有 Content-Type 包含 "json" 时（例如 application/json），才进行解析检查
+            // 如果下载文件，Content-Type 通常是 application/octet-stream 或 application/vnd.android.package-archive
+            val isJson = mediaType != null && (mediaType.subtype == "json" || mediaType.subtype.contains("json"))
+
+            if (!isJson) {
+                // 如果不是 JSON（比如是文件下载流），直接返回 response
+                // 千万不要调用 peekBody，否则会把文件加载到内存并破坏流
+                return response
+            }
+
+            val jsonString = response.peekBody(Long.MAX_VALUE).string()
+            Log.d(TAG, jsonString)
+            val realResponse = gson.fromJson(jsonString, NormalResponse::class.java)
             if (realResponse?.code == "401" &&
                 realResponse?.msg == PlanetConst.UNAUTHORIZATION &&
                 retryCount < MAX_RETRY_ATTEMPTS
