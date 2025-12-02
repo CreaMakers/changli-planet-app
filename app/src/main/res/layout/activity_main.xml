@@ -38,6 +38,7 @@
             android:layout_width="416dp"
             android:layout_height="49dp"
             android:background="@drawable/bg_secondary"
+            android:layout_marginBottom="@dimen/dp8"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
