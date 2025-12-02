@@ -138,6 +138,7 @@
         android:layout_marginStart="@dimen/dp15"
         android:layout_marginTop="@dimen/dp10"
         android:text="@string/all_comments"
+        android:textColor="@color/color_text_primary"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/postman_info_layout" />
@@ -149,6 +150,7 @@
         android:layout_marginStart="@dimen/dp8"
         android:layout_marginTop="@dimen/dp10"
         android:text="@string/comments_num"
+        android:textColor="@color/color_text_primary"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/tv_all_comments"
         app:layout_constraintTop_toBottomOf="@id/postman_info_layout" />
