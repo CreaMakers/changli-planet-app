@@ -98,7 +98,7 @@ class FreshNewsItemViewHolder(
             if (news.isLiked) {
                 newsFavor.setImageResource(R.drawable.ic_news_liked)
                 newsFavor.imageTintList =
-                    context.getColorStateList(R.color.color_base_red)
+                    null
             } else {
                 newsFavor.setImageResource(R.drawable.ic_like)
                 newsFavor.imageTintList =

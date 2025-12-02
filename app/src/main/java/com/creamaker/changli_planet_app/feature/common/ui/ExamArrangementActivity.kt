@@ -15,6 +15,7 @@ import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
+import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityExamArrangementBinding
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ExamArrangementCache

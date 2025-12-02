@@ -11,6 +11,7 @@ import com.creamaker.changli_planet_app.feature.common.redux.action.ExamInquiryA
 import com.creamaker.changli_planet_app.feature.common.redux.state.ExamInquiryState
 import com.creamaker.changli_planet_app.widget.dialog.ErrorStuPasswordResponseDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
+import com.dcelysia.csust_spider.core.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,65 +35,54 @@ class ExamArrangementStore : Store<ExamInquiryState, ExamInquiryAction>() {
 
     private fun updateExamDate(action: ExamInquiryAction.UpdateExamData) {
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val middle_list = ExamArrangeService.getExamArrange(action.termTime, "期中")
-                val end_list = ExamArrangeService.getExamArrange(action.termTime, "期末")
-                if (middle_list == null && end_list == null) {
-                    handler.post {
-                        ErrorStuPasswordResponseDialog(
-                            action.context,
-                            "暂时无法查询数据喵ʕ⸝⸝⸝˙Ⱉ˙ʔ",
-                            "查询失败",
-                            action.refresh
-                        ).show()
-                    }
-                    _state.onNext(currentState)
-                } else {
-                    handler.post {
-                        CustomToast.showMessage(PlanetApplication.appContext, "刷新成功")
-                    }
-                    // 合并并去重（以课程名、考试时间、校区、考场为去重键）
-                    val combined = (middle_list ?: emptyList()) + (end_list ?: emptyList())
-                    val deduped = combined.distinctBy { exam ->
-                        listOf(
-                            exam.courseNameval,
-                            exam.examTime,
-                            exam.campus,
-                            exam.examRoomval
-                        )
-                    }
-                    currentState.exams = deduped
-                    _state.onNext(currentState)
-                }
-            } catch (e: EduHelperError.examScheduleRetrievalFailed) {
+            // 1. 发起请求
+            // Service 内部已经处理了异常，这里不需要 try-catch
+            val middleResult = ExamArrangeService.getExamArrange(action.termTime, "期中")
+            val endResult = ExamArrangeService.getExamArrange(action.termTime, "期末")
+
+            // 2. 判断结果状态
+            // 只有当两次请求都成功 (Success) 时，才进行数据合并
+            if (middleResult is Resource.Success && endResult is Resource.Success) {
+
                 handler.post {
-                    ErrorStuPasswordResponseDialog(
-                        action.context,
-                        "未查询到考试场次表喵ʕ⸝⸝⸝˙Ⱉ˙ʔ",
-                        "查询失败",
-                        action.refresh
-                    ).show()
+                    CustomToast.showMessage(PlanetApplication.appContext, "刷新成功")
                 }
+
+                val middleList = middleResult.data
+                val endList = endResult.data
+
+                // 合并并去重
+                val combined = middleList + endList
+                val deduped = combined.distinctBy { exam ->
+                    listOf(
+                        exam.courseNameval,
+                        exam.examTime,
+                        exam.campus,
+                        exam.examRoomval
+                    )
+                }
+
+                // 更新状态
+                currentState.exams = deduped
                 _state.onNext(currentState)
-            } catch (e: EduHelperError.NotLoggedIn) {
+
+            } else {
+                val errorMessage = when {
+                    middleResult is Resource.Error -> middleResult.msg
+                    endResult is Resource.Error -> endResult.msg
+                    else -> "未知错误"
+                }
+
+                // 在主线程显示错误弹窗
                 handler.post {
                     ErrorStuPasswordResponseDialog(
                         action.context,
-                        "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
+                        errorMessage,
                         "查询失败",
                         action.refresh
                     ).show()
                 }
-                _state.onNext(currentState)
-            } catch (e: EduHelperError) {
-                handler.post {
-                    ErrorStuPasswordResponseDialog(
-                        action.context,
-                        "出现其他异常，请重试喵~",
-                        "查询失败",
-                        action.refresh
-                    ).show()
-                }
+
                 _state.onNext(currentState)
             }
         }
