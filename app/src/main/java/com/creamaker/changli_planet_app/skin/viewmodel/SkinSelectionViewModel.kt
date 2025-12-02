@@ -9,6 +9,7 @@ import com.creamaker.changli_planet_app.skin.SkinManager
 import com.creamaker.changli_planet_app.skin.data.cache.SkinCache
 import com.creamaker.changli_planet_app.skin.data.model.Skin
 import com.creamaker.changli_planet_app.skin.data.remote.repository.SkinRepository
+import com.creamaker.changli_planet_app.skin.helper.SkinFileHelper
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -99,21 +100,21 @@ class SkinSelectionViewModel(application: Application) : AndroidViewModel(applic
             // 获取目标缓存文件路径
             try {
                 if (!isDownloaded) {
-//                    // --- 未下载：执行下载 ---
-//                    val response = repository.downloadSkin(skin.name,skin.id)
-//
-//                    if (response.isSuccessful && response.body() != null) {
-//                        withContext(Dispatchers.IO) {
-//                            // 保存流到缓存
-//                            val file = SkinFileHelper.getCacheFile(context,skin.name)
-//                            SkinFileHelper.saveStreamToCache(file,response.body()!!.byteStream())
-//                            SkinManager.setSkin(skin.name)
-//                        }
-//                        // 标记已下载
-//                        SkinCache.saveSkinDownloaded(skin.name)
-//                    } else {
-//                        throw Exception("下载失败")
-//                    }
+                    // --- 未下载：执行下载 ---
+                    val response = repository.downloadSkin(skin.name,skin.id)
+
+                    if (response.isSuccessful && response.body() != null) {
+                        withContext(Dispatchers.IO) {
+                            // 保存流到缓存
+                            val file = SkinFileHelper.getCacheFile(context,skin.name)
+                            SkinFileHelper.saveStreamToCache(file,response.body()!!.byteStream())
+                            SkinManager.setSkin(skin.name)
+                        }
+                        // 标记已下载
+                        SkinCache.saveSkinDownloaded(skin.name)
+                    } else {
+                        CustomToast.showMessage(context,context.getString(R.string.skin_change_failure))
+                    }
                 }
 
                 // --- 已下载/下载完成：应用皮肤 ---
