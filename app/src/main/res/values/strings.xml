@@ -210,4 +210,7 @@
     <string name="skin_no_more">没有更多皮肤包了</string>
     <string name="failure_internet">网络错误</string>
     <string name="failure_process">加载失败</string>
+    <string name="time_table_loading">加载中</string>
+    <string name="loading_success">加载成功</string>
+    <string name="tv_top_bar_time_table">课程表</string>
 </resources>

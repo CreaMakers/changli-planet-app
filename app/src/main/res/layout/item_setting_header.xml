@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/dp16"
     android:paddingBottom="@dimen/dp8"
-    android:background="@color/color_bg_secondary">
+    android:background="@color/color_bg_primary">
 
     <TextView
         android:id="@+id/tv_header_title"
