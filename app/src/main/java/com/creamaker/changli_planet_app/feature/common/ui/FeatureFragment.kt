@@ -21,7 +21,7 @@ import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class FeatureFragment : BaseFragment<FragmentFeatureBinding>() {
+class FeatureFragment() : BaseFragment<FragmentFeatureBinding>() {
     companion object {
         @JvmStatic
         fun newInstance() = FeatureFragment()

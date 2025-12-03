@@ -12,14 +12,15 @@ import com.creamaker.changli_planet_app.feature.common.ui.adapter.vh.CourseViewH
 
 class CourseAdapter(
     private val store: ScoreInquiryStore,
-    private val context: Context
+    private val context: Context,
+    private val onDetailClick: (String, String) -> Unit
 ) : ListAdapter<CourseScore, CourseViewHolder>(CourseDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CourseViewHolder {
         val binding = ScoreItemCourseBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        return CourseViewHolder(binding, store, context)
+        return CourseViewHolder(binding, store, context, onDetailClick)
     }
 
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {

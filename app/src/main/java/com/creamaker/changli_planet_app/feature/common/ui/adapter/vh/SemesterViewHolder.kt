@@ -11,26 +11,25 @@ import com.creamaker.changli_planet_app.feature.common.redux.store.ScoreInquiryS
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.CourseAdapter
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.CourseListItem
 
-
 class SemesterViewHolder(
     private val binding: ScoreItemSemesterBinding,
     private val store: ScoreInquiryStore,
     private val context: Context,
-    private val onItemClick: (Int) -> Unit,
+    private val onToggle: (Int) -> Unit,
+    private val onDetailClick: (String, String) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
-    private val courseAdapter = CourseAdapter(store, context)
+    private val courseAdapter = CourseAdapter(store, context, onDetailClick)
 
     init {
         itemView.setOnClickListener {
             itemView.isClickable = false
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
-                onItemClick(position)
+                onToggle(position)
             }
             itemView.postDelayed({ itemView.isClickable = true }, 300)
         }
 
-        // 初始化内部的 RecyclerView
         binding.rvCourses.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = courseAdapter
@@ -41,7 +40,6 @@ class SemesterViewHolder(
     fun bind(item: CourseListItem.SemesterItem) {
         binding.apply {
             tvSemesterName.text = item.semester.semesterName
-            tvGpa.text = "GPA: ${item.semester.gpa}"
             tvGpa.text = String.format("GPA: %.2f", item.semester.gpa)
 
             val rotation = if (item.isExpanded) 180f else 0f

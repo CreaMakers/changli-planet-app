@@ -13,7 +13,8 @@ import com.creamaker.changli_planet_app.feature.common.ui.adapter.vh.SemesterVie
 
 class ExamScoreAdapter(
     private val store: ScoreInquiryStore,
-    private val context: Context
+    private val context: Context,
+    private val onDetailClick: (String, String) -> Unit
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var _items = emptyList<CourseListItem>()
@@ -68,7 +69,14 @@ class ExamScoreAdapter(
             LayoutInflater.from(parent.context), parent, false
         )
         binding.rvCourses.setRecycledViewPool(CourseViewHolderViewPool)
-        return SemesterViewHolder(binding, store, context) { position -> toggleGroup(position) }
+
+        return SemesterViewHolder(
+            binding = binding,
+            store = store,
+            context = context,
+            onToggle = { position -> toggleGroup(position) },
+            onDetailClick = onDetailClick
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

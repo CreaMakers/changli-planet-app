@@ -88,6 +88,7 @@
                 android:layout_marginStart="@dimen/dp16"
                 android:layout_marginEnd="@dimen/dp16"
                 android:nestedScrollingEnabled="false"
+                android:background="@color/color_bg_primary"
                 app:layout_constraintTop_toTopOf="@+id/v_settings_background"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

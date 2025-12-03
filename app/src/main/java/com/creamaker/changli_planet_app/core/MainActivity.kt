@@ -25,6 +25,7 @@ import com.creamaker.changli_planet_app.freshNews.ui.NewsFragment
 import com.creamaker.changli_planet_app.im.ui.IMFragment
 import com.creamaker.changli_planet_app.profileSettings.ui.ProfileSettingsFragment
 import com.creamaker.changli_planet_app.utils.Event.SelectEvent
+import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.widget.dialog.GuestLimitedAccessDialog
 import com.google.android.material.tabs.TabLayout
 import com.gradle.scan.plugin.internal.dep.io.netty.util.internal.StringUtil
@@ -263,6 +264,10 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
     }
     @Subscribe
     fun selectProfileFragment(selectEvent: SelectEvent){
-        tabLayout.selectTab(tabLayout.getTabAt(3))
+        tabLayout.selectTab(tabLayout.getTabAt(selectEvent.eventType))
+    }
+    @Subscribe
+    fun selectFeatureFragment(selectEvent: SelectEvent){
+        tabLayout.selectTab(tabLayout.getTabAt(selectEvent.eventType))
     }
 }

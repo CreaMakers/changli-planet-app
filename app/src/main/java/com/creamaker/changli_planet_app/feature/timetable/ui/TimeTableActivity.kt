@@ -609,13 +609,17 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
     }
 
     private fun showLoading() {
-        binding.loadingLayout.visibility = View.VISIBLE
-        binding.timetableView.visibility = View.GONE
+        with(binding.headerLayout){
+            courseRefreshLoading.visibility = View.VISIBLE
+            courseRefresh.visibility = View.GONE
+        }
     }
 
     private fun hideLoading() {
-        binding.loadingLayout.visibility = View.GONE
-        binding.timetableView.visibility = View.VISIBLE
+        with(binding.headerLayout){
+            courseRefreshLoading.visibility = View.GONE
+            courseRefresh.visibility = View.VISIBLE
+        }
     }
 
     private fun showMessage(message: String) {
