@@ -8,9 +8,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
-import androidx.compose.ui.text.font.FontVariation.grade
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,6 +26,10 @@ import com.creamaker.changli_planet_app.feature.common.redux.store.ScoreInquiryS
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.ExamScoreAdapter
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.CourseScore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.SemesterGroup
+import com.creamaker.changli_planet_app.widget.dialog.ErrorStuPasswordResponseDialog
+import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
+import com.creamaker.changli_planet_app.widget.dialog.ScoreDetailDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 
 /**
@@ -34,7 +38,16 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
     private val recyclerView: RecyclerView by lazy { binding.ScoreRecyclerView }
     private val refresh: ImageView by lazy { binding.refresh }
-    private val examScoreAdapter by lazy { ExamScoreAdapter(store, this@ScoreInquiryActivity) }
+    private val examScoreAdapter by lazy {
+        ExamScoreAdapter(
+            store,
+            this@ScoreInquiryActivity,
+            // 将 activity 的方法引用传给 adapter
+            onDetailClick = { pscjUrl, courseName ->
+                fetchScoreDetail(pscjUrl, courseName)
+            }
+        )
+    }
     private val store = ScoreInquiryStore()
     private val back by lazy { binding.bindingBack }
 
@@ -108,6 +121,7 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
         }
     }
 
+    // 原有的刷新方法
     private fun refreshData(forceUpdate: Boolean = false) {
         if (studentId.isEmpty() || studentPassword.isEmpty()) {
             showMessage("请先绑定学号和密码")
@@ -117,14 +131,41 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
         }
 
         if (forceUpdate || ScoreCache.getGrades() == null) {
+            showLoading()
+
+            // 核心修改：Dispatch Action 时传入 lifecycleScope 和 UI 回调
             store.dispatch(
                 ScoreInquiryAction.UpdateGrade(
-                this,
-                studentId,
-                studentPassword,
-                refresh = {refreshData(true)}
-            ))
-            showLoading()
+                    scope = lifecycleScope, // 传入生命周期作用域
+                    studentId = studentId,
+                    password = studentPassword,
+                    onSuccess = {
+                        // 在 Store 的 Main 线程块中被调用
+                        CustomToast.showMessage(applicationContext, "刷新成功")
+                    },
+                    onAuthError = {
+                        hideLoading()
+                        try {
+                            ErrorStuPasswordResponseDialog(
+                                this@ScoreInquiryActivity,
+                                "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
+                                "查询失败",
+                                { refreshData(true) }
+                            ).show()
+                        } catch (e: Exception) { e.printStackTrace() }
+                    },
+                    onNetError = {
+                        hideLoading()
+                        try {
+                            NormalResponseDialog(
+                                this@ScoreInquiryActivity,
+                                "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+                                "查询失败"
+                            ).show()
+                        } catch (e: Exception) { e.printStackTrace() }
+                    }
+                )
+            )
         }
     }
 
@@ -239,7 +280,34 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
             show()
         }
     }
-
+    // 给 Adapter 调用的方法（需要你确保 Adapter 调用此方法）
+    fun fetchScoreDetail(pscjUrl: String, courseName: String) {
+        store.dispatch(
+            ScoreInquiryAction.GetScoreDetail(
+                scope = lifecycleScope,
+                pscjUrl = pscjUrl,
+                courseName = courseName,
+                onShowDetail = { detailString ->
+                    // Store 处理完字符串后，Activity 负责显示 Dialog
+                    ScoreDetailDialog.showDialog(this@ScoreInquiryActivity, detailString, courseName)
+                },
+                onAuthError = {
+                    NormalResponseDialog(
+                        this@ScoreInquiryActivity,
+                        "获取教务系统cookie失败！请重新刷新~₍ᐢ..ᐢ₎♡",
+                        "查询失败"
+                    ).show()
+                },
+                onNetError = {
+                    NormalResponseDialog(
+                        this@ScoreInquiryActivity,
+                        "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
+                        "查询失败"
+                    ).show()
+                }
+            )
+        )
+    }
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()

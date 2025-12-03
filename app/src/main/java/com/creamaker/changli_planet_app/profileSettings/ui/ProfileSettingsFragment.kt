@@ -3,9 +3,11 @@ package com.creamaker.changli_planet_app.profileSettings.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.creamaker.changli_planet_app.R
@@ -16,18 +18,24 @@ import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.FragmentProfileSettingsBinding
 import com.creamaker.changli_planet_app.profileSettings.ui.adapter.SettingAdapter
 import com.creamaker.changli_planet_app.profileSettings.ui.adapter.model.SettingItem
+import com.creamaker.changli_planet_app.utils.Event.SelectEvent
+import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.NetworkUtil
 import com.creamaker.changli_planet_app.utils.load
 import com.creamaker.changli_planet_app.widget.dialog.NormalChosenDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 
-class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
+class ProfileSettingsFragment() : BaseFragment<FragmentProfileSettingsBinding>() {
+    private var backCallback: OnBackPressedCallback? = null
+
     private lateinit var settingAdapter: SettingAdapter
+
     companion object Companion {
         private const val REQUEST_READ_TELEPHONE = 1001
         private const val REQUEST_NOTIFICATION = 1002
         private const val FEI_SHU_URL =
             "https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false"
+
         @JvmStatic
         fun newInstance() =
             ProfileSettingsFragment().apply {
@@ -46,9 +54,9 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
     override fun initView() {
         super.initView()
 
-        if(PlanetApplication.is_tourist){
+        if (PlanetApplication.is_tourist) {
             setupTouristViews()
-        }else{
+        } else {
             setupViews()
         }
         initRecyclerView()
@@ -58,15 +66,15 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
     private fun setupViews() {
         binding.ivBackground.load(R.drawable.ic_profile_home_bg)
         binding.mbLogout.setOnClickListener {
-                NormalChosenDialog(
-                    requireContext(),
-                    "将清除本地所有缓存",
-                    "是否登出",
-                    onConfirm = {
-                        PlanetApplication.Companion.clearCacheAll()
-                        Route.goLoginForcibly(requireContext())
-                    }
-                ).show()
+            NormalChosenDialog(
+                requireContext(),
+                "将清除本地所有缓存",
+                "是否登出",
+                onConfirm = {
+                    PlanetApplication.Companion.clearCacheAll()
+                    Route.goLoginForcibly(requireContext())
+                }
+            ).show()
         }
 
         binding.ivEdit.setOnClickListener {
@@ -79,9 +87,9 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
         }
     }
 
-    private fun setupTouristViews(){
+    private fun setupTouristViews() {
         binding.ivBackground.load(R.drawable.ic_profile_home_bg)
-        binding.mbLogout.setOnClickListener{
+        binding.mbLogout.setOnClickListener {
             NormalChosenDialog(
                 requireContext(),
                 "将清除本地所有缓存哦~",
@@ -124,6 +132,7 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
             return
         }
     }
+
     private fun initRecyclerView() {
         val settingItems = createSettingItems()
         settingAdapter = SettingAdapter(settingItems).apply {
@@ -174,7 +183,7 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
 
             3 -> {
                 // 账号安全
-                if(PlanetApplication.is_tourist){
+                if (PlanetApplication.is_tourist) {
                     CustomToast.showMessage(requireContext(), "游客账号无法进行此操作哦~")
                     return
                 }
@@ -229,17 +238,39 @@ class ProfileSettingsFragment : BaseFragment<FragmentProfileSettingsBinding>() {
             }.show()
         }
     }
+
     private fun loadUserData() {
-        if(PlanetApplication.is_tourist){ //对游客账号进行特殊处理，为避免与网络逻辑嵌套混淆，没有走MVI流
+        if (PlanetApplication.is_tourist) { //对游客账号进行特殊处理，为避免与网络逻辑嵌套混淆，没有走MVI流
             binding.tvUsername.text = "长理学子~"
             binding.ivAvatar.load(UserInfoManager.userAvatar)
-        }else {
+        } else {
             binding.tvUsername.text = UserInfoManager.account
             binding.ivAvatar.load(UserInfoManager.userAvatar)
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+
+    override fun onResume() {
+        super.onResume()
+        if (backCallback == null) {
+
+            backCallback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    EventBusHelper.post(SelectEvent(0))
+                    isEnabled = false
+                }
+            }
+
+            requireActivity().onBackPressedDispatcher.addCallback(
+                viewLifecycleOwner,
+                backCallback!!
+            )
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        backCallback?.remove()
+        backCallback = null
     }
 }

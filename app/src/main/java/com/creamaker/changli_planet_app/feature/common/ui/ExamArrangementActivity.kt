@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
@@ -23,6 +24,8 @@ import com.creamaker.changli_planet_app.feature.common.redux.action.ExamInquiryA
 import com.creamaker.changli_planet_app.feature.common.redux.store.ExamArrangementStore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.ExamArrangementAdapter
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.Exam
+import com.creamaker.changli_planet_app.widget.dialog.ErrorStuPasswordResponseDialog
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.util.Calendar
 import kotlin.collections.map
@@ -96,9 +99,22 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
             showLoading()
             store.dispatch(
                 ExamInquiryAction.UpdateExamData(
-                    this,
+                    this.lifecycleScope,
                     getCurrentTerm(),
-                    refresh = {refreshData()}
+                    refresh = { refreshData() },
+                    onSuccess = {
+                        CustomToast.showMessage(
+                            this,
+                            getString(R.string.loading_success)
+                        )
+                    },
+                    onError = {
+                        ErrorStuPasswordResponseDialog(
+                            this,
+                            it,
+                            "查询失败"
+                        ) { refreshData() }.show()
+                    }
                 )
             )
         } else {

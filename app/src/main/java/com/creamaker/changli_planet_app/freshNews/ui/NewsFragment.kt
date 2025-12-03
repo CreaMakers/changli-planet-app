@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -38,13 +37,10 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
-import kotlin.text.compareTo
 import androidx.core.view.isVisible
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItemResult
-import com.tencent.mmkv.MMKV.pageSize
 
-class NewsFragment : BaseFragment<FragmentNewsBinding>() {
+class NewsFragment() : BaseFragment<FragmentNewsBinding>() {
 
     companion object {
         @JvmStatic
