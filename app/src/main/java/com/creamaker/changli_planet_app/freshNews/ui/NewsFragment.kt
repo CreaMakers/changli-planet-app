@@ -223,7 +223,7 @@ class NewsFragment() : BaseFragment<FragmentNewsBinding>() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.run {
-                    observeState({ value.freshNewsListResults }) {
+                    observeState({ it.freshNewsListResults }) {
                         Log.d(TAG, "观察到新鲜事列表数据变化")
                         when (val freshNewsListResults = it) {
 
