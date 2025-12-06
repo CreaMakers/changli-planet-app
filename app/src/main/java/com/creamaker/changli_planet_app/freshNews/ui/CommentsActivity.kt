@@ -322,9 +322,9 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 commentsViewModel.state.run {
                     observeState(
-                        { value.freshNewsItem },
-                        { value.level1CommentsResults },
-                        { value.level1CommentPostState }) { freshNewsItem, level1CommentsResults, level1CommentPostState ->
+                        { it.freshNewsItem },
+                        { it.level1CommentsResults },
+                        { it.level1CommentPostState }) { freshNewsItem, level1CommentsResults, level1CommentPostState ->
                         if (level1CommentPostState == 2) {
                             rvParent.scrollToPosition(0)
                         }
