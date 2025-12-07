@@ -92,9 +92,6 @@ dependencies {
     // leakcanary
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
     // Material Design
-    implementation("com.google.android.material:material:1.11.0")
-    // Blurry库
-    implementation(files("libs/blurry-4.0.1.aar"))
     //RxJava
     implementation("io.reactivex.rxjava3:rxjava:3.1.10")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
@@ -196,6 +193,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     //csustDataGet
     implementation("com.github.CreaMakers:CSUSTDataGet:ab9cfbaf7d")
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.material.icons.extended)
 }
 kapt {
     arguments {

@@ -9,6 +9,12 @@
     android:background="@color/color_bg_primary"
     tools:context=".feature.common.ui.FeatureFragment">
 
+    <!-- ComposeView 作为容器 -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <ImageView
         android:id="@+id/planet_logo"
         android:layout_width="match_parent"
