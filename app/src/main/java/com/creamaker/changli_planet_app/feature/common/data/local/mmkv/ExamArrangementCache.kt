@@ -1,15 +1,11 @@
 package com.creamaker.changli_planet_app.feature.common.data.local.mmkv
 
-import android.content.Context
 import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 
-class ExamArrangementCache(private val context: Context) {
-    init {
-        MMKV.initialize(context)
-    }
+class ExamArrangementCache {
 
     private val mmkv = MMKV.mmkvWithID("content_cache")
     private val gson = Gson()

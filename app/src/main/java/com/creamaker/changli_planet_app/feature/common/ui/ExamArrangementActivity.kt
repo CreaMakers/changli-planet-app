@@ -1,47 +1,50 @@
 package com.creamaker.changli_planet_app.feature.common.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
-import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityExamArrangementBinding
-import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ExamArrangementCache
-import com.creamaker.changli_planet_app.feature.common.redux.action.ExamInquiryAction
-import com.creamaker.changli_planet_app.feature.common.redux.store.ExamArrangementStore
+import com.creamaker.changli_planet_app.feature.common.contract.ExamArrangementContract
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.ExamArrangementAdapter
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.Exam
+import com.creamaker.changli_planet_app.feature.common.viewModel.ExamArrangementViewModel
 import com.creamaker.changli_planet_app.widget.dialog.ErrorStuPasswordResponseDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.Calendar
-import kotlin.collections.map
 
 /**
  * 考试安排查询
  */
 class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBinding>() {
+
+    private val viewModel: ExamArrangementViewModel by viewModels()
+
     private val examRecyclerView: RecyclerView by lazy { binding.recyclerView }
     private val back: ImageView by lazy { binding.bindingBack }
     private val refresh: ImageView by lazy { binding.refresh }
-    private val store: ExamArrangementStore = ExamArrangementStore()
-    private var examList: MutableList<Exam> = mutableListOf()
-    private val cache by lazy { ExamArrangementCache(this) }
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
+    private var adapter: ExamArrangementAdapter? = null
+
     private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
         examRecyclerView.visibility = View.GONE
@@ -52,13 +55,14 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
         examRecyclerView.visibility = View.VISIBLE
     }
 
-    override fun createViewBinding(): ActivityExamArrangementBinding = ActivityExamArrangementBinding.inflate(layoutInflater)
+    override fun createViewBinding(): ActivityExamArrangementBinding =
+        ActivityExamArrangementBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
-            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
                 view.paddingLeft,
                 insets.top,
@@ -69,52 +73,62 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
         }
 
         examRecyclerView.layoutManager = LinearLayoutManager(this)
-        examRecyclerView.adapter = ExamArrangementAdapter(examList)
-
-        disposables.add(
-            store.state()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { state ->
-                    showAllExamInfo(state.exams)
-                }
-        )
-
-
-        loadCacheData()
+        // Initialize adapter with empty list
+        adapter = ExamArrangementAdapter(mutableListOf())
+        examRecyclerView.adapter = adapter
         back.setOnClickListener { finish() }
         refresh.setOnClickListener { refreshData() }
+        refreshData()
+        initObserve()
     }
 
-    private fun loadCacheData() {
-        val examArrangement = cache.getExamArrangement()
-        if (examArrangement != null) {
-            showAllExamInfo(examArrangement)
-        } else {
-            refreshData()
+    private fun initObserve() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.state.collectLatest { state ->
+                        if (state.isLoading) {
+                            showLoading()
+                        } else {
+                            hideLoading()
+                            if (state.exams.isNotEmpty()) {
+                                updateExamList(state.exams)
+                            }
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.effect.collect { effect ->
+                        when (effect) {
+                            is ExamArrangementContract.Effect.ShowToast -> {
+                                CustomToast.showMessage(
+                                    this@ExamArrangementActivity,
+                                    effect.message
+                                )
+                            }
+
+                            is ExamArrangementContract.Effect.ShowErrorDialog -> {
+                                ErrorStuPasswordResponseDialog(
+                                    this@ExamArrangementActivity,
+                                    effect.message,
+                                    "查询失败"
+                                ) { refreshData() }.show()
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
+
+
     private fun refreshData() {
         if (studentId.isNotEmpty() && studentPassword.isNotEmpty()) {
-            showLoading()
-            store.dispatch(
-                ExamInquiryAction.UpdateExamData(
-                    this.lifecycleScope,
-                    getCurrentTerm(),
-                    refresh = { refreshData() },
-                    onSuccess = {
-                        CustomToast.showMessage(
-                            this,
-                            getString(R.string.loading_success)
-                        )
-                    },
-                    onError = {
-                        ErrorStuPasswordResponseDialog(
-                            this,
-                            it,
-                            "查询失败"
-                        ) { refreshData() }.show()
-                    }
+            viewModel.processIntent(
+                ExamArrangementContract.Intent.LoadExamArrangement(
+                    getCurrentTerm()
                 )
             )
         } else {
@@ -124,30 +138,11 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
         }
     }
 
-    private fun showAllExamInfo(exams: List<ExamArrange>) {
-        if (exams.isEmpty()) {
-            hideLoading()
-            return
-        }
-        cache.saveExamArrangement(exams)
-        examList = exams.map { grade ->
-            Exam(
-                grade.courseNameval,
-                grade.examTime,
-                grade.campus,
-                grade.examRoomval
-            )
-        }.toMutableList()
-        examRecyclerView.adapter = ExamArrangementAdapter(examList)
-        if (examRecyclerView.adapter == null) {
-            examRecyclerView.adapter = ExamArrangementAdapter(examList)
-        } else {
-            (examRecyclerView.adapter as ExamArrangementAdapter).apply {
-                updateData(examList)
-                notifyDataSetChanged()
-            }
-        }
-        hideLoading()
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateExamList(exams: List<Exam>) {
+        // Update adapter
+        adapter?.updateData(exams.toMutableList())
+        adapter?.notifyDataSetChanged()
     }
 
     private fun getCurrentTerm(): String {
@@ -161,8 +156,8 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
         }
     }
 
-    private fun showMessage(message: String) {
-        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).apply {
+    private fun showMessage(msg: String) {
+        Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).apply {
             val cardView = CardView(applicationContext).apply {
                 radius = 25f
                 cardElevation = 8f
@@ -171,7 +166,7 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
             }
 
             val textView = TextView(applicationContext).apply {
-                text = message
+                text = msg
                 textSize = 17f
                 setTextColor(getColor(R.color.color_text_primary))
                 gravity = Gravity.CENTER
@@ -186,6 +181,5 @@ class ExamArrangementActivity : FullScreenActivity<ActivityExamArrangementBindin
 
     override fun onDestroy() {
         super.onDestroy()
-        disposables.clear()
     }
 }
