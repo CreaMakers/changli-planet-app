@@ -30,6 +30,7 @@ data class SkinColors(
     val bgButtonColor: Color = DesignColors.BgButton,
     val textButtonColor: Color = DesignColors.TextButton,
     val textHeighLightColor: Color = DesignColors.TextHighlight,
+    val commonColor: Color = DesignColors.CommonBlue,
 ) {
     companion object {
         val Default = SkinColors() // 默认即设计规范

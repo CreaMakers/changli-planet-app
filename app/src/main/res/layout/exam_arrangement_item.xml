@@ -48,7 +48,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
-                android:src="@drawable/kaoshishijian"
+                android:src="@drawable/ic_kaoshishijian"
                 android:tint="@color/color_icon_primary"/>
 
             <TextView
@@ -73,7 +73,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
-                android:src="@drawable/didian"
+                android:src="@drawable/ic_location"
                 android:tint="@color/color_icon_primary"/>
 
             <TextView

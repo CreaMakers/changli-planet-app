@@ -4,15 +4,41 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,7 +96,10 @@ fun SkinSelectionScreen(viewModel: SkinSelectionViewModel = viewModel(), onBackC
                         },
                         navigationIcon = {
                             IconButton(onClick = onBackClick) {
-                                Icon(painterResource(id = R.drawable.back), contentDescription = "Back")
+                                Icon(
+                                    painterResource(id = R.drawable.ic_back),
+                                    contentDescription = "Back"
+                                )
                             }
                         },
                         colors =
@@ -84,9 +113,10 @@ fun SkinSelectionScreen(viewModel: SkinSelectionViewModel = viewModel(), onBackC
     ) { paddingValues ->
         Box(
                 modifier =
-                        Modifier.fillMaxSize()
-                                .padding(paddingValues)
-                                .background(AppTheme.colors.bgPrimaryColor)
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .background(AppTheme.colors.bgPrimaryColor)
         ) {
             if (uiState.error != null) {
                 // 简单的错误提示，点击重试逻辑可根据需要添加
@@ -118,7 +148,9 @@ fun SkinSelectionScreen(viewModel: SkinSelectionViewModel = viewModel(), onBackC
                 // span = { GridItemSpan(2) } 让它占满一行
                 item(span = { GridItemSpan(2) }) {
                     Box(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 20.dp),
                             contentAlignment = Alignment.Center
                     ) {
                         if (uiState.isLoading) {
@@ -151,7 +183,9 @@ fun SkinItemView(skin: Skin, currentUsingSkinName: String, onApplyClick: (Skin) 
     val isUsing = skin.name == currentUsingSkinName
 
     Card(
-            modifier = Modifier.fillMaxWidth().height(220.dp), // 固定高度以保证对齐
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(220.dp), // 固定高度以保证对齐
             shape = RoundedCornerShape(12.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             colors = CardDefaults.cardColors(containerColor = AppTheme.colors.bgSecondaryColor)
@@ -168,14 +202,17 @@ fun SkinItemView(skin: Skin, currentUsingSkinName: String, onApplyClick: (Skin) 
                         contentDescription = skin.name,
                         contentScale = ContentScale.Fit,
                         modifier =
-                                Modifier.fillMaxWidth()
-                                        .weight(1f) // 占据大部分空间
+                                Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f) // 占据大部分空间
                                         .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                                        .background(Color.LightGray) // 占位背景
+                                    .background(Color.LightGray) // 占位背景
                 )
 
                 // 底部信息区域
-                Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)) {
                     Text(
                             text = skin.name,
                             style = MaterialTheme.typography.titleMedium,
@@ -202,7 +239,10 @@ fun SkinItemView(skin: Skin, currentUsingSkinName: String, onApplyClick: (Skin) 
                     enabled = !isUsing, // 如果正在使用则不可点击
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).height(36.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp)
+                        .height(36.dp),
                     colors =
                             ButtonDefaults.buttonColors(
                                     containerColor = AppTheme.colors.bgButtonColor

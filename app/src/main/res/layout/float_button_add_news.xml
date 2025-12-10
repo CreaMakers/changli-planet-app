@@ -6,7 +6,7 @@
         android:id="@+id/iv_float_button"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:src="@drawable/add_news"
+        android:src="@drawable/ic_normal_add"
         android:scaleType="centerCrop"
         android:background="#00000000" />
 </FrameLayout>

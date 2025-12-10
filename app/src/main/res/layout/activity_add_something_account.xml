@@ -20,7 +20,7 @@
             android:id="@+id/backBtn"
             android:layout_width="@dimen/dp28"
             android:layout_height="@dimen/dp28"
-            android:src="@drawable/back"
+            android:src="@drawable/ic_back"
             android:layout_marginStart="@dimen/dp5"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

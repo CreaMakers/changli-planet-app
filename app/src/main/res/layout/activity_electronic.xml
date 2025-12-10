@@ -21,7 +21,7 @@
             android:id="@+id/back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/back"
+            android:src="@drawable/ic_back"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -85,7 +85,7 @@
                 app:shapeAppearance="@style/CircleStyle"
                 app:strokeColor="@color/color_outline_low_contrast"
                 app:strokeWidth="@dimen/dp2"
-                tools:src="@drawable/e_school"/>
+                tools:src="@drawable/ic_electricity_school" />
             <TextView
                 android:id="@+id/tv_school_zone"
                 android:gravity="end"
@@ -140,7 +140,7 @@
                 app:shapeAppearance="@style/CircleStyle"
                 app:strokeColor="@color/color_outline_low_contrast"
                 app:strokeWidth="@dimen/dp2"
-                tools:src="@drawable/e_dorm"/>
+                tools:src="@drawable/ic_electricity_dorm" />
             <TextView
                 android:id="@+id/tv_dorm"
                 android:gravity="end"
@@ -195,7 +195,7 @@
                 app:shapeAppearance="@style/CircleStyle"
                 app:strokeColor="@color/color_outline_low_contrast"
                 app:strokeWidth="@dimen/dp2"
-                tools:src="@drawable/e_door"/>
+                tools:src="@drawable/ic_electricity_door" />
             <TextView
                 android:id="@+id/tv_door"
                 android:gravity="end"

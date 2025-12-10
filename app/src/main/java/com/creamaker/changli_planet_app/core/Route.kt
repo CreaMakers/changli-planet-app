@@ -21,9 +21,6 @@ import com.creamaker.changli_planet_app.feature.common.ui.ScoreInquiryActivity
 import com.creamaker.changli_planet_app.feature.ledger.ui.AccountBookActivity
 import com.creamaker.changli_planet_app.feature.ledger.ui.AddSomethingAccountActivity
 import com.creamaker.changli_planet_app.feature.ledger.ui.FixSomethingAccountActivity
-import com.creamaker.changli_planet_app.feature.lostfound.ui.LoseActivity
-import com.creamaker.changli_planet_app.feature.lostfound.ui.PublishFoundThingActivity
-import com.creamaker.changli_planet_app.feature.lostfound.ui.PublishLoseThingActivity
 import com.creamaker.changli_planet_app.feature.mooc.ui.MoocActivity
 import com.creamaker.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.creamaker.changli_planet_app.freshNews.ui.PublishFreshNewsActivity
@@ -132,24 +129,8 @@ object Route {
         context.startActivity(intent)
     }
 
-
-    fun goLose(context: Context) {
-        val intent = Intent(context, LoseActivity::class.java)
-        context.startActivity(intent)
-    }
-
     fun goScoreInquiry(context: Context) {
         val intent = Intent(context, ScoreInquiryActivity::class.java)
-        context.startActivity(intent)
-    }
-
-    fun goPublishLoseThing(context: Context) {
-        val intent = Intent(context, PublishLoseThingActivity::class.java)
-        context.startActivity(intent)
-    }
-
-    fun goPublishFoundThing(context: Context) {
-        val intent = Intent(context, PublishFoundThingActivity::class.java)
         context.startActivity(intent)
     }
 

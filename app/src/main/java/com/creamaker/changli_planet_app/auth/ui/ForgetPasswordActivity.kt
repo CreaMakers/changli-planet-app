@@ -43,7 +43,7 @@ class ForgetPasswordActivity : FullScreenActivity<ActivityForgetPasswordBinding>
                 subscribe{state->
                     change.isEnabled=state.isEnable
                     if (state.isEnable) {
-                        change.setBackgroundResource(R.drawable.enable_button)
+                        change.setBackgroundResource(R.drawable.bg_enable_button)
                     } else {
                         change.setBackgroundResource(R.drawable.disable_button)
                     }
@@ -62,7 +62,7 @@ class ForgetPasswordActivity : FullScreenActivity<ActivityForgetPasswordBinding>
                     }
 
                     binding.apply {
-                        lengthIcon.setImageResource(if(state.isLengthValid) R.drawable.dui else R.drawable.cuo)
+                        lengthIcon.setImageResource(if (state.isLengthValid) R.drawable.ic_confirm else R.drawable.ic_deny)
                     }
                 }
         )

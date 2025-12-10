@@ -67,4 +67,6 @@ object DesignColors {
     val BaseBlack = Color(0xFF000000)
     val BaseGreen = Color(0xFF00C853)
     val BaseYellow = Color(0xFFFFD000)
+
+    val CommonBlue = Color(0xFF0997F8)
 }

@@ -65,7 +65,7 @@ fun AboutScreen(activity: Activity? = null) {
                 navigationIcon = {
                     IconButton(onClick = { activity?.finish() }) {
                         Icon(
-                            painterResource(id = R.drawable.back),
+                            painterResource(id = R.drawable.ic_back),
                             contentDescription = "返回",
                             tint = AppTheme.colors.titleTopColor
                         )
@@ -78,7 +78,8 @@ fun AboutScreen(activity: Activity? = null) {
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
                 .background(AppTheme.colors.bgPrimaryColor)
                 .padding(horizontal = 16.dp)

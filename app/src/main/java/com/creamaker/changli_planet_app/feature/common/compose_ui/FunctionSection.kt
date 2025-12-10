@@ -167,7 +167,7 @@ fun ExpandableFolderSystemPreview() {
             FunctionItemData(
                 id = "account",
                 title = "记账本",
-                iconRes = R.drawable.account_book,
+                iconRes = R.drawable.ic_account_book,
                 tintColor = FunctionColors.Account
             ) {
                 Route.goAccountBook(context)

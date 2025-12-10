@@ -42,7 +42,7 @@
                 app:shapeAppearanceOverlay="@style/CircleStyle"
                 app:strokeColor="@color/color_outline_low_contrast"
                 app:strokeWidth="@dimen/dp3"
-                tools:src="@drawable/fulilian" />
+                tools:src="@drawable/ic_fulilian" />
 
             <ImageView
                 android:id="@+id/iv_edit"

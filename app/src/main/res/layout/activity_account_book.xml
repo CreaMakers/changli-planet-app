@@ -23,7 +23,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/account_book_background"
+            android:background="@drawable/bg_account_book"
             android:paddingHorizontal="@dimen/dp15"
             android:paddingVertical="@dimen/dp20">
 
@@ -32,7 +32,7 @@
                 android:layout_width="@dimen/dp70"
                 android:layout_height="@dimen/dp70"
                 android:layout_marginEnd="@dimen/dp10"
-                tools:src="@drawable/fulilian"
+                tools:src="@drawable/ic_fulilian"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearance="@style/CircleStyle" />

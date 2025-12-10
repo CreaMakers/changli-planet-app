@@ -7,12 +7,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/fulilian"/>
+        android:src="@drawable/ic_fulilian" />
     <ImageButton
         android:id="@+id/btnDelete"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@drawable/delete"
+        android:src="@drawable/ic_pic_delete"
         android:scaleType="centerInside"
         android:alpha="0.7"
         android:layout_gravity="top|end"

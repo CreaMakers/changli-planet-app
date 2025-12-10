@@ -1,67 +1,35 @@
 package com.creamaker.changli_planet_app.freshNews.ui
 
 import android.content.Intent
-import android.graphics.Outline
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
-import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.creamaker.changli_planet_app.base.BaseFragment
-import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
-import com.creamaker.changli_planet_app.core.PlanetApplication
-import com.creamaker.changli_planet_app.core.mvi.observeState
-import com.creamaker.changli_planet_app.core.network.ApiResponse
-import com.creamaker.changli_planet_app.databinding.FragmentNewsBinding
+import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.freshNews.contract.FreshNewsContract
-import com.creamaker.changli_planet_app.freshNews.ui.adapter.FreshNewsAdapter
+import com.creamaker.changli_planet_app.freshNews.ui.compose.FreshNewsScreen
 import com.creamaker.changli_planet_app.freshNews.viewModel.FreshNewsViewModel
-import com.creamaker.changli_planet_app.utils.GlideUtils
-import com.creamaker.changli_planet_app.utils.ItemDecorationWrapper
 import com.creamaker.changli_planet_app.utils.PlanetConst
 import com.creamaker.changli_planet_app.widget.dialog.ImageSliderDialog
-import com.creamaker.changli_planet_app.widget.dialog.ShowImageDialog
-import com.creamaker.changli_planet_app.widget.view.CustomToast
-import com.google.android.material.tabs.TabLayout
-import com.scwang.smart.refresh.layout.SmartRefreshLayout
-import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
-import androidx.core.view.isVisible
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItemResult
 
-class NewsFragment() : BaseFragment<FragmentNewsBinding>() {
+class NewsFragment : Fragment() {
 
     companion object {
         @JvmStatic
         fun newInstance() = NewsFragment()
-        // 新鲜事每个item底部margin dp
-        private const val NEWS_ITEM_BOTTOM_MARGIN = 8f
+        private const val TAG = "NewsFragment"
     }
 
-    private val refreshLayout: SmartRefreshLayout by lazy { binding.refreshLayout }
-    private val recyclerView: RecyclerView by lazy { binding.newsRecyclerView }
-    private val avatar by lazy { binding.newsAvatar }
-    private val to: TabLayout by lazy { binding.to }
-    private val newsSearch: LinearLayout by lazy { binding.newsSearch }
     private val viewModel: FreshNewsViewModel by viewModels()
-    private lateinit var adapter: FreshNewsAdapter
-    private var page: Int = 1
-    private val pageSize: Int = 10
-    private var isLoading = false
-    private var hasMoreData = true
 
-    // 前往addActivity后的返回调用
     private val startForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             Log.d(TAG, " 新鲜事收到返回结果:${result.resultCode}")
@@ -73,7 +41,12 @@ class NewsFragment() : BaseFragment<FragmentNewsBinding>() {
                         val newsId = it.getIntExtra("freshNewsId", -1)
                         val newCommentCount = it.getIntExtra("newLevel1CommentsCount", -1)
                         if (newsId != -1 && newCommentCount != -1) {
-                            adapter.updateCommentCount(newsId, newCommentCount)
+                            viewModel.processIntent(
+                                FreshNewsContract.Intent.UpdateLocalCommentCount(
+                                    newsId,
+                                    newCommentCount
+                                )
+                            )
                         }
                     }
                 }
@@ -83,261 +56,85 @@ class NewsFragment() : BaseFragment<FragmentNewsBinding>() {
                         val newAccount = it.getStringExtra("account")
                         val newAvatarUrl = it.getStringExtra("avatarUrl")
                         val userId = it.getIntExtra("userId", -1)
-                        if (userId != -1 && newAccount != null && newAvatarUrl != null
-                            && !TextUtils.isEmpty(newAccount) && !TextUtils.isEmpty(newAvatarUrl)
-                        ) {
-                            adapter.updateDataByUserId(userId, newAccount, newAvatarUrl)
+                        if (userId != -1 && newAccount != null && newAvatarUrl != null) {
+                            viewModel.processIntent(
+                                FreshNewsContract.Intent.UpdateLocalUserInfo(
+                                    userId,
+                                    newAccount,
+                                    newAvatarUrl
+                                )
+                            )
                         }
                     }
                 }
             }
         }
-
-    override fun createViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentNewsBinding {
-        return FragmentNewsBinding.inflate(inflater, container, false)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         EventBus.getDefault().register(this)
-        return super.onCreateView(inflater, container, savedInstanceState)
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                AppSkinTheme {
+                    FreshNewsScreen(
+                        viewModel = viewModel,
+                        onPublishClick = {
+                            val intent =
+                                Intent(requireContext(), PublishFreshNewsActivity::class.java)
+                            startActivity(intent)
+                        },
+                        onImageClick = { imageList, position ->
+                            ImageSliderDialog(requireContext(), imageList, position).show()
+                        },
+                        onUserClick = { userId ->
+                            startForResult.launch(
+                                Intent(
+                                    requireContext(),
+                                    UserHomeActivity::class.java
+                                ).apply {
+                                    putExtra("userId", userId)
+                                })
+                        }
+                    )
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setBackToTopButton()
+        initData()
     }
+
+    private fun initData() {
+        // Initial load
+        viewModel.processIntent(FreshNewsContract.Intent.RefreshNewsByTime(1, 10))
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         EventBus.getDefault().unregister(this)
-    }
-
-    override fun initView() {
-//        binding.ivUnderConstruction.load(R.drawable.under_construction)
-        binding.bvAddFns.setOnClickListener {
-            Log.d(TAG, " 点击新鲜事悬浮窗")
-            val intent = Intent(requireContext(), PublishFreshNewsActivity::class.java)
-//            startForResult.launch(intent)
-            startActivity(intent)
-        }
-        newsSearch.setOnClickListener {
-            CustomToast.showMessage(requireContext(), "搜索功能正在开发中，敬请期待！")
-        }
-
-        adapter = FreshNewsAdapter(
-            PlanetApplication.Companion.appContext,
-            onImageClick = { imageList, position ->
-                Log.d(TAG, "点击图片列表：$imageList ,位置：$position")
-                ImageSliderDialog(requireContext(), imageList, position).show()
-            },
-            onUserClick = { userId ->
-                startForResult.launch(Intent(requireContext(), UserHomeActivity::class.java).apply {
-                    putExtra("userId", userId)
-                })
-            },
-            onMenuClick = { newsItem ->
-                // 菜单点击处理
-            },
-            onLikeClick = { Id ->
-                viewModel.processIntent(FreshNewsContract.Intent.LikeNews(Id))
-            },
-            onCommentClick = { newsItem ->
-                // 评论点击处理
-                viewModel.processIntent(FreshNewsContract.Intent.OpenComments(newsItem) )
-            },
-            onCollectClick = { Id ->
-                viewModel.processIntent(FreshNewsContract.Intent.FavoriteNews(Id))
-            }
-        )
-
-        val layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.apply {
-            this.layoutManager = layoutManager
-            this.adapter = this@NewsFragment.adapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    val visibleItemCount = layoutManager.childCount
-                    val totalItemCount = layoutManager.itemCount
-                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-
-                    if (!isLoading && hasMoreData) {
-                        if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
-                            && firstVisibleItemPosition >= 0
-                            && totalItemCount >= pageSize
-                        ) {
-                            loadMoreData()
-                        }
-                    }
-                }
-            })
-            // 设置item的底部margin
-            addItemDecoration(
-                ItemDecorationWrapper.Builder(requireContext())
-                    .setVerticalMarginDp(NEWS_ITEM_BOTTOM_MARGIN,0f )
-                    .build()
-            )
-        }
-
-        refreshLayout.setOnRefreshListener { refreshLayout ->
-            page = 1
-            hasMoreData = true
-            refreshNewsList(page, pageSize)
-            if (refreshLayout.isRefreshing) refreshLayout.finishRefresh(5000)
-        }
-
-        refreshLayout.setOnLoadMoreListener { refreshLayout ->
-            if (hasMoreData) {
-                loadMoreData()
-            } else {
-                refreshLayout.finishLoadMoreWithNoMoreData()
-            }
-        }
-        setBlurView()
-        refreshLayout.autoRefresh()
-    }
-
-    private fun setBlurView() {
-        // Rounded corners + casting elevation shadow with transparent background
-        binding.bvAddFns.setClipToOutline(true)
-        binding.bvAddFns.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View?, outline: Outline) {
-                binding.bvAddFns.background.getOutline(outline)
-                outline.alpha = 1f
-            }
-        }
-        val windowBackground = requireActivity().window.decorView.background
-        binding.bvAddFns.setupWith(binding.blurTarget)
-            .setFrameClearDrawable(windowBackground)
-            .setBlurRadius(6f)
-    }
-
-    override fun initData() {
-        // 数据初始化逻辑（如果有的话）
-    }
-
-    override fun initObserve() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.run {
-                    observeState({ value.freshNewsListResults }) {
-                        Log.d(TAG, "观察到新鲜事列表数据变化")
-                        when (val freshNewsListResults = it) {
-
-                            is ApiResponse.Success -> {
-                                Log.d(TAG, "新鲜事刷新成功")
-                                val freshNewsList = freshNewsListResults.data
-                                    .filterIsInstance<FreshNewsItemResult.Success>()
-                                    .map { it.freshNewsItem }
-                                val newsList = freshNewsList
-                                if (page == 1) {
-                                    adapter.updateData(newsList)
-                                    if (refreshLayout.isRefreshing) refreshLayout.finishRefresh()
-                                    hasMoreData = newsList.size >= pageSize
-//                                    recyclerView.smoothScrollToPosition(0)
-                                } else {
-                                    adapter.updateData(newsList)
-                                    when(freshNewsListResults.data.last()){
-                                        is FreshNewsItemResult.NoMore -> {
-                                            hasMoreData = false
-                                            refreshLayout.finishLoadMoreWithNoMoreData()
-                                        }
-                                        else -> {
-                                            hasMoreData = newsList.size >= pageSize
-                                            refreshLayout.finishLoadMore()
-                                        }
-                                    }
-                                }
-                                isLoading = false
-                            }
-
-                            is ApiResponse.Error -> {
-                                if (refreshLayout.isRefreshing) refreshLayout.finishRefresh(false)
-                                refreshLayout.finishLoadMore(false)
-                                isLoading = false
-                            }
-
-                            is ApiResponse.Loading -> {
-                                isLoading = true
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        GlideUtils.load(this, avatar, UserInfoManager.userAvatar)
-    }
-
-    fun showImageDialog(imageUrl: String) {
-        ShowImageDialog(requireContext(), imageUrl).show()
-    }
-
-    private fun refreshNewsList(page: Int, pageSize: Int) {
-        viewModel.processIntent(FreshNewsContract.Intent.RefreshNewsByTime(page, pageSize))
-    }
-
-    private fun loadMoreData() {
-        if (isLoading || !hasMoreData) return
-        isLoading = true
-        page++
-        refreshNewsList(page, pageSize)
-    }
-    private fun setBackToTopButton() {
-        binding.appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-            val searchHeight = binding.appBarLayout.getChildAt(0).height
-            // 当搜索栏完全滑出屏幕时显示按钮(滚动超过搜索栏高度)
-            if (Math.abs(verticalOffset) >= searchHeight) {
-                showBackToTopButton()
-            } else {
-                hideBackToTopButton()
-            }
-        }
-        // 点击按钮回到顶部
-        binding.ivBackToTop.setOnClickListener {
-            scrollToTop()
-        }
-    }
-    private fun showBackToTopButton() {
-        if (binding.ivBackToTop.visibility != View.VISIBLE) {
-            binding.ivBackToTop.visibility = View.VISIBLE
-            binding.ivBackToTop.animate().alpha(1.0f).setDuration(300).start()
-        }
-    }
-    private fun hideBackToTopButton() {
-        if (binding.ivBackToTop.isVisible) {
-            binding.ivBackToTop.animate().alpha(0.0f).setDuration(300).withEndAction {
-                binding.ivBackToTop.visibility = View.GONE
-            }.start()
-        }
-    }
-    private fun scrollToTop() {
-        binding.appBarLayout.setExpanded(true, true)
-        recyclerView.smoothScrollToPosition(0)
     }
 
     @Subscribe
     fun openComments(event: FreshNewsContract.Event) {
         when(event){
             is FreshNewsContract.Event.openComments ->
-                startForResult.launch(Intent(requireContext(),CommentsActivity::class.java))
+                startForResult.launch(Intent(requireContext(), CommentsActivity::class.java))
             else -> {}
         }
-
     }
+
     @Subscribe
     fun reFreshNews(event: FreshNewsContract.Event) {
         when(event){
             is FreshNewsContract.Event.RefreshNewsList ->
-                refreshLayout.autoRefresh()
+                viewModel.processIntent(FreshNewsContract.Intent.RefreshNewsByTime(1, 10))
             else -> {}
         }
-
     }
 }

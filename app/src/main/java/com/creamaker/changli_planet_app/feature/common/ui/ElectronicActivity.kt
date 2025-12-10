@@ -15,7 +15,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-
 import com.creamaker.changli_planet_app.ElectronicAppWidget
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
@@ -29,7 +28,6 @@ import com.creamaker.changli_planet_app.widget.dialog.WheelBottomDialog
 import com.google.android.material.imageview.ShapeableImageView
 import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import kotlin.jvm.java
 
 
 /**
@@ -96,9 +94,9 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             WindowInsetsCompat.CONSUMED
         }
         inputFilter(door_number)
-        binding.sivRoomNumber.load(R.drawable.e_door)
-        binding.sivSchoolRegion.load(R.drawable.e_school)
-        binding.sivDormBuilding.load(R.drawable.e_dorm)
+        binding.sivRoomNumber.load(R.drawable.ic_electricity_door)
+        binding.sivSchoolRegion.load(R.drawable.ic_electricity_school)
+        binding.sivDormBuilding.load(R.drawable.ic_electricity_dorm)
     }
 
     private fun initListener() {
@@ -156,24 +154,24 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                     val electronicValue = matchResult?.value?.toFloatOrNull()
                     when{
                         electronicValue == null ->{
-                            ele_image.load(R.drawable.e_default)
+                            ele_image.load(R.drawable.ic_electricity_default)
                             ele_num.text = getString(R.string.ele_query_false)
                             ele_state.text =getString(R.string.ele_state_unknown)
                         }
                         electronicValue in 0.0f..20f -> {
-                            ele_image.load(R.drawable.e_none)
+                            ele_image.load(R.drawable.ic_electricity_none)
                             ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
                             ele_state.text = getString(R.string.ele_state_low)
                             ele_state.setTextColor(getColor(R.color.color_base_red))
                         }
                         electronicValue in 20.1f..100f ->{
-                            ele_image.load(R.drawable.e_low)
+                            ele_image.load(R.drawable.ic_electricity_low)
                             ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
                             ele_state.text = getString(R.string.ele_state_normal)
                             ele_state.setTextColor(getColor(R.color.color_base_yellow))
                         }
                         electronicValue > 100f ->{
-                            ele_image.load(R.drawable.e_high)
+                            ele_image.load(R.drawable.ic_electricity_high)
                             ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
                             ele_state.text = getString(R.string.ele_state_high)
                             ele_state.setTextColor(getColor(R.color.color_base_green))
@@ -235,7 +233,7 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         electronicStore.dispatch(ElectronicAction.selectBuild(dor.text.toString()))
         if (school.text == "选择校区" || dor.text == "选择宿舍楼" || door_number.text.isEmpty()) {
             // 如果是初始状态，则显示默认UI
-            ele_image.load(R.drawable.e_default)
+            ele_image.load(R.drawable.ic_electricity_default)
             ele_num.text = getString(R.string.ele_queryDefault)
             ele_state.text = getString(R.string.ele_state_unknown)
             mmkv.encode("isFirstLaunch", false)

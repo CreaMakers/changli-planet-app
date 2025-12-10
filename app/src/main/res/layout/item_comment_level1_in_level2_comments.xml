@@ -15,7 +15,7 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/fulilian" />
+        tools:src="@drawable/ic_fulilian" />
 
     <TextView
         android:id="@+id/tv_comment_item_username"

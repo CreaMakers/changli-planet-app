@@ -54,7 +54,7 @@
         android:layout_height="210dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:src="@drawable/binding_password"
+        android:src="@drawable/ic_binding_password"
         app:shapeAppearance="@style/CircleStyle"
         app:strokeColor="@color/color_outline_low_contrast"
         app:strokeWidth="3dp" />
@@ -102,7 +102,7 @@
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:paddingTop="3dp"
-                        android:src="@drawable/gerenxinxi"
+                        android:src="@drawable/ic_gerenxinxi"
                         android:tint="@color/color_icon_secondary"/>
 
                     <EditText
@@ -181,7 +181,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:background="@drawable/gradient_button_background"
+                android:background="@drawable/bg_gradient_button"
                 android:paddingVertical="13dp"
                 android:text="绑定"
                 android:textColor="@color/color_text_button"

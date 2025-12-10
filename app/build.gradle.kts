@@ -1,5 +1,4 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
-import org.gradle.kotlin.dsl.debugImplementation
 
 plugins {
     alias(libs.plugins.android.application)
@@ -145,15 +144,8 @@ dependencies {
     //滚轮
     implementation("com.github.gzu-liyujiang.AndroidPicker:Common:4.0.1")
     implementation("com.github.gzu-liyujiang.AndroidPicker:WheelPicker:4.0.1")
-    //SwipeRefreshLayout
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     //FlexboxLayout
     implementation("com.google.android.flexbox:flexbox:3.0.0")
-    //SmartRefreshLayout
-    implementation("io.github.scwang90:refresh-layout-kernel:3.0.0-alpha")
-    implementation("io.github.scwang90:refresh-header-radar:3.0.0-alpha")
-    implementation("io.github.scwang90:refresh-header-material:3.0.0-alpha")
-    implementation("io.github.scwang90:refresh-footer-classics:3.0.0-alpha")
     //lottie
     implementation("com.airbnb.android:lottie:6.0.0")
     //bugly
@@ -194,7 +186,6 @@ dependencies {
     //csustDataGet
     implementation("com.github.CreaMakers:CSUSTDataGet:ab9cfbaf7d")
     implementation(libs.androidx.constraintlayout.compose)
-    implementation(libs.androidx.material.icons.extended)
 }
 kapt {
     arguments {

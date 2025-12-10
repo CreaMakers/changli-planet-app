@@ -75,13 +75,13 @@ class FixSomethingAccountActivity : FullScreenActivity<ActivityFixSomethingAccco
                 buyTime.text = it.startTime
 
                 val type = when (it.picture) {
-                    R.drawable.iphone -> "手机"
+                    R.drawable.ic_iphone -> "手机"
                     R.drawable.ic_tablet_pc->"平板电脑"
                     R.drawable.laptop -> "笔记本电脑"
-                    R.drawable.earphone -> "耳机"
-                    R.drawable.bicycle -> "自行车"
-                    R.drawable.game -> "游戏"
-                    R.drawable.game_computer -> "游戏设备"
+                    R.drawable.ic_earphone -> "耳机"
+                    R.drawable.ic_bicycle -> "自行车"
+                    R.drawable.ic_game -> "游戏"
+                    R.drawable.ic_game_computer -> "游戏设备"
                     R.drawable.smart_watch -> "电子手表"
                     R.drawable.watch -> "手表"
                     else -> "其他"

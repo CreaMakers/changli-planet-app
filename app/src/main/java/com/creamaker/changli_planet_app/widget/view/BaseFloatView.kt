@@ -7,7 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
-import com.scwang.smart.refresh.layout.util.SmartUtil.dp2px
+import com.bytedance.tools.codelocator.utils.UIUtils.dp2px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +20,7 @@ abstract class BaseFloatView : FrameLayout, View.OnTouchListener {
 
     private var mViewWidth = 0
     private var mViewHeight = 0
-    private var mToolBarHeight = dp2px(56F) // toolbar默认高度
+    private var mToolBarHeight = dp2px(56) // toolbar默认高度
     private var mDragDistance = 0.5 // 默认吸边需要的拖拽距离为屏幕的一半
 
     // 吸边所需的高度和宽度阈值

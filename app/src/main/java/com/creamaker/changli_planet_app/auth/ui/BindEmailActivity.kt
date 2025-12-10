@@ -49,7 +49,7 @@ class BindEmailActivity : FullScreenActivity<ActivityBindEmailBinding>() {
                     bindButton.setBackgroundResource(R.drawable.disable_button)
                 }else{
                     bindButton.isEnabled=state.canBind
-                    bindButton.setBackgroundResource(R.drawable.enable_button)
+                    bindButton.setBackgroundResource(R.drawable.bg_enable_button)
                 }
 
                 if(!state.isCountDown&&state.email.isNotEmpty()){

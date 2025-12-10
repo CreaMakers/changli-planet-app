@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="280dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
@@ -45,7 +43,7 @@
         android:id="@+id/yes"
         android:layout_width="match_parent"
         android:layout_height="44dp"
-        android:background="@drawable/enable_button"
+        android:background="@drawable/bg_enable_button"
         android:gravity="center"
         android:text="确定"
         android:textColor="@color/color_text_button"

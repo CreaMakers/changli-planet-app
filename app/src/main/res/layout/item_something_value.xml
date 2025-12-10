@@ -19,7 +19,7 @@
             android:id="@+id/picture"
             android:layout_width="@dimen/dp60"
             android:layout_height="@dimen/dp60"
-            android:src="@drawable/fulilian"
+            android:src="@drawable/ic_fulilian"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

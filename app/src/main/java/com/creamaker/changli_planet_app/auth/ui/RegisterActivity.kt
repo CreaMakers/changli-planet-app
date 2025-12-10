@@ -43,7 +43,7 @@ class RegisterActivity : FullScreenActivity<ActivityRegisterBinding>() {
                         register.setBackgroundResource(R.drawable.disable_button)
                     } else {
                         register.isEnabled = state.isEnable
-                        register.setBackgroundResource(R.drawable.enable_button)
+                        register.setBackgroundResource(R.drawable.bg_enable_button)
                     }
                 }
 

@@ -13,25 +13,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import coil.compose.AsyncImage
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
@@ -51,6 +47,7 @@ class FeatureFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AppSkinTheme {
                     FeatureScreen()
@@ -183,7 +180,7 @@ fun FeatureScreen(
             FunctionItemData(
                 id = "account",
                 title = "记账本",
-                iconRes = R.drawable.account_book,
+                iconRes = R.drawable.ic_account_book,
                 tintColor = FunctionColors.Account
             ) {
                 Route.goAccountBook(context)
@@ -251,16 +248,6 @@ private fun FeatureHeaderSection(avatarUrl: String) {
             painter = painterResource(id = R.drawable.planet_logo),
             contentDescription = "背景图片",
             modifier = Modifier.fillMaxSize(),
-        )
-
-        AsyncImage(
-            model = avatarUrl,
-            contentDescription = "用户头像",
-            modifier = Modifier
-                .padding(start = 16.dp, top = 48.dp)
-                .size(42.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
         )
     }
 }

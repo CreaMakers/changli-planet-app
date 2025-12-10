@@ -16,7 +16,51 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.core.app.ActivityCompat
 import androidx.core.content.pm.PackageInfoCompat
 import com.creamaker.changli_planet_app.R
@@ -35,38 +79,6 @@ import com.creamaker.changli_planet_app.widget.dialog.ExpiredDialog
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
-import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 
 class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     private val Login: TextView by lazy { binding.login }
@@ -234,7 +246,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     private fun updateButtonState(isEnable: Boolean) {
         Login.isEnabled = isEnable
         if (isEnable) {
-            Login.setBackgroundResource(R.drawable.enable_button)
+            Login.setBackgroundResource(R.drawable.bg_enable_button)
         } else {
             Login.setBackgroundResource(R.drawable.disable_button)
         }
@@ -246,7 +258,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
             ivOx.setImageResource(R.drawable.dialog_login)
         } else {
             ivOx.visibility = View.VISIBLE
-            ivOx.setImageResource(R.drawable.login_ox_24)
+            ivOx.setImageResource(R.drawable.ic_login_ox_24)
         }
     }
 
@@ -254,10 +266,10 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         if (isVisible) {
 
             password.transformationMethod = android.text.method.HideReturnsTransformationMethod.getInstance()
-            iVEye.setImageResource(R.drawable.login_visibility_eyes)
+            iVEye.setImageResource(R.drawable.ic_login_visibility_eyes)
         } else {
             password.transformationMethod = android.text.method.PasswordTransformationMethod.getInstance()
-            iVEye.setImageResource(R.drawable.line_invisible2)
+            iVEye.setImageResource(R.drawable.ic_line_invisible2)
         }
         password.setSelection(password.text?.length ?: 0)
     }
@@ -409,7 +421,7 @@ fun LoginScreen() {
 
                 // 右上角提示图标（incomplete_feature_hint）
                 Image(
-                    painter = painterResource(id = R.drawable.e_default),
+                    painter = painterResource(id = R.drawable.ic_electricity_default),
                     contentDescription = "Feature hint",
                     colorFilter = ColorFilter.tint(ColorIconPrimary),
                     modifier = Modifier
@@ -467,7 +479,7 @@ fun LoginScreen() {
                     // 左侧“眼睛”图标
                     Image(
                         painter = painterResource(
-                            id = if (passwordVisible) R.drawable.login_visibility_eyes else R.drawable.line_invisible2
+                            id = if (passwordVisible) R.drawable.ic_login_visibility_eyes else R.drawable.ic_line_invisible2
                         ),
                         contentDescription = if (passwordVisible) "Hide password" else "Show password",
                         colorFilter = ColorFilter.tint(ColorIconPrimary),
