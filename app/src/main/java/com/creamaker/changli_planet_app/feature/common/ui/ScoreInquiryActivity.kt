@@ -1,12 +1,12 @@
 package com.creamaker.changli_planet_app.feature.common.ui
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -17,38 +17,42 @@ import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
-import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityScoreInquiryBinding
+import com.creamaker.changli_planet_app.feature.common.contract.ScoreInquiryContract
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.Grade
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCache
-import com.creamaker.changli_planet_app.feature.common.redux.action.ScoreInquiryAction
-import com.creamaker.changli_planet_app.feature.common.redux.store.ScoreInquiryStore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.ExamScoreAdapter
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.CourseScore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.SemesterGroup
+import com.creamaker.changli_planet_app.feature.common.viewModel.ScoreInquiryViewModel
 import com.creamaker.changli_planet_app.widget.dialog.ErrorStuPasswordResponseDialog
 import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
 import com.creamaker.changli_planet_app.widget.dialog.ScoreDetailDialog
-import com.creamaker.changli_planet_app.widget.view.CustomToast
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * 成绩查询页面
  */
 class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
+
+    private val viewModel: ScoreInquiryViewModel by viewModels()
+
     private val recyclerView: RecyclerView by lazy { binding.ScoreRecyclerView }
     private val refresh: ImageView by lazy { binding.refresh }
     private val examScoreAdapter by lazy {
         ExamScoreAdapter(
-            store,
             this@ScoreInquiryActivity,
-            // 将 activity 的方法引用传给 adapter
             onDetailClick = { pscjUrl, courseName ->
-                fetchScoreDetail(pscjUrl, courseName)
+                viewModel.processIntent(
+                    ScoreInquiryContract.Intent.FetchScoreDetail(
+                        pscjUrl,
+                        courseName
+                    )
+                )
             }
         )
     }
-    private val store = ScoreInquiryStore()
     private val back by lazy { binding.bindingBack }
 
 
@@ -71,8 +75,10 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
         }
         setupRecyclerView()
         initListener()
-        loadCachedData()
-        initObserveState()
+        initObserve()
+
+        // Load data on startup
+        viewModel.processIntent(ScoreInquiryContract.Intent.InitialLoad)
     }
 
     private fun showLoading() {
@@ -87,20 +93,65 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
 
     private fun initListener() {
         back.setOnClickListener { finish() }
-        refresh.setOnClickListener { refreshData(true) }
+        refresh.setOnClickListener {
+            viewModel.processIntent(ScoreInquiryContract.Intent.RefreshData(force = true))
+        }
     }
 
-    private fun initObserveState() {
-        disposables.add(
-            store.state()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { state ->
+    private fun initObserve() {
+        lifecycleScope.launch {
+            viewModel.state.collectLatest { state ->
+                if (state.isLoading) {
+                    showLoading()
+                } else {
                     hideLoading()
                     showInfo(state.grades)
                 }
-        )
-    }
+            }
+        }
 
+        lifecycleScope.launch {
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is ScoreInquiryContract.Effect.ShowToast -> showMessage(effect.message)
+                    is ScoreInquiryContract.Effect.ShowAuthErrorDialog -> {
+                        try {
+                            ErrorStuPasswordResponseDialog(
+                                this@ScoreInquiryActivity,
+                                effect.msg, // "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ"
+                                effect.title, // "查询失败"
+                                {
+                                    viewModel.processIntent(
+                                        ScoreInquiryContract.Intent.RefreshData(
+                                            force = true
+                                        )
+                                    )
+                                }
+                            ).show()
+                        } catch (e: Exception) { e.printStackTrace() }
+                    }
+
+                    is ScoreInquiryContract.Effect.ShowNetErrorDialog -> {
+                        try {
+                            NormalResponseDialog(
+                                this@ScoreInquiryActivity,
+                                effect.msg,
+                                effect.title
+                            ).show()
+                        } catch (e: Exception) { e.printStackTrace() }
+                    }
+
+                    is ScoreInquiryContract.Effect.ShowDetailDialog -> {
+                        ScoreDetailDialog.showDialog(
+                            this@ScoreInquiryActivity,
+                            effect.detail,
+                            effect.title
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     private fun setupRecyclerView() {
         recyclerView.apply {
@@ -109,63 +160,6 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
             itemAnimator = DefaultItemAnimator().apply {
                 changeDuration = 200
             }
-        }
-    }
-
-    private fun loadCachedData() {
-        val cachedGrades = ScoreCache.getGrades()
-        if (cachedGrades != null) {
-            showInfo(cachedGrades)
-        } else {
-            refreshData(forceUpdate = true)
-        }
-    }
-
-    // 原有的刷新方法
-    private fun refreshData(forceUpdate: Boolean = false) {
-        if (studentId.isEmpty() || studentPassword.isEmpty()) {
-            showMessage("请先绑定学号和密码")
-            Route.goBindingUser(this@ScoreInquiryActivity)
-            finish()
-            return
-        }
-
-        if (forceUpdate || ScoreCache.getGrades() == null) {
-            showLoading()
-
-            // 核心修改：Dispatch Action 时传入 lifecycleScope 和 UI 回调
-            store.dispatch(
-                ScoreInquiryAction.UpdateGrade(
-                    scope = lifecycleScope, // 传入生命周期作用域
-                    studentId = studentId,
-                    password = studentPassword,
-                    onSuccess = {
-                        // 在 Store 的 Main 线程块中被调用
-                        CustomToast.showMessage(applicationContext, "刷新成功")
-                    },
-                    onAuthError = {
-                        hideLoading()
-                        try {
-                            ErrorStuPasswordResponseDialog(
-                                this@ScoreInquiryActivity,
-                                "学号或密码错误ʕ⸝⸝⸝˙Ⱉ˙ʔ",
-                                "查询失败",
-                                { refreshData(true) }
-                            ).show()
-                        } catch (e: Exception) { e.printStackTrace() }
-                    },
-                    onNetError = {
-                        hideLoading()
-                        try {
-                            NormalResponseDialog(
-                                this@ScoreInquiryActivity,
-                                "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
-                                "查询失败"
-                            ).show()
-                        } catch (e: Exception) { e.printStackTrace() }
-                    }
-                )
-            )
         }
     }
 
@@ -192,7 +186,7 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
             return
         }
         val processedGrades = preprocessGrades(rawData)
-        ScoreCache.saveGrades(processedGrades)
+        ScoreCache.saveGrades(processedGrades) // Ideally caching should be in VM or Repo, but leaving here to minimize diff
         val groupedData = processedGrades.groupBy { it.item }.toSortedMap(compareByDescending { it })
         val semesterGroups = groupedData.map { (semester, grades) ->
 
@@ -280,36 +274,8 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
             show()
         }
     }
-    // 给 Adapter 调用的方法（需要你确保 Adapter 调用此方法）
-    fun fetchScoreDetail(pscjUrl: String, courseName: String) {
-        store.dispatch(
-            ScoreInquiryAction.GetScoreDetail(
-                scope = lifecycleScope,
-                pscjUrl = pscjUrl,
-                courseName = courseName,
-                onShowDetail = { detailString ->
-                    // Store 处理完字符串后，Activity 负责显示 Dialog
-                    ScoreDetailDialog.showDialog(this@ScoreInquiryActivity, detailString, courseName)
-                },
-                onAuthError = {
-                    NormalResponseDialog(
-                        this@ScoreInquiryActivity,
-                        "获取教务系统cookie失败！请重新刷新~₍ᐢ..ᐢ₎♡",
-                        "查询失败"
-                    ).show()
-                },
-                onNetError = {
-                    NormalResponseDialog(
-                        this@ScoreInquiryActivity,
-                        "网络出现波动啦！请重新刷新~₍ᐢ..ᐢ₎♡",
-                        "查询失败"
-                    ).show()
-                }
-            )
-        )
-    }
+
     override fun onDestroy() {
         super.onDestroy()
-        disposables.clear()
     }
 }

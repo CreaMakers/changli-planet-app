@@ -6,13 +6,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.databinding.ScoreItemSemesterBinding
-import com.creamaker.changli_planet_app.feature.common.redux.store.ScoreInquiryStore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.CourseListItem
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.SemesterGroup
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.vh.SemesterViewHolder
 
 class ExamScoreAdapter(
-    private val store: ScoreInquiryStore,
     private val context: Context,
     private val onDetailClick: (String, String) -> Unit
 ) :
@@ -72,7 +70,6 @@ class ExamScoreAdapter(
 
         return SemesterViewHolder(
             binding = binding,
-            store = store,
             context = context,
             onToggle = { position -> toggleGroup(position) },
             onDetailClick = onDetailClick

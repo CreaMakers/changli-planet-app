@@ -5,13 +5,11 @@ import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.databinding.ScoreItemCourseBinding
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCache
-import com.creamaker.changli_planet_app.feature.common.redux.store.ScoreInquiryStore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.CourseScore
 import com.creamaker.changli_planet_app.widget.dialog.ScoreDetailDialog
 
 class CourseViewHolder(
     private val binding: ScoreItemCourseBinding,
-    private val store: ScoreInquiryStore,
     private val context: Context,
     private val onDetailClick: (String, String) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
