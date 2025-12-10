@@ -1,87 +1,74 @@
-package com.creamaker.changli_planet_app.feature.common.ui
+package com.creamaker.changli_planet_app.feature.common.compose_ui
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
-import coil.compose.AsyncImage
+import androidx.compose.ui.unit.sp
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.core.Route
-import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.core.theme.AppTheme
-import com.creamaker.changli_planet_app.feature.common.compose_ui.FunctionItemData
-import com.creamaker.changli_planet_app.feature.common.compose_ui.FunctionSection
+import com.creamaker.changli_planet_app.feature.common.ui.FunctionColors
 
-class FeatureFragment : Fragment() {
-    companion object {
-        @JvmStatic
-        fun newInstance() = FeatureFragment()
-    }
+/**
+ * 主功能区 + 可展开文件夹
+ */
+@SuppressLint("ConfigurationScreenWidthHeight")
+@Composable
+fun FunctionSection(
+    modifier: Modifier = Modifier,
+    title: String,
+    items: List<FunctionItemData>,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        // 标题
+        Text(
+            text = title,
+            color = AppTheme.colors.primaryTextColor,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(start = 8.dp, bottom = 16.dp)
+        )
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                AppSkinTheme {
-                    FeatureScreen()
+        // 功能网格
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items.chunked(4).forEach { rowItems ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    rowItems.forEach { item ->
+                        FunctionItem(
+                            item = item,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    // 补齐占位，确保每一列宽度一致
+                    val remaining = 4 - rowItems.size
+                    if (remaining > 0) {
+                        Spacer(modifier = Modifier.weight(remaining.toFloat()))
+                    }
                 }
             }
         }
     }
 }
 
-object FunctionColors {
-    val Schedule = Color(0xFF5C6BC0)
-    val Grade = Color(0xFF26A69A)
-    val Map = Color(0xFF66BB6A)
-    val Homework = Color(0xFFFF7043)
-    val Electric = Color(0xFFFFCA28)
-    val Exam = Color(0xFFEF5350)
-    val Calendar = Color(0xFF42A5F5)
-    val CET = Color(0xFFAB47BC)
-    val LostFound = Color(0xFF8D6E63)
-    val Classroom = Color(0xFF78909C)
-    val Account = Color(0xFF26C6DA)
-    val Document = Color(0xFF9CCC65)
-    val Mandarin = Color(0xFFEC407A)
-}
-
+@Preview
 @Composable
-fun FeatureScreen(
-    modifier: Modifier = Modifier,
-) {
+fun ExpandableFolderSystemPreview() {
     val context = LocalContext.current
-
     val mainFunctionItems = remember {
         listOf(
             FunctionItemData(
@@ -147,10 +134,7 @@ fun FeatureScreen(
             ) {
                 Route.goCalendar(context)
             },
-        )
-    }
-    val otherFunctionItems = remember {
-        listOf(
+
             FunctionItemData(
                 id = "cet",
                 title = "四六级",
@@ -208,67 +192,8 @@ fun FeatureScreen(
             }
         )
     }
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(AppTheme.colors.bgPrimaryColor)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            FeatureHeaderSection(avatarUrl = "https://pic.imgdb.cn/item/671e5e17d29ded1a8c5e0dbe.jpg")
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                FunctionSection(
-                    title = "常用功能",
-                    items = mainFunctionItems,
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                FunctionSection(
-                    title = "其他",
-                    items = otherFunctionItems
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FeatureHeaderSection(avatarUrl: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(240.dp)
-            .statusBarsPadding()
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.planet_logo),
-            contentDescription = "背景图片",
-            modifier = Modifier.fillMaxSize(),
-        )
-
-        AsyncImage(
-            model = avatarUrl,
-            contentDescription = "用户头像",
-            modifier = Modifier
-                .padding(start = 16.dp, top = 48.dp)
-                .size(42.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun FeatureScreenPreview() {
-    MaterialTheme {
-        FeatureScreen()
-    }
+    FunctionSection(
+        title = "常用功能",
+        items = mainFunctionItems,
+    )
 }

@@ -10,9 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.skin.SkinManager
 import com.creamaker.changli_planet_app.skin.SkinSupportable
 import com.creamaker.changli_planet_app.skin.helper.SkinComposeHelper
@@ -20,99 +18,25 @@ import com.creamaker.changli_planet_app.skin.helper.SkinComposeHelper
 // 1. 定义你的皮肤颜色集合（根据你的业务需求添加字段）
 // 1. 定义颜色数据类
 data class SkinColors(
-    val primaryTextColor: Color,
-    val greyTextColor: Color,
-    val bgPrimaryColor: Color,
-    val bgSecondaryColor: Color,
-    val iconSecondaryColor: Color,
-    val dividerColor: Color,
-    val loadingColor: Color,
-    val titleTopColor: Color,
-    val bgTopBarColor: Color,
-    val bgButtonColor: Color,
-    val textButtonColor: Color,
-    val textHeighLightColor: Color
-    // ... 可以继续添加更多颜色
-)
-
-// 2. 正确的 CompositionLocal（不能放资源ID）
-val LocalSkinColors = staticCompositionLocalOf {
-    SkinColors(
-        primaryTextColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_text_primary
-            )
-        ),
-        greyTextColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_text_grey
-            )
-        ),
-        bgPrimaryColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_bg_primary
-            )
-        ),
-        bgSecondaryColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_bg_secondary
-            )
-        ),
-        iconSecondaryColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_icon_secondary
-            )
-        ),
-        dividerColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_divider
-            )
-        ),
-        loadingColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_loading
-            )
-        ),
-        titleTopColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_title_top
-            )
-        ),
-        bgTopBarColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_bg_top_bar
-            )
-        ),
-        bgButtonColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_bg_button
-            )
-        ),
-        textButtonColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_text_button
-            )
-        ),
-        textHeighLightColor = Color(
-            ContextCompat.getColor(
-                PlanetApplication.appContext,
-                R.color.color_text_highlight
-
-            )
-        )
-    )
+    val primaryTextColor: Color = DesignColors.TextPrimary,
+    val greyTextColor: Color = DesignColors.TextGrey,
+    val bgPrimaryColor: Color = DesignColors.BgPrimary,
+    val bgSecondaryColor: Color = DesignColors.BgSecondary,
+    val iconSecondaryColor: Color = DesignColors.IconSecondary,
+    val dividerColor: Color = DesignColors.Divider,
+    val loadingColor: Color = DesignColors.Loading,
+    val titleTopColor: Color = DesignColors.TitleTop,
+    val bgTopBarColor: Color = DesignColors.BgTopBar,
+    val bgButtonColor: Color = DesignColors.BgButton,
+    val textButtonColor: Color = DesignColors.TextButton,
+    val textHeighLightColor: Color = DesignColors.TextHighlight,
+) {
+    companion object {
+        val Default = SkinColors() // 默认即设计规范
+    }
 }
+// 2. 正确的 CompositionLocal（不能放资源ID）
+val LocalSkinColors = staticCompositionLocalOf { SkinColors.Default }
 
 @Composable
 fun AppSkinTheme(
