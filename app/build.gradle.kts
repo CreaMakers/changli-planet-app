@@ -183,7 +183,7 @@ dependencies {
     debugImplementation ("com.bytedance.tools.codelocator:codelocator-lancet-all:2.0.4")
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.4.0")
-    //网络库
+    //csustDataGet
     implementation(project(":csust_spider"))
     implementation(libs.androidx.constraintlayout.compose)
 }
