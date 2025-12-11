@@ -34,6 +34,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "changli-planet-app"
 include(":app")
-
-
+include(":csust_spider")
+project(":csust_spider").projectDir = File(rootDir, "CSUSTDataGet/csust_spider")
 include(":CP_Common")

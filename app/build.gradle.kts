@@ -184,7 +184,7 @@ dependencies {
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.4.0")
     //csustDataGet
-    implementation("com.github.CreaMakers:CSUSTDataGet:ab9cfbaf7d")
+    implementation(project(":csust_spider"))
     implementation(libs.androidx.constraintlayout.compose)
 }
 kapt {
