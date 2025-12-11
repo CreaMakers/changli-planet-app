@@ -37,3 +37,4 @@ include(":app")
 
 
 include(":CP_Common")
+include(":csust_spider")

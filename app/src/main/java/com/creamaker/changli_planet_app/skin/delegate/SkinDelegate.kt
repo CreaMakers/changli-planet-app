@@ -35,7 +35,7 @@ class SkinDelegate(
         }
     }
 
-    fun loadSkinAttributes(context: android.content.Context, attrs: AttributeSet?) {
+    fun loadSkinAttributes(context: Context, attrs: AttributeSet?) {
         skinAttrs.clear()
         provider.loadSkinAttributes(context, attrs)
     }
