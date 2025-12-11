@@ -34,6 +34,7 @@ import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.core.theme.AppTheme
 import com.creamaker.changli_planet_app.feature.common.compose_ui.FunctionItemData
 import com.creamaker.changli_planet_app.feature.common.compose_ui.FunctionSection
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 class FeatureFragment : Fragment() {
     companion object {
@@ -164,17 +165,7 @@ fun FeatureScreen(
                 tintColor = FunctionColors.LostFound
             ) {
                 // 显示对话框
-                // showNormalDialog("该功能暂时关闭")
-            },
-
-            FunctionItemData(
-                id = "classroom",
-                title = "空教室",
-                iconRes = R.drawable.ic_classroom,
-                tintColor = FunctionColors.Classroom
-            ) {
-                // 显示对话框
-                // showNormalDialog("该功能暂时关闭")
+                CustomToast.showMessage(context, "正在全力开发中")
             },
 
             FunctionItemData(
