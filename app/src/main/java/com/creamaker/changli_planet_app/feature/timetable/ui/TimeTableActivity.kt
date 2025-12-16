@@ -126,13 +126,13 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
             viewModel.loadCourses(currentTerm, forceRefresh = true)
         }
         binding.courseWeek.setOnClickListener {
-            showWheelDialog(weekList)
+            showWheelDialog(weekList,true)
         }
         binding.weeksExtendBtn.setOnClickListener {
-            showWheelDialog(weekList)
+            showWheelDialog(weekList,true)
         }
         binding.courseTerm.setOnClickListener {
-            showWheelDialog(termList)
+            showWheelDialog(termList,false)
         }
     }
 
@@ -647,18 +647,16 @@ class TimeTableActivity : FullScreenActivity<ActivityTimeTableBinding>() {
         }
     }
 
-    private fun showWheelDialog(items: List<String>) {
+    private fun showWheelDialog(items: List<String>,isWeek: Boolean) {
         val maxHeight = resources.displayMetrics.heightPixels / 2
         val dialog = TimetableWheelBottomDialog(
             this,
             studentId,
             studentPassword,
             viewModel,
-            maxHeight
-        ) {
-            val currentTerm = binding.courseTerm.text.toString()
-            viewModel.loadCourses(currentTerm, forceRefresh = true)
-        }
+            maxHeight,
+            isWeek
+        )
         dialog.setItem(items)
         dialog.show(supportFragmentManager, "TimetableWheel")
     }

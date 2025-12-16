@@ -17,7 +17,7 @@ class TimeTableSelectorAdapter(
     private val stuPassword: String,
     val list: List<String>,
     val vm: TimeTableViewModel,
-    val refresh:()->Unit
+    val isWeek: Boolean
 ) :
     RecyclerView.Adapter<TimeTableSelectorAdapter.TimeTableViewHodler>() {
     class TimeTableViewHodler(item: View) : RecyclerView.ViewHolder(item) {
@@ -35,7 +35,12 @@ class TimeTableSelectorAdapter(
 
         holder.selec.text = list[position]
         holder.selec.setOnClickListener {
-            vm.selectTerm(list[position])
+            if (isWeek){
+                vm.selectWeek(list[position])
+            }
+            else{
+                vm.selectTerm(list[position])
+            }
             EventBusHelper.post(SelectEvent(1))
         }
     }

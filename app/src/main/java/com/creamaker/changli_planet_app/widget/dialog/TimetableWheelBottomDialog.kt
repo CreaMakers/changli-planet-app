@@ -24,7 +24,7 @@ class TimetableWheelBottomDialog(
     val stuPassword: String,
     val vm: TimeTableViewModel,
     val maxHeight: Int,
-    val refresh:()->Unit
+    val isWeek: Boolean
 ) : BottomSheetDialogFragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: TimeTableSelectorAdapter
@@ -44,7 +44,7 @@ class TimetableWheelBottomDialog(
 
         val maxHeightLinearLayout = view.findViewById<MaxHeightLinearLayout>(R.id.maxHeightLayout)
         maxHeightLinearLayout.setMaxHeight(maxHeight)
-        adapter = TimeTableSelectorAdapter(mcontext, stuNum, stuPassword, item, vm,refresh)
+        adapter = TimeTableSelectorAdapter(mcontext, stuNum, stuPassword, item, vm,isWeek)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         recyclerView.scrollToPosition(selectedIndex)
