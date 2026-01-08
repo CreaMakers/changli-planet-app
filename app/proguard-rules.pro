@@ -34,3 +34,11 @@
 -keep class com.creamaker.changli_planet_app.**.bean.** { *; }
 -keep class com.creamaker.changli_planet_app.**.model.** { *; }
 -keep class com.creamaker.changli_planet_app.**.dto.** { *; }
+
+# --- Baseline Profile Installer ---
+-keep class androidx.profileinstaller.** { *; }
+-keep class com.google.tools.profiler.** { *; }
+-dontwarn androidx.profileinstaller.**
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep public class * implements java.lang.reflect.Type

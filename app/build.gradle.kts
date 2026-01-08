@@ -1,4 +1,6 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -6,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("kotlin-parcelize")
+    alias(libs.plugins.baselineprofile)
 }
 configurations.all {
     exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
@@ -20,10 +23,26 @@ android {
     
     signingConfigs {
         create("release") {
-            storeFile = file(System.getenv("RELEASE_STORE_FILE") ?: "release-key.jks")
-            storePassword = System.getenv("RELEASE_STORE_PASSWORD")
-            keyAlias = System.getenv("RELEASE_KEY_ALIAS")
-            keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+            val keystoreProperties = Properties()
+            val keystorePropertiesFile = rootProject.file("local.properties")
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+            }
+
+            val keyStorePath = keystoreProperties.getProperty("release.storeFile")
+                ?: System.getenv("RELEASE_STORE_FILE")
+                ?: "release-key.jks"
+
+            storeFile = file(keyStorePath)
+
+            storePassword = keystoreProperties.getProperty("release.storePassword")
+                ?: System.getenv("RELEASE_STORE_PASSWORD")
+
+            keyAlias = keystoreProperties.getProperty("release.keyAlias")
+                ?: System.getenv("RELEASE_KEY_ALIAS")
+
+            keyPassword = keystoreProperties.getProperty("release.keyPassword")
+                ?: System.getenv("RELEASE_KEY_PASSWORD")
         }
     }
     
@@ -52,6 +71,13 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+        }
+        create("benchmark") {
+            matchingFallbacks += listOf("release")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
@@ -92,6 +118,8 @@ android {
     }
 }
 dependencies {
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
     // leakcanary
     debugImplementation(libs.leakcanary.android)
     // Material Design
