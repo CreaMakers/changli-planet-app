@@ -9,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
-import com.gradle.scan.plugin.internal.dep.io.netty.util.internal.StringUtil
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -28,7 +27,7 @@ class SplashActivity : AppCompatActivity() {
         }
         // 使用协程来处理延迟任务
         lifecycleScope.launch {
-            if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken) && !PlanetApplication.Companion.is_tourist) {
+            if (PlanetApplication.Companion.accessToken.isNullOrEmpty() && !PlanetApplication.Companion.is_tourist) {
                 delay(300) // 延迟 0.2 秒
                 Route.goLogin(this@SplashActivity)
             } else {

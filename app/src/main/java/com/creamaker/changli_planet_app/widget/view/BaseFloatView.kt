@@ -7,7 +7,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
-import com.bytedance.tools.codelocator.utils.UIUtils.dp2px
+import com.creamaker.changli_planet_app.R
+import com.creamaker.changli_planet_app.utils.ResourceUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +21,7 @@ abstract class BaseFloatView : FrameLayout, View.OnTouchListener {
 
     private var mViewWidth = 0
     private var mViewHeight = 0
-    private var mToolBarHeight = dp2px(56) // toolbar默认高度
+    private val mToolBarHeight by lazy { ResourceUtil.getDimen(R.dimen.dp56) }
     private var mDragDistance = 0.5 // 默认吸边需要的拖拽距离为屏幕的一半
 
     // 吸边所需的高度和宽度阈值
@@ -56,7 +57,7 @@ abstract class BaseFloatView : FrameLayout, View.OnTouchListener {
 
     private fun initView() {
         val lp = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-        lp.topMargin = mToolBarHeight
+        lp.topMargin = mToolBarHeight.toInt()
         layoutParams = lp
 
         val childView = getChildView()

@@ -1,4 +1,6 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -6,8 +8,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("kotlin-parcelize")
+    alias(libs.plugins.baselineprofile)
 }
-
+configurations.all {
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
+}
 android {
     namespace = "com.creamaker.changli_planet_app"
     compileSdk = 36
@@ -18,10 +23,26 @@ android {
     
     signingConfigs {
         create("release") {
-            storeFile = file(System.getenv("RELEASE_STORE_FILE") ?: "release-key.jks")
-            storePassword = System.getenv("RELEASE_STORE_PASSWORD")
-            keyAlias = System.getenv("RELEASE_KEY_ALIAS")
-            keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+            val keystoreProperties = Properties()
+            val keystorePropertiesFile = rootProject.file("local.properties")
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+            }
+
+            val keyStorePath = keystoreProperties.getProperty("release.storeFile")
+                ?: System.getenv("RELEASE_STORE_FILE")
+                ?: "release-key.jks"
+
+            storeFile = file(keyStorePath)
+
+            storePassword = keystoreProperties.getProperty("release.storePassword")
+                ?: System.getenv("RELEASE_STORE_PASSWORD")
+
+            keyAlias = keystoreProperties.getProperty("release.keyAlias")
+                ?: System.getenv("RELEASE_KEY_ALIAS")
+
+            keyPassword = keystoreProperties.getProperty("release.keyPassword")
+                ?: System.getenv("RELEASE_KEY_PASSWORD")
         }
     }
     
@@ -44,12 +65,19 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+        }
+        create("benchmark") {
+            matchingFallbacks += listOf("release")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
@@ -64,11 +92,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
     viewBinding {
         enable = true
@@ -88,72 +118,67 @@ android {
     }
 }
 dependencies {
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
     // leakcanary
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
+    debugImplementation(libs.leakcanary.android)
     // Material Design
     //RxJava
-    implementation("io.reactivex.rxjava3:rxjava:3.1.10")
-    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
-    implementation("androidx.room:room-rxjava3:2.6.1")
-    //Lottie
-    implementation("com.airbnb.android:lottie:6.6.0")
+    implementation(libs.rxjava)
+    implementation(libs.rxandroid)
+    implementation(libs.androidx.room.rxjava3)
     //Glide
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
+    implementation(libs.glide)
+    kapt(libs.glide.compiler)
     //MMKV
-    implementation("com.tencent:mmkv:1.2.13")
+    implementation(libs.mmkv)
     //腾讯云HTTPDNS
-    implementation("io.github.dnspod:httpdns-sdk:4.9.1")
+    implementation(libs.httpdns.sdk)
     // OkHttp
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+    implementation(libs.okhttp.urlconnection)
     //Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.converter.scalars)
     // EventBus
-    implementation("org.greenrobot:eventbus:3.3.1")
+    implementation(libs.eventbus)
     // Gson
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.gson)
     //TimetableView
-    implementation("com.github.zfman:TimetableView:2.0.7")
+    implementation(libs.timetableview)
     //Room
-    implementation("androidx.room:room-runtime:2.8.2")
-    kapt("androidx.room:room-compiler:2.8.2")
-    implementation("androidx.room:room-ktx:2.8.2")
-    // Kotlin 扩展
-    implementation(files("libs/develocity-gradle-plugin-3.17.6.jar"))
-    implementation("androidx.room:room-ktx:2.5.2")
-
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
     // 图片裁剪库
-    implementation("com.github.Yalantis:uCrop:2.2.9")
+    implementation(libs.ucrop)
     // PhotoView
-    implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
     // SubsamplingScaleImageView
-    implementation("com.davemorrissey.labs:subsampling-scale-image-view:3.10.0")
+    implementation(libs.subsampling.scale.image.view)
     // PhotoView
-    implementation("com.github.chrisbanes:PhotoView:2.3.0")
+    implementation(libs.photoview)
     // ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     // Activity KTX for viewModels()
-    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation(libs.androidx.activity.ktx)
     // Fragment KTX 提供了 viewModels() 扩展函数
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation(libs.androidx.fragment.ktx)
     //滚轮
-    implementation("com.github.gzu-liyujiang.AndroidPicker:Common:4.0.1")
-    implementation("com.github.gzu-liyujiang.AndroidPicker:WheelPicker:4.0.1")
+    implementation(libs.common)
+    implementation(libs.wheelpicker)
     //FlexboxLayout
-    implementation("com.google.android.flexbox:flexbox:3.0.0")
+    implementation(libs.flexbox)
     //lottie
-    implementation("com.airbnb.android:lottie:6.0.0")
+    implementation(libs.lottie)
     //bugly
-    implementation("com.tencent.bugly:crashreport:4.1.9.3")
+    implementation(libs.crashreport)
     // 缺省页
-    implementation("com.github.liangjingkanji:StateLayout:1.4.2")
+    implementation(libs.statelayout)
     // jsoup
-    implementation("org.jsoup:jsoup:1.21.2")
+    implementation(libs.jsoup)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -175,16 +200,16 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // workmanager
-    implementation("androidx.work:work-runtime-ktx:2.10.3")
-    implementation("androidx.work:work-rxjava2:2.10.3")
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.work.rxjava2)
     implementation(project(":CP_Common"))
     //CodeLocator
-    implementation("com.bytedance.tools.codelocator:codelocator-core:2.0.4")
-    debugImplementation ("com.bytedance.tools.codelocator:codelocator-lancet-all:2.0.4")
+    debugImplementation(libs.codelocator.core)
+    debugImplementation(libs.codelocator.lancet.all)
     // Coil for image loading
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation(libs.coil.compose)
     //csustDataGet
-    implementation(project(":csust_spider"))
+    implementation(libs.csustdataget)
     implementation(libs.androidx.constraintlayout.compose)
 }
 kapt {

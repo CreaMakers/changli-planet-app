@@ -1,21 +1,84 @@
 [versions]
-agp = "8.13.1"
-kotlin = "2.2.10"
+activityKtx = "1.12.2"
+agp = "8.13.2"
+codelocatorCore = "2.0.4"
+coilCompose = "2.7.0"
+common = "4.0.1"
+converterGson = "3.0.0"
+crashreport = "4.1.9.3"
+csustdataget = "ab9cfbaf7d"
+eventbus = "3.3.1"
+flexbox = "3.0.0"
+fragmentKtx = "1.8.9"
+glide = "5.0.5"
+gson = "2.13.2"
+httpdnsSdk = "4.11.0"
+jsoup = "1.22.1"
+kotlin = "2.3.0"
 coreKtx = "1.17.0"
 appcompat = "1.7.1"
+leakcanaryAndroid = "2.12"
+loggingInterceptor = "5.3.2"
+lottie = "6.7.1"
 material = "1.13.0"
-activity = "1.12.1"
+activity = "1.12.2"
 constraintlayout = "2.2.1"
 firebaseCrashlyticsBuildtools = "3.0.6"
 lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.1"
-composeBom = "2025.12.00"
+activityCompose = "1.12.2"
+composeBom = "2025.12.01"
 espressoCore = "3.7.0"
 constraintlayoutCompose = "1.1.1"
+mmkv = "2.3.0"
+okhttp = "5.3.2"
+okhttpUrlconnection = "4.12.0"
+photoview = "2.3.0"
+retrofit = "3.0.0"
+roomRxjava3 = "2.8.4"
+rxandroid = "3.0.2"
+rxjava = "3.1.12"
+statelayout = "1.4.2"
+subsamplingScaleImageView = "3.10.0"
+timetableview = "2.0.7"
+ucrop = "2.2.9"
+workRuntimeKtx = "2.11.0"
+workRxjava2 = "2.11.0"
+junit = "1.3.0"
+uiautomator = "2.3.0"
+benchmarkMacroJunit4 = "1.4.1"
+baselineprofile = "1.4.1"
+profileinstaller = "1.4.1"
 
 [libraries]
+androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRxjava3" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRxjava3" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRxjava3" }
+androidx-room-rxjava3 = { module = "androidx.room:room-rxjava3", version.ref = "roomRxjava3" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-work-rxjava2 = { module = "androidx.work:work-rxjava2", version.ref = "workRxjava2" }
+codelocator-core = { module = "com.bytedance.tools.codelocator:codelocator-core", version.ref = "codelocatorCore" }
+codelocator-lancet-all = { module = "com.bytedance.tools.codelocator:codelocator-lancet-all", version.ref = "codelocatorCore" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+common = { module = "com.github.gzu-liyujiang.AndroidPicker:Common", version.ref = "common" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterGson" }
+crashreport = { module = "com.tencent.bugly:crashreport", version.ref = "crashreport" }
+csustdataget = { module = "com.github.CreaMakers:CSUSTDataGet", version.ref = "csustdataget" }
+eventbus = { module = "org.greenrobot:eventbus", version.ref = "eventbus" }
+flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
+glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+httpdns-sdk = { module = "io.github.dnspod:httpdns-sdk", version.ref = "httpdnsSdk" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -35,8 +98,26 @@ androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "l
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+mmkv = { module = "com.tencent:mmkv", version.ref = "mmkv" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-urlconnection = { module = "com.squareup.okhttp3:okhttp-urlconnection", version.ref = "okhttpUrlconnection" }
+photoview = { module = "com.github.chrisbanes:PhotoView", version.ref = "photoview" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroid" }
+rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
+statelayout = { module = "com.github.liangjingkanji:StateLayout", version.ref = "statelayout" }
+subsampling-scale-image-view = { module = "com.davemorrissey.labs:subsampling-scale-image-view", version.ref = "subsamplingScaleImageView" }
+timetableview = { module = "com.github.zfman:TimetableView", version.ref = "timetableview" }
+ucrop = { module = "com.github.Yalantis:uCrop", version.ref = "ucrop" }
+wheelpicker = { module = "com.github.gzu-liyujiang.AndroidPicker:WheelPicker", version.ref = "common" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
+androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
+androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-test = { id = "com.android.test", version.ref = "agp" }
+baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
