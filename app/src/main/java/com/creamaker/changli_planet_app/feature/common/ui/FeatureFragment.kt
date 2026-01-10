@@ -1,137 +1,252 @@
 package com.creamaker.changli_planet_app.feature.common.ui
 
-import android.content.Context
-import android.os.Looper
-import android.util.Log
+import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.fragment.app.Fragment
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.base.BaseFragment
-import com.creamaker.changli_planet_app.common.api.DrawerController
-import com.creamaker.changli_planet_app.common.cache.CommonInfo
-import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.creamaker.changli_planet_app.core.Route
-import com.creamaker.changli_planet_app.databinding.FragmentFeatureBinding
-import com.creamaker.changli_planet_app.utils.Event.SelectEvent
-import com.creamaker.changli_planet_app.utils.EventBusHelper
-import com.creamaker.changli_planet_app.utils.ResourceUtil
-import com.creamaker.changli_planet_app.utils.load
-import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
+import com.creamaker.changli_planet_app.core.theme.AppTheme
+import com.creamaker.changli_planet_app.feature.common.compose_ui.FunctionItemData
+import com.creamaker.changli_planet_app.feature.common.compose_ui.FunctionSection
+import com.creamaker.changli_planet_app.widget.view.CustomToast
 
-class FeatureFragment() : BaseFragment<FragmentFeatureBinding>() {
+class FeatureFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() = FeatureFragment()
-
-        private const val CSUST_MAP_URL = "https://gis.csust.edu.cn/cmipsh5/#/"
     }
 
-    private val featureAvatar by lazy { binding.featureAvatar }
-    private var drawerController: DrawerController? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is DrawerController) {
-            drawerController = context
-        } else {
-            Log.d(TAG, "DrawerControl,宿主Activity未实现接口")
-        }
-    }
-
-    override fun onDetach() {
-        drawerController = null
-        super.onDetach()
-    }
-
-    override fun createViewBinding(
+    override fun onCreateView(
         inflater: LayoutInflater,
-        container: ViewGroup?
-    ): FragmentFeatureBinding {
-        return FragmentFeatureBinding.inflate(inflater, container, false)
-    }
-
-    override fun initView() {
-        setIcons()
-
-        Looper.myQueue().addIdleHandler {
-            setupClickListeners()
-            false
-        }
-
-        featureAvatar.setOnClickListener { EventBusHelper.post(SelectEvent(3)) }
-        Log.d(TAG, "花费时间 ${System.currentTimeMillis() - CommonInfo.startTime}")
-    }
-
-    override fun initData() {
-        // 保持原有的延迟加载头像逻辑
-        lifecycleScope.launch {
-            delay(1200)
-            featureAvatar.load(UserInfoManager.userAvatar)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        featureAvatar.load(UserInfoManager.userAvatar)
-    }
-
-    private fun setupClickListeners() {
-        with(binding) {
-//            nmap.setOnClickListener { activity?.let { Route.goCampusMap(it) } }
-            nmap.setOnClickListener { activity?.let { Route.goWebView(it, CSUST_MAP_URL) } }
-            nelectronic.setOnClickListener { activity?.let { Route.goElectronic(it) } }
-            ncourse.setOnClickListener { activity?.let { Route.goTimetable(it) } }
-            ngrade.setOnClickListener { activity?.let { Route.goScoreInquiry(it) } }
-            ntest.setOnClickListener { activity?.let { Route.goExamArrangement(it) } }
-            ncet.setOnClickListener { activity?.let { Route.goCet(it) } }
-            nmande.setOnClickListener { activity?.let { Route.goMande(it) } }
-            nclassroom.setOnClickListener { showNormalDialog("该功能暂时关闭") }
-            accountbook.setOnClickListener { activity?.let { Route.goAccountBook(it) } }
-            ndocument.setOnClickListener { activity?.let { Route.goContract(it) } }
-            nhomework.setOnClickListener { activity?.let { Route.goMooc(it) } }
-//            nhomework.setOnClickListener { showNormalDialog(ResourceUtil.getStringRes(R.string.feature_developing_in_progress)) }
-            nlose.setOnClickListener { showNormalDialog(ResourceUtil.getStringRes(R.string.feature_developing_in_progress)) }
-            ncalender.setOnClickListener { activity?.let { Route.goCalendar(it) } }
-        }
-    }
-
-    private fun setIcons() {
-        context?.let { ctx ->
-            with(binding) {
-                planetLogo.load(R.drawable.planet_logo)
-
-                // 设置功能图标
-                val iconIds = listOf(
-                    ngrade to R.drawable.ic_exam,
-                    ncourse to R.drawable.ic_timetable,
-                    nmap to R.drawable.ic_map,
-                    ncet to R.drawable.ic_essay,
-                    ntest to R.drawable.ic_schedule,
-                    ncalender to R.drawable.ic_calendar,
-                    nmande to R.drawable.ic_talking,
-                    nlose to R.drawable.ic_lost_and_found,
-                    nelectronic to R.drawable.ic_bill,
-                    nhomework to R.drawable.ic_homework,
-                    nclassroom to R.drawable.ic_classroom,
-                    accountbook to R.drawable.account_book,
-                    ndocument to R.drawable.ic_document
-                )
-
-                iconIds.forEach { (item, resId) ->
-                    item.setIconWithGlide(resId)
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                AppSkinTheme {
+                    FeatureScreen()
                 }
             }
         }
     }
+}
 
-    private fun showNormalDialog(text: String) {
-        NormalResponseDialog(
-            requireActivity(),
-            text,
-            "贴心小提示"
-        ).show()
+object FunctionColors {
+    val Schedule = Color(0xFF5C6BC0)
+    val Grade = Color(0xFF26A69A)
+    val Map = Color(0xFF66BB6A)
+    val Homework = Color(0xFFFF7043)
+    val Electric = Color(0xFFFFCA28)
+    val Exam = Color(0xFFEF5350)
+    val Calendar = Color(0xFF42A5F5)
+    val CET = Color(0xFFAB47BC)
+    val LostFound = Color(0xFF8D6E63)
+    val Classroom = Color(0xFF78909C)
+    val Account = Color(0xFF26C6DA)
+    val Document = Color(0xFF9CCC65)
+    val Mandarin = Color(0xFFEC407A)
+}
+
+@Composable
+fun FeatureScreen(
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+
+    val mainFunctionItems = remember {
+        listOf(
+            FunctionItemData(
+                id = "schedule",
+                title = "课表",
+                iconRes = R.drawable.ic_timetable,
+                tintColor = FunctionColors.Schedule
+            ) {
+                // 点击事件
+                Route.goTimetable(context)
+            },
+
+            FunctionItemData(
+                id = "grade",
+                title = "成绩查询",
+                iconRes = R.drawable.ic_exam,
+                tintColor = FunctionColors.Grade
+            ) {
+                Route.goScoreInquiry(context)
+            },
+
+            FunctionItemData(
+                id = "map",
+                title = "校园地图",
+                iconRes = R.drawable.ic_map,
+                tintColor = FunctionColors.Map
+            ) {
+                Route.goCampusMap(context)
+            },
+
+            FunctionItemData(
+                id = "homework",
+                title = "作业查询",
+                iconRes = R.drawable.ic_homework,
+                tintColor = FunctionColors.Homework
+            ) {
+                Route.goMooc(context)
+            },
+
+            FunctionItemData(
+                id = "electric",
+                title = "电费查询",
+                iconRes = R.drawable.ic_bill,
+                tintColor = FunctionColors.Electric
+            ) {
+                Route.goElectronic(context)
+            },
+
+            FunctionItemData(
+                id = "exam",
+                title = "考试安排",
+                iconRes = R.drawable.ic_schedule,
+                tintColor = FunctionColors.Exam
+            ) {
+                Route.goExamArrangement(context)
+            },
+
+            FunctionItemData(
+                id = "calendar",
+                title = "校历",
+                iconRes = R.drawable.ic_calendar,
+                tintColor = FunctionColors.Calendar
+            ) {
+                Route.goCalendar(context)
+            },
+        )
+    }
+    val otherFunctionItems = remember {
+        listOf(
+            FunctionItemData(
+                id = "cet",
+                title = "四六级",
+                iconRes = R.drawable.ic_essay,
+                tintColor = FunctionColors.CET
+            ) {
+                Route.goCet(context)
+            },
+
+            FunctionItemData(
+                id = "lost_found",
+                title = "失物招领",
+                iconRes = R.drawable.ic_lost_and_found,
+                tintColor = FunctionColors.LostFound
+            ) {
+                // 显示对话框
+                CustomToast.showMessage(context, "正在全力开发中")
+            },
+
+            FunctionItemData(
+                id = "account",
+                title = "记账本",
+                iconRes = R.drawable.ic_account_book,
+                tintColor = FunctionColors.Account
+            ) {
+                Route.goAccountBook(context)
+            },
+
+            FunctionItemData(
+                id = "document",
+                title = "资料库",
+                iconRes = R.drawable.ic_document,
+                tintColor = FunctionColors.Document
+            ) {
+                Route.goContract(context)
+            },
+
+            FunctionItemData(
+                id = "mandarin",
+                title = "普通话",
+                iconRes = R.drawable.ic_talking,
+                tintColor = FunctionColors.Mandarin
+            ) {
+                Route.goMande(context)
+            }
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.bgPrimaryColor)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            FeatureHeaderSection(avatarUrl = "https://pic.imgdb.cn/item/671e5e17d29ded1a8c5e0dbe.jpg")
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                FunctionSection(
+                    title = "常用功能",
+                    items = mainFunctionItems,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                FunctionSection(
+                    title = "其他",
+                    items = otherFunctionItems
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeatureHeaderSection(avatarUrl: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(240.dp)
+            .statusBarsPadding()
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.planet_logo),
+            contentDescription = "背景图片",
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun FeatureScreenPreview() {
+    MaterialTheme {
+        FeatureScreen()
     }
 }

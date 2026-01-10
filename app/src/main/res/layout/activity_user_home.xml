@@ -99,7 +99,7 @@
                         android:layout_alignTop="@+id/llAuthor"
                         android:layout_alignParentRight="true"
                         android:layout_marginRight="10dp"
-                        android:background="@drawable/enable_button"
+                        android:background="@drawable/bg_enable_button"
                         android:gravity="center"
                         android:text="编辑"
                         android:textColor="@color/color_text_button"
@@ -239,7 +239,7 @@
                 android:layout_height="65dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="125dp"
-                android:background="@drawable/fulilian"
+                android:background="@drawable/ic_fulilian"
                 app:shapeAppearance="@style/CircleStyle" />
 
             <TextView

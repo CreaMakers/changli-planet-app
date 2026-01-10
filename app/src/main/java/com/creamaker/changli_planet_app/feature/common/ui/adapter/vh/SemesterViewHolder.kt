@@ -7,18 +7,16 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.databinding.ScoreItemSemesterBinding
-import com.creamaker.changli_planet_app.feature.common.redux.store.ScoreInquiryStore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.CourseAdapter
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.CourseListItem
 
 class SemesterViewHolder(
     private val binding: ScoreItemSemesterBinding,
-    private val store: ScoreInquiryStore,
     private val context: Context,
     private val onToggle: (Int) -> Unit,
     private val onDetailClick: (String, String) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
-    private val courseAdapter = CourseAdapter(store, context, onDetailClick)
+    private val courseAdapter = CourseAdapter(context, onDetailClick)
 
     init {
         itemView.setOnClickListener {

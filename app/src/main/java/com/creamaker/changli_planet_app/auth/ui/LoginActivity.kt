@@ -16,6 +16,51 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.core.app.ActivityCompat
 import androidx.core.content.pm.PackageInfoCompat
 import com.creamaker.changli_planet_app.R
@@ -201,7 +246,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     private fun updateButtonState(isEnable: Boolean) {
         Login.isEnabled = isEnable
         if (isEnable) {
-            Login.setBackgroundResource(R.drawable.enable_button)
+            Login.setBackgroundResource(R.drawable.bg_enable_button)
         } else {
             Login.setBackgroundResource(R.drawable.disable_button)
         }
@@ -213,7 +258,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
             ivOx.setImageResource(R.drawable.dialog_login)
         } else {
             ivOx.visibility = View.VISIBLE
-            ivOx.setImageResource(R.drawable.login_ox_24)
+            ivOx.setImageResource(R.drawable.ic_login_ox_24)
         }
     }
 
@@ -221,10 +266,10 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         if (isVisible) {
 
             password.transformationMethod = android.text.method.HideReturnsTransformationMethod.getInstance()
-            iVEye.setImageResource(R.drawable.login_visibility_eyes)
+            iVEye.setImageResource(R.drawable.ic_login_visibility_eyes)
         } else {
             password.transformationMethod = android.text.method.PasswordTransformationMethod.getInstance()
-            iVEye.setImageResource(R.drawable.line_invisible2)
+            iVEye.setImageResource(R.drawable.ic_line_invisible2)
         }
         password.setSelection(password.text?.length ?: 0)
     }
@@ -295,4 +340,306 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     }
 
 
+}
+
+// ======== 颜色定义（模拟你的 @color/xxx）===========
+private val ColorTextPrimary = Color(0xFF333333)
+private val ColorTextSecondary = Color(0xFF666666)
+private val ColorTextFunctional = Color(0xFF007AFF)
+private val ColorTextHighlight = Color(0xFF1A1A1A)
+private val ColorTextGrey = Color(0xFF999999)
+private val ColorIconPrimary = Color(0xFF555555)
+private val ColorBaseWhite = Color.White
+private val ButtonEnabledBackground = Color(0xFF007AFF) // 模拟 @drawable/enable_button
+
+@Composable
+@Preview(showBackground = true)
+fun LoginScreen() {
+    MaterialTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
+        ) {
+            // 背景图：用 Image + contentScale = ContentScale.FillBounds 模拟 android:background="@drawable/login_background"
+            Image(
+                painter = painterResource(id = R.drawable.login_background),
+                contentDescription = null,
+                modifier = Modifier
+                    .matchParentSize(),
+                contentScale = ContentScale.FillBounds
+            )
+
+            // 主内容：ConstraintLayout
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp) // 可选：微调边距使更自然
+            ) {
+                val (spaceRef, imageViewRef, textViewRef, hintRef,
+                    accountRef, passwordContentRef, agreementRef, loginRef,
+                    forgetRef, emailRef, creMakerRef, routeRef, touristRef) = createRefs()
+
+                // Space (占 10% 高度)
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .constrainAs(spaceRef) {
+                            top.linkTo(parent.top)
+                            height = Dimension.percent(0.10f)
+                        }
+                )
+
+                // 左上角图标 @drawable/turn
+                Image(
+                    painter = painterResource(id = R.drawable.turn),
+                    contentDescription = "Back",
+                    modifier = Modifier
+                        .constrainAs(imageViewRef) {
+                            top.linkTo(spaceRef.bottom)
+                            start.linkTo(parent.start)
+                            width = Dimension.percent(0.28f)
+                            height = Dimension.percent(0.10f)
+                        }
+                        .padding(start = 10.dp)
+                )
+
+                // 标题“账户登录”
+                Text(
+                    text = "账户登录",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = ColorTextHighlight,
+                    modifier = Modifier
+                        .constrainAs(textViewRef) {
+                            top.linkTo(imageViewRef.bottom)
+                            start.linkTo(parent.start)
+                            width = Dimension.percent(0.30f)
+                        }
+                        .padding(start = 15.dp)
+                )
+
+                // 右上角提示图标（incomplete_feature_hint）
+                Image(
+                    painter = painterResource(id = R.drawable.ic_electricity_default),
+                    contentDescription = "Feature hint",
+                    colorFilter = ColorFilter.tint(ColorIconPrimary),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(12.dp)
+                        .constrainAs(hintRef) {
+                            top.linkTo(spaceRef.bottom)
+                            start.linkTo(imageViewRef.end)
+                            width = Dimension.percent(0.28f)
+                            height = Dimension.percent(0.10f)
+                        }
+                )
+
+                // 账号输入框
+                OutlinedTextField(
+                    value = "", // 绑定状态变量更佳（后文说明）
+                    onValueChange = {},
+                    placeholder = { Text("请输入账号", color = ColorTextGrey) },
+                    singleLine = true,
+//                    colors = TextFieldDefaults.outlinedTextFieldColors(
+//                        focusedBorderColor = Color.Gray,
+//                        unfocusedBorderColor = Color.Gray,
+//                        cursorColor = ColorTextPrimary,
+//                        textColor = ColorTextPrimary
+//                    ),
+                    modifier = Modifier
+                        .constrainAs(accountRef) {
+                            top.linkTo(textViewRef.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.percent(0.8f)
+                            verticalBias = 0.1f
+                        }
+                        .height(40.dp)
+                )
+
+                // 密码区域（LinearLayout → Row）
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .constrainAs(passwordContentRef) {
+                            top.linkTo(accountRef.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.percent(0.8f)
+                            verticalBias = 0.1f
+                        }
+                        .height(40.dp)
+                        .clip(RoundedCornerShape(4.dp)) // 模拟 @drawable/edit_text_background
+                        .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                        .padding(horizontal = 8.dp)
+                ) {
+                    var passwordVisible by remember { mutableStateOf(false) }
+
+                    // 左侧“眼睛”图标
+                    Image(
+                        painter = painterResource(
+                            id = if (passwordVisible) R.drawable.ic_login_visibility_eyes else R.drawable.ic_line_invisible2
+                        ),
+                        contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                        colorFilter = ColorFilter.tint(ColorIconPrimary),
+                        modifier = Modifier
+                            .size(25.dp)
+                            .clickable { passwordVisible = !passwordVisible }
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // 密码输入框（背景 null → 透明）
+                    BasicTextField(
+                        value = "",
+                        onValueChange = {},
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            capitalization = KeyboardCapitalization.None
+                        ),
+                        textStyle = LocalTextStyle.current.copy(
+                            color = ColorTextPrimary,
+                            textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier.weight(10f)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+//                    // 右侧图标（默认 invisible）
+//                    Image(
+//                        painter = painterResource(id = R.drawable.dialog_login),
+//                        contentDescription = "Clear",
+//                        colorFilter = ColorFilter.tint(ColorIconPrimary),
+//                        modifier = Modifier
+//                            .size(25.dp)
+//                            .clickable { }
+//                    )
+                }
+
+                // 协议区域（CheckBox + 文字）
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .constrainAs(agreementRef) {
+                            top.linkTo(passwordContentRef.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.percent(0.8f)
+                            verticalBias = 0f
+                        }
+                ) {
+                    var checked by remember { mutableStateOf(false) }
+                    Checkbox(
+                        checked = checked,
+                        onCheckedChange = { checked = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = ColorIconPrimary,
+                            uncheckedColor = Color.Gray
+                        )
+                    )
+                    Text("我已阅读并同意", fontSize = 14.sp, color = ColorTextSecondary)
+                    Text(
+                        "《长理星球用户协议》",
+                        fontSize = 14.sp,
+                        color = ColorTextFunctional,
+                        modifier = Modifier.clickable {
+                            // TODO: 跳转协议页
+                        }
+                    )
+                }
+
+                // 登录按钮
+                Button(
+                    onClick = { /* 登录逻辑 */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = ButtonEnabledBackground),
+                    shape = RoundedCornerShape(5.dp),
+                    modifier = Modifier
+                        .constrainAs(loginRef) {
+                            top.linkTo(passwordContentRef.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.percent(0.8f)
+                            verticalBias = 0.162f
+                        }
+                        .height(40.dp)
+                ) {
+                    Text("登录", color = ColorBaseWhite, fontSize = 16.sp)
+                }
+
+                // 忘记密码 & 邮箱登录（左右分布）
+                Row(
+                    modifier = Modifier
+                        .constrainAs(forgetRef) { // 复用一个 ref 即可，或拆成两个
+                            top.linkTo(loginRef.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(top = 20.dp)
+                ) {
+                    Text(
+                        "忘记密码",
+                        color = ColorTextFunctional,
+                        fontSize = 15.sp,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 100.dp)
+                            .clickable { /* 忘记密码 */ }
+                    )
+                    Text(
+                        "邮箱登录",
+                        color = ColorTextFunctional,
+                        fontSize = 15.sp,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 100.dp, start = 8.dp)
+                            .clickable { /* 邮箱登录 */ }
+                    )
+                }
+
+                // Creamaker 图标
+                Image(
+                    painter = painterResource(id = R.drawable.creamaker),
+                    contentDescription = "Creamaker",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .constrainAs(creMakerRef) {
+                            top.linkTo(loginRef.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.percent(0.8f)
+                            height = Dimension.percent(0.30f)
+                        }
+                        .padding(top = 25.dp)
+                )
+
+                // 底部两个文字（注册 / 游客）
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .constrainAs(routeRef) { // 同样复用 ref
+                            top.linkTo(creMakerRef.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.fillToConstraints
+                        }
+                        .padding(horizontal = 18.dp)
+                ) {
+                    Text(
+                        "没有账号？去注册",
+                        color = ColorTextFunctional,
+                        fontSize = 15.sp,
+                        modifier = Modifier.clickable { /* 跳转注册 */ }
+                    )
+                    Text(
+                        "跳过，稍后登录",
+                        color = ColorTextFunctional,
+                        fontSize = 15.sp,
+                        modifier = Modifier.clickable { /* 游客登录 */ }
+                    )
+                }
+            }
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package com.creamaker.changli_planet_app.settings.ui
 
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
@@ -149,7 +148,7 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
                 img.setImageResource(R.drawable.yincang)
             } else {
                 et.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                img.setImageResource(R.drawable.buyincang)
+                img.setImageResource(R.drawable.ic_buyincang)
             }
             // 保持光标位置在文本末尾
             et.setSelection(et.text.length)
@@ -158,10 +157,10 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
 
     fun updateCondition(isVisible: Boolean, img: ImageView) {
         if (isVisible) {
-            img.setImageResource(R.drawable.dui)
+            img.setImageResource(R.drawable.ic_confirm)
             img.setColorFilter(getColor(R.color.color_icon_primary))
         } else {
-            img.setImageResource(R.drawable.cuo)
+            img.setImageResource(R.drawable.ic_deny)
             img.setColorFilter(getColor(R.color.color_base_red))
         }
     }

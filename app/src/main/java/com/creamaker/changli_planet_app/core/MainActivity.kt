@@ -25,10 +25,8 @@ import com.creamaker.changli_planet_app.freshNews.ui.NewsFragment
 import com.creamaker.changli_planet_app.im.ui.IMFragment
 import com.creamaker.changli_planet_app.profileSettings.ui.ProfileSettingsFragment
 import com.creamaker.changli_planet_app.utils.Event.SelectEvent
-import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.widget.dialog.GuestLimitedAccessDialog
 import com.google.android.material.tabs.TabLayout
-import com.gradle.scan.plugin.internal.dep.io.netty.util.internal.StringUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
@@ -54,7 +52,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         EventBus.getDefault().register(this)
-        if (StringUtil.isNullOrEmpty(PlanetApplication.Companion.accessToken) && !PlanetApplication.Companion.is_tourist) {
+        if (PlanetApplication.Companion.accessToken.isNullOrEmpty() && !PlanetApplication.Companion.is_tourist) {
             Route.goLogin(this@MainActivity)
             finish()
             return

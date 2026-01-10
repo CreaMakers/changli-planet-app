@@ -51,7 +51,7 @@ class LoginByEmailActivity : FullScreenActivity<ActivityLoginByEmailBinding>() {
                 .subscribe{state->
                     login.isEnabled=state.isEnableByEmail
                     if (state.isEnableByEmail) {
-                        login.setBackgroundResource(R.drawable.enable_button)
+                        login.setBackgroundResource(R.drawable.bg_enable_button)
                     } else {
                         login.setBackgroundResource(R.drawable.disable_button)
                     }

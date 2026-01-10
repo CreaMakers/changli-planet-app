@@ -34,6 +34,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "changli-planet-app"
 include(":app")
-
-
 include(":CP_Common")
+include(":baselineprofile")

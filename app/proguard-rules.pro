@@ -19,3 +19,26 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-dontwarn com.google.re2j.**
+-dontwarn org.jsoup.helper.Re2jRegex**
+
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.google.gson.stream.** { *; }
+-keepclassmembers class * {
+    <init>();
+}
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+-keep class com.creamaker.changli_planet_app.**.bean.** { *; }
+-keep class com.creamaker.changli_planet_app.**.model.** { *; }
+-keep class com.creamaker.changli_planet_app.**.dto.** { *; }
+
+# --- Baseline Profile Installer ---
+-keep class androidx.profileinstaller.** { *; }
+-keep class com.google.tools.profiler.** { *; }
+-dontwarn androidx.profileinstaller.**
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep public class * implements java.lang.reflect.Type

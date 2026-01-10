@@ -46,7 +46,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:padding="12dp"
-        android:src="@drawable/e_default"
+        android:src="@drawable/ic_electricity_default"
         app:layout_constraintHeight_percent="0.10"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/space"
@@ -92,7 +92,7 @@
             android:layout_marginLeft="5sp"
             android:layout_weight="1"
             android:clickable="true"
-            android:src="@drawable/line_invisible2"
+            android:src="@drawable/ic_line_invisible2"
             android:tint="@color/color_icon_primary"/>
 
         <EditText
@@ -167,7 +167,7 @@
         android:id="@+id/login"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:background="@drawable/enable_button"
+        android:background="@drawable/bg_enable_button"
         android:gravity="center"
         android:text="登录"
         android:textColor="@color/color_base_white"

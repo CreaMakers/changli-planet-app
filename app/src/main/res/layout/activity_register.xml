@@ -78,7 +78,7 @@
         android:id="@+id/register"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:background="@drawable/enable_button"
+        android:background="@drawable/bg_enable_button"
         android:gravity="center"
         android:text="@string/next_step"
         android:textColorHint="@color/color_text_button"

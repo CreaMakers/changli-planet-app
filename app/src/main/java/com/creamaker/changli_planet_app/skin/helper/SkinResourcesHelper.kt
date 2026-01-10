@@ -17,7 +17,7 @@ object SkinResourcesHelper {
     fun loadSkinResources(
         context: Context,
         skinFile: File
-    ): Pair<Resources, String /*skinPkgName*/> {
+    ): Pair<Resources, String> {
 
         if (!skinFile.exists()) {
             throw FileNotFoundException("Skin file not found: ${skinFile.path}")
@@ -42,7 +42,7 @@ object SkinResourcesHelper {
         addAssetPathMethod.invoke(assetManager, skinPath)
 
 
-        // 3. 构造 Resources（DisplayMetrics、Configuration 共用系统的）
+        // 3. 构造 Resources
         val superRes = context.resources
         val skinResources = Resources(
             assetManager,

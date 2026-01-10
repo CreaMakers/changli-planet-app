@@ -6,12 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.creamaker.changli_planet_app.databinding.ScoreItemCourseBinding
-import com.creamaker.changli_planet_app.feature.common.redux.store.ScoreInquiryStore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.CourseScore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.vh.CourseViewHolder
 
 class CourseAdapter(
-    private val store: ScoreInquiryStore,
     private val context: Context,
     private val onDetailClick: (String, String) -> Unit
 ) : ListAdapter<CourseScore, CourseViewHolder>(CourseDiffCallback()) {
@@ -20,7 +18,7 @@ class CourseAdapter(
         val binding = ScoreItemCourseBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        return CourseViewHolder(binding, store, context, onDetailClick)
+        return CourseViewHolder(binding, context, onDetailClick)
     }
 
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {

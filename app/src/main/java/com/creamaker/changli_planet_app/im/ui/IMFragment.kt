@@ -17,10 +17,6 @@ class IMFragment : Fragment() {
     private lateinit var binding: FragmentIMBinding
     private val TAG = "IMFragment"
 
-//    private val recyclerView: RecyclerView by lazy { binding.chatListRecycler }
-//    private val imAvatar: ShapeableImageView by lazy { binding.imAvatar }
-//    private val imName by lazy { binding.imName }
-
     private var drawerController: DrawerController? = null
 
     override fun onAttach(context: Context) {

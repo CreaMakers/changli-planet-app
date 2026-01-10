@@ -7,14 +7,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.util.copy
 import com.creamaker.changli_planet_app.databinding.FreshNewsItemBinding
 import com.creamaker.changli_planet_app.databinding.LoadingViewBinding
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
-import com.creamaker.changli_planet_app.freshNews.ui.adapter.diffUtil.NewsDiffCallback
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.FreshNewsItemViewHolder
 import com.creamaker.changli_planet_app.freshNews.ui.adapter.vh.LoadingViewHolder
-import com.gradle.scan.agent.serialization.scan.serializer.kryo.it
 
 class FreshNewsAdapter(
     val context: Context,

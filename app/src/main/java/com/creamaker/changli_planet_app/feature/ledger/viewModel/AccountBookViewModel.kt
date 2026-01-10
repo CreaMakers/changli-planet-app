@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import kotlin.div
 
 class AccountBookViewModel : ViewModel() {
     val _totalMoney = MutableStateFlow("")
@@ -186,14 +185,14 @@ class AccountBookViewModel : ViewModel() {
 
 
     private val typeToIconMap = mapOf(
-        "手机" to R.drawable.iphone,
+        "手机" to R.drawable.ic_iphone,
         "电脑" to R.drawable.laptop,
         "笔记本电脑" to R.drawable.laptop,
         "平板电脑" to R.drawable.ic_tablet_pc,
-        "耳机" to R.drawable.earphone,
-        "自行车" to R.drawable.bicycle,
-        "游戏" to R.drawable.game,
-        "游戏设备" to R.drawable.game_computer,
+        "耳机" to R.drawable.ic_earphone,
+        "自行车" to R.drawable.ic_bicycle,
+        "游戏" to R.drawable.ic_game,
+        "游戏设备" to R.drawable.ic_game_computer,
         "电子手表" to R.drawable.smart_watch,
         "手表" to R.drawable.watch
     )

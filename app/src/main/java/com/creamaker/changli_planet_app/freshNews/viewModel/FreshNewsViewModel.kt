@@ -3,24 +3,20 @@ package com.creamaker.changli_planet_app.freshNews.viewModel
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.lifecycle.viewModelScope
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.RefreshNewsCache
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
+import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.coroutineContext.ErrorCoroutineContext
 import com.creamaker.changli_planet_app.core.mvi.MviViewModel
-import com.creamaker.changli_planet_app.core.PlanetApplication
-import com.creamaker.changli_planet_app.freshNews.contract.FreshNewsContract
 import com.creamaker.changli_planet_app.core.network.ApiResponse
-import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNews
+import com.creamaker.changli_planet_app.freshNews.contract.FreshNewsContract
+import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.RefreshNewsCache
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItem
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsItemResult
 import com.creamaker.changli_planet_app.freshNews.data.local.mmkv.model.FreshNewsPublish
 import com.creamaker.changli_planet_app.freshNews.data.remote.repository.FreshNewsRepository
 import com.creamaker.changli_planet_app.freshNews.data.remote.repository.UserProfileRepository
 import com.creamaker.changli_planet_app.widget.view.CustomToast
-import com.gradle.scan.agent.serialization.scan.serializer.kryo.it
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -54,6 +50,16 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
             is FreshNewsContract.Intent.LikeNews -> likeNewsItem(intent.freshNewsId)
             is FreshNewsContract.Intent.FavoriteNews -> favoriteNewsItem(intent.freshNewsId)
             is FreshNewsContract.Intent.OpenComments -> openComments(intent.freshNewsItem)
+            is FreshNewsContract.Intent.UpdateLocalCommentCount -> updateLocalCommentCount(
+                intent.newsId,
+                intent.count
+            )
+
+            is FreshNewsContract.Intent.UpdateLocalUserInfo -> updateLocalUserInfo(
+                intent.userId,
+                intent.name,
+                intent.avatar
+            )
         }
 
     }
@@ -698,6 +704,61 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                 Log.e("FreshNewsViewModel","获取ip异常:${e.message}")
             }
 
+        }
+    }
+
+    private fun updateLocalCommentCount(newsId: Int, count: Int) {
+        updateState {
+            val updatedList =
+                (freshNewsListResults as? ApiResponse.Success)?.data?.map { itemResult ->
+                    when (itemResult) {
+                        is FreshNewsItemResult.Success -> {
+                            if (itemResult.freshNewsItem.freshNewsId == newsId) {
+                                val updatedItem = itemResult.freshNewsItem.copy(
+                                    comments = itemResult.freshNewsItem.comments + count
+                                )
+                                FreshNewsItemResult.Success(updatedItem)
+                            } else {
+                                itemResult
+                            }
+                        }
+
+                        else -> itemResult
+                    }
+                }
+            if (updatedList != null) {
+                copy(freshNewsListResults = ApiResponse.Success(updatedList))
+            } else {
+                this
+            }
+        }
+    }
+
+    private fun updateLocalUserInfo(userId: Int, name: String, avatar: String) {
+        updateState {
+            val updatedList =
+                (freshNewsListResults as? ApiResponse.Success)?.data?.map { itemResult ->
+                    when (itemResult) {
+                        is FreshNewsItemResult.Success -> {
+                            if (itemResult.freshNewsItem.userId == userId) {
+                                val updatedItem = itemResult.freshNewsItem.copy(
+                                    authorName = name,
+                                    authorAvatar = avatar
+                                )
+                                FreshNewsItemResult.Success(updatedItem)
+                            } else {
+                                itemResult
+                            }
+                        }
+
+                        else -> itemResult
+                    }
+                }
+            if (updatedList != null) {
+                copy(freshNewsListResults = ApiResponse.Success(updatedList))
+            } else {
+                this
+            }
         }
     }
 }

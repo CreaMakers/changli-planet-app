@@ -6,31 +6,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.InputFilter
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-
+import androidx.lifecycle.lifecycleScope
 import com.creamaker.changli_planet_app.ElectronicAppWidget
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.databinding.ActivityElectronicBinding
-import com.creamaker.changli_planet_app.feature.common.data.remote.dto.CheckElectricity
-import com.creamaker.changli_planet_app.feature.common.redux.action.ElectronicAction
-import com.creamaker.changli_planet_app.feature.common.redux.store.ElectronicStore
+import com.creamaker.changli_planet_app.feature.common.contract.ElectronicContract
+import com.creamaker.changli_planet_app.feature.common.viewModel.ElectronicViewModel
 import com.creamaker.changli_planet_app.utils.load
 import com.creamaker.changli_planet_app.widget.dialog.WheelBottomDialog
 import com.google.android.material.imageview.ShapeableImageView
 import com.tencent.mmkv.MMKV
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import kotlin.jvm.java
-
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * 电费查询
@@ -40,7 +38,9 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         val ALPHANUMERIC_REGEX = Regex("^[a-zA-Z0-9]*$")
     }
 
+    private val viewModel: ElectronicViewModel by viewModels()
     private val mmkv by lazy { MMKV.defaultMMKV() }
+
     private val back: ImageView by lazy { binding.back }
     private val school: TextView by lazy { binding.tvSchoolSelect }
     private val dor: TextView by lazy { binding.tvDormSelect }
@@ -49,7 +49,7 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
     private val ele_image: ShapeableImageView by lazy { binding.eleImg }
     private val ele_num: TextView by lazy { binding.eleNum }
     private val ele_state :TextView by lazy { binding.eleState }
-    private val electronicStore = ElectronicStore(this)
+
     private val schoolList: List<String> by lazy {
         resources.getStringArray(R.array.school_location).toList()
     }
@@ -75,16 +75,13 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
 
     private fun recoverInstance(savedInstanceState: Bundle?) {
         if (savedInstanceState != null){
-            Log.d("Qingyue","saved")
-            school.text = savedInstanceState.getString("ele_school", "选择校区")
-            dor.text = savedInstanceState.getString("ele_dor", "选择宿舍楼")
-            door_number.setText(savedInstanceState.getString("ele_door", ""))
-
+            // ViewModel handles state, but we might want to sync UI if needed immediately?
+            // Usually VM state is preserved. If VM is recreated, we might need savedInstanceState or MMKV.
+            // Let's rely on onResume to load from MMKV or Init intent.
         }
     }
 
     private fun initView() {
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.tbQuery){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
@@ -96,9 +93,9 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             WindowInsetsCompat.CONSUMED
         }
         inputFilter(door_number)
-        binding.sivRoomNumber.load(R.drawable.e_door)
-        binding.sivSchoolRegion.load(R.drawable.e_school)
-        binding.sivDormBuilding.load(R.drawable.e_dorm)
+        binding.sivRoomNumber.load(R.drawable.ic_electricity_door)
+        binding.sivSchoolRegion.load(R.drawable.ic_electricity_school)
+        binding.sivDormBuilding.load(R.drawable.ic_electricity_dorm)
     }
 
     private fun initListener() {
@@ -118,21 +115,25 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                 "金盆岭校区" -> dorList.subList(45, dorList.size)
                 else -> dorList
             }
-            ClickWheel(filteredList)
+            showWheelDialog(filteredList) { selected ->
+                viewModel.processIntent(ElectronicContract.Intent.SelectDorm(selected))
+            }
         }
-        school.setOnClickListener { ClickWheel(schoolList) }
+        school.setOnClickListener {
+            showWheelDialog(schoolList) { selected ->
+                viewModel.processIntent(ElectronicContract.Intent.SelectSchool(selected))
+            }
+        }
         ele_query.setOnClickListener {
-            // 处理宿舍楼和房间号逻辑
             val processedDoorNumber = processDormAndRoom(dor.text.toString(), door_number.text.toString())
-            electronicStore.dispatch(
-                ElectronicAction.queryElectronic(
-                    CheckElectricity(
-                        school.text.toString(),
-                        dor.text.toString(),
-                        processedDoorNumber
-                    )
+            viewModel.processIntent(
+                ElectronicContract.Intent.QueryElectricity(
+                    school.text.toString(),
+                    dor.text.toString(),
+                    processedDoorNumber
                 )
             )
+            
             mmkv.encode("school", school.text.toString())
             mmkv.encode("dor", dor.text.toString())
             mmkv.encode("door_number", door_number.text.toString())
@@ -142,67 +143,70 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
     }
 
     private fun initObserve() {
-        disposables.add(electronicStore._state
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { state ->
+        lifecycleScope.launch {
+            viewModel.state.collectLatest { state ->
                 school.text = state.address
                 dor.text = state.buildId
+
                 if (state.isElec) {
-                    // 1. 使用正则表达式提取字符串中的数字（包括小数）
                     val regex = Regex("(\\d*\\.?\\d+)")
                     val matchResult = regex.find(state.elec)
-
-                    // 2. 将提取到的数字字符串转换为 Float，如果失败则默认为 -1.0f
                     val electronicValue = matchResult?.value?.toFloatOrNull()
+
                     when{
                         electronicValue == null ->{
-                            ele_image.load(R.drawable.e_default)
+                            ele_image.load(R.drawable.ic_electricity_default)
                             ele_num.text = getString(R.string.ele_query_false)
-                            ele_state.text =getString(R.string.ele_state_unknown)
+                            ele_state.text = getString(R.string.ele_state_unknown)
                         }
                         electronicValue in 0.0f..20f -> {
-                            ele_image.load(R.drawable.e_none)
-                            ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
+                            ele_image.load(R.drawable.ic_electricity_none)
+                            ele_num.text =
+                                getString(R.string.ele_queryNow, electronicValue.toString())
                             ele_state.text = getString(R.string.ele_state_low)
                             ele_state.setTextColor(getColor(R.color.color_base_red))
                         }
                         electronicValue in 20.1f..100f ->{
-                            ele_image.load(R.drawable.e_low)
-                            ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
+                            ele_image.load(R.drawable.ic_electricity_low)
+                            ele_num.text =
+                                getString(R.string.ele_queryNow, electronicValue.toString())
                             ele_state.text = getString(R.string.ele_state_normal)
                             ele_state.setTextColor(getColor(R.color.color_base_yellow))
                         }
                         electronicValue > 100f ->{
-                            ele_image.load(R.drawable.e_high)
-                            ele_num.text = getString(R.string.ele_queryNow,electronicValue.toString())
+                            ele_image.load(R.drawable.ic_electricity_high)
+                            ele_num.text =
+                                getString(R.string.ele_queryNow, electronicValue.toString())
                             ele_state.text = getString(R.string.ele_state_high)
                             ele_state.setTextColor(getColor(R.color.color_base_green))
                         }
-
                     }
                 }
-            })
+            }
+        }
+
+        // No effects currently used, but set up for future
+        lifecycleScope.launch {
+            viewModel.effect.collect { effect ->
+                // Handle effects
+            }
+        }
     }
 
     private fun inputFilter(editText: EditText) {
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
-            // 允许的字符是英文字母和数字
             val regex = ALPHANUMERIC_REGEX
-            // 如果输入内容符合正则表达式，则允许输入，否则返回空字符串禁止输入
             if (regex.matches(source)) source else ""
         }
         editText.filters = arrayOf(inputFilter)
     }
 
-    private fun ClickWheel(item: List<String>) {
-        val Wheel = WheelBottomDialog(electronicStore, maxHeight)
-        Wheel.setItem(item)
-        Wheel.show(supportFragmentManager, "wheel")
+    private fun showWheelDialog(item: List<String>, onSelect: (String) -> Unit) {
+        val wheel = WheelBottomDialog(maxHeight, onSelect)
+        wheel.setItem(item)
+        wheel.show(supportFragmentManager, "wheel")
     }
 
-    /**
-     * 点击外部区域隐藏键盘并清除EditText焦点
-     */
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         if (ev?.action == MotionEvent.ACTION_DOWN) {
             val v = currentFocus
@@ -218,9 +222,6 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         return super.dispatchTouchEvent(ev)
     }
 
-    /**
-     * 隐藏键盘
-     */
     private fun hideKeyboard(view: View) {
         val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
@@ -228,32 +229,37 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
 
     override fun onResume() {
         super.onResume()
-        school.text = mmkv.decodeString("school", "选择校区")
-        dor.text = mmkv.decodeString("dor", "选择宿舍楼")
-        door_number.setText(mmkv.decodeString("door_number", ""))
-        electronicStore.dispatch(ElectronicAction.selectAddress(school.text.toString()))
-        electronicStore.dispatch(ElectronicAction.selectBuild(dor.text.toString()))
-        if (school.text == "选择校区" || dor.text == "选择宿舍楼" || door_number.text.isEmpty()) {
-            // 如果是初始状态，则显示默认UI
-            ele_image.load(R.drawable.e_default)
+        val savedSchool = mmkv.decodeString("school", "选择校区") ?: "选择校区"
+        val savedDor = mmkv.decodeString("dor", "选择宿舍楼") ?: "选择宿舍楼"
+        val savedDoorNum = mmkv.decodeString("door_number", "") ?: ""
+
+        door_number.setText(savedDoorNum)
+
+        if (savedSchool == "选择校区" || savedDor == "选择宿舍楼" || savedDoorNum.isEmpty()) {
+            ele_image.load(R.drawable.ic_electricity_default)
             ele_num.text = getString(R.string.ele_queryDefault)
             ele_state.text = getString(R.string.ele_state_unknown)
             mmkv.encode("isFirstLaunch", false)
+
+            // Sync initial state to VM without triggering query
+            viewModel.processIntent(
+                ElectronicContract.Intent.Init(
+                    savedSchool,
+                    savedDor,
+                    savedDoorNum
+                )
+            )
         } else {
-            // 如果不是初始状态，则自动查询
-            val processedDoorNumber = processDormAndRoom(dor.text.toString(), door_number.text.toString())
-            electronicStore.dispatch(
-                ElectronicAction.queryElectronic(
-                    CheckElectricity(
-                        school.text.toString(),
-                        dor.text.toString(),
-                        processedDoorNumber
-                    )
+            val processedDoorNumber = processDormAndRoom(savedDor, savedDoorNum)
+            // Trigger load if data exists
+            viewModel.processIntent(
+                ElectronicContract.Intent.Init(
+                    savedSchool,
+                    savedDor,
+                    processedDoorNumber
                 )
             )
         }
-
-
     }
 
     private fun refreshWidget() {
@@ -270,19 +276,11 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         }
     }
 
-    /**
-     * 处理宿舍楼和房间号逻辑
-     * 当dor包含'A'或'B'且door_number中没有字母时，在nod参数中添加相应的字母
-     */
     private fun processDormAndRoom(dor: String, doorNumber: String): String {
-        // 检查dor是否包含'A'或'B'
         val containsA = dor.contains('A')
         val containsB = dor.contains('B')
-
-        // 检查door_number是否包含字母
         val doorContainsLetter = doorNumber.any { it.isLetter() }
 
-        // 如果dor包含'A'或'B'且door_number不包含字母，则添加相应字母
         return when {
             containsA && !doorContainsLetter -> "A$doorNumber"
             containsB && !doorContainsLetter -> "B$doorNumber"
@@ -292,12 +290,9 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
-        outState.putString("ele_school",school.text.toString())
-        outState.putString("ele_dor",dor.text.toString())
-        outState.putString("ele_door",door_number.text.toString())
-
-
+        outState.putString("ele_school", school.text.toString())
+        outState.putString("ele_dor", dor.text.toString())
+        outState.putString("ele_door", door_number.text.toString())
     }
 
     override fun onDestroy() {
@@ -305,6 +300,5 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         mmkv.encode("school", school.text.toString())
         mmkv.encode("dor", dor.text.toString())
         mmkv.encode("door_number", door_number.text.toString())
-        disposables.clear()
     }
 }

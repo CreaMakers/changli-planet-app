@@ -27,7 +27,7 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/fanhui"
+            android:src="@drawable/ic_normal_back"
             android:tint = "@color/color_title_top"/>
 
         <TextView

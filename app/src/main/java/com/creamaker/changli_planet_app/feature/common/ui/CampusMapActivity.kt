@@ -17,78 +17,78 @@ import com.creamaker.changli_planet_app.databinding.ActivityCampusMapBinding
  */
 class CampusMapActivity : FullScreenActivity<ActivityCampusMapBinding>() {
     private var currentMapIndex = 0
-    private val mapResources = listOf(
-        R.drawable.jincun_map,
-        R.drawable.yuntang_map
-    )
+//    private val mapResources = listOf(
+//        R.drawable.jincun_map,
+//        R.drawable.yuntang_map
+//    )
 
     override fun createViewBinding(): ActivityCampusMapBinding = ActivityCampusMapBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setupMapView()
-        setupMapSelector()
+//        setupMapView()
+//        setupMapSelector()
     }
 
-    private fun setupMapView() {
-        binding.mapView.apply {
-            maxScale = 6f
-            minScale = 0.5f
-            setDoubleTapZoomScale(2f)
-            setImage(ImageSource.resource(mapResources[currentMapIndex]))
-            setScaleAndCenter(1f, PointF(0f, 0f))
-        }
-    }
+//    private fun setupMapView() {
+//        binding.mapView.apply {
+//            maxScale = 6f
+//            minScale = 0.5f
+//            setDoubleTapZoomScale(2f)
+//            setImage(ImageSource.resource(mapResources[currentMapIndex]))
+//            setScaleAndCenter(1f, PointF(0f, 0f))
+//        }
+//    }
 
-    private fun setupMapSelector() {
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            listOf("金盆岭校区", "云塘校区")
-        ).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-
-        binding.mapSelector.apply {
-            this.adapter = adapter
-            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    if (position != currentMapIndex) {
-                        currentMapIndex = position
-                        loadNewMap()
-                    }
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
-        }
-    }
-
-
-    override fun onDestroy() {
-        binding.mapView.recycle()
-        super.onDestroy()
-    }
-
-    private fun loadNewMap() {
-        val center = binding.mapView.center
-        val scale = binding.mapView.scale
-
-        binding.mapView.setImage(ImageSource.resource(mapResources[currentMapIndex]))
-
-        if (center != null) {
-            binding.mapView.setScaleAndCenter(scale, center)
-        }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        binding.mapView.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
-    }
+//    private fun setupMapSelector() {
+//        val adapter = ArrayAdapter(
+//            this,
+//            android.R.layout.simple_spinner_item,
+//            listOf("金盆岭校区", "云塘校区")
+//        ).apply {
+//            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        }
+//
+//        binding.mapSelector.apply {
+//            this.adapter = adapter
+//            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//                override fun onItemSelected(
+//                    parent: AdapterView<*>?,
+//                    view: View?,
+//                    position: Int,
+//                    id: Long
+//                ) {
+//                    if (position != currentMapIndex) {
+//                        currentMapIndex = position
+//                        loadNewMap()
+//                    }
+//                }
+//
+//                override fun onNothingSelected(parent: AdapterView<*>?) {}
+//            }
+//        }
+//    }
+//
+//
+//    override fun onDestroy() {
+//        binding.mapView.recycle()
+//        super.onDestroy()
+//    }
+//
+//    private fun loadNewMap() {
+//        val center = binding.mapView.center
+//        val scale = binding.mapView.scale
+//
+//        binding.mapView.setImage(ImageSource.resource(mapResources[currentMapIndex]))
+//
+//        if (center != null) {
+//            binding.mapView.setScaleAndCenter(scale, center)
+//        }
+//    }
+//
+//    override fun onConfigurationChanged(newConfig: Configuration) {
+//        super.onConfigurationChanged(newConfig)
+//        binding.mapView.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
+//    }
 }

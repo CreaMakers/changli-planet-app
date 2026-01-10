@@ -90,7 +90,7 @@
                     android:layout_height="26dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="8dp"
-                    android:src="@drawable/buyincang"
+                    android:src="@drawable/ic_buyincang"
                     android:tint = "@color/color_icon_secondary"/>
 
             </LinearLayout>
@@ -124,7 +124,7 @@
                     android:layout_height="26dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="8dp"
-                    android:src="@drawable/buyincang"
+                    android:src="@drawable/ic_buyincang"
                     android:tint = "@color/color_icon_secondary"/>
 
             </LinearLayout>
@@ -159,7 +159,7 @@
                     android:layout_height="26dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="8dp"
-                    android:src="@drawable/buyincang"
+                    android:src="@drawable/ic_buyincang"
                     android:tint = "@color/color_icon_secondary"/>
 
             </LinearLayout>
@@ -176,7 +176,7 @@
                     android:layout_width="18dp"
                     android:layout_height="19dp"
                     android:layout_marginTop="3dp"
-                    android:src="@drawable/dui"
+                    android:src="@drawable/ic_confirm"
                     android:tint = "@color/color_icon_primary"/>
 
                 <TextView

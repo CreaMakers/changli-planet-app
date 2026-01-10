@@ -7,39 +7,37 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.feature.common.redux.store.ElectronicStore
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.SelectorAdapter
-import com.creamaker.changli_planet_app.utils.Event.SelectEvent
-import com.creamaker.changli_planet_app.utils.EventBusLifecycleObserver
 import com.creamaker.changli_planet_app.widget.view.DividerItemDecoration
 import com.creamaker.changli_planet_app.widget.view.MaxHeightLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.greenrobot.eventbus.Subscribe
 
 class WheelBottomDialog(
-    val store: ElectronicStore, val maxHeight: Int
-) :
-    BottomSheetDialogFragment() {
+    val maxHeight: Int,
+    val onItemSelect: (String) -> Unit
+) : BottomSheetDialogFragment() {
+    
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SelectorAdapter
-    private lateinit var text: String
     private lateinit var item: List<String>
     private var selectedIndex = 0
-    private var onInvoke: ((String) -> Unit)? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        lifecycle.addObserver(EventBusLifecycleObserver(this))
         val view = inflater.inflate(R.layout.select_dor_school, container, false)
 
         val maxHeightLinearLayout = view.findViewById<MaxHeightLinearLayout>(R.id.maxHeightLayout)
         maxHeightLinearLayout.setMaxHeight(maxHeight)
 
         recyclerView = view.findViewById(R.id.selector)
-        adapter = SelectorAdapter(item, store)
+        // Pass a wrapper to adapter that calls the external callback AND dismisses the dialog
+        adapter = SelectorAdapter(item) { selectedValue ->
+            onItemSelect(selectedValue)
+            dismiss()
+        }
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         recyclerView.scrollToPosition(selectedIndex)
@@ -51,14 +49,8 @@ class WheelBottomDialog(
         item = list.toList()
     }
 
+    // Unused but keeping for compatibility if needed, though setTitle was not used in previous code view except assignment
     fun setTitle(title: String) {
-        text = title
-    }
-
-    @Subscribe
-    fun ClickEvent(selectEvent: SelectEvent) {
-        if (selectEvent.eventType == 1) {
-            dismiss()
-        }
+        // text = title // text was unused in previous file
     }
 }

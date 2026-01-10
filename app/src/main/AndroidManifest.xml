@@ -122,20 +122,14 @@
         <activity
             android:name=".base.FullScreenActivity"
             android:exported="false" />
-        <activity
-            android:name=".feature.common.ui.ClassInfoActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+        <!--        <activity-->
+        <!--            android:name=".feature.common.ui.ClassInfoActivity"-->
+        <!--            android:exported="false"-->
+        <!--            android:screenOrientation="portrait" />-->
         <activity
             android:name=".settings.ui.CityActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".feature.lostfound.ui.PublishFoundThingActivity"
-            android:exported="false" />
-        <activity
-            android:name=".feature.lostfound.ui.PublishLoseThingActivity"
-            android:exported="false" />
         <activity
             android:name=".feature.common.ui.ScoreInquiryActivity"
             android:exported="false"
@@ -194,11 +188,6 @@
         <activity
             android:name=".auth.ui.RegisterActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".feature.lostfound.ui.LoseActivity"
-            android:exported="false"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".core.MainActivity"

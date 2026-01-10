@@ -24,6 +24,8 @@ class FreshNewsContract {
         class LikeNews(val freshNewsId: Int) : Intent()
         class FavoriteNews(val freshNewsId: Int) : Intent()
         class OpenComments(val freshNewsItem: FreshNewsItem) : Intent()
+        class UpdateLocalCommentCount(val newsId: Int, val count: Int) : Intent()
+        class UpdateLocalUserInfo(val userId: Int, val name: String, val avatar: String) : Intent()
     }
 
     data class State(

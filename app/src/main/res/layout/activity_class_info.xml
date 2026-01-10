@@ -28,7 +28,7 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/fanhui"
+            android:src="@drawable/ic_normal_back"
             android:tint="@color/color_title_top"/>
 
         <TextView
@@ -245,7 +245,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:background="@drawable/gradient_button_background"
+                android:background="@drawable/bg_gradient_button"
                 android:paddingVertical="10dp"
                 android:textColor="@color/color_text_button"
                 android:text="查询"
