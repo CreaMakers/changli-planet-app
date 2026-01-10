@@ -72,7 +72,9 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
         }
+
         create("benchmark") {
+            signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
