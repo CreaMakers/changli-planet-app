@@ -87,14 +87,12 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 setupTabSelectionListener()
             }
 
-//            if( !PlanetApplication.Companion.is_tourist) {  //游客模式不获取用户信息
-//                launch(Dispatchers.IO) {
-//                    Log.d("Trainer", "9")
-//                    store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
-//                    store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
-//                    Log.d("Trainer", "10")
-//                }
-//            }
+        if( !PlanetApplication.Companion.is_tourist && !PlanetApplication.Companion.is_expired) {  //游客模式不获取用户信息
+                launch(Dispatchers.IO) {
+                  store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
+                   store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+              }
+           }
         }
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
         // 检查版本更新
