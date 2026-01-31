@@ -87,7 +87,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 setupTabSelectionListener()
             }
 
-        if( !PlanetApplication.Companion.is_tourist && !PlanetApplication.Companion.is_expired) {  //游客模式不获取用户信息
+        if( !PlanetApplication.Companion.is_tourist) {  //游客模式不获取用户信息
                 launch(Dispatchers.IO) {
                   store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
                    store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
