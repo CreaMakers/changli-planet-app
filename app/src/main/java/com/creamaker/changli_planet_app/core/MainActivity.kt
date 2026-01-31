@@ -247,7 +247,6 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
         //修改
 
         if(newFragment == fragments[1] && PlanetApplication.is_expired){
-            Log.d("Trainer", "yes")
             Route.goLogin(this@MainActivity)
         }
 
