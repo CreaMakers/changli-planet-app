@@ -37,6 +37,13 @@ class PlanetApplication : Application() {
             set(value) {
                 MMKV.defaultMMKV()?.putBoolean("is_tourist", value)
             }
+
+        var is_expired: Boolean
+            get() = MMKV.defaultMMKV()?.getBoolean("is_expired", false) ?: false
+            set(value) {
+                MMKV.defaultMMKV()?.putBoolean("is_expired", value)
+            }
+
         var startTime: Long = 0
         var deviceId: String = ""
         lateinit var appContext: Context

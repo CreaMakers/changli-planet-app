@@ -52,35 +52,49 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         EventBus.getDefault().register(this)
-        if (PlanetApplication.Companion.accessToken.isNullOrEmpty() && !PlanetApplication.Companion.is_tourist) {
-            Route.goLogin(this@MainActivity)
-            finish()
-            return
-        }
+//        if (PlanetApplication.Companion.accessToken.isNullOrEmpty() && !PlanetApplication.Companion.is_tourist) {
+//            Route.goLogin(this@MainActivity)
+//            finish()
+//            return
+//       }
+        //  Route.goHome(this@MainActivity)
         CommonInfo.startTime = System.currentTimeMillis()
         enableEdgeToEdge()
         val start = System.currentTimeMillis()
+
+
         PlanetApplication.Companion.startTime = System.currentTimeMillis()
         setContentView(binding.root)
+
+
         drawerLayout = binding.drawerLayout
+
+
         if (savedInstanceState == null) {
             val firstFragment = FeatureFragment.Companion.newInstance()
             fragments[0] = firstFragment
+
             supportFragmentManager.beginTransaction()
                 .add(R.id.frag, firstFragment)
                 .commit()
         }
+
         setupTabs()
+
         lifecycleScope.launch {
             launch(Dispatchers.Main) {
+
                 setupTabSelectionListener()
             }
-            if( !PlanetApplication.Companion.is_tourist) {  //游客模式不获取用户信息
-                launch(Dispatchers.IO) {
-                    store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
-                    store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
-                }
-            }
+
+//            if( !PlanetApplication.Companion.is_tourist) {  //游客模式不获取用户信息
+//                launch(Dispatchers.IO) {
+//                    Log.d("Trainer", "9")
+//                    store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
+//                    store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
+//                    Log.d("Trainer", "10")
+//                }
+//            }
         }
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
         // 检查版本更新
@@ -120,7 +134,6 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
             }
             fragments.put(key, fragment)     //重新添加fragment
         }
-
         tabLayout.selectTab(tabLayout.getTabAt(currentTabPosition)) //恢复tabLayout
     }
 
@@ -231,6 +244,17 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
     private fun switchFragment(newFragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
+        //修改
+
+        if(newFragment == fragments[1] && PlanetApplication.is_expired){
+            Log.d("Trainer", "yes")
+            Route.goLogin(this@MainActivity)
+        }
+
+        if(newFragment == fragments[3] && PlanetApplication.is_expired){
+            Route.goLogin(this@MainActivity)
+        }
+
         fragments[currentTabPosition]?.let {
             transaction.hide(it)
         }

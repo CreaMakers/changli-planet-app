@@ -74,6 +74,8 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                         when (fromJson.msg) {
 
                             "用户登录成功" -> {
+                                //修改
+                                PlanetApplication.Companion.is_expired = false
                                 UserInfoManager.username = action.userPassword.username
                                 UserInfoManager.userPassword = action.userPassword.password
                                 PlanetApplication.Companion.accessToken = response.header("Authorization", "") ?: ""
@@ -115,6 +117,8 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                             MyResponse::class.java
                         )
                         if(fromJson.msg=="用户登录成功"){
+                            //修改
+                            PlanetApplication.Companion.is_expired = false
                             UserInfoManager.userEmail = action.userEmail.email
                             PlanetApplication.Companion.accessToken = response.header("Authorization", "") ?: ""
                             handler.post {

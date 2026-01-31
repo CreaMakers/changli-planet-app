@@ -1,10 +1,8 @@
 package com.creamaker.changli_planet_app.core.network
 
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.creamaker.changli_planet_app.auth.ui.LoginActivity
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.network.interceptor.NetworkLogger
 import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
@@ -55,6 +53,11 @@ object OkHttpHelper {
 
         override fun intercept(chain: Interceptor.Chain): Response {
             val originalRequest = chain.request()
+
+            //修改
+            if(PlanetApplication.is_expired){
+                return chain.proceed(originalRequest)
+            }
 
             // 添加 Authorization 头
             val requestWithToken = originalRequest.newBuilder()
@@ -182,12 +185,15 @@ object OkHttpHelper {
             .writeTimeout(10, TimeUnit.SECONDS)
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
             .addInterceptor(AuthInterceptor(object : AuthInterceptor.TokenExpiredHandler {
+
+                //修改
                 override fun onTokenExpired() {
                     Handler(Looper.getMainLooper()).post {
-                        val intent = Intent(PlanetApplication.appContext, LoginActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                            .putExtra("from_token_expired", true)
-                        PlanetApplication.appContext.startActivity(intent)
+//                        val intent = Intent(PlanetApplication.appContext, MainActivity::class.java)
+//                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+//                            .putExtra("from_token_expired", true)
+                        PlanetApplication.is_expired = true
+//                        PlanetApplication.appContext.startActivity(intent)
                     }
                 }
             }))

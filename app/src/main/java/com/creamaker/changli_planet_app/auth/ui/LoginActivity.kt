@@ -11,6 +11,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
