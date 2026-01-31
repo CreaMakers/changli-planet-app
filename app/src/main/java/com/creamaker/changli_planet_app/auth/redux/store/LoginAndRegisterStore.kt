@@ -74,7 +74,6 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
                         when (fromJson.msg) {
 
                             "用户登录成功" -> {
-                                //修改
                                 PlanetApplication.Companion.is_expired = false
                                 UserInfoManager.username = action.userPassword.username
                                 UserInfoManager.userPassword = action.userPassword.password

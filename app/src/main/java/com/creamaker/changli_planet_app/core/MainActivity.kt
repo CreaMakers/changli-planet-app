@@ -57,7 +57,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 //            finish()
 //            return
 //       }
-        //  Route.goHome(this@MainActivity)
+        ////  Route.goHome(this@MainActivity)
         CommonInfo.startTime = System.currentTimeMillis()
         enableEdgeToEdge()
         val start = System.currentTimeMillis()
