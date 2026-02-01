@@ -56,7 +56,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 //            Route.goLogin(this@MainActivity)
 //            finish()
 //            return
-//       }
+//   //    }
         ////  Route.goHome(this@MainActivity)
         CommonInfo.startTime = System.currentTimeMillis()
         enableEdgeToEdge()
