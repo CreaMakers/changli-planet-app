@@ -182,7 +182,7 @@ class PlanetApplication : Application() {
 //
 //    fun init(context: Context) {
 //        this.myContext = context.applicationContext
-//        defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+// //       defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
 //        Thread.setDefaultUncaughtExceptionHandler(this)
 //    }
 //

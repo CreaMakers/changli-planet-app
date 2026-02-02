@@ -87,7 +87,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
 
                             else -> {
                                 handler.post {
-//                                    LoginInformationDialog(
+// //                                   LoginInformationDialog(
 //                                        action.context,
 //                                        fromJson.msg,
 //                                        "登陆失败"
