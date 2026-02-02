@@ -91,7 +91,7 @@ class LoginAndRegisterStore : Store<LoginAndRegisterState, LoginAndRegisterActio
 //                                        action.context,
 //                                        fromJson.msg,
 //                                        "登陆失败"
-////                                    ).show()
+//                                    ).show()
                                     LoginInformationDialog.Companion.showDialog(action.context,fromJson.msg,"登陆失败")
                                 }
                             }
