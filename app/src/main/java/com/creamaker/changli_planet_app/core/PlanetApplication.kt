@@ -37,13 +37,20 @@ class PlanetApplication : Application() {
             set(value) {
                 MMKV.defaultMMKV()?.putBoolean("is_tourist", value)
             }
+
+        var is_expired: Boolean
+            get() = MMKV.defaultMMKV()?.getBoolean("is_expired", false) ?: false
+            set(value) {
+                MMKV.defaultMMKV()?.putBoolean("is_expired", value)
+            }
+
         var startTime: Long = 0
         var deviceId: String = ""
         lateinit var appContext: Context
 
         const val UserIp: String = "https://user.csust.creamaker.cn"
         const val ToolIp: String = "https://web.csust.creamaker.cn"
-//        const val FreshNewsIp: String = "http://freshnews.csust.creamaker.cn"
+//       const val FreshNewsIp: String = "http://freshnews.csust.creamaker.cn"
 //        const val ToolIp: String = "http://10.0.2.2:8081/app/tools"
 
         val preRequestIps = listOf(
@@ -175,7 +182,7 @@ class PlanetApplication : Application() {
 //
 //    fun init(context: Context) {
 //        this.myContext = context.applicationContext
-//        defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+// //       defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
 //        Thread.setDefaultUncaughtExceptionHandler(this)
 //    }
 //
