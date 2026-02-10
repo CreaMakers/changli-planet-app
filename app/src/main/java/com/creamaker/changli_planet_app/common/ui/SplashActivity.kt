@@ -1,6 +1,7 @@
 package com.creamaker.changli_planet_app.common.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -27,13 +28,16 @@ class SplashActivity : AppCompatActivity() {
         }
         // 使用协程来处理延迟任务
         lifecycleScope.launch {
-            if (PlanetApplication.Companion.accessToken.isNullOrEmpty() && !PlanetApplication.Companion.is_tourist) {
-                delay(300) // 延迟 0.2 秒
-                Route.goLogin(this@SplashActivity)
-            } else {
-                delay(200) // 延迟 0.2 秒
-                Route.goHome(this@SplashActivity)
-            }
+//            if (PlanetApplication.Companion.accessToken.isNullOrEmpty() && !PlanetApplication.Companion.is_tourist) {
+//                delay(300) // 延迟 0.2 秒
+//                Route.goLogin(this@SplashActivity)
+//            } else {
+//                delay(200) // 延迟 0.2 秒
+//                Route.goHome(this@SplashActivity)
+//            }
+            delay(200)
+            Route.goHome(this@SplashActivity)
+
             finish()
         }
     }

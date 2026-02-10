@@ -343,13 +343,26 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
 
                     }
                     is ApiResponse.Error -> {
-                        if (page == 1) updateState { copy(freshNewsListResults = ApiResponse.Error(resource.msg)) }
-                        handler.post {
-                            CustomToast.Companion.showMessage(
-                                PlanetApplication.Companion.appContext,
-                                "刷新失败: ${resource.msg}"
+                        //修改
+                        Log.d("Trainer", "${PlanetApplication.Companion.is_expired}")
+
+                        if (page == 1) updateState {
+                            copy(
+                                freshNewsListResults = ApiResponse.Error(
+                                    resource.msg
+                                )
                             )
                         }
+
+                        if (!PlanetApplication.Companion.is_expired){
+                            handler.post {
+                                CustomToast.Companion.showMessage(
+                                    PlanetApplication.Companion.appContext,
+                                    "刷新失败: ${resource.msg}"
+                                )
+                            }
+                        }
+
                     }
                     else -> {}
                 }

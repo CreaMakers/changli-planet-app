@@ -1,10 +1,8 @@
 package com.creamaker.changli_planet_app.core.network
 
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.creamaker.changli_planet_app.auth.ui.LoginActivity
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.network.interceptor.NetworkLogger
 import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
@@ -55,6 +53,11 @@ object OkHttpHelper {
 
         override fun intercept(chain: Interceptor.Chain): Response {
             val originalRequest = chain.request()
+
+            //修改
+            if(PlanetApplication.is_expired){
+                return chain.proceed(originalRequest)
+            }
 
             // 添加 Authorization 头
             val requestWithToken = originalRequest.newBuilder()
@@ -182,12 +185,15 @@ object OkHttpHelper {
             .writeTimeout(10, TimeUnit.SECONDS)
             .addInterceptor(NetworkLogger.getLoggingInterceptor())
             .addInterceptor(AuthInterceptor(object : AuthInterceptor.TokenExpiredHandler {
+
+                //修改
                 override fun onTokenExpired() {
                     Handler(Looper.getMainLooper()).post {
-                        val intent = Intent(PlanetApplication.appContext, LoginActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                            .putExtra("from_token_expired", true)
-                        PlanetApplication.appContext.startActivity(intent)
+//                        val intent = Intent(PlanetApplication.appContext, MainActivity::class.java)
+//                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+//                            .putExtra("from_token_expired", true)
+                        PlanetApplication.is_expired = true
+//                        PlanetApplication.appContext.startActivity(intent)
                     }
                 }
             }))
@@ -302,7 +308,7 @@ object OkHttpHelper {
 //            .url(PlanetApplication.UserIp + "/me/token")
 //            .put(body)
 //            .build()
-//        // 发送请求
+//        发送请求
 //        client.newCall(request).enqueue(object : Callback {
 //            override fun onFailure(call: Call, e: IOException) {
 //                Log.e("API Error", "请求失败: ${e.message}")
@@ -313,7 +319,7 @@ object OkHttpHelper {
 //                if (response.isSuccessful && response.body != null) {
 //                    PlanetApplication.accessToken = response.headers["Authorization"]
 //                } else {
-//                    Log.e("API Error", "响应错误: ${response.code} - ${response.message}")
+//                  Log.e("API Error", "响应错误: ${response.code} - ${response.message}")
 //                    // 处理响应不成功的逻辑
 //                }
 //            }

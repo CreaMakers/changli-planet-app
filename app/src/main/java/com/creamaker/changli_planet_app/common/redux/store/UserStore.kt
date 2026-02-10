@@ -50,9 +50,11 @@ class UserStore : Store<UserState, UserAction>() {
     override fun handleEvent(action: UserAction) {
         currentState = when (action) {
             is UserAction.GetCurrentUserProfile -> {
+
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .get(PlanetApplication.Companion.UserIp + "/me/profile")
                     .build()
+
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
                         val fromJson = OkHttpHelper.gson.fromJson(
@@ -80,14 +82,16 @@ class UserStore : Store<UserState, UserAction>() {
                                 }
                             }
 
-                            else -> {
-                                handler.post {
-                                    CustomToast.Companion.showMessage(
-                                        action.context,
-                                        "请求失败, ${fromJson.msg}"
-                                    )
-                                }
-                            }
+                            //修改
+//                            else -> {
+//                                Log.d("Trainer", "OK!200")
+//                                handler.post {
+//                                    CustomToast.Companion.showMessage(
+//                                        action.context,
+//                                        "请求失败, ${fromJson.msg}"
+//                                    )
+//                                }
+//                            }
                         }
                         _state.onNext(currentState)
                     }
@@ -108,9 +112,11 @@ class UserStore : Store<UserState, UserAction>() {
             }
 
             is UserAction.GetCurrentUserStats -> {
+
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
                     .get(PlanetApplication.Companion.UserIp + "/me/stats")
                     .build()
+
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
                         val fromJson = OkHttpHelper.gson.fromJson(
@@ -124,14 +130,16 @@ class UserStore : Store<UserState, UserAction>() {
                                 }
                             }
 
-                            else -> {
-                                handler.post {
-                                    CustomToast.Companion.showMessage(
-                                        action.context,
-                                        "请求失败, ${fromJson.msg}"
-                                    )
-                                }
-                            }
+                            //修改
+//                            else -> {
+//                                handler.post {
+//                                    Log.d("Trainer", "!200")
+//                                    CustomToast.Companion.showMessage(
+//                                        action.context,
+//                                        "请求失败, ${fromJson.msg}"
+//                                    )
+//                                }
+//                            }
                         }
 
                         _state.onNext(currentState)

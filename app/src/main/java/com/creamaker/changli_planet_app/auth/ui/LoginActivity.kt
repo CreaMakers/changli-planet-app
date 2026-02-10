@@ -11,6 +11,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
@@ -370,7 +371,7 @@ fun LoginScreen() {
                 contentScale = ContentScale.FillBounds
             )
 
-            // 主内容：ConstraintLayout
+            //// 主内容：ConstraintLayout
             ConstraintLayout(
                 modifier = Modifier
                     .fillMaxSize()
