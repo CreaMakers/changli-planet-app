@@ -56,9 +56,7 @@ android {
 
         ndk {
             // 设置支持的SO库架构
-            abiFilters.add("armeabi") //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
             abiFilters.add("arm64-v8a")
-            abiFilters.add("x86")
             abiFilters.add("armeabi-v7a")
         }
     }
@@ -66,6 +64,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -186,7 +185,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.process.ktx)
     implementation(libs.androidx.activity.compose)
