@@ -15,6 +15,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -104,6 +105,13 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         initView()
         initListener()
         checkUpdate()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+              Route.goHome(this@LoginActivity)
+                finish()
+            }
+        })
     }
 
     private fun checkUpdate(){
@@ -286,7 +294,6 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
             finish()
         }
     }
-
     private fun inputFilterPassword(editText: EditText) {
         val inputFilter = InputFilter { source, _, _, _, _, _ ->
             val regex = Regex("^[a-zA-Z0-9!@#\$%^&*(),.?\":{}|<>]+$")
@@ -302,6 +309,8 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         underlinetext.setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         view.text = underlinetext
     }
+
+
 
 //    private fun getNotificationPermissions() {
 //        if (ActivityCompat.checkSelfPermission(

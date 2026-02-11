@@ -6,7 +6,6 @@ import android.graphics.drawable.ColorDrawable
 import android.widget.TextView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.BaseDialog
-import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 
 class GuestLimitedAccessDialog(
@@ -33,15 +32,16 @@ class GuestLimitedAccessDialog(
         no.text = "我再看看"
 
         yes.setOnClickListener {
-            NormalChosenDialog(
-                context,
-                "将清除本地所有缓存哦~",
-                "现在进行登录吗",
-                onConfirm = {
-                    PlanetApplication.Companion.clearCacheAll()
-                    Route.goLoginForcibly(context)
-                }
-            ).show()
+//            NormalChosenDialog(
+//                context,
+//                "将清除本地所有缓存哦~",
+//                "现在进行登录吗",
+//                onConfirm = {
+//                    PlanetApplication.Companion.clearCacheAll()
+//                    Route.goLoginForcibly(context)
+//                }
+//            ).show()
+            Route.goLoginForcibly(context)
             dismiss()
         }
         no.setOnClickListener {
