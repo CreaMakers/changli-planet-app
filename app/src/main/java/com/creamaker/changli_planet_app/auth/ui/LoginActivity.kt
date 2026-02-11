@@ -1,6 +1,5 @@
 package com.creamaker.changli_planet_app.auth.ui
 
-import android.Manifest
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -11,7 +10,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.UnderlineSpan
-import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
@@ -62,7 +60,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.core.app.ActivityCompat
 import androidx.core.content.pm.PackageInfoCompat
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.auth.data.remote.dto.UserPassword
@@ -112,7 +109,7 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
     private fun checkUpdate(){
         // 检查版本更新
         Looper.myQueue().addIdleHandler {
-            getNotificationPermissions()
+            //getNotificationPermissions()
             val packageManager: PackageManager = this@LoginActivity.packageManager
             val packageInfo: PackageInfo =
                 packageManager.getPackageInfo(this@LoginActivity.packageName, 0)
@@ -306,39 +303,40 @@ class LoginActivity : FullScreenActivity<ActivityLoginBinding>() {
         view.text = underlinetext
     }
 
-    private fun getNotificationPermissions() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                REQUEST_NOTIFICATION
-            )
-        } else {
-            return
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            REQUEST_NOTIFICATION ->
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getNotificationPermissions()
-                }
-
-        }
-    }
-    companion object {
-        private const val REQUEST_NOTIFICATION = 1002
-    }
+//    private fun getNotificationPermissions() {
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.POST_NOTIFICATIONS
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+//                REQUEST_NOTIFICATION
+//            )
+//        } else {
+//            return
+//        }
+//    }
+//
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        when (requestCode) {
+//            REQUEST_NOTIFICATION ->
+//                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    getNotificationPermissions()
+//                }
+//
+//
+//        }
+//    }
+//    companion object {
+//        private const val REQUEST_NOTIFICATION = 1002
+//    }
 
 
 }

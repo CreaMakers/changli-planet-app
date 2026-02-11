@@ -97,6 +97,8 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
         // 检查版本更新
         Looper.myQueue().addIdleHandler { //添加通知权限
+           // getNotificationPermissions()
+            getNetPermissions()
             val packageManager: PackageManager = this@MainActivity.packageManager
             val packageInfo: PackageInfo =
                 packageManager.getPackageInfo(this@MainActivity.packageName, 0)
@@ -182,6 +184,21 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
         }
     }
 
+    private fun getNotificationPermissions(){
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ){
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_NOTIFICATION
+            )
+        }else  return
+    }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -190,11 +207,15 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            REQUEST_READ_TELEPHONE ->
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getNetPermissions()
-                }
-
+//            REQUEST_READ_TELEPHONE ->
+//                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    getNetPermissions()
+//                }
+//            REQUEST_NOTIFICATION ->
+//                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+//                    getNotificationPermissions()
+//                }
+            REQUEST_READ_TELEPHONE -> getNotificationPermissions() //获取完电话后再获取通知权限
         }
     }
 
@@ -204,7 +225,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 if (suppress) return
                 if (currentTabPosition == tab.position) return
 
-                val needBlock = (tab.position == 1 && PlanetApplication.is_tourist) // 自行替换条件
+                val needBlock = (PlanetApplication.is_expired) // 自行替换条件
                 if (needBlock) {
                     GuestLimitedAccessDialog(this@MainActivity).show()
 
@@ -244,13 +265,13 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
         val transaction = supportFragmentManager.beginTransaction()
         //修改
 
-        if(newFragment == fragments[1] && PlanetApplication.is_expired){
-            Route.goLogin(this@MainActivity)
-        }
-
-        if(newFragment == fragments[3] && PlanetApplication.is_expired){
-            Route.goLogin(this@MainActivity)
-        }
+//        if(newFragment == fragments[1] && PlanetApplication.is_expired){
+//            GuestLimitedAccessDialog(this@MainActivity).show()
+//        }
+//
+//        if(newFragment == fragments[3] && PlanetApplication.is_expired){
+//            GuestLimitedAccessDialog(this@MainActivity).show()
+//        }
 
         fragments[currentTabPosition]?.let {
             transaction.hide(it)
@@ -280,6 +301,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
     companion object {
         private const val REQUEST_READ_TELEPHONE = 1001
+        private const val REQUEST_NOTIFICATION = 1002
     }
     @Subscribe
     fun selectProfileFragment(selectEvent: SelectEvent){

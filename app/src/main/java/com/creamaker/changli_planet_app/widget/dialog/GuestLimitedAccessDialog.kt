@@ -23,7 +23,7 @@ class GuestLimitedAccessDialog(
         window?.setWindowAnimations(R.style.DialogAnimation)
 
         contents = findViewById(R.id.content)
-        contents.text = "当前功能游客无法使用，请登录后再继续使用！"
+        contents.text = "当前功能需要登录后才能使用，请先登录！"
         fade = findViewById(R.id.fade)
         fade.text = "进入未知区域了哦~"
 
