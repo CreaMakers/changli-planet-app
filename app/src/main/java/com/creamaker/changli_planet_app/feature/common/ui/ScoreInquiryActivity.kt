@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
+import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityScoreInquiryBinding
 import com.creamaker.changli_planet_app.feature.common.contract.ScoreInquiryContract
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.Grade
@@ -63,6 +64,14 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if(studentId.isEmpty() || studentPassword.isEmpty()){
+            showMessage("请先填写学号和密码")
+            Route.goBindingUser(this@ScoreInquiryActivity)
+            finish()
+            return
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(

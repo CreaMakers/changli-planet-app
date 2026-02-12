@@ -3,7 +3,7 @@ package com.creamaker.changli_planet_app.common.data.local.mmkv
 import com.tencent.mmkv.MMKV
 
 object StudentInfoManager {
-    private val mmkv by lazy { MMKV.mmkvWithID("import_cache") }
+    private val mmkv by lazy { MMKV.mmkvWithID("stu_info_cache") }
 
     private const val KEY_STUDENT_ID = "student_id"
     private const val KEY_PASSWORD = "student_password"

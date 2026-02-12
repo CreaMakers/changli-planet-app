@@ -225,7 +225,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 if (suppress) return
                 if (currentTabPosition == tab.position) return
 
-                val needBlock = (PlanetApplication.is_expired) // 自行替换条件
+                val needBlock = (PlanetApplication.is_expired && tab.position != 3 && tab.position != 0 ) // 自行替换条件
                 if (needBlock) {
                     GuestLimitedAccessDialog(this@MainActivity).show()
 

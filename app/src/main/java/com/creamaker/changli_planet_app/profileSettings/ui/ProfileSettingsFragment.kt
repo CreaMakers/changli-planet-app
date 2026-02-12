@@ -85,9 +85,9 @@ class ProfileSettingsFragment : Fragment() {
             setContent {
                 AppSkinTheme {
                     // 初始化状态数据
-                    val isTourist = remember { PlanetApplication.is_tourist }
+                    val isExpired = remember { PlanetApplication.is_expired }
                     val username = remember {
-                        if (isTourist) "长理学子~" else UserInfoManager.account ?: "用户名"
+                        if (isExpired) "长理学子~" else UserInfoManager.account ?: "用户名"
                     }
                     val avatarUrl = remember { UserInfoManager.userAvatar }
 
@@ -100,7 +100,7 @@ class ProfileSettingsFragment : Fragment() {
                         items = createSettingItems(),
                         username = username,
                         avatarData = avatarUrl,
-                        isTourist = isTourist,
+                        isTourist = isExpired,
                         onItemClick = { item ->
                             if (item.id == "4") {
                                 // 特殊处理清除缓存，不走通用跳转逻辑
@@ -113,10 +113,10 @@ class ProfileSettingsFragment : Fragment() {
                             showLogoutDialog = true
                         },
                         onEditProfileClick = {
-                            handleEditProfileClick(isTourist)
+                            handleEditProfileClick(isExpired)
                         },
                         onAvatarClick = {
-                            if (isTourist) {
+                            if (isExpired) {
                                 showLogoutDialog = true // 游客点击头像也触发登录提示
                             }
                         }
@@ -137,15 +137,16 @@ class ProfileSettingsFragment : Fragment() {
 
                     // 弹窗逻辑：登出/游客登录
                     if (showLogoutDialog) {
-                        val title = if (isTourist) "将清除本地所有缓存哦~" else "将清除本地所有缓存"
-                        val content = if (isTourist) "现在进行登录吗" else "是否登出"
+                        val title = if (isExpired) "将清除该账号的缓存哦~" else "将清除该账号缓存"
+                        val content = if (isExpired) "现在进行登录吗" else "是否登出"
 
                         ConfirmDialog(
                             title = title,
                             content = content,
                             onDismiss = { showLogoutDialog = false },
                             onConfirm = {
-                                PlanetApplication.clearCacheAll()
+                                PlanetApplication.clearLocalCache()
+                                PlanetApplication.is_expired = true
                                 Route.goLoginForcibly(context)
                                 showLogoutDialog = false
                             }
@@ -176,7 +177,7 @@ class ProfileSettingsFragment : Fragment() {
             "2" -> { /* 隐私设置 TODO */ }
             "3" -> {
                 if (PlanetApplication.is_tourist) {
-                    CustomToast.showMessage(requireContext(), "游客账号无法进行此操作哦~")
+                    CustomToast.showMessage(requireContext(), "未登录无法进行此操作哦~")
                 } else {
                     Route.goAccountSecurity(requireContext())
                 }
@@ -221,7 +222,7 @@ class ProfileSettingsFragment : Fragment() {
 
             SettingsListSection(
                 items = items,
-                isTourist = isTourist,
+                isExpired = isTourist,
                 onItemClick = onItemClick,
                 onLogoutClick = onLogoutClick
             )
@@ -317,7 +318,7 @@ class ProfileSettingsFragment : Fragment() {
     @Composable
     fun SettingsListSection(
         items: List<SettingItemUiModel>,
-        isTourist: Boolean,
+        isExpired: Boolean,
         onItemClick: (SettingItemUiModel.Option) -> Unit,
         onLogoutClick: () -> Unit
     ) {
@@ -361,7 +362,7 @@ class ProfileSettingsFragment : Fragment() {
                             .height(50.dp)
                     ) {
                         Text(
-                            text = if (isTourist) "登录账号" else stringResource(id = R.string.logout),
+                            text = if (isExpired) "登录账号" else stringResource(id = R.string.logout),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
