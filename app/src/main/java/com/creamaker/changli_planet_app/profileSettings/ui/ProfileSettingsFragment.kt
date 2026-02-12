@@ -63,6 +63,7 @@ import com.creamaker.changli_planet_app.profileSettings.ui.model.SettingItemUiMo
 import com.creamaker.changli_planet_app.utils.Event.SelectEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.NetworkUtil
+import com.creamaker.changli_planet_app.widget.dialog.GuestLimitedAccessDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 class ProfileSettingsFragment : Fragment() {
@@ -176,8 +177,9 @@ class ProfileSettingsFragment : Fragment() {
         when (item.id) {
             "2" -> { /* 隐私设置 TODO */ }
             "3" -> {
-                if (PlanetApplication.is_tourist) {
-                    CustomToast.showMessage(requireContext(), "未登录无法进行此操作哦~")
+                if (PlanetApplication.is_expired) {
+                    //CustomToast.showMessage(requireContext(), "未登录无法进行此操作哦~")
+                    GuestLimitedAccessDialog(requireContext()).show()
                 } else {
                     Route.goAccountSecurity(requireContext())
                 }
