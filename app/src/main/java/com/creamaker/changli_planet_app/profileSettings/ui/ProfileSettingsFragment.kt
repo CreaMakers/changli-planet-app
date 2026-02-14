@@ -138,7 +138,7 @@ class ProfileSettingsFragment : Fragment() {
 
                     // 弹窗逻辑：登出/游客登录
                     if (showLogoutDialog) {
-                        val title = if (isExpired) "将清除该账号的缓存哦~" else "将清除该账号缓存"
+                        val title = if (isExpired) "登录确认" else "将清除该账号缓存"
                         val content = if (isExpired) "现在进行登录吗" else "是否登出"
 
                         ConfirmDialog(
