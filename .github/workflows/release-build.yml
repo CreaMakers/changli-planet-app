@@ -85,5 +85,4 @@ jobs:
       build_status: ${{ needs.build-release.result }}
       obs_url: ${{ needs.call-upload-to-obs.outputs.obs_url }}
     secrets:
-      WEBHOOK_API_KEY: ${{ secrets.WEBHOOK_API_KEY }}
       WEBHOOK_ADDRESS: ${{ secrets.WEBHOOK_ADDRESS }}
