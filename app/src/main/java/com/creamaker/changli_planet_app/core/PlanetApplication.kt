@@ -64,7 +64,6 @@ class PlanetApplication : Application() {
                 accessToken = ""
                 is_tourist = false
                 MMKV.mmkvWithID("education_cache").clearAll()
-                MMKV.mmkvWithID("import_cache").clearAll()
                 MMKV.mmkvWithID("content_cache").clearAll()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
@@ -73,6 +72,7 @@ class PlanetApplication : Application() {
         fun clearSchoolDataCacheAll(){
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
+                MMKV.mmkvWithID("stu_info_cache").clearAll()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
             }
@@ -82,6 +82,12 @@ class PlanetApplication : Application() {
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
+            }
+        }
+
+        fun clearLocalCache() {
+            CoroutineScope(Dispatchers.IO).launch {
+                MMKV.mmkvWithID("import_cache").clearAll()
             }
         }
 

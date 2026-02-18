@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.feature.timetable.viewmodel.TimeTableViewModel
-import com.creamaker.changli_planet_app.utils.Event.SelectEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
+import com.creamaker.changli_planet_app.utils.event.SelectEvent
 
 class TimeTableSelectorAdapter(
     private val context: Context,

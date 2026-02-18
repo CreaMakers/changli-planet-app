@@ -2,11 +2,10 @@ package com.creamaker.changli_planet_app.widget.dialog
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.BaseDialog
-import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 
 class GuestLimitedAccessDialog(
@@ -19,11 +18,11 @@ class GuestLimitedAccessDialog(
     private lateinit var fade: TextView
 
     override fun init() {
-        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         window?.setWindowAnimations(R.style.DialogAnimation)
 
         contents = findViewById(R.id.content)
-        contents.text = "当前功能游客无法使用，请登录后再继续使用！"
+        contents.text = "当前功能需要登录后才能使用，请先登录！"
         fade = findViewById(R.id.fade)
         fade.text = "进入未知区域了哦~"
 
@@ -33,15 +32,7 @@ class GuestLimitedAccessDialog(
         no.text = "我再看看"
 
         yes.setOnClickListener {
-            NormalChosenDialog(
-                context,
-                "将清除本地所有缓存哦~",
-                "现在进行登录吗",
-                onConfirm = {
-                    PlanetApplication.Companion.clearCacheAll()
-                    Route.goLoginForcibly(context)
-                }
-            ).show()
+            Route.goLoginForcibly(context)
             dismiss()
         }
         no.setOnClickListener {
