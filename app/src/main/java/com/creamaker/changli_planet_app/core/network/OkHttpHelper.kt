@@ -122,7 +122,7 @@ object OkHttpHelper {
             if (retryCount >= MAX_RETRY_ATTEMPTS) {
                 Log.w("Token Refresh", "Max retry attempts reached")
                 // 清除token
-                PlanetApplication.clearCacheAll()
+                PlanetApplication.clearLocalCache()
                 // 处理token过期操作
                 tokenExpiredHandler?.onTokenExpired()
             }

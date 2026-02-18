@@ -9,14 +9,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.colorResource
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.skin.SkinManager
 import com.creamaker.changli_planet_app.skin.SkinSupportable
-import com.creamaker.changli_planet_app.skin.helper.SkinComposeHelper
 
 data class SkinColors(
-    // ====================== 原始字段  ======================
     val primaryTextColor: Color = DesignColors.TextPrimary,
     val greyTextColor: Color = DesignColors.TextGrey,
     val bgPrimaryColor: Color = DesignColors.BgPrimary,
@@ -32,8 +31,6 @@ data class SkinColors(
     val commonColor: Color = DesignColors.CommonBlue,
     val outlineLowContrastColor: Color = DesignColors.OutlineLowContrast,
 
-    // ====================== 新增补充字段 ======================
-    // 文字类补充
     val secondaryTextColor: Color = DesignColors.TextSecondary,
     val functionalTextColor: Color = DesignColors.TextFunctional,
     val widgetPrimaryTextColor: Color = DesignColors.TextWidgetPrimary,
@@ -74,180 +71,94 @@ data class SkinColors(
         val Default = SkinColors()
     }
 }
-// 2. 正确的 CompositionLocal（不能放资源ID）
+
 val LocalSkinColors = staticCompositionLocalOf { SkinColors.Default }
 
 @Composable
 fun AppSkinTheme(
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
+    val isInPreview = LocalInspectionMode.current
 
     var skinVersion by remember { mutableIntStateOf(0) }
 
-    DisposableEffect(Unit) {
-        val listener = object : SkinSupportable {
-            override fun applySkin() {
-                skinVersion++
+    DisposableEffect(isInPreview) {
+        if (isInPreview) {
+            onDispose { }
+        } else {
+            val listener = object : SkinSupportable {
+                override fun applySkin() {
+                    skinVersion++
+                }
+            }
+            runCatching {
+                SkinManager.attach(listener)
+            }
+            onDispose {
+                runCatching {
+                    SkinManager.detach(listener)
+                }
             }
         }
-        SkinManager.attach(listener)
-        onDispose {
-            SkinManager.detach(listener)
-        }
     }
 
-    // 当 skinVersion 更新时重新读取所有皮肤颜色
-    val currentColors = remember(skinVersion) {
+    // 强制依赖 skinVersion，收到换肤回调后重组
+    @Suppress("UNUSED_VARIABLE")
+    val observeSkinVersion = skinVersion
+
+    val currentColors =
         SkinColors(
             // ====================== 文字类 ======================
-            primaryTextColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_text_primary
-            ) as Color,
-            greyTextColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_text_grey
-            ) as Color,
-            secondaryTextColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_text_secondary
-            ) as Color,
-            textHeighLightColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_text_highlight
-            ) as Color,
-            functionalTextColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_text_functional
-            ) as Color,
-            widgetPrimaryTextColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_text_widget_primary
-            ) as Color,
-            disabledTextColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_text_disabled
-            ) as Color,
-            textButtonColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_text_button
-            ) as Color,
-            searchHintColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_search_hint
-            ) as Color,
+            primaryTextColor = colorResource(id = R.color.color_text_primary),
+            greyTextColor = colorResource(id = R.color.color_text_grey),
+            secondaryTextColor = colorResource(id = R.color.color_text_secondary),
+            textHeighLightColor = colorResource(id = R.color.color_text_highlight),
+            functionalTextColor = colorResource(id = R.color.color_text_functional),
+            widgetPrimaryTextColor = colorResource(id = R.color.color_text_widget_primary),
+            disabledTextColor = colorResource(id = R.color.color_text_disabled),
+            textButtonColor = colorResource(id = R.color.color_text_button),
+            searchHintColor = colorResource(id = R.color.color_search_hint),
 
             // ====================== 背景类 ======================
-            bgPrimaryColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_bg_primary
-            ) as Color,
-            bgSecondaryColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_bg_secondary
-            ) as Color,
-            bgSecondaryInverseColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_bg_secondary_inverse
-            ) as Color,
-            bgCardColor = SkinComposeHelper.getSkinColor(context, R.color.color_bg_card) as Color,
-            bgCardHighContrastColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_bg_card_high_contrast
-            ) as Color,
-            bgTopBarColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_bg_top_bar
-            ) as Color,
-            bgRecyclerViewColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_bg_recycler_view
-            ) as Color,
-            bgLightGrayColor = SkinComposeHelper.getSkinColor(context, R.color.light_gray) as Color,
+            bgPrimaryColor = colorResource(id = R.color.color_bg_primary),
+            bgSecondaryColor = colorResource(id = R.color.color_bg_secondary),
+            bgSecondaryInverseColor = colorResource(id = R.color.color_bg_secondary_inverse),
+            bgCardColor = colorResource(id = R.color.color_bg_card),
+            bgCardHighContrastColor = colorResource(id = R.color.color_bg_card_high_contrast),
+            bgTopBarColor = colorResource(id = R.color.color_bg_top_bar),
+            bgRecyclerViewColor = colorResource(id = R.color.color_bg_recycler_view),
+            bgLightGrayColor = colorResource(id = R.color.light_gray),
 
             // ====================== 按钮类 ======================
-            bgButtonColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_bg_button
-            ) as Color,
-            bgButtonLowlightColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_bg_button_lowlight
-            ) as Color,
+            bgButtonColor = colorResource(id = R.color.color_bg_button),
+            bgButtonLowlightColor = colorResource(id = R.color.color_bg_button_lowlight),
 
             // ====================== 图标类 ======================
-            iconPrimaryColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_icon_primary
-            ) as Color,
-            iconSecondaryColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_icon_secondary
-            ) as Color,
-            iconSettingColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_icon_setting
-            ) as Color,
+            iconPrimaryColor = colorResource(id = R.color.color_icon_primary),
+            iconSecondaryColor = colorResource(id = R.color.color_icon_secondary),
+            iconSettingColor = colorResource(id = R.color.color_icon_setting),
 
             // ====================== 分隔线 / 描边类 ======================
-            dividerColor = SkinComposeHelper.getSkinColor(context, R.color.color_divider) as Color,
-            controlDividerColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_control_divider
-            ) as Color,
-            outlineColor = SkinComposeHelper.getSkinColor(context, R.color.color_outline) as Color,
-            outlineLowContrastColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_outline_low_contrast
-            ) as Color,
+            dividerColor = colorResource(id = R.color.color_divider),
+            controlDividerColor = colorResource(id = R.color.color_control_divider),
+            outlineColor = colorResource(id = R.color.color_outline),
+            outlineLowContrastColor = colorResource(id = R.color.color_outline_low_contrast),
 
             // ====================== 帖子专用 ======================
-            postTextPrimaryColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_post_text_primary
-            ) as Color,
-            postTextTitleColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_post_text_title
-            ) as Color,
-            postTextHintColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_post_text_hint
-            ) as Color,
-            postTextReplyColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_post_text_reply
-            ) as Color,
-            postHintBarColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_post_hint_bar
-            ) as Color,
+            postTextPrimaryColor = colorResource(id = R.color.color_post_text_primary),
+            postTextTitleColor = colorResource(id = R.color.color_post_text_title),
+            postTextHintColor = colorResource(id = R.color.color_post_text_hint),
+            postTextReplyColor = colorResource(id = R.color.color_post_text_reply),
+            postHintBarColor = colorResource(id = R.color.color_post_hint_bar),
 
             // ====================== 功能 / 状态色 ======================
-            loadingColor = SkinComposeHelper.getSkinColor(context, R.color.color_loading) as Color,
-            titleTopColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_title_top
-            ) as Color,
-            commonColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_primary_blue
-            ) as Color,
-            tabRippedColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_tab_ripped
-            ) as Color,
-            errorRedColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_error_red
-            ) as Color,
-            successGreenColor = SkinComposeHelper.getSkinColor(
-                context,
-                R.color.color_success_green
-            ) as Color
+            loadingColor = colorResource(id = R.color.color_loading),
+            titleTopColor = colorResource(id = R.color.color_title_top),
+            commonColor = colorResource(id = R.color.color_primary_blue),
+            tabRippedColor = colorResource(id = R.color.color_tab_ripped),
+            errorRedColor = colorResource(id = R.color.color_error_red),
+            successGreenColor = colorResource(id = R.color.color_success_green)
         )
-    }
 
     CompositionLocalProvider(LocalSkinColors provides currentColors) {
         content()

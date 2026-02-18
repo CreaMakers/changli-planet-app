@@ -11,18 +11,21 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.auth.redux.action.AccountSecurityAction
 import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityAccountSecurityBinding
-import com.creamaker.changli_planet_app.settings.redux.store.AccountSecurityStore
-import com.creamaker.changli_planet_app.utils.Event.FinishEvent
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import com.creamaker.changli_planet_app.settings.mvi.AccountSecurityIntent
+import com.creamaker.changli_planet_app.settings.mvi.AccountSecurityViewModel
+import com.creamaker.changli_planet_app.utils.event.FinishEvent
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -42,7 +45,7 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
 //    private val containBigAndSmallImg by lazy { binding.containBigAndSmallImg }
 //    private val containNumberIconImg by lazy { binding.containNumberIconImg }
     private val changePasswordBtn by lazy { binding.changePasswordBtn }
-    private val store = AccountSecurityStore()
+    private val viewModel by viewModels<AccountSecurityViewModel>()
 
     override fun createViewBinding(): ActivityAccountSecurityBinding = ActivityAccountSecurityBinding.inflate(layoutInflater)
 
@@ -54,7 +57,7 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
     }
 
     private fun initView() {
-        store.dispatch(AccountSecurityAction.initilaize)
+        viewModel.process(AccountSecurityIntent.Initialize)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -68,7 +71,7 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
         }
         val passwordTextWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                store.dispatch(AccountSecurityAction.UpdateSafeType(newPasswordEt.text.toString()))
+                viewModel.process(AccountSecurityIntent.UpdateSafeType(newPasswordEt.text.toString()))
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -83,38 +86,23 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
 
     private fun initListener() {
         changePasswordBtn.setOnClickListener { changePassword() }
-        curPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("curPasswordImg")) }
-        newPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("newPasswordImg")) }
-        confirmPasswordImg.setOnClickListener { store.dispatch(AccountSecurityAction.UpdateVisible("confirmPasswordImg")) }
+        curPasswordImg.setOnClickListener { viewModel.process(AccountSecurityIntent.ToggleVisibility("curPasswordImg")) }
+        newPasswordImg.setOnClickListener { viewModel.process(AccountSecurityIntent.ToggleVisibility("newPasswordImg")) }
+        confirmPasswordImg.setOnClickListener { viewModel.process(AccountSecurityIntent.ToggleVisibility("confirmPasswordImg")) }
         bindingBack.setOnClickListener { finish() }
     }
 
     private fun initObserve() {
-        disposables.add(
-            store.state()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { state ->
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
                     updateCondition(state.isLengthValid, strength8Img)
-//                    updateCondition(state.hasUpperAndLower, containBigAndSmallImg)
-//                    updateCondition(state.hasNumberAndSpecial, containNumberIconImg)
-                    updatePasswordVisibility(
-                        state.curPasswordVisible,
-                        curPasswordEt,
-                        curPasswordImg
-                    )
-                    updatePasswordVisibility(
-                        state.newPasswordVisible,
-                        newPasswordEt,
-                        newPasswordImg
-                    )
-                    updatePasswordVisibility(
-                        state.confirmPasswordVisible,
-                        confirmPasswordEt,
-                        confirmPasswordImg
-                    )
-//                    updateProgressBar(state.safeType)
+                    updatePasswordVisibility(state.curPasswordVisible, curPasswordEt, curPasswordImg)
+                    updatePasswordVisibility(state.newPasswordVisible, newPasswordEt, newPasswordImg)
+                    updatePasswordVisibility(state.confirmPasswordVisible, confirmPasswordEt, confirmPasswordImg)
                 }
-        )
+            }
+        }
     }
 
     private fun changePassword() {
@@ -134,7 +122,7 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
 //            showMessage("新密码不满足要求，请重新输入")
 //            return
 //        }
-        store.dispatch(AccountSecurityAction.ChangePassword(this,curPasswordEt.text.toString(),newPassword, confirmPassword))
+        viewModel.changePassword(this, curPasswordEt.text.toString(), newPassword, confirmPassword)
     }
 
     fun updatePasswordVisibility(isVisible: Boolean, et: EditText, img: ImageView) {
@@ -225,7 +213,6 @@ class AccountSecurityActivity : FullScreenActivity<ActivityAccountSecurityBindin
     override fun onDestroy() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
-        disposables.clear()
     }
 
     @Subscribe
