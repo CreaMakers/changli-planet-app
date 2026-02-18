@@ -1,12 +1,10 @@
 package com.creamaker.changli_planet_app.auth.ui
 
-import android.Manifest
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Looper
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -25,7 +23,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -53,13 +50,6 @@ class LoginActivity : ComposeActivity() {
         ViewModelProvider(this)[LoginViewModel::class.java]
     }
 
-    private var pendingAfterNotificationPermission: (() -> Unit)? = null
-    private val notificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            pendingAfterNotificationPermission?.invoke()
-            pendingAfterNotificationPermission = null
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val initialAccount = intent.getStringExtra("username") ?: ""
@@ -72,6 +62,13 @@ class LoginActivity : ComposeActivity() {
 
         observeEffects()
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Route.goHome(this@LoginActivity)
+                finish()
+            }
+        })
+
         setComposeContent {
             val state by viewModel.state.collectAsState()
             LoginScreen(
@@ -81,10 +78,8 @@ class LoginActivity : ComposeActivity() {
                         LoginIntent.ClickLogin -> viewModel.login()
                         LoginIntent.ClickRegister -> Route.goRegister(this)
                         LoginIntent.ClickTourist -> {
-                            withNotificationPermissionIfNeeded {
-                                PlanetApplication.is_tourist = true
-                                Route.goHome(this)
-                            }
+                            PlanetApplication.is_tourist = true
+                            Route.goHome(this)
                         }
                         LoginIntent.ClickForgetPassword -> Route.goForgetPassword(this)
                         LoginIntent.ClickLoginByEmail -> Route.goLoginByEmailForcibly(this)
@@ -135,21 +130,6 @@ class LoginActivity : ComposeActivity() {
             )
             false
         }
-    }
-
-    private fun withNotificationPermissionIfNeeded(onContinue: () -> Unit) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            onContinue()
-            return
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            onContinue()
-            return
-        }
-        pendingAfterNotificationPermission = onContinue
-        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 }
 
