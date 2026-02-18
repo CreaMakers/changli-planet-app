@@ -60,9 +60,9 @@ import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.core.theme.AppTheme
 import com.creamaker.changli_planet_app.profileSettings.ui.model.SettingItemUiModel
-import com.creamaker.changli_planet_app.utils.Event.SelectEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.NetworkUtil
+import com.creamaker.changli_planet_app.utils.event.SelectEvent
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 class ProfileSettingsFragment : Fragment() {
