@@ -7,6 +7,7 @@ import com.creamaker.changli_planet_app.feature.common.contract.ExamArrangementC
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ExamArrangementCache
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.model.Exam
 import com.dcelysia.csust_spider.core.Resource
+import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.dcelysia.csust_spider.education.data.remote.services.ExamArrangeService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -49,18 +50,7 @@ class ExamArrangementViewModel :
 
                     val combined = middleList + endList
                     cache.saveExamArrangement(combined)
-                    val deduped = combined.distinctBy { exam ->
-                        listOf(
-                            exam.courseNameval,
-                            exam.examTime,
-                            exam.campus,
-                            exam.examRoomval
-                        )
-                    }
-
-                    val examModels = deduped.map {
-                        Exam(it.courseNameval, it.examTime, it.campus, it.examRoomval)
-                    }
+                    val examModels = combined.toUiExamList()
 
                     withContext(Dispatchers.Main) {
                         updateState { copy(isLoading = false, exams = examModels) }
@@ -74,15 +64,14 @@ class ExamArrangementViewModel :
                     }
                     val combined = cache.getExamArrangement()
                     if (!combined.isNullOrEmpty()) {
-                        val examModels = combined.distinctBy { exam ->
-                            listOf(
-                                exam.courseNameval,
-                                exam.examTime,
-                                exam.campus,
-                                exam.examRoomval
-                            )
-                        }.map {
-                            Exam(it.courseNameval, it.examTime, it.campus, it.examRoomval)
+                        val examModels = combined.toUiExamList()
+                        if (examModels.isEmpty()) {
+                            cache.clearCache()
+                            withContext(Dispatchers.Main) {
+                                updateState { copy(isLoading = false) }
+                                _effect.send(ExamArrangementContract.Effect.ShowErrorDialog("本地缓存已失效，请重试"))
+                            }
+                            return@launch
                         }
                         withContext(Dispatchers.Main) {
                             updateState { copy(isLoading = false, exams = examModels) }
@@ -107,5 +96,21 @@ class ExamArrangementViewModel :
                 }
             }
         }
+    }
+
+    private fun List<ExamArrange>.toUiExamList(): List<Exam> {
+        return mapNotNull { exam ->
+            runCatching {
+                val courseName = exam.courseNameval
+                val examTime = exam.examTime
+                val campus = exam.campus
+                val examRoom = exam.examRoomval
+                if (courseName.isBlank() || examTime.isBlank()) {
+                    null
+                } else {
+                    Exam(courseName, examTime, campus, examRoom)
+                }
+            }.getOrNull()
+        }.distinctBy { listOf(it.name, it.time, it.place, it.room) }
     }
 }

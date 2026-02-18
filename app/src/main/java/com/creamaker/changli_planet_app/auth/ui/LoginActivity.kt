@@ -82,7 +82,7 @@ class LoginActivity : ComposeActivity() {
                             Route.goHome(this)
                         }
                         LoginIntent.ClickForgetPassword -> Route.goForgetPassword(this)
-                        LoginIntent.ClickLoginByEmail -> Route.goLoginByEmailForcibly(this)
+                        LoginIntent.ClickLoginByEmail -> Route.goLoginByEmail(this)
                         LoginIntent.ClickHint -> {
                             ExpiredDialog(
                                 this,

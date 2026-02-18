@@ -261,7 +261,7 @@ class UserStore : Store<UserState, UserAction>() {
                     override fun onSuccess(response: Response) {
                         try {
                             val fromJson = OkHttpHelper.gson.fromJson(
-                                response.body?.string(),
+                                response.body.string(),
                                 ApkResponse::class.java
                             )
 
