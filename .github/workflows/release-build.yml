@@ -46,13 +46,17 @@ jobs:
       - name: List generated APK
         run: ls -la app/build/outputs/apk/release/
 
-      - name: Upload Release Artifacts
+      - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: release-build-assets
-          path: |
-            app/build/outputs/apk/release/clPlanetApp_release_v*.apk
-            app/build/outputs/mapping/release/mapping.txt
+          name: release-apk
+          path: app/build/outputs/apk/release/clPlanetApp_release_v*.apk
+
+      - name: Upload Mapping File
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-mapping
+          path: app/build/outputs/mapping/release/mapping.txt
 
   call-upload-to-obs:
     name: Upload to OBS
