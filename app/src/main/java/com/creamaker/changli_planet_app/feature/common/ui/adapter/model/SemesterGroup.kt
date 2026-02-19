@@ -1,5 +1,8 @@
 package com.creamaker.changli_planet_app.feature.common.ui.adapter.model
 
+import androidx.annotation.Keep
+
+@Keep
 data class SemesterGroup(
     val semesterName: String, //开课学期
     val gpa: Double, //学期GPA绩点

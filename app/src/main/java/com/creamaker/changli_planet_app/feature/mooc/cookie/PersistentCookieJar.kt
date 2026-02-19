@@ -15,7 +15,6 @@ import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.map
 
 
 class PersistentCookieJar : CookieJar {
@@ -41,14 +40,7 @@ class PersistentCookieJar : CookieJar {
             val json = mmkv.decodeString(host)
             Log.d(TAG, "saveFromResponse: Reading from MMKV for host: $host, json: $json")
             if (json != null) {
-                val serializableCookies: List<SerializableCookie> = gson
-                    .fromJson(json, object : TypeToken<List<SerializableCookie>>() {}.type)
-                val cookies = serializableCookies.map { it.toOkHttpCookie() }.toMutableList()
-                Log.d(
-                    TAG,
-                    "saveFromResponse: Loaded ${cookies.size} cookies from MMKV for host: $host"
-                )
-                cookies
+                parseCookiesFromCache(host, json)
             } else {
                 Log.d(TAG, "saveFromResponse: No cookies found in MMKV for host: $host")
                 mutableListOf()
@@ -76,14 +68,7 @@ class PersistentCookieJar : CookieJar {
             val json = mmkv.decodeString(host)
             Log.d(TAG, "loadForRequest: Reading from MMKV for host: $host, json: $json")
             if (json != null) {
-                val type = object : TypeToken<List<SerializableCookie>>() {}.type
-                val serializableCookies: List<SerializableCookie> = gson.fromJson(json, type)
-                val cookies = serializableCookies.map { it.toOkHttpCookie() }.toMutableList()
-                Log.d(
-                    TAG,
-                    "loadForRequest: Loaded ${cookies.size} cookies from MMKV for host: $host"
-                )
-                cookies
+                parseCookiesFromCache(host, json)
             } else {
                 Log.d(TAG, "loadForRequest: No cookies found in MMKV for host: $host")
                 mutableListOf()
@@ -128,6 +113,34 @@ class PersistentCookieJar : CookieJar {
         Log.d(TAG, "persistHost: Saving ${toSave.size} valid cookies to MMKV for host: $host")
         mmkv.encode(host, gson.toJson(toSave))
         pendingJobs.remove(host)
+    }
+
+    private fun parseCookiesFromCache(host: String, json: String): MutableList<Cookie> {
+        return runCatching {
+            val type = object : TypeToken<List<SerializableCookie>>() {}.type
+            val serializableCookies: List<SerializableCookie>? = gson.fromJson(json, type)
+            if (serializableCookies.isNullOrEmpty()) {
+                mmkv.removeValueForKey(host)
+                return mutableListOf()
+            }
+            val cookies = serializableCookies.mapNotNull { cookie ->
+                runCatching {
+                    if (cookie.name.isBlank() || cookie.domain.isBlank() || cookie.path.isBlank()) {
+                        null
+                    } else {
+                        cookie.toOkHttpCookie()
+                    }
+                }.getOrNull()
+            }.toMutableList()
+            if (cookies.isEmpty()) {
+                mmkv.removeValueForKey(host)
+            }
+            Log.d(TAG, "parseCookiesFromCache: Loaded ${cookies.size} valid cookies from MMKV for host: $host")
+            cookies
+        }.getOrElse {
+            mmkv.removeValueForKey(host)
+            mutableListOf()
+        }
     }
 
     fun clear() {

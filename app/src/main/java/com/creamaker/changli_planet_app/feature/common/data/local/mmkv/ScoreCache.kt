@@ -26,11 +26,25 @@ object ScoreCache {
         val json = mmkv.decodeString("grades") ?: return null
         val type = object : TypeToken<List<Grade>>() {}.type
         return try {
-            gson.fromJson(json, type)
+            val grades: List<Grade>? = gson.fromJson(json, type)
+            if (grades == null) {
+                mmkv.removeValueForKey("grades")
+                return null
+            }
+            if (grades.any { !it.isCacheCompatible() }) {
+                mmkv.removeValueForKey("grades")
+                return null
+            }
+            grades
         } catch (e: Exception) {
+            mmkv.removeValueForKey("grades")
             null
         }
     }
+
+    private fun Grade.isCacheCompatible(): Boolean = runCatching {
+        id.isNotBlank() && item.isNotBlank() && name.isNotBlank() && grade.isNotBlank()
+    }.getOrDefault(false)
 
     fun clearCache() {
         mmkv.clearAll()

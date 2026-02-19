@@ -78,7 +78,7 @@ class AccountSecurityViewModel : BaseMviViewModel<AccountSecurityIntent, Account
 
             OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                 override fun onSuccess(response: Response) {
-                    val fromJson = OkHttpHelper.gson.fromJson(response.body?.string(), MyResponse::class.java)
+                    val fromJson = OkHttpHelper.gson.fromJson(response.body.string(), MyResponse::class.java)
                     when (fromJson.code) {
                         "200" -> EventBusHelper.post(FinishEvent("ChangePassword"))
                         else -> {

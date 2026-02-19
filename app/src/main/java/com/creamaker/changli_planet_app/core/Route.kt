@@ -84,9 +84,8 @@ object Route {
         context.startActivity(intent)
     }
 
-    fun goLoginByEmailForcibly(context: Context) {
+    fun goLoginByEmail(context: Context) {
         val intent = Intent(context, LoginByEmailActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         context.startActivity(intent)
     }
 

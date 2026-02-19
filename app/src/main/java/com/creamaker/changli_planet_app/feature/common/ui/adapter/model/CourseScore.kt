@@ -1,5 +1,8 @@
 package com.creamaker.changli_planet_app.feature.common.ui.adapter.model
 
+import androidx.annotation.Keep
+
+@Keep
 data class CourseScore(
     val name: String,
     val score: Int,

@@ -73,7 +73,7 @@ object OkHttpHelper {
 
             // 1. 获取响应的 Content-Type
             val responseBody = response.body
-            val mediaType = responseBody?.contentType()
+            val mediaType = responseBody.contentType()
 
             // 2. 判断是否是 JSON 类型
             // 只有 Content-Type 包含 "json" 时（例如 application/json），才进行解析检查
@@ -90,7 +90,7 @@ object OkHttpHelper {
             Log.d(TAG, jsonString)
             val realResponse = gson.fromJson(jsonString, NormalResponse::class.java)
             if (realResponse?.code == "401" &&
-                realResponse?.msg == PlanetConst.UNAUTHORIZATION &&
+                realResponse.msg == PlanetConst.UNAUTHORIZATION &&
                 retryCount < MAX_RETRY_ATTEMPTS
             ) {
                 retryCount++
@@ -138,45 +138,40 @@ object OkHttpHelper {
             //配置HTTPDNS解析
             .dns(object : Dns {
                 override fun lookup(hostname: String): List<InetAddress> {
-                    require(hostname.isNotBlank()) { "hostname can not be null or blank" }
+                    val sanitizedHost = DnsSafety.sanitizeHostname(hostname)
+                    if (sanitizedHost.isBlank()) {
+                        return emptyList()
+                    }
                     return try {
+                        if (!DnsSafety.shouldUseHttpDns(sanitizedHost)) {
+                            return DnsSafety.fallbackToLocalDns(sanitizedHost)
+                        }
                         // 尝试使用 HTTPDNS 解析
-                        val ips = MSDKDnsResolver.getInstance().getAddrByName(hostname)
-                        val ipArr = ips.split(";")
+                        val ips = MSDKDnsResolver.getInstance().getAddrByName(sanitizedHost)
+                        val ipArr = DnsSafety.parseIpList(ips)
                         // 如果没有返回有效的 IP 地址，尝试降级使用 LocalDNS
-                        if (ipArr.isEmpty() || ipArr.all { it == "0" }) {
-                            fallbackToLocalDns(hostname)
+                        if (ipArr.isEmpty()) {
+                            DnsSafety.fallbackToLocalDns(sanitizedHost)
                         } else {
                             val inetAddressList = mutableListOf<InetAddress>()
                             for (ip in ipArr) {
-                                if (ip != "0") {
-                                    try {
-                                        Log.d("MyIp", ip)
-                                        inetAddressList.add(InetAddress.getByName(ip))
-                                    } catch (ignored: UnknownHostException) {
-                                        // 忽略无效的 IP
-                                    }
+                                try {
+                                    Log.d("MyIp", ip)
+                                    inetAddressList.add(InetAddress.getByName(ip))
+                                } catch (ignored: UnknownHostException) {
+                                    // 忽略无效的 IP
                                 }
                             }
                             // 如果 HTTPDNS 返回的 IP 列表为空，则降级使用 LocalDNS
                             if (inetAddressList.isEmpty()) {
-                                fallbackToLocalDns(hostname)
+                                DnsSafety.fallbackToLocalDns(sanitizedHost)
                             } else {
                                 inetAddressList
                             }
                         }
                     } catch (e: Exception) {
                         // 在发生异常时降级使用 LocalDNS
-                        fallbackToLocalDns(hostname)
-                    }
-                }
-
-                // 降级到 LocalDNS 的方法
-                private fun fallbackToLocalDns(hostname: String): List<InetAddress> {
-                    return try {
-                        InetAddress.getAllByName(hostname).toList()
-                    } catch (e: UnknownHostException) {
-                        emptyList()
+                        DnsSafety.fallbackToLocalDns(sanitizedHost)
                     }
                 }
             })
@@ -286,7 +281,7 @@ object OkHttpHelper {
 
                     else -> {
                         Log.w("Token Refresh", "Failed to refresh token: ${response.code}")
-                        val errorBody = response.body?.string()
+                        val errorBody = response.body.string()
                         Log.w("Token Refresh", "Error response: $errorBody")
                     }
                 }
@@ -391,7 +386,7 @@ object OkHttpHelper {
 
             // 处理服务器的响应
             override fun onResponse(call: Call, response: Response) {
-                response.body?.let { responseBody ->
+                response.body.let { responseBody ->
                     // 将响应体转换为字符串
                     val json = responseBody.string()
                     try {
