@@ -20,7 +20,7 @@ import com.creamaker.changli_planet_app.common.redux.store.UserStore
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityBindingUserBinding
-import com.creamaker.changli_planet_app.utils.Event.FinishEvent
+import com.creamaker.changli_planet_app.utils.event.FinishEvent
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 import com.dcelysia.csust_spider.core.RetrofitUtils

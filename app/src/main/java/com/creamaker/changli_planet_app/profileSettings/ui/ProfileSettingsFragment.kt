@@ -60,9 +60,10 @@ import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.core.theme.AppTheme
 import com.creamaker.changli_planet_app.profileSettings.ui.model.SettingItemUiModel
-import com.creamaker.changli_planet_app.utils.Event.SelectEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.NetworkUtil
+import com.creamaker.changli_planet_app.utils.event.SelectEvent
+import com.creamaker.changli_planet_app.widget.dialog.GuestLimitedAccessDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 class ProfileSettingsFragment : Fragment() {
@@ -85,9 +86,9 @@ class ProfileSettingsFragment : Fragment() {
             setContent {
                 AppSkinTheme {
                     // 初始化状态数据
-                    val isTourist = remember { PlanetApplication.is_tourist }
+                    val isExpired = remember { PlanetApplication.is_expired }
                     val username = remember {
-                        if (isTourist) "长理学子~" else UserInfoManager.account ?: "用户名"
+                        if (isExpired) "长理学子~" else UserInfoManager.account
                     }
                     val avatarUrl = remember { UserInfoManager.userAvatar }
 
@@ -100,7 +101,7 @@ class ProfileSettingsFragment : Fragment() {
                         items = createSettingItems(),
                         username = username,
                         avatarData = avatarUrl,
-                        isTourist = isTourist,
+                        isTourist = isExpired,
                         onItemClick = { item ->
                             if (item.id == "4") {
                                 // 特殊处理清除缓存，不走通用跳转逻辑
@@ -113,10 +114,10 @@ class ProfileSettingsFragment : Fragment() {
                             showLogoutDialog = true
                         },
                         onEditProfileClick = {
-                            handleEditProfileClick(isTourist)
+                            handleEditProfileClick(isExpired)
                         },
                         onAvatarClick = {
-                            if (isTourist) {
+                            if (isExpired) {
                                 showLogoutDialog = true // 游客点击头像也触发登录提示
                             }
                         }
@@ -137,15 +138,16 @@ class ProfileSettingsFragment : Fragment() {
 
                     // 弹窗逻辑：登出/游客登录
                     if (showLogoutDialog) {
-                        val title = if (isTourist) "将清除本地所有缓存哦~" else "将清除本地所有缓存"
-                        val content = if (isTourist) "现在进行登录吗" else "是否登出"
+                        val title = if (isExpired) "登录确认" else "将清除该账号缓存"
+                        val content = if (isExpired) "现在进行登录吗" else "是否登出"
 
                         ConfirmDialog(
                             title = title,
                             content = content,
                             onDismiss = { showLogoutDialog = false },
                             onConfirm = {
-                                PlanetApplication.clearCacheAll()
+                                PlanetApplication.clearLocalCache()
+                                PlanetApplication.is_expired = true
                                 Route.goLoginForcibly(context)
                                 showLogoutDialog = false
                             }
@@ -175,8 +177,8 @@ class ProfileSettingsFragment : Fragment() {
         when (item.id) {
             "2" -> { /* 隐私设置 TODO */ }
             "3" -> {
-                if (PlanetApplication.is_tourist) {
-                    CustomToast.showMessage(requireContext(), "游客账号无法进行此操作哦~")
+                if (PlanetApplication.is_expired) {
+                    GuestLimitedAccessDialog(requireContext()).show()
                 } else {
                     Route.goAccountSecurity(requireContext())
                 }

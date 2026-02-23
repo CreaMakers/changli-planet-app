@@ -17,8 +17,8 @@ import com.creamaker.changli_planet_app.core.Store
 import com.creamaker.changli_planet_app.core.network.HttpUrlHelper
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper
 import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
-import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
+import com.creamaker.changli_planet_app.utils.event.FinishEvent
 import com.creamaker.changli_planet_app.utils.toEntity
 import com.creamaker.changli_planet_app.widget.dialog.BindingFromWebDialog
 import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
@@ -261,7 +261,7 @@ class UserStore : Store<UserState, UserAction>() {
                     override fun onSuccess(response: Response) {
                         try {
                             val fromJson = OkHttpHelper.gson.fromJson(
-                                response.body?.string(),
+                                response.body.string(),
                                 ApkResponse::class.java
                             )
 

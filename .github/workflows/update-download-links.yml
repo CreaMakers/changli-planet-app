@@ -21,14 +21,10 @@ jobs:
       - name: Update download links via API
         run: |
           echo "🔄 Updating download links..."
-          response=$(curl -X POST https://cm.zhelearn.com/api/config \
+          response=$(curl -X POST https://planet.zhelearn.com/api/config \
             -H "Content-Type: application/json" \
-            -d '{
-              "API_KEY": "${{ secrets.WEBSITE_API_KEY }}",
-              "downloadUrls": {
-                "android": "${{ inputs.obs_url }}"
-              }
-            }' \
+            -H "Authorization: Bearer ${{ secrets.WEBSITE_API_KEY }}" \
+            -d "{\"url\": \"${{ inputs.obs_url }}\"}" \
             -w "%{http_code}" \
             -s -o /tmp/api_response.json)
 

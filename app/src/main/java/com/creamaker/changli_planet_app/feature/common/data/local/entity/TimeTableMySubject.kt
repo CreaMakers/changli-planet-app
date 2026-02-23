@@ -1,5 +1,6 @@
 package com.creamaker.changli_planet_app.feature.common.data.local.entity
 
+import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.Index
@@ -16,6 +17,7 @@ import com.zhuangfei.timetable.model.ScheduleEnable
         unique = true
     )]
 )
+@Keep
 data class TimeTableMySubject(
     var courseName: String = "",
     var classroom: String? = "",

@@ -25,6 +25,8 @@ import kotlinx.coroutines.launch
 class PlanetApplication : Application() {
     companion object {
         private const val TIME_TABLE_APP_WIDGET = "TimeTableAppWidget"
+        private const val CACHE_SCHEMA_VERSION_KEY = "cache_schema_version"
+        private const val CURRENT_CACHE_SCHEMA_VERSION = 3
 
         var accessToken: String?
             get() = MMKV.defaultMMKV()?.getString("token", null)
@@ -64,7 +66,6 @@ class PlanetApplication : Application() {
                 accessToken = ""
                 is_tourist = false
                 MMKV.mmkvWithID("education_cache").clearAll()
-                MMKV.mmkvWithID("import_cache").clearAll()
                 MMKV.mmkvWithID("content_cache").clearAll()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
@@ -82,6 +83,12 @@ class PlanetApplication : Application() {
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
+            }
+        }
+
+        fun clearLocalCache() {
+            CoroutineScope(Dispatchers.IO).launch {
+                MMKV.mmkvWithID("import_cache").clearAll()
             }
         }
 
@@ -105,6 +112,7 @@ class PlanetApplication : Application() {
 
 
         initMMKV()
+        migrateLegacyCacheIfNeeded()
         if (!BuildConfig.DEBUG) {
             CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
         }
@@ -159,13 +167,28 @@ class PlanetApplication : Application() {
             .dnsId("98468")
             .token("884069233")
             .https()
-            .logLevel(Log.VERBOSE)
+            .logLevel(if (BuildConfig.DEBUG) Log.VERBOSE else Log.ERROR)
             .build()
         MSDKDnsResolver.getInstance().init(applicationContext, dnsConfigBuilder)
     }
 
     private fun initMMKV() {
         MMKV.initialize(this@PlanetApplication)
+    }
+
+    private fun migrateLegacyCacheIfNeeded() {
+        val kv = MMKV.defaultMMKV() ?: return
+        val version = kv.decodeInt(CACHE_SCHEMA_VERSION_KEY, 0)
+        if (version >= CURRENT_CACHE_SCHEMA_VERSION) return
+
+        runCatching {
+            MMKV.mmkvWithID("education_cache").clearAll()
+            MMKV.mmkvWithID("content_cache").removeValueForKey("grades")
+            MMKV.mmkvWithID("content_cache").removeValueForKey("exams")
+            MMKV.mmkvWithID("MoocCookiejar").clearAll()
+        }
+
+        kv.encode(CACHE_SCHEMA_VERSION_KEY, CURRENT_CACHE_SCHEMA_VERSION)
     }
     private fun saveDefaultSkin(){
         SkinCache.saveSkinDownloaded("skin_default")

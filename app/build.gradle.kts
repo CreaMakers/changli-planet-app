@@ -6,9 +6,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt")
-    id("kotlin-parcelize")
+    alias(libs.plugins.ksp)
     alias(libs.plugins.baselineprofile)
+    id("kotlin-parcelize")
 }
 configurations.all {
     exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
@@ -50,8 +50,8 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 17
-        versionName = "1.3.8.1"
+        versionCode = 19
+        versionName = "2.0.0"
 
 
         ndk {
@@ -130,7 +130,7 @@ dependencies {
     implementation(libs.androidx.room.rxjava3)
     //Glide
     implementation(libs.glide)
-    kapt(libs.glide.compiler)
+    ksp(libs.glide.ksp)
     //MMKV
     implementation(libs.mmkv)
     //腾讯云HTTPDNS
@@ -151,7 +151,7 @@ dependencies {
     implementation(libs.timetableview)
     //Room
     implementation(libs.androidx.room.runtime)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     // 图片裁剪库
     implementation(libs.ucrop)
@@ -212,9 +212,6 @@ dependencies {
     implementation(libs.csustdataget)
     implementation(libs.androidx.constraintlayout.compose)
 }
-kapt {
-    arguments {
-        arg("room.schemaLocation", "$projectDir/schemas")
-    }
-    correctErrorTypes = true
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
