@@ -34,7 +34,6 @@
 -keep class com.creamaker.changli_planet_app.**.bean.** { *; }
 -keep class com.creamaker.changli_planet_app.**.model.** { *; }
 -keep class com.creamaker.changli_planet_app.**.dto.** { *; }
--keep class com.dcelysia.csust_spider.** { *; }
 -keepclassmembers class com.creamaker.changli_planet_app.feature.common.data.local.entity.** {
     <fields>;
 }
@@ -50,3 +49,19 @@
 # HTTPDNS
 -keep class com.tencent.msdk.dns.** { *; }
 -dontwarn com.tencent.msdk.dns.**
+
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
+
+-keep class com.google.gson.** { *; }
+-dontwarn com.google.gson.**
+
+-keepclassmembers class * {
+  @com.google.gson.annotations.SerializedName <fields>;
+}
+
+-keepclassmembers class * {
+  public <init>();
+}

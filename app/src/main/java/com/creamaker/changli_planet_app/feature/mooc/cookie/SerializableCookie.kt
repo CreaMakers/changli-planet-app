@@ -9,15 +9,15 @@ import okhttp3.Cookie
 @Keep
 data class SerializableCookie(
     @SerializedName("name")
-    val name: String,
+    val name: String?,
     @SerializedName("value")
-    val value: String,
+    val value: String?,
     @SerializedName("expiresAt")
-    val expiresAt: Long,
+    val expiresAt: Long?,
     @SerializedName("domain")
-    val domain: String,
+    val domain: String?,
     @SerializedName("path")
-    val path: String,
+    val path: String?,
     @SerializedName("secure")
     val secure: Boolean,
     @SerializedName("httpOnly")
@@ -26,17 +26,23 @@ data class SerializableCookie(
     val hostOnly: Boolean
 ) {
 //     * 将 SerializableCookie 转换回 okhttp3.Cookie
-    fun toOkHttpCookie(): Cookie {
+    fun toOkHttpCookieOrNull(): Cookie? {
+        val safeName = name?.trim().takeUnless { it.isNullOrEmpty() } ?: return null
+        val safeValue = value ?: return null
+        val safeDomain = domain?.trim().takeUnless { it.isNullOrEmpty() } ?: return null
+        val safePath = path?.trim()?.takeIf { it.startsWith("/") } ?: return null
+        val safeExpiresAt = expiresAt?.takeIf { it > 0L } ?: Long.MAX_VALUE
+
         val builder = Cookie.Builder()
-            .name(name)
-            .value(value)
-            .expiresAt(expiresAt)
-            .path(path)
+            .name(safeName)
+            .value(safeValue)
+            .expiresAt(safeExpiresAt)
+            .path(safePath)
 
         if (hostOnly) {
-            builder.hostOnlyDomain(domain)
+            builder.hostOnlyDomain(safeDomain)
         } else {
-            builder.domain(domain)
+            builder.domain(safeDomain)
         }
 
         if (secure) {
@@ -47,6 +53,6 @@ data class SerializableCookie(
             builder.httpOnly()
         }
 
-        return builder.build()
+        return runCatching { builder.build() }.getOrNull()
     }
 }

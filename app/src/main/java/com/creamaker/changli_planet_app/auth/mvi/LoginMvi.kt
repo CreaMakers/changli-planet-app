@@ -151,8 +151,10 @@ class LoginViewModel : BaseMviViewModel<LoginIntent, LoginUiState>(LoginUiState(
     }
 
     private fun filterPassword(raw: TextFieldValue): TextFieldValue {
-        val allowed = Regex("""^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$""")
-        val filtered = raw.text.filter { char -> allowed.matches(char.toString()) }
+        val specialChars = "!@#$%^&*(),.?\":{}|<>，。？「」+-\\]"
+        val filtered = raw.text.filter { char ->
+            char.isLetterOrDigit() || specialChars.contains(char)
+        }
         val selection = TextRange(
             raw.selection.start.coerceAtMost(filtered.length),
             raw.selection.end.coerceAtMost(filtered.length)
