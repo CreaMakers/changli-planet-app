@@ -121,26 +121,34 @@ class PersistentCookieJar : CookieJar {
             val serializableCookies: List<SerializableCookie>? = gson.fromJson(json, type)
             if (serializableCookies.isNullOrEmpty()) {
                 mmkv.removeValueForKey(host)
+                memoryCache.remove(host)
                 return mutableListOf()
             }
             val cookies = serializableCookies.mapNotNull { cookie ->
-                runCatching {
-                    if (cookie.name.isBlank() || cookie.domain.isBlank() || cookie.path.isBlank()) {
-                        null
-                    } else {
-                        cookie.toOkHttpCookie()
+                cookie.toOkHttpCookieOrNull().also { result ->
+                    if (result == null) {
+                        Log.w(TAG, "parseCookiesFromCache: Skipping invalid cookie: ${cookie.name} for host: $host")
                     }
-                }.getOrNull()
+                }
             }.toMutableList()
             if (cookies.isEmpty()) {
+                Log.w(TAG, "parseCookiesFromCache: No valid cookies remain, clearing cache for host: $host")
                 mmkv.removeValueForKey(host)
+                memoryCache.remove(host)
             }
             Log.d(TAG, "parseCookiesFromCache: Loaded ${cookies.size} valid cookies from MMKV for host: $host")
             cookies
         }.getOrElse {
-            mmkv.removeValueForKey(host)
+            clearHostCache(host, "Failed to parse cookies from cache, clear host cache", it)
             mutableListOf()
         }
+    }
+
+    private fun clearHostCache(host: String, reason: String, throwable: Throwable? = null) {
+        Log.w(TAG, "clearHostCache: host=$host, reason=$reason", throwable)
+        mmkv.removeValueForKey(host)
+        memoryCache.remove(host)
+        pendingJobs.remove(host)?.cancel()
     }
 
     fun clear() {
