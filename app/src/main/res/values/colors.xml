@@ -53,4 +53,8 @@
     <color name="color_base_black">#FF000000</color>
     <color name="color_base_green">#00C853</color>
     <color name="color_base_yellow">#FFD000</color>
+
+    <color name="app_blue1">#2ABFFD</color>
+    <color name="app_white">#ffffff</color>
+    <color name="app_red">#d81e06</color>
 </resources>

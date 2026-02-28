@@ -115,7 +115,7 @@ class LoginViewModel : BaseMviViewModel<LoginIntent, LoginUiState>(LoginUiState(
                     val fromJson = OkHttpHelper.gson.fromJson(response.body.string(), MyResponse::class.java)
                     when (fromJson.msg) {
                         "用户登录成功" -> {
-                            PlanetApplication.is_expired = false
+                            PlanetApplication.isExpired = false
                             UserInfoManager.username = request.username
                             UserInfoManager.userPassword = request.password
                             PlanetApplication.accessToken = response.header("Authorization", "") ?: ""

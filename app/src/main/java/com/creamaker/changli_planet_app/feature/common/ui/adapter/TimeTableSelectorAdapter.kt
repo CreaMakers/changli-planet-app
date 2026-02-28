@@ -8,8 +8,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.feature.timetable.viewmodel.TimeTableViewModel
-import com.creamaker.changli_planet_app.utils.EventBusHelper
-import com.creamaker.changli_planet_app.utils.event.SelectEvent
 
 class TimeTableSelectorAdapter(
     private val context: Context,
@@ -17,7 +15,9 @@ class TimeTableSelectorAdapter(
     private val stuPassword: String,
     val list: List<String>,
     val vm: TimeTableViewModel,
-    val refresh:()->Unit
+    val isWeekPicker: Boolean,
+    val refresh:()->Unit,
+    val onItemSelected: () -> Unit,
 ) :
     RecyclerView.Adapter<TimeTableSelectorAdapter.TimeTableViewHodler>() {
     class TimeTableViewHodler(item: View) : RecyclerView.ViewHolder(item) {
@@ -33,10 +33,15 @@ class TimeTableSelectorAdapter(
 
     override fun onBindViewHolder(holder: TimeTableViewHodler, position: Int) {
 
-        holder.selec.text = list[position]
+        val selectedText = list[position]
+        holder.selec.text = selectedText
         holder.selec.setOnClickListener {
-            vm.selectTerm(list[position])
-            EventBusHelper.post(SelectEvent(1))
+            if (isWeekPicker) {
+                vm.selectWeek(selectedText)
+            } else {
+                vm.selectTerm(selectedText)
+            }
+            onItemSelected()
         }
     }
 }

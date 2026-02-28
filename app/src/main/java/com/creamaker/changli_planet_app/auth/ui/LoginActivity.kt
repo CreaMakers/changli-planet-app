@@ -36,7 +36,6 @@ import com.creamaker.changli_planet_app.auth.mvi.LoginViewModel
 import com.creamaker.changli_planet_app.base.ComposeActivity
 import com.creamaker.changli_planet_app.common.redux.action.UserAction
 import com.creamaker.changli_planet_app.common.redux.store.UserStore
-import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.utils.EventBusHelper
@@ -78,7 +77,6 @@ class LoginActivity : ComposeActivity() {
                         LoginIntent.ClickLogin -> viewModel.login()
                         LoginIntent.ClickRegister -> Route.goRegister(this)
                         LoginIntent.ClickTourist -> {
-                            PlanetApplication.is_tourist = true
                             Route.goHome(this)
                         }
                         LoginIntent.ClickForgetPassword -> Route.goForgetPassword(this)

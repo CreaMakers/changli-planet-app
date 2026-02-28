@@ -55,7 +55,7 @@ object OkHttpHelper {
             val originalRequest = chain.request()
 
             //修改
-            if(PlanetApplication.is_expired){
+            if(PlanetApplication.isExpired){
                 return chain.proceed(originalRequest)
             }
 
@@ -187,7 +187,7 @@ object OkHttpHelper {
 //                        val intent = Intent(PlanetApplication.appContext, MainActivity::class.java)
 //                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
 //                            .putExtra("from_token_expired", true)
-                        PlanetApplication.is_expired = true
+                        PlanetApplication.isExpired = true
 //                        PlanetApplication.appContext.startActivity(intent)
                     }
                 }

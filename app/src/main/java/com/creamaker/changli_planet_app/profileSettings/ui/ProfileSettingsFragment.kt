@@ -86,7 +86,7 @@ class ProfileSettingsFragment : Fragment() {
             setContent {
                 AppSkinTheme {
                     // 初始化状态数据
-                    val isExpired = remember { PlanetApplication.is_expired }
+                    val isExpired = remember { PlanetApplication.isExpired }
                     val username = remember {
                         if (isExpired) "长理学子~" else UserInfoManager.account
                     }
@@ -147,7 +147,7 @@ class ProfileSettingsFragment : Fragment() {
                             onDismiss = { showLogoutDialog = false },
                             onConfirm = {
                                 PlanetApplication.clearLocalCache()
-                                PlanetApplication.is_expired = true
+                                PlanetApplication.isExpired = true
                                 Route.goLoginForcibly(context)
                                 showLogoutDialog = false
                             }
@@ -177,7 +177,7 @@ class ProfileSettingsFragment : Fragment() {
         when (item.id) {
             "2" -> { /* 隐私设置 TODO */ }
             "3" -> {
-                if (PlanetApplication.is_expired) {
+                if (PlanetApplication.isExpired) {
                     GuestLimitedAccessDialog(requireContext()).show()
                 } else {
                     Route.goAccountSecurity(requireContext())

@@ -113,7 +113,7 @@ class LoginByEmailViewModel : BaseMviViewModel<LoginByEmailIntent, LoginByEmailU
                 override fun onSuccess(response: Response) {
                     val fromJson = OkHttpHelper.gson.fromJson(response.body?.string(), MyResponse::class.java)
                     if (fromJson.msg == "用户登录成功") {
-                        PlanetApplication.is_expired = false
+                        PlanetApplication.isExpired = false
                         UserInfoManager.userEmail = request.email
                         PlanetApplication.accessToken = response.header("Authorization", "") ?: ""
                         _effect.tryEmit(LoginByEmailEffect.LoginSuccess)

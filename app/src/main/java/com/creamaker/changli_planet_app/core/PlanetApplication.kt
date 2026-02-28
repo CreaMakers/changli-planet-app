@@ -29,21 +29,15 @@ class PlanetApplication : Application() {
         private const val CURRENT_CACHE_SCHEMA_VERSION = 3
 
         var accessToken: String?
-            get() = MMKV.defaultMMKV()?.getString("token", null)
+            get() = MMKV.defaultMMKV().getString("token", null)
             set(value) {
-                MMKV.defaultMMKV()?.putString("token", value)
+                MMKV.defaultMMKV().putString("token", value)
             }
 
-        var is_tourist: Boolean
-            get() = MMKV.defaultMMKV()?.getBoolean("is_tourist", false) ?: false
+        var isExpired: Boolean
+            get() = MMKV.defaultMMKV().getBoolean("is_expired", true)
             set(value) {
-                MMKV.defaultMMKV()?.putBoolean("is_tourist", value)
-            }
-
-        var is_expired: Boolean
-            get() = MMKV.defaultMMKV()?.getBoolean("is_expired", false) ?: false
-            set(value) {
-                MMKV.defaultMMKV()?.putBoolean("is_expired", value)
+                MMKV.defaultMMKV().putBoolean("is_expired", value)
             }
 
         var startTime: Long = 0
@@ -64,7 +58,6 @@ class PlanetApplication : Application() {
         fun clearCacheAll() {
             CoroutineScope(Dispatchers.IO).launch {
                 accessToken = ""
-                is_tourist = false
                 MMKV.mmkvWithID("education_cache").clearAll()
                 MMKV.mmkvWithID("content_cache").clearAll()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()

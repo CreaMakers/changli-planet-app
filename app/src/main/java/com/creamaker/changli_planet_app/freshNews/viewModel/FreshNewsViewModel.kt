@@ -344,7 +344,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                     }
                     is ApiResponse.Error -> {
                         //修改
-                        Log.d("Trainer", "${PlanetApplication.Companion.is_expired}")
+                        Log.d("Trainer", "${PlanetApplication.Companion.isExpired}")
 
                         if (page == 1) updateState {
                             copy(
@@ -354,7 +354,7 @@ class FreshNewsViewModel : MviViewModel<FreshNewsContract.Intent, FreshNewsContr
                             )
                         }
 
-                        if (!PlanetApplication.Companion.is_expired){
+                        if (!PlanetApplication.Companion.isExpired){
                             handler.post {
                                 CustomToast.Companion.showMessage(
                                     PlanetApplication.Companion.appContext,

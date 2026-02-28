@@ -78,22 +78,8 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 .add(R.id.frag, firstFragment)
                 .commit()
         }
-
         setupTabs()
-
-        lifecycleScope.launch {
-            launch(Dispatchers.Main) {
-
-                setupTabSelectionListener()
-            }
-
-        if( !PlanetApplication.Companion.is_tourist) {  //游客模式不获取用户信息
-                launch(Dispatchers.IO) {
-                  store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
-                   store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
-              }
-           }
-        }
+        setupTabSelectionListener()
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
         // 检查版本更新
         Looper.myQueue().addIdleHandler { //添加通知权限
@@ -161,7 +147,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
     override fun onStart() {
         super.onStart()
-        if(!PlanetApplication.is_tourist) {   //游客模式不获取用户信息
+        if(!PlanetApplication.isExpired) {   //游客模式不获取用户信息
             lifecycleScope.launch {
                 launch(Dispatchers.IO) {
                     store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
@@ -219,7 +205,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 if (currentTabPosition == tab.position) return
 
                 val needBlock =
-                    (PlanetApplication.is_expired && tab.position != 3 && tab.position != 0)
+                    (PlanetApplication.isExpired && tab.position != 3 && tab.position != 0)
                 if (needBlock) {
                     GuestLimitedAccessDialog(this@MainActivity).show()
 

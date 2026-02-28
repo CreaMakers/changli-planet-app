@@ -19,8 +19,11 @@ import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
+import java.util.Calendar
+import java.util.TimeZone
 import java.util.regex.Pattern
 
 class TimeTableViewModel : ViewModel() {
@@ -357,14 +360,20 @@ class TimeTableViewModel : ViewModel() {
     fun getCurWeek(term: String): Int {
         val startTime = CommonInfo.termMap[term]
         return startTime?.let {
-            val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-            val startCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-            startCalendar.time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(it)!!
-
-            val diffInMillis = calendar.timeInMillis - startCalendar.timeInMillis
-            val diffInWeeks = (diffInMillis / (1000 * 60 * 60 * 24 * 7)).toInt() + 1
+            val zoneId = ZoneId.of("Asia/Shanghai")
+            val startDate = runCatching { LocalDate.parse(it.substring(0, 10)) }.getOrNull() ?: return@let 1
+            val today = LocalDate.now(zoneId)
+            val daysBetween = ChronoUnit.DAYS.between(startDate, today)
+            val diffInWeeks = if (daysBetween < 0) 1 else (daysBetween / 7 + 1).toInt()
             diffInWeeks.coerceIn(1, 20)
         } ?: 1
+    }
+
+    fun hasTermStarted(term: String): Boolean {
+        val startTime = CommonInfo.termMap[term] ?: return true
+        val zoneId = ZoneId.of("Asia/Shanghai")
+        val startDate = runCatching { LocalDate.parse(startTime.substring(0, 10)) }.getOrNull() ?: return true
+        return !LocalDate.now(zoneId).isBefore(startDate)
     }
 
     data class WeekJsonInfo(val weeks: List<Int>, val start: Int, val step: Int)

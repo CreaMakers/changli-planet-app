@@ -120,7 +120,7 @@ class UserStore : Store<UserState, UserAction>() {
                 OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
                     override fun onSuccess(response: Response) {
                         val fromJson = OkHttpHelper.gson.fromJson(
-                            response.body?.string(),
+                            response.body.string(),
                             UserStatsResponse::class.java
                         )
                         when (fromJson.code) {
@@ -298,9 +298,7 @@ class UserStore : Store<UserState, UserAction>() {
                     }
 
                     override fun onFailure(error: String) {
-                        handler.post {
-                            CustomToast.Companion.showMessage(action.context, "获取用户动态信息失败")
-                        }
+
                     }
                 })
                 currentState

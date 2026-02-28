@@ -1,230 +1,233 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_bg_primary"
-    android:orientation="vertical"
-    tools:context=".settings.ui.BindingUserActivity">
+    android:fillViewport="true"
+    android:scrollbars="none">
 
     <LinearLayout
-        android:id="@+id/toolbar"
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
-        android:background="@color/color_bg_top_bar"
-        android:elevation="4dp"
-        app:titleTextColor="@android:color/white">
-
-        <ImageView
-            android:id="@+id/binding_back"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/blue_left_back"
-            android:tint = "@color/color_title_top"/>
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:layout_marginStart="5dp"
-            android:text="绑定学号"
-            android:textColor="@color/color_title_top"
-
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <!-- 添加一个空视图来平衡布局，使标题居中 -->
-        <View
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:visibility="invisible" />
-    </LinearLayout>
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:layout_width="210dp"
-        android:layout_height="210dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:src="@drawable/ic_binding_password"
-        app:shapeAppearance="@style/CircleStyle"
-        app:strokeColor="@color/color_outline_low_contrast"
-        app:strokeWidth="3dp" />
-
-    <!-- 输入框区域 -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp310"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="40dp"
-        app:cardBackgroundColor="@color/color_bg_card"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp">
+        android:background="@color/color_bg_primary"
+        android:orientation="vertical"
+        tools:context=".settings.ui.BindingUserActivity">
 
         <LinearLayout
-            android:id="@+id/binding_user_layout"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:background="@color/color_bg_top_bar"
+            android:elevation="4dp"
+            app:titleTextColor="@android:color/white">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="学号"
-                    android:textColor="@color/color_text_highlight"
-                    android:textSize="14sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginVertical="10dp"
-                    android:background="@drawable/edit_text_background"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:paddingTop="3dp"
-                        android:src="@drawable/ic_gerenxinxi"
-                        android:tint="@color/color_icon_secondary"/>
-
-                    <EditText
-                        android:id="@+id/et_student_id"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:background="@null"
-                        android:gravity="center_vertical"
-                        android:hint="请输入长理学号"
-                        android:textColorHint="@color/color_text_grey"
-                        android:textColor="@color/color_text_primary"
-                        android:maxLines="1"
-                        android:inputType="number"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="密码"
-                    android:textColor="@color/color_text_highlight"
-                    android:textSize="14sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginVertical="10dp"
-                    android:background="@drawable/edit_text_background"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:paddingTop="3dp"
-                        android:src="@drawable/mima"
-                        android:tint="@color/color_icon_secondary"/>
-
-                    <EditText
-                        android:id="@+id/et_student_password"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:background="@null"
-                        android:gravity="center_vertical"
-                        android:inputType="textPassword"
-                        android:hint="请输入教务密码"
-                        android:textColorHint="@color/color_text_grey"
-                        android:textColor="@color/color_text_primary"
-                        android:maxLines="1"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/save_user"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:background="@drawable/bg_gradient_button"
-                android:paddingVertical="13dp"
-                android:text="绑定"
-                android:textColor="@color/color_text_button"
-                app:backgroundTint="@null"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-        <RelativeLayout
-            android:id="@+id/loadingLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone">
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:indeterminateTintMode="src_atop"
-                android:indeterminateTint="@color/color_primary_blue" />
+            <ImageView
+                android:id="@+id/binding_back"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/blue_left_back"/>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/progressBar"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="8dp"
-                android:text="登录中..."
-                android:textColor="@color/color_text_functional"
-                android:textSize="14sp" />
-        </RelativeLayout>
-    </com.google.android.material.card.MaterialCardView>
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="绑定学号"
+                android:textColor="@color/color_title_top"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp15"
-        android:layout_marginHorizontal="@dimen/dp20"
-        android:gravity="center"
-        android:lineSpacingExtra="@dimen/dp3"
-        android:text="@string/binding_privacy_statement"
-        android:textColor="@color/color_text_grey"
-        android:textSize="13sp" />
+            <View
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:visibility="invisible" />
+        </LinearLayout>
 
-</LinearLayout>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="210dp"
+            android:layout_height="210dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/ic_binding_password"
+            app:shapeAppearance="@style/CircleStyle"
+            app:strokeColor="@color/color_outline_low_contrast"
+            app:strokeWidth="3dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp310"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="40dp"
+            app:cardBackgroundColor="@color/color_bg_card"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:id="@+id/binding_user_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="学号"
+                        android:textColor="@color/color_text_highlight"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginVertical="10dp"
+                        android:background="@drawable/edit_text_background"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:paddingTop="3dp"
+                            android:src="@drawable/ic_gerenxinxi"
+                            app:tint="@color/color_icon_secondary"/>
+
+                        <EditText
+                            android:id="@+id/et_student_id"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:gravity="center_vertical"
+                            android:hint="请输入长理学号"
+                            android:textColorHint="@color/color_text_grey"
+                            android:textColor="@color/color_text_primary"
+                            android:maxLines="1"
+                            android:inputType="number"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="密码"
+                        android:textColor="@color/color_text_highlight"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginVertical="10dp"
+                        android:background="@drawable/edit_text_background"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:paddingTop="3dp"
+                            android:src="@drawable/mima"
+                            app:tint="@color/color_icon_secondary"/>
+
+                        <EditText
+                            android:id="@+id/et_student_password"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:gravity="center_vertical"
+                            android:inputType="textPassword"
+                            android:hint="请输入教务密码"
+                            android:textColorHint="@color/color_text_grey"
+                            android:textColor="@color/color_text_primary"
+                            android:maxLines="1"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/save_user"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/bg_gradient_button"
+                    android:paddingVertical="13dp"
+                    android:text="绑定"
+                    android:textColor="@color/color_text_button"
+                    app:backgroundTint="@null"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+            <RelativeLayout
+                android:id="@+id/loadingLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:indeterminateTintMode="src_atop"
+                    android:indeterminateTint="@color/color_primary_blue" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/progressBar"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="8dp"
+                    android:text="登录中..."
+                    android:textColor="@color/color_text_functional"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp15"
+            android:layout_marginHorizontal="@dimen/dp20"
+            android:gravity="center"
+            android:lineSpacingExtra="@dimen/dp3"
+            android:text="@string/binding_privacy_statement"
+            android:textColor="@color/color_text_grey"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+</ScrollView>

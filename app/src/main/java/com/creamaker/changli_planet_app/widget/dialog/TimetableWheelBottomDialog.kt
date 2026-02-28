@@ -10,12 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.TimeTableSelectorAdapter
 import com.creamaker.changli_planet_app.feature.timetable.viewmodel.TimeTableViewModel
-import com.creamaker.changli_planet_app.utils.EventBusLifecycleObserver
-import com.creamaker.changli_planet_app.utils.event.SelectEvent
 import com.creamaker.changli_planet_app.widget.view.DividerItemDecoration
 import com.creamaker.changli_planet_app.widget.view.MaxHeightLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.greenrobot.eventbus.Subscribe
 
 
 class TimetableWheelBottomDialog(
@@ -24,6 +21,7 @@ class TimetableWheelBottomDialog(
     val stuPassword: String,
     val vm: TimeTableViewModel,
     val maxHeight: Int,
+    val isWeekPicker: Boolean,
     val refresh:()->Unit
 ) : BottomSheetDialogFragment() {
     private lateinit var recyclerView: RecyclerView
@@ -38,13 +36,22 @@ class TimetableWheelBottomDialog(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        lifecycle.addObserver(EventBusLifecycleObserver(this))
         val view = inflater.inflate(R.layout.select_in_timetable, container, false)
         recyclerView = view.findViewById(R.id.selectRecyclerTimetable)
 
         val maxHeightLinearLayout = view.findViewById<MaxHeightLinearLayout>(R.id.maxHeightLayout)
         maxHeightLinearLayout.setMaxHeight(maxHeight)
-        adapter = TimeTableSelectorAdapter(mcontext, stuNum, stuPassword, item, vm,refresh)
+        adapter = TimeTableSelectorAdapter(
+            mcontext,
+            stuNum,
+            stuPassword,
+            item,
+            vm,
+            isWeekPicker,
+            refresh,
+        ) {
+            dismiss()
+        }
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         recyclerView.scrollToPosition(selectedIndex)
@@ -58,12 +65,5 @@ class TimetableWheelBottomDialog(
 
     fun setTitle(title: String) {
         text = title
-    }
-
-    @Subscribe
-    fun ClickEvent(selectEvent: SelectEvent) {
-        if (selectEvent.eventType == 1) {
-            dismiss()
-        }
     }
 }
