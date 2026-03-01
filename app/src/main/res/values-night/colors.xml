@@ -1,5 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="color_text_widget_primary">#E8E8E8</color>
+    <!-- ====================== 背景类 ====================== -->
+    <color name="light_gray">#F2F2F2</color>
+    <color name="color_bg_primary">#000000</color>
+    <color name="color_bg_card">#191919</color>
+    <color name="color_bg_card_high_contrast">#376AD3</color>
+    <color name="color_bg_top_bar">#223853</color>
+    <color name="color_bg_secondary">#191919</color>
+    <color name="color_bg_secondary_inverse">#D3D3D3</color>
+    <color name="color_bg_recycler_view">#141414</color>
+
+    <!-- ====================== 文字类 ====================== -->
+    <color name="color_text_primary">#F8F8F8</color>
+    <color name="color_text_grey">#D0D0D0</color>
+    <color name="color_text_secondary">#808080</color>
+    <color name="color_text_highlight">#4285F4</color>
+    <color name="color_text_button">#FFFFFF</color>
+    <color name="color_text_widget_primary">#000000</color>
+    <color name="color_text_disabled">#A0A0A0</color>
+    <color name="color_search_hint">#D3DDDF</color>
+
+    <!-- 帖子文字类 -->
+    <color name="color_post_text_primary">#F8F8F8</color>
+    <color name="color_post_text_title">#000000</color>
+    <color name="color_post_text_hint">#ABABAB</color>
+    <color name="color_post_text_reply">#1E4B94</color>
+
+    <!-- 顶部标题文字 -->
+    <color name="color_title_top">#0E749C</color>
+
+    <!-- ====================== 图标类 ====================== -->
+    <color name="color_icon_setting">#0D57ED</color>
+    <color name="color_icon_primary">#4285F4</color>
+    <color name="color_icon_secondary">#D0D0D0</color>
+
+    <!-- ====================== 按钮类 ====================== -->
+    <color name="color_bg_button">#1D57AD</color>
+    <color name="color_bg_button_lowlight">#272C32</color>
+
+    <!-- ====================== 主色 / 功能色 ====================== -->
+    <color name="color_text_functional">#4F7FED</color>
+    <color name="color_primary_blue">#0099FA</color>
+    <color name="color_tab_ripped">#F2F2F2</color>
+    <color name="color_loading">#0099FA</color>
+    <color name="color_post_hint_bar">#0997F8</color>
+
+    <!-- ====================== 分隔线 / 描边类 ====================== -->
+    <color name="color_control_divider">#909AA7</color>
+    <color name="color_divider">#D0D0D0</color>
+    <color name="color_outline">#D0D0D0</color>
+    <color name="color_outline_low_contrast">#C4DFFC</color>
+
+    <!-- ====================== 状态类（错误 / 成功） ====================== -->
+    <color name="color_error_red">#FF3D00</color>
+    <color name="color_success_green">#00C853</color>
+
+    <!-- ====================== 基础色 ====================== -->
+    <color name="color_base_white">#FFFFFFFF</color>
+    <color name="color_base_red">#DC3B00</color>
+    <color name="color_base_black">#FF000000</color>
+    <color name="color_base_green">#00C853</color>
+    <color name="color_base_yellow">#FFD000</color>
+
+    <color name="app_blue1">#2ABFFD</color>
+    <color name="app_white">#FFFFFF</color>
+    <color name="app_red">#D81E06</color>
 
 </resources>
