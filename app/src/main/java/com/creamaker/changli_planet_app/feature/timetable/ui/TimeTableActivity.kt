@@ -3,14 +3,17 @@ package com.creamaker.changli_planet_app.feature.timetable.ui
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.compose.foundation.background
@@ -96,9 +99,10 @@ class TimeTableActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        enableEdgeToEdge()
         if (studentId.isEmpty() || studentPassword.isEmpty()) {
             showMessage(getString(R.string.bind_notification))
             Route.goBindingUser(this)
@@ -114,7 +118,7 @@ class TimeTableActivity : AppCompatActivity() {
         if (mmkv.getBoolean("isFirstDialog", true)) {
             NormalResponseDialog(
                 this,
-                "喵呜~ 试试左右滑动课表区域来切换周次吧，手机小组件功能也上线啦！(◍•ᴗ•◍)✧*",
+                "喵呜~ 手机小组件功能也上线啦！(◍•ᴗ•◍)✧*",
                 "贴心小提示"
             ).show()
             mmkv.encode("isFirstDialog", false)
@@ -134,6 +138,7 @@ class TimeTableActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     private fun TimeTableRouteScreen() {
         val state = uiState
@@ -423,6 +428,7 @@ class TimeTableActivity : AppCompatActivity() {
         dialog.show(supportFragmentManager, "TimetableWheel")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun buildDayHeaders(term: String, targetWeek: Int): Pair<String, List<TimeTableDayHeaderUi>> {
         val zoneId = ZoneId.of("Asia/Shanghai")
         val today = LocalDate.now(zoneId)

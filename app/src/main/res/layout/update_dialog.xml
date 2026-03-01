@@ -1,8 +1,8 @@
 <!-- update_dialog.xml -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="280dp"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center"
     android:background="@drawable/dialog_background"
     android:orientation="vertical"
@@ -38,7 +38,33 @@
         android:scrollbarSize="4dp"
         android:nestedScrollingEnabled="true" />
 
-    <!-- 进度条布局，默认隐藏 -->
+    <LinearLayout
+        android:id="@+id/download_progress_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/download_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:max="100"
+            android:progress="0"
+            android:indeterminate="false"
+            android:progressDrawable="@drawable/bg_update_download_progress" />
+
+        <TextView
+            android:id="@+id/download_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            tools:text="下载进度：0%"
+            android:textColor="@color/color_text_grey"
+            android:textSize="13sp" />
+    </LinearLayout>
 
 
     <View

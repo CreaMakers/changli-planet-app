@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -210,10 +212,9 @@ fun TimeTableComposeScreen(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
-                .padding(horizontal = 4.dp)
                 .fillMaxWidth()
                 .weight(1f),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 22.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp),
             pageSpacing = 12.dp,
         ) { pageIndex ->
             val week = pageIndex + 1
@@ -382,6 +383,7 @@ private fun TimetableCapsule(
         ) {
             if (leadingIcon != null) {
                 Icon(
+                    modifier = Modifier.size(24.dp, 24.dp),
                     painter = painterResource(id = leadingIcon),
                     contentDescription = null,
                     tint = colors.iconSecondaryColor,
