@@ -6,7 +6,7 @@
     <color name="color_bg_card">#FFFFFF</color>
     <color name="color_bg_card_high_contrast">#376AD3</color>
     <color name="color_bg_top_bar">#E6F2FF</color>
-    <color name="color_bg_secondary">#F0F0F0</color>
+    <color name="color_bg_secondary">#FFFFFF</color>
     <color name="color_bg_secondary_inverse">#D3D3D3</color>
     <color name="color_bg_recycler_view">#FFFFFF</color>
     <!-- ====================== 文字类 ====================== -->

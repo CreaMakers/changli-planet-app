@@ -168,7 +168,7 @@
                             android:background="@null"
                             android:gravity="center_vertical"
                             android:inputType="textPassword"
-                            android:hint="请输入教务密码"
+                            android:hint="请输入统一身份认证密码"
                             android:textColorHint="@color/color_text_grey"
                             android:textColor="@color/color_text_primary"
                             android:maxLines="1"
