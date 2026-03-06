@@ -166,7 +166,7 @@ class TimeTableActivity : AppCompatActivity() {
 
         LaunchedEffect(responseState) {
             if (responseState is ApiResponse.Error) {
-                errorMessage = (responseState as ApiResponse.Error).msg
+                errorMessage = "喵呜，被异次元拦截啦！请检查一下网络连接和学期选项哦૮₍˃⤙˂₎ა"
                 showErrorDialog = true
             }
         }
