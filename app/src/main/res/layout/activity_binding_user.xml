@@ -229,5 +229,18 @@
             android:textColor="@color/color_text_grey"
             android:textSize="13sp" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/web_login_btn"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="20dp"
+            android:text="遇到问题？尝试网页登录 >"
+            android:textColor="@color/color_text_highlight"
+            android:textSize="13sp"
+            app:rippleColor="@color/color_outline_low_contrast"/>
+
     </LinearLayout>
 </ScrollView>

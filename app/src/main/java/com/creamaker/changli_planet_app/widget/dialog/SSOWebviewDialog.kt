@@ -1,33 +1,29 @@
 package com.example.changli_planet_app.widget.Dialog
 
-import android.accounts.Account
 import android.annotation.SuppressLint
-import android.net.Uri
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewStub
+import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.Space
 import android.widget.TextView
 import com.creamaker.changli_planet_app.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import okhttp3.Cookie
-import okhttp3.HttpUrl
-import java.net.HttpCookie
 
 class SSOWebviewDialog(
-    val LoginResult : (String, String, String, String, List<Cookie>)-> Unit
-) : BottomSheetDialogFragment(){
+    val loginResult: (String, String, String, String, List<Cookie>) -> Unit,
+    val onDismissCallback: (() -> Unit)? = null,
+) : BottomSheetDialogFragment() {
 
     private  var account  = ""
     private  var password = ""
@@ -38,10 +34,19 @@ class SSOWebviewDialog(
 
     private lateinit var webview : WebView
     private lateinit var space: View
-
     private var  isPagedFinished = false
 
 
+    override fun onStart() {
+        super.onStart()
+        // 防止软键盘弹出时 BottomSheet 被顶起导致 WebView 莫名上移
+        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        onDismissCallback?.invoke()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,17 +62,14 @@ class SSOWebviewDialog(
         val internal = view.findViewById<LinearLayout>(R.id.internal_sso_layout)
         val back = internal.findViewById<TextView>(R.id.sso_back)
         back.setOnClickListener { dismiss() }
-        initwebview()
-
-
-
+        initWebview()
         return view
     }
 
 
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun initwebview() {
+    private fun initWebview() {
         webview.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled =true
@@ -80,11 +82,8 @@ class SSOWebviewDialog(
             fun onFieldChanged(field: String,value: String){
                 when(field){
                     "username" -> account = value
-
                     "password" -> password =value
                 }
-
-
             }
         },"AndroidBridge")
 
@@ -165,23 +164,18 @@ class SSOWebviewDialog(
                     }
                     Log.d("Qingyue", cookies.toString())
                     if (account.isNotEmpty()) {
-                        LoginResult(account,password,loginMode.toString(),urlString,cookies)
+                        loginResult(account,password,loginMode.toString(),urlString,cookies)
                         dismiss()
                     }
                     return false
                 } else {
                     return false
                 }
-
             }
         }
-
         webview.loadUrl(
             "https://authserver.csust.edu.cn/authserver/login?service=https%3A%2F%2Fehall.csust.edu.cn%2Flogin"
         )
-
-
-
     }
 
     override fun onDestroy() {
@@ -193,6 +187,4 @@ class SSOWebviewDialog(
         }
         super.onDestroy()
     }
-
-
 }

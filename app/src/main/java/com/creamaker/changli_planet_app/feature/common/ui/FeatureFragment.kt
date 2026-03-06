@@ -107,7 +107,8 @@ fun FeatureScreen(
                 iconRes = R.drawable.ic_map,
                 tintColor = FunctionColors.Map
             ) {
-                Route.goCampusMap(context)
+//                Route.goCampusMap(context)
+                CustomToast.showMessage(context, "正在全力开发中")
             },
 
             FunctionItemData(

@@ -17,22 +17,29 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,7 +71,6 @@ import com.creamaker.changli_planet_app.feature.timetable.ui.compose.TimeTableDa
 import com.creamaker.changli_planet_app.feature.timetable.ui.compose.WeekBadgeState
 import com.creamaker.changli_planet_app.feature.timetable.ui.entity.TimeTableUiState
 import com.creamaker.changli_planet_app.feature.timetable.viewmodel.TimeTableViewModel
-import com.creamaker.changli_planet_app.widget.dialog.ErrorStuPasswordResponseDialog
 import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
 import com.creamaker.changli_planet_app.widget.dialog.TimetableWheelBottomDialog
 import com.google.gson.Gson
@@ -154,6 +160,16 @@ class TimeTableActivity : AppCompatActivity() {
         val courses = remember(state.subjects) {
             state.subjects.map { it.toComposeUi() }
         }
+        val responseState by viewModel.coursesResponse.collectAsState(initial = null)
+        var showErrorDialog by remember { mutableStateOf(false) }
+        var errorMessage by remember { mutableStateOf("") }
+
+        LaunchedEffect(responseState) {
+            if (responseState is ApiResponse.Error) {
+                errorMessage = (responseState as ApiResponse.Error).msg
+                showErrorDialog = true
+            }
+        }
 
         TimeTableComposeScreen(
             termText = term,
@@ -229,6 +245,42 @@ class TimeTableActivity : AppCompatActivity() {
                 titleContentColor = AppTheme.colors.primaryTextColor,
                 textContentColor = AppTheme.colors.secondaryTextColor,
                 properties = DialogProperties(dismissOnClickOutside = true),
+            )
+        }
+
+        if (responseState is ApiResponse.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.2f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        enabled = true,
+                        onClick = {}
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = AppTheme.colors.commonColor,
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+        }
+
+        if (showErrorDialog) {
+            AlertDialog(
+                onDismissRequest = { showErrorDialog = false },
+                confirmButton = {
+                    TextButton(onClick = { showErrorDialog = false }) {
+                        Text(text = "我知道了", color = AppTheme.colors.commonColor)
+                    }
+                },
+                title = { Text(text = "加载失败") },
+                text = { Text(text = errorMessage) },
+                containerColor = AppTheme.colors.bgCardColor,
+                titleContentColor = AppTheme.colors.primaryTextColor,
+                textContentColor = AppTheme.colors.secondaryTextColor,
             )
         }
     }
@@ -365,27 +417,6 @@ class TimeTableActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleError(message: String) {
-        when {
-            message.contains("学号") || message.contains("密码") -> {
-                ErrorStuPasswordResponseDialog(
-                    this,
-                    message,
-                    "查询失败"
-                ) {
-                    val currentTerm = uiState.term.ifBlank { viewModel.getCurrentTerm() }
-                    viewModel.loadCourses(currentTerm, forceRefresh = true)
-                }.show()
-            }
-
-            message.contains("网络") -> {
-                NormalResponseDialog(this, message, "网络错误").show()
-            }
-
-            else -> showMessage(message)
-        }
-    }
-
     private fun showMessage(message: String) {
         val cardView = CardView(applicationContext).apply {
             radius = 25f
@@ -444,7 +475,12 @@ class TimeTableActivity : AppCompatActivity() {
             startOfCurrentWeek.plusWeeks((targetWeek - currentWeek).toLong())
         }
 
-        val monthText = "${weekStartDate.monthValue}月"
+        val weekEndDate = weekStartDate.plusDays(6)
+        val monthText = if (weekStartDate.monthValue != weekEndDate.monthValue) {
+            "${weekStartDate.monthValue}月/${weekEndDate.monthValue}月"
+        } else {
+            "${weekStartDate.monthValue}月"
+        }
         val labels = listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
         val headers = mutableListOf<TimeTableDayHeaderUi>()
 

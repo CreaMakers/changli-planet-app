@@ -37,10 +37,8 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
 
 class UserStore : Store<UserState, UserAction>() {
-
-    private val TAG = "UserStore"
-
     companion object {
+        private const val TAG = "UserStore"
         private var currentState = UserState()
     }
 
@@ -306,36 +304,34 @@ class UserStore : Store<UserState, UserAction>() {
 
             is UserAction.BindingStudentNumber -> {
                 currentState.uiForLoading = true
-
                 CoroutineScope(Dispatchers.IO).launch {
                     RetrofitUtils.ClearClient("moocClient")
                     RetrofitUtils.ClearClient("EducationClient")
                     try {
-                        // 先做 SSO 登录（过滤掉 Loading）
                         val ssoResult = MoocRepository.instance
-                            .login(action.student_number, StudentInfoManager.studentPassword)
+                            .login(action.studentNumber, action.studentPassword)
                             .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
                             .first()
                         when (ssoResult) {
                             is com.dcelysia.csust_spider.core.Resource.Success -> {
                                 Log.d(TAG, "sso登陆成功")
-                                // SSO 成功后再做教务登录（顺序执行）
                                 val eduSuccess = AuthService.Login(
-                                    action.student_number,
-                                    StudentInfoManager.studentPassword
+                                    action.studentNumber,
+                                    action.studentPassword
                                 )
                                 if (eduSuccess) {
                                     currentState.uiForLoading = false
 
-                                    EducationData.studentId = action.student_number
-                                    EducationData.studentPassword = StudentInfoManager.studentPassword
+                                    EducationData.studentId = action.studentNumber
+                                    EducationData.studentPassword = action.studentPassword
                                     Log.d(TAG, "教务登录成功")
-                                    StudentInfoManager.studentId = action.student_number
+                                    StudentInfoManager.studentId = action.studentNumber
+                                    StudentInfoManager.studentPassword = action.studentPassword
                                     handler.post { EventBusHelper.post(FinishEvent("bindingUser")) }
                                     PlanetApplication.clearSchoolDataCacheAll()
                                     _state.onNext(currentState)
                                 } else {
-                                    currentState.userStats.studentNumber = action.student_number
+                                    currentState.userStats.studentNumber = action.studentNumber
                                     currentState.uiForLoading = false
                                     handler.post {
                                         NormalResponseDialog(
@@ -348,7 +344,7 @@ class UserStore : Store<UserState, UserAction>() {
                             }
 
                             is com.dcelysia.csust_spider.core.Resource.Error -> {
-                                currentState.userStats.studentNumber = action.student_number
+                                currentState.userStats.studentNumber = action.studentNumber
                                 currentState.uiForLoading = false
                                 Log.d(TAG,"ssoResult:${ssoResult}")
                                 //如果不用重新在网页登录就不用显示出网页登录选项
@@ -356,7 +352,7 @@ class UserStore : Store<UserState, UserAction>() {
                                     handler.post {
                                         NormalResponseDialog(
                                             action.context,
-                                            "学号或密码错误，请重试",
+                                            ssoResult.msg,
                                             "绑定失败"
                                         ).show()
                                     }
@@ -376,9 +372,8 @@ class UserStore : Store<UserState, UserAction>() {
                             }
 
                             else -> {
-                                currentState.userStats.studentNumber = action.student_number
+                                currentState.userStats.studentNumber = action.studentNumber
                                 currentState.uiForLoading = false
-                                // 兜底（理论上 filter 已去掉 Loading）
                                 handler.post {
                                     NormalResponseDialog(
                                         action.context,
@@ -390,7 +385,7 @@ class UserStore : Store<UserState, UserAction>() {
                             }
                         }
                     } catch (e: Exception) {
-                        currentState.userStats.studentNumber = action.student_number
+                        currentState.userStats.studentNumber = action.studentNumber
                         currentState.uiForLoading = false
                         e.printStackTrace()
                         handler.post {
@@ -414,18 +409,13 @@ class UserStore : Store<UserState, UserAction>() {
                 currentState.userStats = currentState.userStats.copy(studentNumber = action.account)
                 _state.onNext(currentState)
                 // 3. 调用现有的学号绑定逻辑，触发网络请求
-                handleEvent(UserAction.BindingStudentNumber(action.context, action.account) {})
-
+                handleEvent(UserAction.BindingStudentNumber(action.context, action.account, action.password) {})
                 currentState
             }
 
             is UserAction.UpdateLocation->{
                 currentState.userProfile.location = action.location
                 currentState.locationChangedManually = true //表示所在地已在本地更新
-                _state.onNext(currentState)
-                currentState
-            }
-            else -> {
                 _state.onNext(currentState)
                 currentState
             }

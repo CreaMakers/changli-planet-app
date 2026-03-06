@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -59,22 +61,18 @@ import kotlinx.coroutines.flow.map
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 
-// 课程卡片渐变配色：8 组柔和渐变，Pair(顶色, 底色)
-// 同一课程名称始终映射同一颜色（hash by title）
 internal val kCourseCardColors = listOf(
-    Pair(Color(0xFFCDE8FF), Color(0xFF8EC9F5)), // 天蓝
-    Pair(Color(0xFFB8F0CE), Color(0xFF6BDAA0)), // 薄荷
-    Pair(Color(0xFFD8D0FF), Color(0xFFA896F5)), // 薰衣草
-    Pair(Color(0xFFFFE7B0), Color(0xFFFFCA60)), // 琥珀
-    Pair(Color(0xFFFFCDD8), Color(0xFFFF9AB8)), // 玫瑰
-    Pair(Color(0xFFA8EFEC), Color(0xFF5DD5D0)), // 碧青
-    Pair(Color(0xFFFFD8B8), Color(0xFFFFAA72)), // 蜜桃
-    Pair(Color(0xFFCEF0A8), Color(0xFF8ED460)), // 草绿
+    Pair(Color(0xFFCDE8FF), Color(0xFF8EC9F5)),
+    Pair(Color(0xFFB8F0CE), Color(0xFF6BDAA0)),
+    Pair(Color(0xFFD8D0FF), Color(0xFFA896F5)),
+    Pair(Color(0xFFFFE7B0), Color(0xFFFFCA60)),
+    Pair(Color(0xFFFFCDD8), Color(0xFFFF9AB8)),
+    Pair(Color(0xFFA8EFEC), Color(0xFF5DD5D0)),
+    Pair(Color(0xFFFFD8B8), Color(0xFFFFAA72)),
+    Pair(Color(0xFFCEF0A8), Color(0xFF8ED460)),
 )
-// 卡片文字统一用深海军蓝，在所有浅色卡片上可读性最佳
 internal val kCourseCardTextColor = Color(0xFF1C2B3A)
 
-/** 根据课程名称取得 (渐变顶色, 渐变底色)，相同名称始终同色 */
 internal fun courseCardColorPair(courseTitle: String): Pair<Color, Color> =
     kCourseCardColors[courseTitle.hashCode().absoluteValue % kCourseCardColors.size]
 
@@ -124,6 +122,7 @@ private data class TimetableSizeSpec(
 
 @Composable
 fun TimeTableComposeScreen(
+    modifier: Modifier = Modifier,
     termText: String,
     weekText: String,
     isCurrentWeek: Boolean,
@@ -140,7 +139,6 @@ fun TimeTableComposeScreen(
     onCourseClick: (TimeTableCourseUi) -> Unit,
     onOverlapCoursesClick: (List<TimeTableCourseUi>) -> Unit,
     onCourseLongClick: (TimeTableCourseUi) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val colors = AppTheme.colors
     val sizeSpec = remember { TimetableSizeSpec() }
@@ -190,6 +188,8 @@ fun TimeTableComposeScreen(
                     )
                 )
             )
+            .statusBarsPadding()
+            .navigationBarsPadding()
     ) {
         TimeTableTopBar(
             isRefreshing = isRefreshing,
@@ -268,7 +268,7 @@ private fun TimeTableTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp, start = 14.dp, end = 10.dp, bottom = 8.dp),
+            .padding(top = 0.dp, start = 14.dp, end = 10.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(40.dp))
@@ -594,7 +594,8 @@ private fun TimeTableGrid(
                                     .height(cellHeight)
                                     .combinedClickable(
                                         onClick = {
-                                            val hitCourses = cellCoursesMap[day + 1 to section + 1].orEmpty()
+                                            val hitCourses =
+                                                cellCoursesMap[day + 1 to section + 1].orEmpty()
                                             when (hitCourses.size) {
                                                 0 -> onEmptySlotClick(day + 1, section + 1)
                                                 1 -> onCourseClick(hitCourses.first())
@@ -602,7 +603,8 @@ private fun TimeTableGrid(
                                             }
                                         },
                                         onLongClick = {
-                                            val hitCourses = cellCoursesMap[day + 1 to section + 1].orEmpty()
+                                            val hitCourses =
+                                                cellCoursesMap[day + 1 to section + 1].orEmpty()
                                             if (hitCourses.isNotEmpty()) {
                                                 onCourseLongClick(hitCourses.first())
                                             }

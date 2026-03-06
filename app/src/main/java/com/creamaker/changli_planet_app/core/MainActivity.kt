@@ -205,7 +205,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 if (currentTabPosition == tab.position) return
 
                 val needBlock =
-                    (PlanetApplication.isExpired && tab.position != 3 && tab.position != 0)
+                    (PlanetApplication.isExpired && tab.position != 3 && tab.position != 0 && tab.position != 2)
                 if (needBlock) {
                     GuestLimitedAccessDialog(this@MainActivity).show()
 

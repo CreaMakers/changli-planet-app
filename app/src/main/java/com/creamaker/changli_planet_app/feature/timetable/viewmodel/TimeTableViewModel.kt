@@ -17,18 +17,20 @@ import com.dcelysia.csust_spider.core.Resource
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.TimeZone
 import java.util.regex.Pattern
 
 class TimeTableViewModel : ViewModel() {
 
-    private val TAG = "TimeTableViewModel"
+    companion object {
+        private const val TAG = "TimeTableViewModel"
+    }
+
     private val mmkv by lazy { MMKV.defaultMMKV() }
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
@@ -40,8 +42,8 @@ class TimeTableViewModel : ViewModel() {
     val uiState: LiveData<TimeTableUiState> = _uiState
 
     // API Response State
-    private val _coursesResponse = MutableLiveData<ApiResponse<List<TimeTableMySubject>>>()
-    val coursesResponse: LiveData<ApiResponse<List<TimeTableMySubject>>> = _coursesResponse
+    private val _coursesResponse = MutableSharedFlow<ApiResponse<List<TimeTableMySubject>>>(replay = 1)
+    val coursesResponse: SharedFlow<ApiResponse<List<TimeTableMySubject>>> = _coursesResponse
 
     // Add Course Response
     private val _addCourseResponse = MutableLiveData<ApiResponse<Unit>>()
@@ -82,50 +84,39 @@ class TimeTableViewModel : ViewModel() {
     }
 
     fun loadCourses(term: String, forceRefresh: Boolean = false) {
-        viewModelScope.launch {
-            _coursesResponse.value = ApiResponse.Loading()
+        viewModelScope.launch(Dispatchers.IO) {
+            _coursesResponse.tryEmit(ApiResponse.Loading())
 
             try {
                 val cur = System.currentTimeMillis()
-                val count = withContext(Dispatchers.IO) {
-                    courseDao.getCoursesCountByTerm(term)
-                }
-
+                val count = courseDao.getCoursesCountByTerm(term)
                 val lastUpdate = mmkv.decodeLong("lastUpdate_$term", 0L)
-                val needRefresh = count == 0 ||
-                        forceRefresh ||
-                        (cur - lastUpdate > 1000 * 60 * 60 * 24)
-
-                if (needRefresh) {
-                    // 从网络获取
-                    fetchCoursesFromNetwork(term)
+                val needRefresh = count == 0 || forceRefresh || (cur - lastUpdate > 1000 * 60 * 60 * 48)
+                val courses = courseDao.getCoursesByTerm(term, studentId, studentPassword)
+                    .distinctBy {
+                        "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
+                    }.map { course ->
+                        if (course.weekday == 7) {
+                            val adjustedWeeks = course.weeks?.map { week -> week - 1 }
+                            course.copy(weeks = adjustedWeeks)
+                        } else {
+                            course
+                        }
+                    }
+                if (!needRefresh && courses.isEmpty()) {
+                    _coursesResponse.tryEmit(ApiResponse.Error("该学期暂无课程数据"))
                 } else {
-                    val courses = withContext(Dispatchers.IO) {
-                        courseDao.getCoursesByTerm(term, studentId, studentPassword)
-                            .distinctBy {
-                                "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
-                            }.map { course ->
-                                if (course.weekday == 7) {
-                                    // 对weeks列表中的每个元素执行减1操作（处理可能的null情况）
-                                    val adjustedWeeks = course.weeks?.map { week -> week - 1 }
-                                    // 复制原对象，替换weeks为调整后的值
-                                    course.copy(weeks = adjustedWeeks)
-                                } else {
-                                    // 其他情况保持不变
-                                    course
-                                }
-                            }
-                    }
-                    if (courses.isEmpty()) {
-                        _coursesResponse.value = ApiResponse.Error("该学期暂无课程数据")
-                    } else {
+                    withContext(Dispatchers.Main) {
                         updateUiState(courses.toMutableList(), term)
-                        _coursesResponse.value = ApiResponse.Success(courses)
                     }
+                    _coursesResponse.tryEmit(ApiResponse.Success(courses))
+                }
+                if (needRefresh) {
+                    fetchCoursesFromNetwork(term)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading courses", e)
-                _coursesResponse.value = ApiResponse.Error("加载课程失败: ${e.message}")
+                _coursesResponse.tryEmit(ApiResponse.Error("加载课程失败: ${e.message}"))
             }
         }
     }
@@ -133,52 +124,44 @@ class TimeTableViewModel : ViewModel() {
     private suspend fun fetchCoursesFromNetwork(term: String) {
         withContext(Dispatchers.IO) {
             try {
-                val coursesResource = EducationHelper.getCourseScheduleByTerm("", term)
-
-                when (coursesResource) {
+                when (val coursesResource = EducationHelper.getCourseScheduleByTerm("", term)) {
                     is Resource.Success -> {
                         val localCourses = toLocalCourse(coursesResource.data)
                         val subjects = generateSubjects(localCourses, term)
 
                         if (subjects.isEmpty()) {
                             withContext(Dispatchers.Main) {
-                                _coursesResponse.value = ApiResponse.Error("该学期暂无课程数据")
+                                _coursesResponse.tryEmit(ApiResponse.Error("该学期暂无课程数据"))
                             }
                             return@withContext
                         }
 
-                        // 去重并处理数据
                         val mergedCourses = distinctSubjects(subjects)
-                        // 保存到数据库
                         courseDao.clearAllCourses()
                         courseDao.insertCourses(mergedCourses)
 
-                        // 更新最后更新时间
                         mmkv.encode("lastUpdate_$term", System.currentTimeMillis())
 
                         withContext(Dispatchers.Main) {
                             updateUiState(mergedCourses, term)
-                            _coursesResponse.value = ApiResponse.Success(mergedCourses)
                         }
+                        _coursesResponse.tryEmit(ApiResponse.Success(mergedCourses))
                     }
 
                     is Resource.Error -> {
-                        withContext(Dispatchers.Main) {
-                            _coursesResponse.value = ApiResponse.Error(
+                        _coursesResponse.tryEmit(
+                            ApiResponse.Error(
                                 coursesResource.msg
                             )
-                        }
+                        )
                     }
 
                     is Resource.Loading -> {
-                        // Loading state already set
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching from network", e)
-                withContext(Dispatchers.Main) {
-                    _coursesResponse.value = ApiResponse.Error("网络出现波动: ${e.message}")
-                }
+                _coursesResponse.tryEmit(ApiResponse.Error("网络出现波动: ${e.message}"))
             }
         }
     }
@@ -188,12 +171,9 @@ class TimeTableViewModel : ViewModel() {
             "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
         }.map { course ->
             if (course.weekday == 7) {
-                // 对weeks列表中的每个元素执行减1操作（处理可能的null情况）
                 val adjustedWeeks = course.weeks?.map { week -> week - 1 }
-                // 复制原对象，替换weeks为调整后的值
                 course.copy(weeks = adjustedWeeks)
             } else {
-                // 其他情况保持不变
                 course
             }
         }.toMutableList()
@@ -358,22 +338,32 @@ class TimeTableViewModel : ViewModel() {
     }
 
     fun getCurWeek(term: String): Int {
-        val startTime = CommonInfo.termMap[term]
-        return startTime?.let {
-            val zoneId = ZoneId.of("Asia/Shanghai")
-            val startDate = runCatching { LocalDate.parse(it.substring(0, 10)) }.getOrNull() ?: return@let 1
-            val today = LocalDate.now(zoneId)
-            val daysBetween = ChronoUnit.DAYS.between(startDate, today)
+        val startTime = CommonInfo.termMap[term] ?: return 1
+        return runCatching {
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.CHINA)
+            val startDate = sdf.parse(startTime.substring(0, 10)) ?: return 1
+            val today = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }.time
+
+            val diffInMillis = today.time - startDate.time
+            val daysBetween = diffInMillis / (1000 * 60 * 60 * 24)
             val diffInWeeks = if (daysBetween < 0) 1 else (daysBetween / 7 + 1).toInt()
             diffInWeeks.coerceIn(1, 20)
-        } ?: 1
+        }.getOrDefault(1)
     }
 
     fun hasTermStarted(term: String): Boolean {
         val startTime = CommonInfo.termMap[term] ?: return true
-        val zoneId = ZoneId.of("Asia/Shanghai")
-        val startDate = runCatching { LocalDate.parse(startTime.substring(0, 10)) }.getOrNull() ?: return true
-        return !LocalDate.now(zoneId).isBefore(startDate)
+        return runCatching {
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.CHINA)
+            val startDate = sdf.parse(startTime.substring(0, 10)) ?: return true
+            val today = java.util.Calendar.getInstance().time
+            !today.before(startDate)
+        }.getOrDefault(true)
     }
 
     data class WeekJsonInfo(val weeks: List<Int>, val start: Int, val step: Int)

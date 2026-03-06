@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -68,10 +69,11 @@ import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 class ProfileSettingsFragment : Fragment() {
 
-    private val FEI_SHU_URL = "https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false"
+ 
     private var backCallback: OnBackPressedCallback? = null
 
     companion object {
+        private const val FEI_SHU_URL = "https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false"
         fun newInstance() = ProfileSettingsFragment()
     }
 
@@ -242,6 +244,7 @@ class ProfileSettingsFragment : Fragment() {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .navigationBarsPadding()
         ) {
             val (bgImage, avatar, usernameRow) = createRefs()
 
