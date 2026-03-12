@@ -4,21 +4,16 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,11 +30,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.core.theme.AppTheme
 import com.creamaker.changli_planet_app.freshNews.contract.FreshNewsContract.Intent.FavoriteNews
@@ -55,7 +48,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun FreshNewsScreen(
     viewModel: FreshNewsViewModel,
-    onPublishClick: () -> Unit,
     onImageClick: (List<String>, Int) -> Unit,
     onUserClick: (Int) -> Unit
 ) {
@@ -112,7 +104,6 @@ fun FreshNewsScreen(
                 listState.animateScrollToItem(0)
             }
         },
-        onPublishClick = onPublishClick,
         onImageClick = onImageClick,
         onUserClick = onUserClick,
         onLikeClick = { id -> viewModel.processIntent(LikeNews(id)) },
@@ -133,7 +124,6 @@ fun FreshNewsContent(
     onSearchClick: () -> Unit,
     onRefresh: () -> Unit,
     onScrollToTop: () -> Unit,
-    onPublishClick: () -> Unit,
     onImageClick: (List<String>, Int) -> Unit,
     onUserClick: (Int) -> Unit,
     onLikeClick: (Int) -> Unit,
@@ -143,9 +133,8 @@ fun FreshNewsContent(
     val isRefreshing = freshNewsListResult is ApiResponse.Loading
     val state = rememberPullToRefreshState()
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .statusBarsPadding(),
+        modifier = modifier.fillMaxSize(),
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         containerColor = AppTheme.colors.bgSecondaryColor,
         topBar = {
             NewsTopBar(
@@ -154,22 +143,6 @@ fun FreshNewsContent(
                 onSearchClick = onSearchClick
             )
         },
-        floatingActionButton = {
-            Column(horizontalAlignment = Alignment.End) {
-                FloatingActionButton(
-                    onClick = onPublishClick,
-                    containerColor = AppTheme.colors.bgPrimaryColor,
-                    modifier = Modifier.padding(bottom = 80.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_blue_add),
-                        contentDescription = "Publish",
-                        tint = AppTheme.colors.iconSecondaryColor,
-                    )
-                }
-            }
-        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -199,7 +172,7 @@ fun FreshNewsContent(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
                         top = paddingValues.calculateTopPadding(),
-                        bottom = 100.dp + paddingValues.calculateBottomPadding(),
+                        bottom = 20.dp + paddingValues.calculateBottomPadding(),
                         start = 0.dp,
                         end = 0.dp
                     ),
@@ -293,7 +266,6 @@ fun PreviewFreshNewsContent() {
             onSearchClick = {},
             onRefresh = {},
             onScrollToTop = {},
-            onPublishClick = {},
             onImageClick = { _, _ -> },
             onUserClick = {},
             onLikeClick = {},

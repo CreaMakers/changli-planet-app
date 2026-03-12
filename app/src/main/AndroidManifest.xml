@@ -180,7 +180,7 @@
         <activity
             android:name=".settings.ui.BindingUserActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".feature.common.ui.MandeActivity"
             android:exported="false"
@@ -201,7 +201,7 @@
         <activity
             android:name=".core.MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="fullSensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

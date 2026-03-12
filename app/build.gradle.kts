@@ -194,6 +194,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
@@ -211,6 +213,7 @@ dependencies {
     //csustDataGet
     implementation(libs.csustdataget)
     implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.window)
 }
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")

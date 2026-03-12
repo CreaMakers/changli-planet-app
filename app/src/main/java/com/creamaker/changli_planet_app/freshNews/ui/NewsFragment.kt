@@ -82,11 +82,6 @@ class NewsFragment : Fragment() {
                 AppSkinTheme {
                     FreshNewsScreen(
                         viewModel = viewModel,
-                        onPublishClick = {
-                            val intent =
-                                Intent(requireContext(), PublishFreshNewsActivity::class.java)
-                            startActivity(intent)
-                        },
                         onImageClick = { imageList, position ->
                             ImageSliderDialog(requireContext(), imageList, position).show()
                         },
