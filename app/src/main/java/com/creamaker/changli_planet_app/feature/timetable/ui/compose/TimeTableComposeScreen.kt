@@ -116,8 +116,8 @@ private fun lerpFloat(start: Float, end: Float, fraction: Float): Float {
 
 @Immutable
 private data class TimetableSizeSpec(
-    val timeColumnWidth: Dp = 58.dp,
-    val cellHeight: Dp = 74.dp,
+    val timeColumnWidth: Dp = 48.dp,
+    val cellHeight: Dp = 64.dp,
 )
 
 @Composable
@@ -125,9 +125,9 @@ fun TimeTableComposeScreen(
     modifier: Modifier = Modifier,
     termText: String,
     weekText: String,
-    isCurrentWeek: Boolean,
-    weekBadgeState: WeekBadgeState,
     displayWeek: Int,
+    currentWeek: Int,
+    termStarted: Boolean,
     courses: List<TimeTableCourseUi>,
     dateHeaderProvider: (Int) -> Pair<String, List<TimeTableDayHeaderUi>>,
     isRefreshing: Boolean,
@@ -174,6 +174,14 @@ fun TimeTableComposeScreen(
     }
 
     val settledWeek = remember { derivedStateOf { pagerState.settledPage + 1 } }
+    val effectiveWeek = settledWeek.value
+    val weekBadgeState = remember(termStarted, currentWeek, effectiveWeek) {
+        when {
+            !termStarted -> WeekBadgeState.NotStarted
+            effectiveWeek == currentWeek -> WeekBadgeState.Current
+            else -> WeekBadgeState.NotCurrent
+        }
+    }
     val (monthText, dayHeaders) = dateHeaderProvider(settledWeek.value)
 
     Column(
@@ -197,8 +205,7 @@ fun TimeTableComposeScreen(
         )
         TermWeekBar(
             termText = termText,
-            weekText = "第${settledWeek.value}周",
-            isCurrentWeek = settledWeek.value == displayWeek && isCurrentWeek,
+            weekText = "第${effectiveWeek}周",
             weekBadgeState = weekBadgeState,
             onTermClick = onTermClick,
             onWeekClick = onWeekClick,
@@ -304,7 +311,6 @@ private fun TimeTableTopBar(
 private fun TermWeekBar(
     termText: String,
     weekText: String,
-    isCurrentWeek: Boolean,
     weekBadgeState: WeekBadgeState,
     onTermClick: () -> Unit,
     onWeekClick: () -> Unit,
@@ -719,9 +725,9 @@ private fun TimeTableScreenPreview() {
         TimeTableComposeScreen(
             termText = "2025-2026-2",
             weekText = "第5周",
-            isCurrentWeek = true,
-            weekBadgeState = WeekBadgeState.Current,
             displayWeek = 5,
+            currentWeek = 5,
+            termStarted = true,
             isRefreshing = false,
             courses = listOf(
                 TimeTableCourseUi(1, "高等数学", "张老师", "明理楼A201", 1, 1, 2, setOf(1, 2, 3, 4, 5), false),

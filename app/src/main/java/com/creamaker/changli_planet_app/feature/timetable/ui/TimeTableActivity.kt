@@ -68,7 +68,6 @@ import com.creamaker.changli_planet_app.feature.ledger.ui.AddCourseActivity
 import com.creamaker.changli_planet_app.feature.timetable.ui.compose.TimeTableComposeScreen
 import com.creamaker.changli_planet_app.feature.timetable.ui.compose.TimeTableCourseUi
 import com.creamaker.changli_planet_app.feature.timetable.ui.compose.TimeTableDayHeaderUi
-import com.creamaker.changli_planet_app.feature.timetable.ui.compose.WeekBadgeState
 import com.creamaker.changli_planet_app.feature.timetable.ui.entity.TimeTableUiState
 import com.creamaker.changli_planet_app.feature.timetable.viewmodel.TimeTableViewModel
 import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
@@ -152,11 +151,6 @@ class TimeTableActivity : AppCompatActivity() {
         val term = state.term.ifBlank { viewModel.getCurrentTerm() }
         val currentWeek = remember(term) { viewModel.getCurWeek(term) }
         val termStarted = remember(term) { viewModel.hasTermStarted(term) }
-        val weekBadgeState = when {
-            !termStarted -> WeekBadgeState.NotStarted
-            displayWeek == currentWeek -> WeekBadgeState.Current
-            else -> WeekBadgeState.NotCurrent
-        }
         val courses = remember(state.subjects) {
             state.subjects.map { it.toComposeUi() }
         }
@@ -174,9 +168,9 @@ class TimeTableActivity : AppCompatActivity() {
         TimeTableComposeScreen(
             termText = term,
             weekText = state.weekInfo,
-            isCurrentWeek = termStarted && displayWeek == currentWeek,
-            weekBadgeState = weekBadgeState,
             displayWeek = displayWeek,
+            currentWeek = currentWeek,
+            termStarted = termStarted,
             courses = courses,
             dateHeaderProvider = { week -> buildDayHeaders(term, week) },
             isRefreshing = isRefreshing,
