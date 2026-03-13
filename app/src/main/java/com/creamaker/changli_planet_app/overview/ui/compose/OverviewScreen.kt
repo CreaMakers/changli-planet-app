@@ -7,17 +7,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -94,8 +98,9 @@ private fun OverviewScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(colors.overviewPageBackgroundColor),
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 112.dp),
+            .background(colors.overviewPageBackgroundColor)
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(androidx.compose.foundation.layout.WindowInsetsSides.Top)),
+        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         item {
@@ -159,9 +164,7 @@ private fun HeaderBlock(
 ) {
     val colors = AppTheme.colors
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .statusBarsPadding()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(
             text = "概况",
@@ -284,11 +287,14 @@ private fun TodayCourseSection(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 courses.forEach { course ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.height(IntrinsicSize.Min),
+                        verticalAlignment = Alignment.Top
+                    ) {
                         Box(
                             modifier = Modifier
                                 .width(6.dp)
-                                .height(56.dp)
+                                .fillMaxHeight()
                                 .clip(RoundedCornerShape(999.dp))
                                 .background(course.accentColor)
                         )
@@ -298,7 +304,8 @@ private fun TodayCourseSection(
                                 text = course.courseName,
                                 color = colors.primaryTextColor,
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Black
+                                fontWeight = FontWeight.Black,
+                                lineHeight = 24.sp
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
@@ -427,30 +434,33 @@ private fun HomeworkCard(homework: OverviewHomeworkUiModel) {
     ) {
         Row(
             modifier = Modifier
+                .height(IntrinsicSize.Min)
                 .fillMaxWidth()
                 .padding(horizontal = 18.dp, vertical = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Box(
                 modifier = Modifier
                     .width(6.dp)
-                    .height(56.dp)
+                    .fillMaxHeight()
                     .clip(RoundedCornerShape(999.dp))
                     .background(HomeworkAccent)
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = homework.title,
-                color = colors.primaryTextColor,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Black,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
+            Column(
                 modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(horizontalAlignment = Alignment.End) {
+            ) {
+                Text(
+                    text = homework.title,
+                    color = colors.primaryTextColor,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Black,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 23.sp
+                )
                 if (homework.deadlineText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = homework.deadlineText,
                         color = if (homework.isUrgent) colors.overviewUrgentBorderColor else colors.secondaryTextColor,
@@ -468,6 +478,7 @@ private fun HomeworkCard(homework: OverviewHomeworkUiModel) {
                     )
                 }
             }
+            Spacer(modifier = Modifier.width(12.dp))
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(999.dp))
