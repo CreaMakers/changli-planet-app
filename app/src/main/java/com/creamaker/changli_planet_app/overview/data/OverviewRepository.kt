@@ -13,6 +13,7 @@ import com.creamaker.changli_planet_app.feature.common.data.local.entity.TimeTab
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ExamArrangementCache
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCache
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
+import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.MoocHomework
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.PendingAssignmentCourse
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.repository.MoocRepository
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache
@@ -33,8 +34,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
@@ -230,14 +233,36 @@ class OverviewRepository(
             }
         }
         val response = final as? ApiResponse.Success ?: return null
-        val items = response.data.mapIndexed { index, course ->
-            OverviewHomeworkUiModel(
-                id = "${course.id}_$index",
-                title = course.name
-            )
-        }
+        val items = response.data.flatMap { course ->
+            fetchCourseHomeworkItems(course)
+        }.sortedBy { it.deadlineMillisForSort() }
+
         OverviewLocalCache.savePendingHomeworks(items)
         return items
+    }
+
+    private suspend fun fetchCourseHomeworkItems(course: PendingAssignmentCourse): List<OverviewHomeworkUiModel> {
+        var final: ApiResponse<List<MoocHomework>>? = null
+        runCatching {
+            moocRepository.getCourseHomeworks(course.id).collect {
+                if (it !is ApiResponse.Loading) final = it
+            }
+        }
+        val response = final as? ApiResponse.Success ?: return emptyList()
+        return response.data
+            .filter { it.canSubmit && !it.submitStatus }
+            .map { homework ->
+                val deadline = parseDateOrNull(homework.deadline)
+                val remainingMillis = deadline?.time?.minus(System.currentTimeMillis())
+                val isUrgent = remainingMillis != null && remainingMillis in 1 until TimeUnit.DAYS.toMillis(1)
+                OverviewHomeworkUiModel(
+                    id = "${course.id}_${homework.id}",
+                    title = homework.title,
+                    deadlineText = homework.deadline,
+                    urgencyText = buildHomeworkUrgencyText(remainingMillis),
+                    isUrgent = isUrgent
+                )
+            }
     }
 
     private fun buildMetrics(
@@ -285,6 +310,24 @@ class OverviewRepository(
             .trimEnd('0')
             .trimEnd('.')
     }
+
+    private fun buildHomeworkUrgencyText(remainingMillis: Long?): String {
+        if (remainingMillis == null) return ""
+        if (remainingMillis <= 0L) return "已截止"
+        if (remainingMillis < TimeUnit.HOURS.toMillis(1)) {
+            val minutes = (remainingMillis / TimeUnit.MINUTES.toMillis(1)).coerceAtLeast(1)
+            return "${minutes}分钟内截止"
+        }
+        if (remainingMillis < TimeUnit.DAYS.toMillis(1)) {
+            val hours = (remainingMillis / TimeUnit.HOURS.toMillis(1)).coerceAtLeast(1)
+            return "${hours}小时内截止"
+        }
+        val days = (remainingMillis / TimeUnit.DAYS.toMillis(1)).coerceAtLeast(1)
+        return "${days}天内截止"
+    }
+
+    private fun OverviewHomeworkUiModel.deadlineMillisForSort(): Long =
+        parseDateOrNull(deadlineText)?.time ?: Long.MAX_VALUE
 
     private fun preprocessGrades(rawData: List<Grade>): List<Grade> {
         return rawData
@@ -421,6 +464,26 @@ class OverviewRepository(
             }
         }.orEmpty()
         return WeekJsonInfo(weeks, startClass, endClass - startClass + 1)
+    }
+
+    private fun parseDateOrNull(dateString: String?): Date? {
+        if (dateString.isNullOrBlank()) return null
+        val formats = listOf(
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm",
+            "yyyy-MM-dd",
+            "MM/dd/yyyy HH:mm",
+            "MM/dd/yyyy"
+        )
+        for (format in formats) {
+            try {
+                return SimpleDateFormat(format, Locale.getDefault()).apply {
+                    isLenient = false
+                }.parse(dateString)
+            } catch (_: ParseException) {
+            }
+        }
+        return null
     }
 
     private fun List<ExamArrange>.toUiExams(): List<OverviewExamUiModel> =

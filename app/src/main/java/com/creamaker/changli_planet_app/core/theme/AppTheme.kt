@@ -61,7 +61,18 @@ data class SkinColors(
     // 状态/其他
     val tabRippedColor: Color = DesignColors.TabRipped,
     val errorRedColor: Color = DesignColors.ErrorRed,
-    val successGreenColor: Color = DesignColors.SuccessGreen
+    val successGreenColor: Color = DesignColors.SuccessGreen,
+
+    // Overview
+    val overviewPageBackgroundColor: Color = Color(0xFFF3F3F6),
+    val overviewPromptBackgroundColor: Color = Color(0xFFE8EDF8),
+    val overviewPromptTextColor: Color = Color(0xFF3D7AF7),
+    val overviewScoreIconBackgroundColor: Color = Color(0xFFE2F4E6),
+    val overviewElectricIconBackgroundColor: Color = Color(0xFFF7EFCB),
+    val overviewExamBadgeBackgroundColor: Color = Color(0xFFF7E2CC),
+    val overviewExamBadgeTextColor: Color = Color(0xFFD98A2B),
+    val overviewUrgentBorderColor: Color = Color(0xFFE96A62),
+    val overviewUrgentBackgroundColor: Color = Color(0xFFFFF4F2)
 ) {
     companion object {
         val Default = SkinColors()
@@ -107,7 +118,16 @@ private val LightSkinColors = SkinColors(
     postHintBarColor = DesignColors.PostHintBar,
     tabRippedColor = DesignColors.TabRipped,
     errorRedColor = DesignColors.ErrorRed,
-    successGreenColor = DesignColors.SuccessGreen
+    successGreenColor = DesignColors.SuccessGreen,
+    overviewPageBackgroundColor = Color(0xFFF3F3F6),
+    overviewPromptBackgroundColor = Color(0xFFE8EDF8),
+    overviewPromptTextColor = Color(0xFF3D7AF7),
+    overviewScoreIconBackgroundColor = Color(0xFFE2F4E6),
+    overviewElectricIconBackgroundColor = Color(0xFFF7EFCB),
+    overviewExamBadgeBackgroundColor = Color(0xFFF7E2CC),
+    overviewExamBadgeTextColor = Color(0xFFD98A2B),
+    overviewUrgentBorderColor = Color(0xFFE96A62),
+    overviewUrgentBackgroundColor = Color(0xFFFFF4F2)
 )
 
 private val DarkSkinColors = SkinColors(
@@ -147,7 +167,16 @@ private val DarkSkinColors = SkinColors(
     postHintBarColor = Color(0xFF0997F8),
     tabRippedColor = Color(0xFFF2F2F2),
     errorRedColor = Color(0xFFFF3D00),
-    successGreenColor = Color(0xFF00C853)
+    successGreenColor = Color(0xFF00C853),
+    overviewPageBackgroundColor = Color(0xFF000000),
+    overviewPromptBackgroundColor = Color(0xFF272C32),
+    overviewPromptTextColor = Color(0xFF4F7FED),
+    overviewScoreIconBackgroundColor = Color(0xFF1E3522),
+    overviewElectricIconBackgroundColor = Color(0xFF3B371F),
+    overviewExamBadgeBackgroundColor = Color(0xFF4A3621),
+    overviewExamBadgeTextColor = Color(0xFFFFC980),
+    overviewUrgentBorderColor = Color(0xFFE96A62),
+    overviewUrgentBackgroundColor = Color(0xFF2B1B1A)
 )
 
 @Composable

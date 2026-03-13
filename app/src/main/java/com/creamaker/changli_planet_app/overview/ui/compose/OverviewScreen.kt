@@ -1,5 +1,6 @@
 package com.creamaker.changli_planet_app.overview.ui.compose
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -93,7 +94,7 @@ private fun OverviewScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(colors.bgPrimaryColor),
+            .background(colors.overviewPageBackgroundColor),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
@@ -175,17 +176,17 @@ private fun HeaderBlock(
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold
         )
-        if (!state.isBoundStudent) {
-            Spacer(modifier = Modifier.height(14.dp))
-            BindPrompt("先绑定学号", onBindClick)
-        } else if (state.isSilentSyncing && state.todayCourses.isEmpty()) {
-            Spacer(modifier = Modifier.height(14.dp))
-            Text(
-                text = "没有数据，后台开始查询",
-                color = colors.secondaryTextColor,
-                fontSize = 14.sp
-            )
-        }
+//        if (!state.isBoundStudent) {
+//            Spacer(modifier = Modifier.height(14.dp))
+//            BindPrompt("先绑定学号", onBindClick)
+//        } else if (state.isSilentSyncing && state.todayCourses.isEmpty()) {
+//            Spacer(modifier = Modifier.height(14.dp))
+//            Text(
+//                text = "没有数据，后台开始查询",
+//                color = colors.secondaryTextColor,
+//                fontSize = 14.sp
+//            )
+//        }
     }
 }
 
@@ -195,11 +196,11 @@ private fun BindPrompt(text: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(colors.bgButtonLowlightColor)
+            .background(colors.overviewPromptBackgroundColor)
             .clickable(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
-        Text(text = text, color = colors.functionalTextColor, fontWeight = FontWeight.Bold)
+        Text(text = text, color = colors.overviewPromptTextColor, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -264,7 +265,8 @@ private fun TodayCourseSection(
                 Image(
                     painter = painterResource(R.drawable.ic_confirm),
                     contentDescription = null,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(22.dp),
+                    alpha = 0.95f
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
@@ -348,7 +350,13 @@ private fun MetricRow(
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(IconContainerShape)
-                                .background(metric.accentColor.copy(alpha = 0.12f)),
+                                .background(
+                                    when (metric.id) {
+                                        "ScoreInquiry", "score" -> colors.overviewScoreIconBackgroundColor
+                                        "Electronic", "electric" -> colors.overviewElectricIconBackgroundColor
+                                        else -> metric.accentColor.copy(alpha = 0.14f)
+                                    }
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
@@ -414,7 +422,8 @@ private fun HomeworkCard(homework: OverviewHomeworkUiModel) {
     val colors = AppTheme.colors
     Surface(
         shape = RoundedCornerShape(24.dp),
-        color = colors.bgCardColor
+        color = if (homework.isUrgent) colors.overviewUrgentBackgroundColor else colors.bgCardColor,
+        border = if (homework.isUrgent) BorderStroke(1.5.dp, colors.overviewUrgentBorderColor) else null
     ) {
         Row(
             modifier = Modifier
@@ -435,11 +444,30 @@ private fun HomeworkCard(homework: OverviewHomeworkUiModel) {
                 color = colors.primaryTextColor,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Black,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(12.dp))
+            Column(horizontalAlignment = Alignment.End) {
+                if (homework.deadlineText.isNotBlank()) {
+                    Text(
+                        text = homework.deadlineText,
+                        color = if (homework.isUrgent) colors.overviewUrgentBorderColor else colors.secondaryTextColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                if (homework.urgencyText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = homework.urgencyText,
+                        color = if (homework.isUrgent) colors.overviewUrgentBorderColor else colors.secondaryTextColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(999.dp))
@@ -488,12 +516,12 @@ private fun ExamCard(exam: OverviewExamUiModel) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(999.dp))
-                    .background(Color(0xFFF7D2A6))
+                    .background(colors.overviewExamBadgeBackgroundColor)
                     .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = exam.badge,
-                    color = Color(0xFFD98A2B),
+                    color = colors.overviewExamBadgeTextColor,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -541,8 +569,8 @@ private fun OverviewScreenPreview() {
                     OverviewCourseUiModel("2", "大学英语", "云塘 B305", "李老师", "3-4节", "校园课表", Color(0xFFF08D3C))
                 ),
                 pendingHomeworks = listOf(
-                    OverviewHomeworkUiModel("1", "大数据存储与管理实验A"),
-                    OverviewHomeworkUiModel("2", "数据库原理与技术")
+                    OverviewHomeworkUiModel("1", "大数据存储与管理实验A", "2026-03-13 23:59", "8小时内截止", true),
+                    OverviewHomeworkUiModel("2", "数据库原理与技术", "2026-03-15 20:00", "2天内截止", false)
                 ),
                 upcomingExams = listOf(
                     OverviewExamUiModel("1", "大学物理实验", "2026-03-14 09:00", "云塘校区 · 综合楼", "明天")

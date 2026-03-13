@@ -74,6 +74,7 @@ class ProfileSettingsFragment : Fragment() {
 
     companion object {
         private const val FEI_SHU_URL = "https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false"
+        private const val CREAMAKER_URL = "https://cm.zhelearn.com/"
         fun newInstance() = ProfileSettingsFragment()
     }
 
@@ -189,7 +190,7 @@ class ProfileSettingsFragment : Fragment() {
             "5" -> Route.goBindingUser(requireContext())
             "6" -> Route.goSkinSecletion(requireContext())
             "8" -> { /* 帮助中心 TODO */ }
-            "9" -> Route.goAbout(requireContext())
+            "9" -> Route.goWebView(requireContext(), CREAMAKER_URL)
             "10" -> Route.goWebView(requireContext(), FEI_SHU_URL)
         }
     }
@@ -467,7 +468,7 @@ class ProfileSettingsFragment : Fragment() {
 
             SettingItemUiModel.Header("帮助与支持"),
             SettingItemUiModel.Option("8", "帮助中心", R.drawable.ic_help),
-            SettingItemUiModel.Option("9", "关于我们", R.drawable.ic_guanyuwomen),
+            SettingItemUiModel.Option("9", "软件官网", R.drawable.ic_guanyuwomen),
             SettingItemUiModel.Option("10", "意见反馈", R.drawable.yijianfankui)
         )
     }

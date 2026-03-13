@@ -1,5 +1,5 @@
 [versions]
-activityKtx = "1.12.4"
+activityKtx = "1.13.0"
 agp = "8.13.2"
 codelocatorCore = "2.0.4"
 coilCompose = "2.7.0"

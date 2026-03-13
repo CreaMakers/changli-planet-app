@@ -62,5 +62,8 @@ data class OverviewExamUiModel(
 data class OverviewHomeworkUiModel(
     val id: String,
     val title: String,
+    val deadlineText: String = "",
+    val urgencyText: String = "",
+    val isUrgent: Boolean = false,
     val statusText: String = "待提交"
 )

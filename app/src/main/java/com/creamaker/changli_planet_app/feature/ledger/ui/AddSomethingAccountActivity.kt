@@ -122,7 +122,7 @@ class AddSomethingAccountActivity : FullScreenActivity<ActivityAddSomethingAccou
     }
 
     private fun showTypePicker() {
-        var productCategoryPicker = ProductCategoryPicker(this, "", "")
+        val productCategoryPicker = ProductCategoryPicker(this, "", "")
         productCategoryPicker.setOnCategorySelectedListener { categories, subcategories ->
             val tpye = String.format("%s--%s", categories, subcategories)
             somethingType.text = tpye
