@@ -41,7 +41,7 @@ class OverviewViewModel : ViewModel() {
             )
             _uiState.value = displayState
             if (localState.isBoundStudent && localState.isOnline) {
-                val refreshedState = repository.refreshState(localState)
+                val refreshedState = repository.refreshState()
                 _uiState.value = mergeForDisplay(
                     current = displayState,
                     incoming = refreshedState,

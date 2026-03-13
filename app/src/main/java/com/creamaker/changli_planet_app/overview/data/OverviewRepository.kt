@@ -64,9 +64,7 @@ class OverviewRepository(
         )
     }
 
-    suspend fun refreshState(base: OverviewUiState): OverviewUiState = withContext(Dispatchers.IO) {
-        if (!base.isBoundStudent || !base.isOnline) return@withContext base.copy(isSilentSyncing = false)
-
+    suspend fun refreshState(): OverviewUiState = withContext(Dispatchers.IO) {
         coroutineScope {
             val currentTerm = getCurrentTerm()
             val courseDeferred = async(Dispatchers.IO) { fetchCourses(currentTerm) }
@@ -210,17 +208,14 @@ class OverviewRepository(
         }
     }
 
-    private suspend fun fetchExams(term: String): List<OverviewExamUiModel>? = coroutineScope {
-        val middle = async { runCatching { ExamArrangeService.getExamArrange(term, "期中") }.getOrNull() }
-        val finals = async { runCatching { ExamArrangeService.getExamArrange(term, "期末") }.getOrNull() }
-        val middleResult = middle.await()
-        val finalResult = finals.await()
-        if (middleResult !is Resource.Success || finalResult !is Resource.Success) return@coroutineScope null
-        val merged = (middleResult.data + finalResult.data).distinctBy {
-            "${it.courseNameval}${it.examTime}${it.campus}${it.examRoomval}"
+    private suspend fun fetchExams(term: String): List<OverviewExamUiModel>? {
+        val examResponse = runCatching { ExamArrangeService.getExamArrange(term) }.getOrNull() ?: return null
+        if (examResponse !is Resource.Success) return null
+        val exams = examResponse.data
+        if (exams.isNotEmpty()) {
+            examCache.saveExamArrangement(exams)
         }
-        if (merged.isNotEmpty()) examCache.saveExamArrangement(merged)
-        merged.toUiExams()
+        return exams.toUiExams()
     }
 
     private suspend fun fetchPendingHomeworks(): List<OverviewHomeworkUiModel>? {
