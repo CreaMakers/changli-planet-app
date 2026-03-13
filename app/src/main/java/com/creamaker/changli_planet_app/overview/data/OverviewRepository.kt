@@ -13,6 +13,7 @@ import com.creamaker.changli_planet_app.feature.common.data.local.entity.TimeTab
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ExamArrangementCache
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCache
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
+import com.creamaker.changli_planet_app.feature.common.data.repository.ElectricityRepository
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.MoocHomework
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.PendingAssignmentCourse
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.repository.MoocRepository
@@ -51,6 +52,7 @@ class OverviewRepository(
     private val userDao by lazy { UserDataBase.getInstance(appContext).itemDao() }
     private val examCache by lazy { ExamArrangementCache() }
     private val moocRepository by lazy { MoocRepository.instance }
+    private val electricityRepository by lazy { ElectricityRepository() }
 
     suspend fun loadLocalState(): OverviewUiState = withContext(Dispatchers.IO) {
         buildState(
@@ -71,11 +73,13 @@ class OverviewRepository(
             val gradesDeferred = async(Dispatchers.IO) { fetchGrades() }
             val examsDeferred = async(Dispatchers.IO) { fetchExams(currentTerm) }
             val homeworkDeferred = async(Dispatchers.IO) { fetchPendingHomeworks() }
+            val electricityDeferred = async(Dispatchers.IO) { refreshElectricityIfNeeded() }
 
             val courses = courseDeferred.await() ?: readLocalCourses()
             val grades = gradesDeferred.await() ?: ScoreCache.getGrades().orEmpty()
             val exams = examsDeferred.await() ?: examCache.getExamArrangement().orEmpty().toUiExams()
             val homeworks = homeworkDeferred.await() ?: OverviewLocalCache.getPendingHomeworks()
+            electricityDeferred.await()
 
             buildState(
                 courses = courses,
@@ -399,11 +403,12 @@ class OverviewRepository(
     }
 
     private fun hasElectricityBinding(): Boolean {
-        val mmkv = com.tencent.mmkv.MMKV.defaultMMKV()
-        val school = mmkv.decodeString("school", "选择校区").orEmpty()
-        val dorm = mmkv.decodeString("dor", "选择宿舍楼").orEmpty()
-        val door = mmkv.decodeString("door_number", "").orEmpty()
-        return school != "选择校区" && dorm != "选择宿舍楼" && door.isNotBlank()
+        return electricityRepository.hasBinding()
+    }
+
+    private suspend fun refreshElectricityIfNeeded() {
+        if (!hasNetwork()) return
+        electricityRepository.refreshIfNeeded()
     }
 
     private fun hasNetwork(): Boolean = NetworkUtil.getNetworkType(appContext) != NetworkUtil.NetworkType.None

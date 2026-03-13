@@ -23,7 +23,6 @@ import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.databinding.ActivityElectronicBinding
 import com.creamaker.changli_planet_app.feature.common.contract.ElectronicContract
 import com.creamaker.changli_planet_app.feature.common.viewModel.ElectronicViewModel
-import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache
 import com.creamaker.changli_planet_app.utils.load
 import com.creamaker.changli_planet_app.widget.dialog.WheelBottomDialog
 import com.google.android.material.imageview.ShapeableImageView
@@ -161,7 +160,6 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                             ele_state.text = getString(R.string.ele_state_unknown)
                         }
                         electronicValue in 0.0f..20f -> {
-                            OverviewLocalCache.saveElectricitySnapshot(electronicValue)
                             ele_image.load(R.drawable.ic_electricity_none)
                             ele_num.text =
                                 getString(R.string.ele_queryNow, electronicValue.toString())
@@ -169,7 +167,6 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                             ele_state.setTextColor(getColor(R.color.color_base_red))
                         }
                         electronicValue in 20.1f..100f ->{
-                            OverviewLocalCache.saveElectricitySnapshot(electronicValue)
                             ele_image.load(R.drawable.ic_electricity_low)
                             ele_num.text =
                                 getString(R.string.ele_queryNow, electronicValue.toString())
@@ -177,7 +174,6 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                             ele_state.setTextColor(getColor(R.color.color_base_yellow))
                         }
                         electronicValue > 100f ->{
-                            OverviewLocalCache.saveElectricitySnapshot(electronicValue)
                             ele_image.load(R.drawable.ic_electricity_high)
                             ele_num.text =
                                 getString(R.string.ele_queryNow, electronicValue.toString())
@@ -186,13 +182,6 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                         }
                     }
                 }
-            }
-        }
-
-        // No effects currently used, but set up for future
-        lifecycleScope.launch {
-            viewModel.effect.collect { effect ->
-                // Handle effects
             }
         }
     }
@@ -255,9 +244,8 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             )
         } else {
             val processedDoorNumber = processDormAndRoom(savedDor, savedDoorNum)
-            // Trigger load if data exists
             viewModel.processIntent(
-                ElectronicContract.Intent.Init(
+                ElectronicContract.Intent.QueryElectricity(
                     savedSchool,
                     savedDor,
                     processedDoorNumber
