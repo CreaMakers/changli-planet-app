@@ -315,7 +315,7 @@ class UserStore : Store<UserState, UserAction>() {
                         when (ssoResult) {
                             is com.dcelysia.csust_spider.core.Resource.Success -> {
                                 Log.d(TAG, "sso登陆成功")
-                                val eduSuccess = AuthService.Login(
+                                val eduSuccess = AuthService.login(
                                     action.studentNumber,
                                     action.studentPassword
                                 )
