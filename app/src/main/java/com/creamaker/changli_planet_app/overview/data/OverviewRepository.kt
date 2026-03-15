@@ -283,6 +283,7 @@ class OverviewRepository(
         }
 
         val electricitySubtitle = buildElectricitySubtitle(electricitySnapshot, isElectricityBound)
+        val electricityUpdatedAt = buildElectricityUpdatedAt(electricitySnapshot)
         return listOf(
             OverviewMetricUiModel(
                 id = FunctionDestination.ScoreInquiry.name,
@@ -298,6 +299,7 @@ class OverviewRepository(
                 value = electricitySnapshot?.lastValue?.let { formatMetricNumber(it.toDouble()) } ?: "--",
                 unit = if (electricitySnapshot != null) "kWh" else "",
                 subtitle = electricitySubtitle,
+                secondarySubtitle = electricityUpdatedAt,
                 iconRes = R.drawable.ic_bill,
                 accentColor = Color(0xFF62C466)
             )
@@ -349,7 +351,12 @@ class OverviewRepository(
         if (estimate != null) {
             return "按近期用电，约${estimate}天后耗尽"
         }
-        return "更新于 ${SimpleDateFormat("MM-dd HH:mm", Locale.CHINA).format(snapshot.lastTime)}"
+        return "按近期用电，暂时无法稳定估算"
+    }
+
+    private fun buildElectricityUpdatedAt(snapshot: ElectricitySnapshot?): String {
+        if (snapshot == null) return ""
+        return "更新于 ${SimpleDateFormat("MM-dd HH:mm", Locale.CHINA).format(Date(snapshot.lastTime))}"
     }
 
     private fun estimateElectricityDays(

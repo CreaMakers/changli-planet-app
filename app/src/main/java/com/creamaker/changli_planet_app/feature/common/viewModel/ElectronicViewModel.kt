@@ -24,6 +24,9 @@ class ElectronicViewModel : MviViewModel<ElectronicContract.Intent, ElectronicCo
 
             is ElectronicContract.Intent.QueryElectricity -> {
                 repository.saveBinding(intent.address, intent.buildId, intent.nod)
+                updateState {
+                    copy(address = intent.address, buildId = intent.buildId)
+                }
                 queryElectricity(forceRefresh = true)
             }
 

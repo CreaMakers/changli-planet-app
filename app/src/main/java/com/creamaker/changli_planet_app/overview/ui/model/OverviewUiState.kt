@@ -34,6 +34,7 @@ data class OverviewMetricUiModel(
     val value: String,
     val unit: String = "",
     val subtitle: String,
+    val secondarySubtitle: String = "",
     @DrawableRes val iconRes: Int,
     val accentColor: Color
 )

@@ -44,11 +44,11 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
     private val back: ImageView by lazy { binding.back }
     private val school: TextView by lazy { binding.tvSchoolSelect }
     private val dor: TextView by lazy { binding.tvDormSelect }
-    private val ele_query: TextView by lazy { binding.queryEle }
-    private val door_number: EditText by lazy { binding.tvDoorInput }
-    private val ele_image: ShapeableImageView by lazy { binding.eleImg }
-    private val ele_num: TextView by lazy { binding.eleNum }
-    private val ele_state :TextView by lazy { binding.eleState }
+    private val eleQueryTv: TextView by lazy { binding.queryEle }
+    private val doorNumberEt: EditText by lazy { binding.tvDoorInput }
+    private val eleImg: ShapeableImageView by lazy { binding.eleImg }
+    private val eleNumTv: TextView by lazy { binding.eleNum }
+    private val eleStateTv :TextView by lazy { binding.eleState }
 
     private val schoolList: List<String> by lazy {
         resources.getStringArray(R.array.school_location).toList()
@@ -92,20 +92,20 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             )
             WindowInsetsCompat.CONSUMED
         }
-        inputFilter(door_number)
+        inputFilter(doorNumberEt)
         binding.sivRoomNumber.load(R.drawable.ic_electricity_door)
         binding.sivSchoolRegion.load(R.drawable.ic_electricity_school)
         binding.sivDormBuilding.load(R.drawable.ic_electricity_dorm)
     }
 
     private fun initListener() {
-        door_number.setOnFocusChangeListener { _, hasFocus ->
+        doorNumberEt.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                door_number.hint = ""
+                doorNumberEt.hint = ""
             }
             else{
-                if (door_number.text.isEmpty()){
-                    door_number.hint = getString(R.string.selectDoorNum)
+                if (doorNumberEt.text.isEmpty()){
+                    doorNumberEt.hint = getString(R.string.selectDoorNum)
                 }
             }
         }
@@ -124,8 +124,8 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
                 viewModel.processIntent(ElectronicContract.Intent.SelectSchool(selected))
             }
         }
-        ele_query.setOnClickListener {
-            val processedDoorNumber = processDormAndRoom(dor.text.toString(), door_number.text.toString())
+        eleQueryTv.setOnClickListener {
+            val processedDoorNumber = processDormAndRoom(dor.text.toString(), doorNumberEt.text.toString())
             viewModel.processIntent(
                 ElectronicContract.Intent.QueryElectricity(
                     school.text.toString(),
@@ -136,7 +136,7 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
             
             mmkv.encode("school", school.text.toString())
             mmkv.encode("dor", dor.text.toString())
-            mmkv.encode("door_number", door_number.text.toString())
+            mmkv.encode("door_number", doorNumberEt.text.toString())
             refreshWidget()
         }
         back.setOnClickListener { finish() }
@@ -155,30 +155,30 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
 
                     when{
                         electronicValue == null ->{
-                            ele_image.load(R.drawable.ic_electricity_default)
-                            ele_num.text = getString(R.string.ele_query_false)
-                            ele_state.text = getString(R.string.ele_state_unknown)
+                            eleImg.load(R.drawable.ic_electricity_default)
+                            eleNumTv.text = getString(R.string.ele_query_false)
+                            eleStateTv.text = getString(R.string.ele_state_unknown)
                         }
                         electronicValue in 0.0f..20f -> {
-                            ele_image.load(R.drawable.ic_electricity_none)
-                            ele_num.text =
+                            eleImg.load(R.drawable.ic_electricity_none)
+                            eleNumTv.text =
                                 getString(R.string.ele_queryNow, electronicValue.toString())
-                            ele_state.text = getString(R.string.ele_state_low)
-                            ele_state.setTextColor(getColor(R.color.color_base_red))
+                            eleStateTv.text = getString(R.string.ele_state_low)
+                            eleStateTv.setTextColor(getColor(R.color.color_base_red))
                         }
                         electronicValue in 20.1f..100f ->{
-                            ele_image.load(R.drawable.ic_electricity_low)
-                            ele_num.text =
+                            eleImg.load(R.drawable.ic_electricity_low)
+                            eleNumTv.text =
                                 getString(R.string.ele_queryNow, electronicValue.toString())
-                            ele_state.text = getString(R.string.ele_state_normal)
-                            ele_state.setTextColor(getColor(R.color.color_base_yellow))
+                            eleStateTv.text = getString(R.string.ele_state_normal)
+                            eleStateTv.setTextColor(getColor(R.color.color_base_yellow))
                         }
                         electronicValue > 100f ->{
-                            ele_image.load(R.drawable.ic_electricity_high)
-                            ele_num.text =
+                            eleImg.load(R.drawable.ic_electricity_high)
+                            eleNumTv.text =
                                 getString(R.string.ele_queryNow, electronicValue.toString())
-                            ele_state.text = getString(R.string.ele_state_high)
-                            ele_state.setTextColor(getColor(R.color.color_base_green))
+                            eleStateTv.text = getString(R.string.ele_state_high)
+                            eleStateTv.setTextColor(getColor(R.color.color_base_green))
                         }
                     }
                 }
@@ -226,12 +226,14 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         val savedDor = mmkv.decodeString("dor", "选择宿舍楼") ?: "选择宿舍楼"
         val savedDoorNum = mmkv.decodeString("door_number", "") ?: ""
 
-        door_number.setText(savedDoorNum)
+        school.text = savedSchool
+        dor.text = savedDor
+        doorNumberEt.setText(savedDoorNum)
 
         if (savedSchool == "选择校区" || savedDor == "选择宿舍楼" || savedDoorNum.isEmpty()) {
-            ele_image.load(R.drawable.ic_electricity_default)
-            ele_num.text = getString(R.string.ele_queryDefault)
-            ele_state.text = getString(R.string.ele_state_unknown)
+            eleImg.load(R.drawable.ic_electricity_default)
+            eleNumTv.text = getString(R.string.ele_queryDefault)
+            eleStateTv.text = getString(R.string.ele_state_unknown)
             mmkv.encode("isFirstLaunch", false)
 
             // Sync initial state to VM without triggering query
@@ -284,13 +286,13 @@ class ElectronicActivity : FullScreenActivity<ActivityElectronicBinding>() {
         super.onSaveInstanceState(outState)
         outState.putString("ele_school", school.text.toString())
         outState.putString("ele_dor", dor.text.toString())
-        outState.putString("ele_door", door_number.text.toString())
+        outState.putString("ele_door", doorNumberEt.text.toString())
     }
 
     override fun onDestroy() {
         super.onDestroy()
         mmkv.encode("school", school.text.toString())
         mmkv.encode("dor", dor.text.toString())
-        mmkv.encode("door_number", door_number.text.toString())
+        mmkv.encode("door_number", doorNumberEt.text.toString())
     }
 }

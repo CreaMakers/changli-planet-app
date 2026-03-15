@@ -1,5 +1,11 @@
 package com.creamaker.changli_planet_app.overview.ui.compose
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,8 +36,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +63,7 @@ import com.creamaker.changli_planet_app.overview.ui.model.OverviewHomeworkUiMode
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewMetricUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewUiState
 import com.creamaker.changli_planet_app.overview.viewmodel.OverviewViewModel
+import kotlinx.coroutines.delay
 
 private val HomeworkAccent = Color(0xFFEF9442)
 private val IconContainerShape = RoundedCornerShape(14.dp)
@@ -409,18 +419,50 @@ private fun MetricRow(
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = metric.subtitle,
-                            color = colors.secondaryTextColor,
-                            fontSize = 13.sp,
-                            lineHeight = 18.sp,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        MetricSubtitle(metric)
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MetricSubtitle(metric: OverviewMetricUiModel) {
+    val colors = AppTheme.colors
+    val subtitlePages = remember(metric.subtitle, metric.secondarySubtitle) {
+        listOf(metric.subtitle, metric.secondarySubtitle)
+            .filter { it.isNotBlank() }
+            .distinct()
+    }
+    val currentIndex = remember(metric.id, subtitlePages) { mutableIntStateOf(0) }
+
+    LaunchedEffect(metric.id, subtitlePages) {
+        if (subtitlePages.size <= 1) return@LaunchedEffect
+        while (true) {
+            delay(2800)
+            currentIndex.intValue = (currentIndex.intValue + 1) % subtitlePages.size
+        }
+    }
+
+    val currentSubtitle = subtitlePages.getOrElse(currentIndex.intValue) { metric.subtitle }
+    AnimatedContent(
+        targetState = currentSubtitle,
+        transitionSpec = {
+            (slideInVertically { it / 2 } + fadeIn()).togetherWith(
+                slideOutVertically { -it / 2 } + fadeOut()
+            )
+        },
+        label = "overview_metric_subtitle"
+    ) { subtitle ->
+        Text(
+            text = subtitle,
+            color = colors.secondaryTextColor,
+            fontSize = 13.sp,
+            lineHeight = 18.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -572,8 +614,8 @@ private fun OverviewScreenPreview() {
                 isElectricityBound = true,
                 dateText = "3月13日 周五  ·  2025-2026-2 第1周",
                 metrics = listOf(
-                    OverviewMetricUiModel("score", "GPA", "3.02", "", "平均分: 82.0", R.drawable.ic_rank, Color(0xFFE3B92C)),
-                    OverviewMetricUiModel("electric", "电费", "207.61", "kWh", "预计163天后电量耗尽", R.drawable.ic_bill, Color(0xFF62C466))
+                    OverviewMetricUiModel("score", "GPA", "3.02", "", "平均分: 82.0", "", R.drawable.ic_rank, Color(0xFFE3B92C)),
+                    OverviewMetricUiModel("electric", "电费", "207.61", "kWh", "预计163天后电量耗尽", "更新于 03-15 21:30", R.drawable.ic_bill, Color(0xFF62C466))
                 ),
                 todayCourses = listOf(
                     OverviewCourseUiModel("1", "高等数学", "云塘 A201", "陈老师", "1-2节", "校园课表", Color(0xFF5E87F6)),
