@@ -6,6 +6,7 @@ import android.os.Looper
 import android.util.Log
 import com.creamaker.changli_planet_app.auth.ui.LoginActivity
 import com.creamaker.changli_planet_app.core.PlanetApplication
+import com.creamaker.changli_planet_app.core.network.DnsSafety
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper.AuthInterceptor
 import com.creamaker.changli_planet_app.core.network.interceptor.NetworkLogger
 import com.creamaker.changli_planet_app.feature.mooc.cookie.PersistentCookieJar
@@ -34,39 +35,35 @@ object RetrofitUtils {
             //配置HTTPDNS解析
             .dns(object : Dns {
                 override fun lookup(hostname: String): List<InetAddress> {
-                    require(hostname.isNotBlank()) { "hostname can not be null or blank" }
+                    val sanitizedHost = DnsSafety.sanitizeHostname(hostname)
+                    if (sanitizedHost.isBlank()) {
+                        return emptyList()
+                    }
                     return try {
-                        val ips = MSDKDnsResolver.getInstance().getAddrByName(hostname)
-                        val ipArr = ips.split(";")
-                        if (ipArr.isEmpty() || ipArr.all { it == "0" }) {
-                            fallbackToLocalDns(hostname)
+                        if (!DnsSafety.shouldUseHttpDns(sanitizedHost)) {
+                            return DnsSafety.fallbackToLocalDns(sanitizedHost)
+                        }
+                        val ips = MSDKDnsResolver.getInstance().getAddrByName(sanitizedHost)
+                        val ipArr = DnsSafety.parseIpList(ips)
+                        if (ipArr.isEmpty()) {
+                            DnsSafety.fallbackToLocalDns(sanitizedHost)
                         } else {
                             val inetAddressList = mutableListOf<InetAddress>()
                             for (ip in ipArr) {
-                                if (ip != "0") {
-                                    try {
-                                        Log.d("MyIp", ip)
-                                        inetAddressList.add(InetAddress.getByName(ip))
-                                    } catch (ignored: UnknownHostException) {
-                                    }
+                                try {
+                                    Log.d("MyIp", ip)
+                                    inetAddressList.add(InetAddress.getByName(ip))
+                                } catch (ignored: UnknownHostException) {
                                 }
                             }
                             if (inetAddressList.isEmpty()) {
-                                fallbackToLocalDns(hostname)
+                                DnsSafety.fallbackToLocalDns(sanitizedHost)
                             } else {
                                 inetAddressList
                             }
                         }
                     } catch (e: Exception) {
-                        fallbackToLocalDns(hostname)
-                    }
-                }
-
-                private fun fallbackToLocalDns(hostname: String): List<InetAddress> {
-                    return try {
-                        InetAddress.getAllByName(hostname).toList()
-                    } catch (e: UnknownHostException) {
-                        emptyList()
+                        DnsSafety.fallbackToLocalDns(sanitizedHost)
                     }
                 }
             })

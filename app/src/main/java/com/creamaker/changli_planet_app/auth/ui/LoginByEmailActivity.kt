@@ -1,139 +1,78 @@
 package com.creamaker.changli_planet_app.auth.ui
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextWatcher
-import android.text.style.UnderlineSpan
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.TextView
-import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.auth.data.remote.dto.UserEmail
-import com.creamaker.changli_planet_app.auth.redux.action.LoginAndRegisterAction
-import com.creamaker.changli_planet_app.auth.redux.store.LoginAndRegisterStore
-import com.creamaker.changli_planet_app.base.FullScreenActivity
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.creamaker.changli_planet_app.auth.mvi.LoginByEmailEffect
+import com.creamaker.changli_planet_app.auth.mvi.LoginByEmailIntent
+import com.creamaker.changli_planet_app.auth.mvi.LoginByEmailUiState
+import com.creamaker.changli_planet_app.auth.mvi.LoginByEmailViewModel
+import com.creamaker.changli_planet_app.base.ComposeActivity
 import com.creamaker.changli_planet_app.core.Route
-import com.creamaker.changli_planet_app.core.noOpDelegate
-import com.creamaker.changli_planet_app.databinding.ActivityLoginByEmailBinding
-import com.creamaker.changli_planet_app.utils.Event.FinishEvent
-import com.creamaker.changli_planet_app.utils.singleClick
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
+import com.creamaker.changli_planet_app.utils.EventBusHelper
+import com.creamaker.changli_planet_app.utils.event.FinishEvent
+import com.creamaker.changli_planet_app.widget.view.CustomToast
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class LoginByEmailActivity : FullScreenActivity<ActivityLoginByEmailBinding>() {
-    private val email:EditText by lazy { binding.email }
-    private val captcha:EditText by lazy { binding.captcha }
-    private val getCaptcha:TextView by lazy { binding.getCaptcha }
-    private val login:TextView by lazy { binding.login }
-    private val agreementCheckBox: CheckBox by lazy { binding.agreementCheckbox }
-    private val forgetPassword:TextView by lazy { binding.forget }
-    private val loginByAccount:TextView by lazy { binding.loginAccount }
-    private val route: TextView by lazy { binding.route }
-    val store=LoginAndRegisterStore()
-
-    override fun createViewBinding(): ActivityLoginByEmailBinding = ActivityLoginByEmailBinding.inflate(layoutInflater)
+class LoginByEmailActivity : ComposeActivity() {
+    private val viewModel by lazy {
+        ViewModelProvider(this)[LoginByEmailViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initListener()
-        setUnderLine()
-        setTextWatcher()
         EventBus.getDefault().register(this)
-    }
+        viewModel.process(LoginByEmailIntent.Initialize)
+        observeEffects()
 
-    private fun initListener(){
-        disposables.add(
-            store.state()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe{state->
-                    login.isEnabled=state.isEnableByEmail
-                    if (state.isEnableByEmail) {
-                        login.setBackgroundResource(R.drawable.bg_enable_button)
-                    } else {
-                        login.setBackgroundResource(R.drawable.disable_button)
-                    }
-
-                    if(!state.isCountDown&&state.email.isNotEmpty()){
-                        getCaptcha.setTextColor(resources.getColor(R.color.color_text_functional))
-                        getCaptcha.text="获取验证码"
-                        getCaptcha.singleClick (delay = 3000){
-                            store.dispatch(LoginAndRegisterAction.GetCaptchaByLogin)
-                        }
-                    }else{
-                        if(state.countDown>0)getCaptcha.text=state.countDown.toString()
-                        else getCaptcha.text="获取验证码"
-                        getCaptcha.setTextColor(resources.getColor(R.color.color_text_grey))
-                        getCaptcha.setOnClickListener(null)
+        setComposeContent {
+            val state by viewModel.state.collectAsState()
+            LoginByEmailScreen(
+                state = state,
+                onIntent = { intent ->
+                    when (intent) {
+                        LoginByEmailIntent.ClickLogin -> viewModel.loginByEmail()
+                        LoginByEmailIntent.ClickGetCaptcha -> viewModel.process(intent)
+                        LoginByEmailIntent.ClickAccountLogin -> Route.goLoginForcibly(this)
+                        LoginByEmailIntent.ClickForgetPassword -> Route.goForgetPassword(this)
+                        LoginByEmailIntent.ClickRegister -> Route.goRegister(this)
+                        LoginByEmailIntent.ClickBack -> finish()
+                        else -> viewModel.process(intent)
                     }
                 }
-        )
-        store.dispatch(LoginAndRegisterAction.initilaize)
-        login.setOnClickListener{
-            store.dispatch(LoginAndRegisterAction.LoginByEmail(
-                UserEmail(
-                    email = email.text.toString(),
-                    verifyCode = captcha.text.toString()
-                ),
-                this
-            ))
-        }
-        agreementCheckBox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                store.dispatch(LoginAndRegisterAction.InputLoginByEmail("checked", "checkbox"))
-            } else {
-                store.dispatch(LoginAndRegisterAction.InputLoginByEmail("unchecked", "checkbox"))
-            }
-
+            )
         }
     }
 
-    private fun setTextWatcher(){
-        val emailTextWatcher=object:TextWatcher by noOpDelegate(){
-            private var isUpdating=false
+    private fun observeEffects() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.effect.collect { effect ->
+                    when (effect) {
+                        LoginByEmailEffect.LoginSuccess -> {
+                            Route.goHomeForcibly(this@LoginByEmailActivity)
+                            EventBusHelper.post(FinishEvent("LoginByEmail"))
+                            EventBusHelper.post(FinishEvent("Login"))
+                        }
 
-            override fun afterTextChanged(s: Editable?) {
-                if(isUpdating)return
-                isUpdating=true
-                store.dispatch(LoginAndRegisterAction.InputLoginByEmail(email.text.toString(),"email"))
-                isUpdating=false
+                        is LoginByEmailEffect.ShowToast -> {
+                            CustomToast.showMessage(this@LoginByEmailActivity, effect.message)
+                        }
+                    }
+                }
             }
         }
-        val captchaTextWatcher=object:TextWatcher by noOpDelegate(){
-            private var isUpdating=false
-
-            override fun afterTextChanged(s: Editable?) {
-                if(isUpdating)return
-                isUpdating=true
-                store.dispatch(LoginAndRegisterAction.InputLoginByEmail(captcha.text.toString(),"captcha"))
-                isUpdating=false
-            }
-        }
-        email.addTextChangedListener(emailTextWatcher)
-        captcha.addTextChangedListener(captchaTextWatcher)
-    }
-
-    private fun setUnderLine() {
-        getUnderLineScope(route,6,8)
-        getUnderLineScope(forgetPassword,0,4)
-        getUnderLineScope(loginByAccount,0,4)
-        route.setOnClickListener {
-            Route.goRegister(this)
-        }
-        loginByAccount.setOnClickListener{
-            Route.goLoginForcibly(this)
-        }
-        forgetPassword.setOnClickListener{
-            Route.goForgetPassword(this)
-        }
-    }
-
-    private fun getUnderLineScope(view: TextView,start:Int,end:Int){
-        var underlinetext = SpannableString(view.text.toString())
-        underlinetext.setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        view.text = underlinetext
     }
 
     override fun onDestroy() {
@@ -142,9 +81,111 @@ class LoginByEmailActivity : FullScreenActivity<ActivityLoginByEmailBinding>() {
     }
 
     @Subscribe
-    fun onFinish(finishEvent: FinishEvent){
-        if(finishEvent.name=="LoginByEmail"){
+    fun onFinish(finishEvent: FinishEvent) {
+        if (finishEvent.name == "LoginByEmail") {
             finish()
         }
+    }
+}
+
+@Composable
+private fun LoginByEmailScreen(
+    state: LoginByEmailUiState,
+    onIntent: (LoginByEmailIntent) -> Unit
+) {
+    AuthScaffold {
+        AuthTopBar(onBack = { onIntent(LoginByEmailIntent.ClickBack) })
+        AuthSpacer(20.dp)
+        AuthHero(
+            title = "邮箱登录",
+            subtitle = "使用验证码更快捷"
+        )
+        AuthSpacer(22.dp)
+
+        AuthSection {
+            AuthInput(
+                value = state.email,
+                onValueChange = { onIntent(LoginByEmailIntent.InputEmail(it)) },
+                label = "邮箱"
+            )
+
+            AuthCaptchaRow(
+                value = state.captcha,
+                onValueChange = { onIntent(LoginByEmailIntent.InputCaptcha(it)) },
+                sendText = if (state.isCountDown && state.countDown > 0) "${state.countDown}s" else "获取验证码",
+                sendEnabled = !state.isCountDown,
+                onSendClick = { onIntent(LoginByEmailIntent.ClickGetCaptcha) }
+            )
+
+            AuthAgreement(
+                checked = state.checked,
+                onCheckedChange = { onIntent(LoginByEmailIntent.CheckAgreement(it)) }
+            )
+        }
+
+        AuthSpacer()
+        AuthPrimaryButton(
+            text = "登录",
+            enabled = state.canLogin,
+            onClick = { onIntent(LoginByEmailIntent.ClickLogin) }
+        )
+
+        AuthSpacer(16.dp)
+        AuthTwoLinks(
+            leftText = "忘记密码",
+            rightText = "账户登录",
+            onLeft = { onIntent(LoginByEmailIntent.ClickForgetPassword) },
+            onRight = { onIntent(LoginByEmailIntent.ClickAccountLogin) }
+        )
+
+        AuthSpacer(12.dp)
+        AuthLink(
+            text = "没有账号？去注册",
+            onClick = { onIntent(LoginByEmailIntent.ClickRegister) }
+        )
+    }
+
+    state.dialog?.let { dialog ->
+        AuthInformationDialog(
+            title = dialog.title,
+            message = dialog.message,
+            onDismiss = { onIntent(LoginByEmailIntent.DismissDialog) }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LoginByEmailPreview() {
+    AppSkinTheme {
+        LoginByEmailScreen(
+            state = LoginByEmailUiState(
+                email = TextFieldValue("demo@changli.app"),
+                captcha = TextFieldValue("1234"),
+                checked = true,
+                canLogin = true,
+                countDown = 30,
+                isCountDown = true
+            ),
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "LoginByEmail Idle")
+@Composable
+private fun LoginByEmailIdlePreview() {
+    AppSkinTheme {
+        LoginByEmailScreen(
+            state = LoginByEmailUiState(
+                email = TextFieldValue(""),
+                captcha = TextFieldValue(""),
+                checked = false,
+                canLogin = false,
+                countDown = 0,
+                isCountDown = false
+            ),
+            onIntent = {}
+        )
     }
 }

@@ -1,5 +1,8 @@
 package com.creamaker.changli_planet_app.feature.common.data.remote.dto
 
+import androidx.annotation.Keep
+
+@Keep
 data class CheckElectricity(
     val address: String,
     val buildId: String,

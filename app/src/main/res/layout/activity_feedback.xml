@@ -15,4 +15,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <ProgressBar
+        android:id="@+id/loading_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:max="100"
+        android:progress="0"
+        android:indeterminate="false"
+        android:progressDrawable="@drawable/bg_update_download_progress"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

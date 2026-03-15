@@ -18,11 +18,26 @@ class ExamArrangementCache {
         val json = mmkv.decodeString("exams") ?: return null
         val type = object : TypeToken<List<ExamArrange>>() {}.type
         return try {
-            gson.fromJson(json, type)
+            val exams: List<ExamArrange>? = gson.fromJson(json, type)
+            if (exams.isNullOrEmpty()) {
+                mmkv.removeValueForKey("exams")
+                return null
+            }
+            val valid = exams.filter { it.isCacheCompatible() }
+            if (valid.size != exams.size) {
+                mmkv.removeValueForKey("exams")
+                return null
+            }
+            valid
         } catch (e: Exception) {
+            mmkv.removeValueForKey("exams")
             null
         }
     }
+
+    private fun ExamArrange.isCacheCompatible(): Boolean = runCatching {
+        courseNameval.isNotBlank() && examTime.isNotBlank() && campus.isNotBlank() && examRoomval.isNotBlank()
+    }.getOrDefault(false)
 
     fun clearCache() {
         mmkv.clearAll()

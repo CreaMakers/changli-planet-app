@@ -72,7 +72,7 @@ fun NewsTopBar(
                 )
                 Spacer(modifier = Modifier.width(15.dp))
                 Text(
-                    text = "点击搜索想要的群组",
+                    text = "点击搜索想看的情报",
                     color = AppTheme.colors.greyTextColor,
                     fontSize = 17.sp
                 )

@@ -22,10 +22,9 @@ import com.creamaker.changli_planet_app.common.redux.store.UserStore
 import com.creamaker.changli_planet_app.databinding.ActivityMainBinding
 import com.creamaker.changli_planet_app.feature.common.ui.FeatureFragment
 import com.creamaker.changli_planet_app.freshNews.ui.NewsFragment
-import com.creamaker.changli_planet_app.im.ui.IMFragment
+import com.creamaker.changli_planet_app.overview.ui.OverviewFragment
 import com.creamaker.changli_planet_app.profileSettings.ui.ProfileSettingsFragment
-import com.creamaker.changli_planet_app.utils.Event.SelectEvent
-import com.creamaker.changli_planet_app.widget.dialog.GuestLimitedAccessDialog
+import com.creamaker.changli_planet_app.utils.event.SelectEvent
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,33 +70,18 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
 
         if (savedInstanceState == null) {
-            val firstFragment = FeatureFragment.Companion.newInstance()
+            val firstFragment = OverviewFragment.newInstance()
             fragments[0] = firstFragment
 
             supportFragmentManager.beginTransaction()
                 .add(R.id.frag, firstFragment)
                 .commit()
         }
-
         setupTabs()
-
-        lifecycleScope.launch {
-            launch(Dispatchers.Main) {
-
-                setupTabSelectionListener()
-            }
-
-        if( !PlanetApplication.Companion.is_tourist) {  //游客模式不获取用户信息
-                launch(Dispatchers.IO) {
-                  store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
-                   store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
-              }
-           }
-        }
+        setupTabSelectionListener()
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
         // 检查版本更新
         Looper.myQueue().addIdleHandler { //添加通知权限
-           // getNotificationPermissions()
             getNetPermissions()
             val packageManager: PackageManager = this@MainActivity.packageManager
             val packageInfo: PackageInfo =
@@ -110,6 +94,22 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 )
             )
             false
+        }
+    }
+
+    private fun getNotificationPermissions() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_NOTIFICATION
+            )
+        } else {
+            return
         }
     }
 
@@ -126,10 +126,10 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
         supportFragmentManager.fragments.forEach { fragment ->
             val key = when (fragment) {
-                is FeatureFragment -> 0
-                is ProfileSettingsFragment -> 3
+                is OverviewFragment -> 0
+                is FeatureFragment -> 1
                 is NewsFragment -> 2
-                is IMFragment -> 1
+                is ProfileSettingsFragment -> 3
                 else -> throw IllegalStateException("Invalid fragment")
             }
             fragments.put(key, fragment)     //重新添加fragment
@@ -146,7 +146,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
     override fun onStart() {
         super.onStart()
-        if(!PlanetApplication.is_tourist) {   //游客模式不获取用户信息
+        if(!PlanetApplication.isExpired) {   //游客模式不获取用户信息
             lifecycleScope.launch {
                 launch(Dispatchers.IO) {
                     store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
@@ -158,13 +158,13 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
     private fun setupTabs() {
         // 动态添加 tabs
+        val overviewTab = tabLayout.newTab().setIcon(R.drawable.ic_overview).setText(R.string.overview)
         val featureTab = tabLayout.newTab().setIcon(R.drawable.nfeature).setText(R.string.function)
-        val postTab = tabLayout.newTab().setIcon(R.drawable.nnews).setText(R.string.news)
-        val imTab = tabLayout.newTab().setIcon(R.drawable.nchat).setText(R.string.chat)
+        val postTab = tabLayout.newTab().setIcon(R.drawable.nnews).setText(R.string.intel_station)
         val profileTab = tabLayout.newTab().setIcon(R.drawable.nprofile).setText(R.string.profile_home)
+        tabLayout.addTab(overviewTab)
         tabLayout.addTab(featureTab)
         tabLayout.addTab(postTab)
-        tabLayout.addTab(imTab)
         tabLayout.addTab(profileTab)
     }
 
@@ -184,21 +184,6 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
         }
     }
 
-    private fun getNotificationPermissions(){
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ){
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                REQUEST_NOTIFICATION
-            )
-        }else  return
-    }
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -207,15 +192,8 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-//            REQUEST_READ_TELEPHONE ->
-//                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    getNetPermissions()
-//                }
-//            REQUEST_NOTIFICATION ->
-//                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-//                    getNotificationPermissions()
-//                }
-            REQUEST_READ_TELEPHONE -> getNotificationPermissions() //获取完电话后再获取通知权限
+            REQUEST_READ_TELEPHONE -> getNotificationPermissions()
+
         }
     }
 
@@ -225,22 +203,11 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 if (suppress) return
                 if (currentTabPosition == tab.position) return
 
-                val needBlock = (PlanetApplication.is_expired && tab.position != 3 && tab.position != 0 ) // 自行替换条件
-                if (needBlock) {
-                    GuestLimitedAccessDialog(this@MainActivity).show()
-
-                    // 还原到上一个Tab，不触发你的切换逻辑
-                    suppress = true
-                    tabLayout.getTabAt(currentTabPosition)?.let { tabLayout.selectTab(it) }
-                    suppress = false
-                    return
-                }
-
                 val fragment = fragments.getOrPut(tab.position) {
                     when (tab.position) {
-                        0 -> FeatureFragment.Companion.newInstance()
-                        1 -> NewsFragment.Companion.newInstance()
-                        2 -> IMFragment.Companion.newInstance()
+                        0 -> OverviewFragment.newInstance()
+                        1 -> FeatureFragment.Companion.newInstance()
+                        2 -> NewsFragment.Companion.newInstance()
                         3 -> ProfileSettingsFragment.Companion.newInstance()
                         else -> throw IllegalStateException("Invalid position")
                     }
@@ -263,15 +230,6 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
     private fun switchFragment(newFragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
-        //修改
-
-//        if(newFragment == fragments[1] && PlanetApplication.is_expired){
-//            GuestLimitedAccessDialog(this@MainActivity).show()
-//        }
-//
-//        if(newFragment == fragments[3] && PlanetApplication.is_expired){
-//            GuestLimitedAccessDialog(this@MainActivity).show()
-//        }
 
         fragments[currentTabPosition]?.let {
             transaction.hide(it)

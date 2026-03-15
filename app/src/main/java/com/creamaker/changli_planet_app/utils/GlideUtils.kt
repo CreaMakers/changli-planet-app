@@ -6,13 +6,13 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestListener
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.core.GlideApp
 
 object GlideUtils {
-    private val TAG = "GlideUtils"
+    private const val TAG = "GlideUtils"
     fun load(
         view: View,
         imageView: ImageView,
@@ -20,7 +20,7 @@ object GlideUtils {
         useDiskCache: Boolean = true
     ) {
         val heightAndwidth = ResourceUtil.getImageSize(imageView)
-        GlideApp.with(view)
+        Glide.with(view)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .error(R.drawable.ic_error_vector)
@@ -35,7 +35,7 @@ object GlideUtils {
         useDiskCache: Boolean = true
     ) {
         val heightAndwidth = ResourceUtil.getImageSize(imageView)
-        GlideApp.with(fragment)
+        Glide.with(fragment)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .override(heightAndwidth.first,heightAndwidth.second)
@@ -50,7 +50,7 @@ object GlideUtils {
         useDiskCache: Boolean = true
     ) {
         val heightAndwidth = ResourceUtil.getImageSize(imageView)
-        GlideApp.with(context)
+        Glide.with(context)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .error(R.drawable.ic_error_vector)
@@ -65,7 +65,7 @@ object GlideUtils {
         useDiskCache: Boolean = true
     ) {
         val heightAndwidth = ResourceUtil.getImageSize(imageView)
-        GlideApp.with(view)
+        Glide.with(view)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .thumbnail(0.5f)
@@ -81,7 +81,7 @@ object GlideUtils {
         useDiskCache: Boolean = true
     ) {
         val heightAndwidth = ResourceUtil.getImageSize(imageView)
-        GlideApp.with(fragment)
+        Glide.with(fragment)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .thumbnail(0.5f)
@@ -97,7 +97,7 @@ object GlideUtils {
         useDiskCache: Boolean = true
     ) {
         val heightAndwidth = ResourceUtil.getImageSize(imageView)
-        GlideApp.with(context)
+        Glide.with(context)
             .load(imageSource)
             .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .thumbnail(0.5f)
@@ -109,7 +109,7 @@ object GlideUtils {
     // 预加载图片
     fun preload(context: Context, imageUrls: List<String>, useDiskCache: Boolean = true) {
         imageUrls.forEach { url ->
-            GlideApp.with(context)
+            Glide.with(context)
                 .load(url)
                 .diskCacheStrategy(if (useDiskCache) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
                 .preload()
@@ -156,7 +156,7 @@ private fun ImageView.loadImageDirectly(
     listener: RequestListener<Drawable>? = null
 ) {
     Log.d("dcelysia", "ImageView loadImageDirectly: $imageSource")
-    GlideApp.with(context)
+    Glide.with(context)
         .load(imageSource)
         .skipMemoryCache(!useMemoryCache)
         //暂定为DATA策略，更好地兼容各种图片来源

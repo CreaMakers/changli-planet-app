@@ -2,11 +2,7 @@ package com.creamaker.changli_planet_app.core.theme
 
 import androidx.compose.ui.graphics.Color
 
-/**
- * 设计系统颜色常量（从 res/values/colors.xml 同步）
- */
 object DesignColors {
-    // ====================== 背景类 ======================
     val LightGray = Color(0xFFF2F2F2)
     val BgPrimary = Color(0xFFFFFFFF)
     val BgCard = Color(0xFFFFFFFF)
@@ -16,7 +12,6 @@ object DesignColors {
     val BgSecondaryInverse = Color(0xFFD3D3D3)
     val BgRecyclerView = Color(0xFFFFFFFF)
 
-    // ====================== 文字类 ======================
     val TextPrimary = Color(0xFF484550)
     val TextGrey = Color(0xFF6D7280)
     val TextSecondary = Color(0xFF909AA7)
@@ -26,42 +21,34 @@ object DesignColors {
     val TextDisabled = Color(0xFFA0A0A0)
     val SearchHint = Color(0xFFD3DDDF)
 
-    // 帖子文字类
     val PostTextPrimary = Color(0xFF484550)
     val PostTextTitle = Color(0xFF000000)
     val PostTextHint = Color(0xFFABABAB)
     val PostTextReply = Color(0xFF1E4B94)
 
-    // 顶部标题文字
     val TitleTop = Color(0xFF3683D4)
 
-    // ====================== 图标类 ======================
     val IconSetting = Color(0xFF4E7FEF)
     val IconPrimary = Color(0xFF4E7FEF)
     val IconSecondary = Color(0xFF808080)
 
-    // ====================== 按钮类 ======================
     val BgButton = Color(0xFF0099FA)
     val BgButtonLowlight = Color(0xFFDEE9FC)
 
-    // ====================== 主色 / 功能色 ======================
     val TextFunctional = Color(0xFF3683D4)
     val PrimaryBlue = Color(0xFF0099FA)
     val TabRipped = Color(0xFFF2F2F2)
     val Loading = Color(0xFF0099FA)
     val PostHintBar = Color(0xFF0997F8)
 
-    // ====================== 分隔线 / 描边类 ======================
     val ControlDivider = Color(0xFF909AA7)
     val Divider = Color(0xFF73777F)
     val Outline = Color(0xFF73777F)
     val OutlineLowContrast = Color(0xFFC4DFFC)
 
-    // ====================== 状态类（错误 / 成功） ======================
     val ErrorRed = Color(0xFFFF3D00)
     val SuccessGreen = Color(0xFF00C853)
 
-    // ====================== 基础色 ======================
     val BaseWhite = Color(0xFFFFFFFF)
     val BaseRed = Color(0xFFDC3B00)
     val BaseBlack = Color(0xFF000000)

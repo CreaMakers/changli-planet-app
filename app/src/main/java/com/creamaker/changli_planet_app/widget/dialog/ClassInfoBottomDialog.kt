@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.ClassInfoAdapter
-import com.creamaker.changli_planet_app.utils.Event.SelectEvent
 import com.creamaker.changli_planet_app.utils.EventBusLifecycleObserver
+import com.creamaker.changli_planet_app.utils.event.SelectEvent
 import com.creamaker.changli_planet_app.widget.view.DividerItemDecoration
 import com.creamaker.changli_planet_app.widget.view.MaxHeightLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

@@ -6,9 +6,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt")
-    id("kotlin-parcelize")
+    alias(libs.plugins.ksp)
     alias(libs.plugins.baselineprofile)
+    id("kotlin-parcelize")
 }
 configurations.all {
     exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
@@ -50,15 +50,13 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 17
-        versionName = "1.3.8.1"
+        versionCode = 21
+        versionName = "2.0.2"
 
 
         ndk {
             // 设置支持的SO库架构
-            abiFilters.add("armeabi") //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
             abiFilters.add("arm64-v8a")
-            abiFilters.add("x86")
             abiFilters.add("armeabi-v7a")
         }
     }
@@ -66,6 +64,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -131,7 +130,7 @@ dependencies {
     implementation(libs.androidx.room.rxjava3)
     //Glide
     implementation(libs.glide)
-    kapt(libs.glide.compiler)
+    ksp(libs.glide.ksp)
     //MMKV
     implementation(libs.mmkv)
     //腾讯云HTTPDNS
@@ -152,7 +151,7 @@ dependencies {
     implementation(libs.timetableview)
     //Room
     implementation(libs.androidx.room.runtime)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     // 图片裁剪库
     implementation(libs.ucrop)
@@ -186,7 +185,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.process.ktx)
     implementation(libs.androidx.activity.compose)
@@ -214,9 +212,6 @@ dependencies {
     implementation(libs.csustdataget)
     implementation(libs.androidx.constraintlayout.compose)
 }
-kapt {
-    arguments {
-        arg("room.schemaLocation", "$projectDir/schemas")
-    }
-    correctErrorTypes = true
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }

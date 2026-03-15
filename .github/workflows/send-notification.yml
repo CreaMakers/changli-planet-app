@@ -11,8 +11,6 @@ on:
         type: string
         description: "OBS download URL for the APK file"
     secrets:
-      WEBHOOK_API_KEY:
-        required: true
       WEBHOOK_ADDRESS:
         required: true
 
@@ -21,23 +19,15 @@ jobs:
     name: Send Notification
     runs-on: ubuntu-latest
     steps:
-      - name: Send Notification
+      - name: Post Data to Webhook Center
         run: |
-          STATUS_MESSAGE="❌ 构建失败"
-          if [[ ${{ inputs.build_status }} == 'success' ]]; then
-            STATUS_MESSAGE="✅ 构建成功"
-          fi
-          
-          # 构建基础消息
-          MESSAGE="$STATUS_MESSAGE\n\n仓库：${{ github.repository }}\n工作流：${{ github.workflow }}\n地址：${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          
-          # 如果有OBS下载链接，添加到消息中
-          if [[ -n "${{ inputs.obs_url }}" && "${{ inputs.obs_url }}" != "" ]]; then
-            MESSAGE="$MESSAGE\n\n📱 APK下载：${{ inputs.obs_url }}"
-          fi
-          
-          JSON_STRING="{\"message\":\"$MESSAGE\"}"
           curl -X POST \
           -H "Content-Type: application/json" \
-          -d "$JSON_STRING" \
-          "https://webhook.zhelearn.com/webhook/custom/${{ secrets.WEBHOOK_API_KEY }}?chat_type=group&chat_number=${{ secrets.WEBHOOK_ADDRESS }}"
+          -d '{
+            "status": "${{ inputs.build_status }}",
+            "repo": "${{ github.repository }}",
+            "workflow": "${{ github.workflow }}",
+            "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "download_url": "${{ inputs.obs_url }}"
+          }' \
+          "${{ secrets.WEBHOOK_ADDRESS }}"

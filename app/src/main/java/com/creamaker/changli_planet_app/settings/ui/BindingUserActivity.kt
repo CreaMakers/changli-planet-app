@@ -11,18 +11,14 @@ import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
-import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.common.redux.action.UserAction
 import com.creamaker.changli_planet_app.common.redux.store.UserStore
-import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityBindingUserBinding
-import com.creamaker.changli_planet_app.utils.Event.FinishEvent
+import com.creamaker.changli_planet_app.utils.event.FinishEvent
 import com.creamaker.changli_planet_app.widget.view.CustomToast
-
 import com.dcelysia.csust_spider.core.RetrofitUtils
 import com.example.changli_planet_app.widget.Dialog.SSOWebviewDialog
 import com.google.android.material.button.MaterialButton
@@ -39,10 +35,12 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
     private val password: TextView by lazy { binding.etStudentPassword }
     private val back: ImageView by lazy { binding.bindingBack }
     private val save: MaterialButton by lazy { binding.saveUser }
+    private val webLoginBtn: MaterialButton by lazy { binding.webLoginBtn }
 
     private val store = UserStore()
 
-    override fun createViewBinding(): ActivityBindingUserBinding = ActivityBindingUserBinding.inflate(layoutInflater)
+    override fun createViewBinding(): ActivityBindingUserBinding =
+        ActivityBindingUserBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,21 +50,22 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
         observeState()
     }
 
-    private fun showLoading(){
+    private fun showLoading() {
         binding.loadingLayout.visibility = View.VISIBLE
         binding.bindingUserLayout.visibility = View.GONE
     }
-    fun hideLoading(){
+
+    fun hideLoading() {
         binding.loadingLayout.visibility = View.GONE
         binding.bindingUserLayout.visibility = View.VISIBLE
     }
+
     private fun observeState() {
         disposables.add(
             store.state()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->
                     if (state.userStats.studentNumber.isNotBlank()) {
-                        StudentInfoManager.studentId = state.userStats.studentNumber
                         username.text = state.userStats.studentNumber
                     }
                     Log.d(TAG, "observeState: ${state.uiForLoading}")
@@ -79,9 +78,8 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
 
     private fun initView() {
         EventBus.getDefault().register(this)
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){ view, windowInsets->
-            val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
                 view.paddingLeft,
                 insets.top,
@@ -95,23 +93,31 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
     private fun initListener() {
         save.setOnClickListener { saveUserInfo() }
         back.setOnClickListener { finish() }
+        webLoginBtn.setOnClickListener { webLogin() }
     }
 
-    private fun web_login() {
-        SSOWebviewDialog { account, Stpassword, Loginmode, url, cookies ->
-            if (url.isNotEmpty() && cookies.isNotEmpty()) {
-                RetrofitUtils.totalCookieJar.saveFromResponse(url.toHttpUrl(), cookies)
-                CustomToast.showMessage(this, "cookies保存成功！")
-            } else {
-                CustomToast.showMessage(this, "cookies保存失败")
-            }
-            if (account.isNotEmpty() && Stpassword.isNotEmpty() && Loginmode == "Username") {
-                store.dispatch(UserAction.WebLoginSuccess(this,account,Stpassword))
-            }
-        }.show(supportFragmentManager,"SSOWebDialog")
-
-
+    private fun webLogin() {
+        save.isEnabled = false
+        webLoginBtn.isEnabled = false
+        SSOWebviewDialog(
+            loginResult = { account, stPassword, loginMode, url, cookies ->
+                if (url.isNotEmpty() && cookies.isNotEmpty()) {
+                    RetrofitUtils.totalCookieJar.saveFromResponse(url.toHttpUrl(), cookies)
+                    CustomToast.showMessage(this, "cookies保存成功！")
+                } else {
+                    CustomToast.showMessage(this, "cookies保存失败")
+                }
+                if (account.isNotEmpty() && stPassword.isNotEmpty() && loginMode == "Username") {
+                    store.dispatch(UserAction.WebLoginSuccess(this, account, stPassword))
+                }
+            },
+            onDismissCallback = {
+                save.isEnabled = true
+                webLoginBtn.isEnabled = true
+            },
+        ).show(supportFragmentManager, "SSOWebDialog")
     }
+
     private fun saveUserInfo() {
         val studentId = username.text.toString()
         val studentPassword = password.text.toString()
@@ -119,14 +125,14 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
             showMessage("学号和密码不能为空")
             return
         }
-        if(PlanetApplication.is_tourist){
-            StudentInfoManager.studentId = studentId  //游客模式不使用网络进行储存学号
-        }
-        StudentInfoManager.studentPassword = studentPassword
-        store.dispatch(UserAction.BindingStudentNumber(this, studentId,{web_login()}))//在MVI流对游客模式也进行了判断逻辑与state发布
+        store.dispatch(
+            UserAction.BindingStudentNumber(
+                this,
+                studentId,
+                studentPassword
+            ) { webLogin() }
+        )
         showLoading()
-      
-
     }
 
     private fun showMessage(message: String) {
@@ -160,11 +166,10 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
 
     @Subscribe
     fun onFinish(finishEvent: FinishEvent) {
-        if (finishEvent.name.equals("bindingUser")) {
+        if (finishEvent.name == "bindingUser") {
             showMessage("学号和密码保存成功！")
             Route.goHomeForcibly(this)
             finish()
         }
     }
-
 }

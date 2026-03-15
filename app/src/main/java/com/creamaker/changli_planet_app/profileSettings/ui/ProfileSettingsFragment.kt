@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -60,18 +61,20 @@ import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.core.theme.AppTheme
 import com.creamaker.changli_planet_app.profileSettings.ui.model.SettingItemUiModel
-import com.creamaker.changli_planet_app.utils.Event.SelectEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.NetworkUtil
+import com.creamaker.changli_planet_app.utils.event.SelectEvent
 import com.creamaker.changli_planet_app.widget.dialog.GuestLimitedAccessDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 class ProfileSettingsFragment : Fragment() {
 
-    private val FEI_SHU_URL = "https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false"
+ 
     private var backCallback: OnBackPressedCallback? = null
 
     companion object {
+        private const val FEI_SHU_URL = "https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false"
+        private const val CREAMAKER_URL = "https://cm.zhelearn.com/"
         fun newInstance() = ProfileSettingsFragment()
     }
 
@@ -86,9 +89,9 @@ class ProfileSettingsFragment : Fragment() {
             setContent {
                 AppSkinTheme {
                     // 初始化状态数据
-                    val isExpired = remember { PlanetApplication.is_expired }
+                    val isExpired = remember { PlanetApplication.isExpired }
                     val username = remember {
-                        if (isExpired) "长理学子~" else UserInfoManager.account ?: "用户名"
+                        if (isExpired) "长理学子~" else UserInfoManager.account
                     }
                     val avatarUrl = remember { UserInfoManager.userAvatar }
 
@@ -147,7 +150,7 @@ class ProfileSettingsFragment : Fragment() {
                             onDismiss = { showLogoutDialog = false },
                             onConfirm = {
                                 PlanetApplication.clearLocalCache()
-                                PlanetApplication.is_expired = true
+                                PlanetApplication.isExpired = true
                                 Route.goLoginForcibly(context)
                                 showLogoutDialog = false
                             }
@@ -177,8 +180,7 @@ class ProfileSettingsFragment : Fragment() {
         when (item.id) {
             "2" -> { /* 隐私设置 TODO */ }
             "3" -> {
-                if (PlanetApplication.is_expired) {
-                    //CustomToast.showMessage(requireContext(), "未登录无法进行此操作哦~")
+                if (PlanetApplication.isExpired) {
                     GuestLimitedAccessDialog(requireContext()).show()
                 } else {
                     Route.goAccountSecurity(requireContext())
@@ -188,7 +190,7 @@ class ProfileSettingsFragment : Fragment() {
             "5" -> Route.goBindingUser(requireContext())
             "6" -> Route.goSkinSecletion(requireContext())
             "8" -> { /* 帮助中心 TODO */ }
-            "9" -> Route.goAbout(requireContext())
+            "9" -> Route.goWebView(requireContext(), CREAMAKER_URL)
             "10" -> Route.goWebView(requireContext(), FEI_SHU_URL)
         }
     }
@@ -224,7 +226,7 @@ class ProfileSettingsFragment : Fragment() {
 
             SettingsListSection(
                 items = items,
-                isExpired = isTourist,
+                isTourist = isTourist,
                 onItemClick = onItemClick,
                 onLogoutClick = onLogoutClick
             )
@@ -243,6 +245,7 @@ class ProfileSettingsFragment : Fragment() {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .navigationBarsPadding()
         ) {
             val (bgImage, avatar, usernameRow) = createRefs()
 
@@ -320,7 +323,7 @@ class ProfileSettingsFragment : Fragment() {
     @Composable
     fun SettingsListSection(
         items: List<SettingItemUiModel>,
-        isExpired: Boolean,
+        isTourist: Boolean,
         onItemClick: (SettingItemUiModel.Option) -> Unit,
         onLogoutClick: () -> Unit
     ) {
@@ -364,7 +367,7 @@ class ProfileSettingsFragment : Fragment() {
                             .height(50.dp)
                     ) {
                         Text(
-                            text = if (isExpired) "登录账号" else stringResource(id = R.string.logout),
+                            text = if (isTourist) "登录账号" else stringResource(id = R.string.logout),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -465,7 +468,7 @@ class ProfileSettingsFragment : Fragment() {
 
             SettingItemUiModel.Header("帮助与支持"),
             SettingItemUiModel.Option("8", "帮助中心", R.drawable.ic_help),
-            SettingItemUiModel.Option("9", "关于我们", R.drawable.ic_guanyuwomen),
+            SettingItemUiModel.Option("9", "软件官网", R.drawable.ic_guanyuwomen),
             SettingItemUiModel.Option("10", "意见反馈", R.drawable.yijianfankui)
         )
     }

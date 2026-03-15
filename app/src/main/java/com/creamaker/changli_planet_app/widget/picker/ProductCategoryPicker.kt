@@ -68,17 +68,17 @@ class ProductCategoryPicker(
 
         // 1. 准备颜色
         val bgColor =
-            getSkinColor(activity.applicationContext, R.color.color_bg_primary, false) as Int
+            getSkinColor(activity.applicationContext, R.color.color_bg_primary, false) as? Int ?: 0
         val okTextColor =
-            getSkinColor(activity.applicationContext, R.color.color_text_functional, false) as Int
+            getSkinColor(activity.applicationContext, R.color.color_text_functional, false) as? Int ?: 0
         val cancelTextColor =
-            getSkinColor(activity.applicationContext, R.color.color_text_grey, false) as Int
+            getSkinColor(activity.applicationContext, R.color.color_text_grey, false) as? Int ?: 0
         val titleTextColor =
-            getSkinColor(activity.applicationContext, R.color.color_text_primary, false) as Int
+            getSkinColor(activity.applicationContext, R.color.color_text_primary, false) as? Int ?: 0
         val wheelNormalColor =
-            getSkinColor(activity.applicationContext, R.color.color_text_primary, false) as Int
+            getSkinColor(activity.applicationContext, R.color.color_text_primary, false) as? Int ?: 0
         val wheelSelectedColor =
-            getSkinColor(activity.applicationContext, R.color.color_text_highlight, false) as Int
+            getSkinColor(activity.applicationContext, R.color.color_text_highlight, false) as? Int ?: 0
 
         // 2. 设置 TopBar 样式
         picker.setBackgroundColor(bgColor) // 整体背景（包含 TopBar 和 Wheel）

@@ -65,7 +65,7 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if(studentId.isEmpty() || studentPassword.isEmpty()){
+        if (studentId.isEmpty() || studentPassword.isEmpty()) {
             showMessage("请先填写学号和密码")
             Route.goBindingUser(this@ScoreInquiryActivity)
             finish()

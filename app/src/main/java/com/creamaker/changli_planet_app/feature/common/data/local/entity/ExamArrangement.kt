@@ -1,8 +1,7 @@
 package com.creamaker.changli_planet_app.feature.common.data.local.entity
 
+import androidx.annotation.Keep
 import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
-import com.google.gson.annotations.SerializedName
-import java.time.LocalDateTime
 
 //data class ExamArrangement (
 //    val id: String,
@@ -45,6 +44,7 @@ import java.time.LocalDateTime
 //
 //    )
 
+@Keep
 data class ExamArrangementResponse (
     val code: String,
     val msg: String,

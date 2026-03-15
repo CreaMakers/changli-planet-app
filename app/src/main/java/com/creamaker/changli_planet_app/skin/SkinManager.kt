@@ -9,6 +9,9 @@ import com.creamaker.changli_planet_app.skin.helper.SkinFileHelper
 import com.creamaker.changli_planet_app.skin.helper.SkinResourcesHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -22,6 +25,10 @@ object SkinManager {
     // 当前皮肤的资源
     var skinResources: Resources? = null
     var skinPackageName: String? = null
+
+    private val _currentSkinName = MutableStateFlow(SkinCache.getAssetsName())
+    val currentSkinName: StateFlow<String> = _currentSkinName.asStateFlow()
+
     fun setSkin(name: String) {
         try {
             CoroutineScope(Dispatchers.IO).launch {
@@ -29,6 +36,8 @@ object SkinManager {
                     skinResources = null
                     skinPackageName = null
                     SkinCache.saveAssetsName("skin_default")
+                    SkinCache.saveIsUsingSkin("skin_default")
+                    _currentSkinName.value = "skin_default"
                     withContext(Dispatchers.Main) {
                         notifyObservers() // 通知所有 View 重新执行 applySkin
                     }
@@ -49,6 +58,8 @@ object SkinManager {
 
                 // 保存当前皮肤路径到缓存
                 SkinCache.saveAssetsName(name)
+                SkinCache.saveIsUsingSkin(name)
+                _currentSkinName.value = name
 
                 Log.d(TAG, "Skin applied: $name")
                 withContext(Dispatchers.Main){

@@ -84,6 +84,15 @@
             android:exported="true"
             android:foregroundServiceType="dataSync" />
 
+        <receiver
+            android:name=".common.service.InstallCleanupReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".freshNews.ui.UserHomeActivity"
             android:exported="false" />

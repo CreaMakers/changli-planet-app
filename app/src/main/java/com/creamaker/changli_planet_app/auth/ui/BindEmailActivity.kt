@@ -1,108 +1,174 @@
 package com.creamaker.changli_planet_app.auth.ui
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.widget.EditText
-import android.widget.TextView
-import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.auth.redux.action.LoginAndRegisterAction
-import com.creamaker.changli_planet_app.auth.redux.store.LoginAndRegisterStore
-import com.creamaker.changli_planet_app.base.FullScreenActivity
-import com.creamaker.changli_planet_app.core.noOpDelegate
-import com.creamaker.changli_planet_app.databinding.ActivityBindEmailBinding
-import com.creamaker.changli_planet_app.utils.Event.FinishEvent
-import com.creamaker.changli_planet_app.utils.singleClick
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.creamaker.changli_planet_app.auth.mvi.BindEmailEffect
+import com.creamaker.changli_planet_app.auth.mvi.BindEmailIntent
+import com.creamaker.changli_planet_app.auth.mvi.BindEmailUiState
+import com.creamaker.changli_planet_app.auth.mvi.BindEmailViewModel
+import com.creamaker.changli_planet_app.base.ComposeActivity
+import com.creamaker.changli_planet_app.core.Route
+import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
+import com.creamaker.changli_planet_app.utils.EventBusHelper
+import com.creamaker.changli_planet_app.utils.event.FinishEvent
+import com.creamaker.changli_planet_app.widget.view.CustomToast
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-/**
- * 绑定邮箱页面
- */
-class BindEmailActivity : FullScreenActivity<ActivityBindEmailBinding>() {
-    private val email: EditText by lazy { binding.email }
-    private val captcha: EditText by lazy { binding.captcha }
-    private val getCaptcha: TextView by lazy { binding.getCaptcha }
-    private val store = LoginAndRegisterStore()
-    private val bindButton: TextView by lazy { binding.bind }
-
-    override fun createViewBinding(): ActivityBindEmailBinding = ActivityBindEmailBinding.inflate(layoutInflater)
+class BindEmailActivity : ComposeActivity() {
+    private val viewModel by lazy { ViewModelProvider(this)[BindEmailViewModel::class.java] }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initObserve()
-        initTextWatcher()
-        val account=intent.getStringExtra("username")?:""
-        val password=intent.getStringExtra("password")?:""
-        store.dispatch(LoginAndRegisterAction.input(account,"account"))
-        store.dispatch(LoginAndRegisterAction.input(password,"password"))
         EventBus.getDefault().register(this)
-        bindButton.singleClick(3000){
-            store.dispatch(LoginAndRegisterAction.Register(this))
-        }
-    }
-    private fun initObserve(){
-        disposables.add(
-            store.state().subscribe{state->
-                if(!state.canBind){
-                    bindButton.isEnabled=state.canBind
-                    bindButton.setBackgroundResource(R.drawable.disable_button)
-                }else{
-                    bindButton.isEnabled=state.canBind
-                    bindButton.setBackgroundResource(R.drawable.bg_enable_button)
-                }
 
-                if(!state.isCountDown&&state.email.isNotEmpty()){
-                    getCaptcha.setTextColor(resources.getColor(R.color.color_text_functional))
-                    getCaptcha.text="获取验证码"
-                    getCaptcha.singleClick (delay = 3000){
-                        store.dispatch(LoginAndRegisterAction.GetCaptcha)
+        val account = intent.getStringExtra("username") ?: ""
+        val password = intent.getStringExtra("password") ?: ""
+        viewModel.process(BindEmailIntent.Initialize(account, password))
+        observeEffects()
+
+        setComposeContent {
+            val state by viewModel.state.collectAsState()
+            BindEmailScreen(
+                state = state,
+                onBack = { finish() },
+                onIntent = { intent ->
+                    when (intent) {
+                        BindEmailIntent.ClickBind -> viewModel.bind()
+                        else -> viewModel.process(intent)
                     }
-                }else{
-                    if(state.countDown>0)getCaptcha.text=state.countDown.toString()
-                    else getCaptcha.text="获取验证码"
-                    getCaptcha.setTextColor(resources.getColor(R.color.color_text_grey))
-                    getCaptcha.setOnClickListener(null)
+                }
+            )
+        }
+    }
+
+    private fun observeEffects() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.effect.collect { effect ->
+                    when (effect) {
+                        is BindEmailEffect.BindSuccess -> {
+                            Route.goLoginFromRegister(
+                                this@BindEmailActivity,
+                                effect.username,
+                                effect.password
+                            )
+                            EventBusHelper.post(FinishEvent("Register"))
+                            EventBusHelper.post(FinishEvent("bindEmail"))
+                        }
+
+                        is BindEmailEffect.ShowToast -> {
+                            CustomToast.showMessage(this@BindEmailActivity, effect.message)
+                        }
+                    }
                 }
             }
-        )
-        store.dispatch(LoginAndRegisterAction.initilaize)
-    }
-    private fun initTextWatcher(){
-        val emailTextWatcher=object: TextWatcher by noOpDelegate() {
-            private var isUpdating=false
-
-            override fun afterTextChanged(s: Editable?) {
-                if(isUpdating)return
-                isUpdating=true
-                store.dispatch(LoginAndRegisterAction.input(email.text.toString(),"email"))
-                isUpdating=false
-            }
         }
-        val captchaTextWatcher=object: TextWatcher by noOpDelegate() {
-            private var isUpdating=false
-
-            override fun afterTextChanged(s: Editable?) {
-                if(isUpdating)return
-                isUpdating=true
-                store.dispatch(LoginAndRegisterAction.input(captcha.text.toString(),"captcha"))
-                isUpdating=false
-            }
-        }
-        email.addTextChangedListener(emailTextWatcher)
-        captcha.addTextChangedListener(captchaTextWatcher)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
-        disposables.clear()
     }
 
     @Subscribe
-    fun onFinish(finishEvent: FinishEvent){
-        if(finishEvent.name=="bindEmail"){
+    fun onFinish(finishEvent: FinishEvent) {
+        if (finishEvent.name == "bindEmail") {
             finish()
         }
+    }
+}
+
+@Composable
+private fun BindEmailScreen(
+    state: BindEmailUiState,
+    onBack: () -> Unit,
+    onIntent: (BindEmailIntent) -> Unit
+) {
+    AuthScaffold {
+        AuthTopBar(onBack = onBack)
+        AuthSpacer(20.dp)
+        AuthHero(
+            title = "绑定邮箱",
+            subtitle = "用于接收验证码和保障账号安全"
+        )
+        AuthSpacer(22.dp)
+
+        AuthSection {
+            AuthInput(
+                value = state.email,
+                onValueChange = { onIntent(BindEmailIntent.InputEmail(it)) },
+                label = "邮箱"
+            )
+
+            AuthCaptchaRow(
+                value = state.captcha,
+                onValueChange = { onIntent(BindEmailIntent.InputCaptcha(it)) },
+                sendText = if (state.isCountDown && state.countDown > 0) "${state.countDown}s" else "获取验证码",
+                sendEnabled = !state.isCountDown,
+                onSendClick = { onIntent(BindEmailIntent.ClickGetCaptcha) }
+            )
+        }
+
+        AuthSpacer()
+        AuthPrimaryButton(
+            text = "绑定并登录",
+            enabled = state.canBind,
+            onClick = { onIntent(BindEmailIntent.ClickBind) }
+        )
+    }
+
+    state.dialog?.let { dialog ->
+        AuthInformationDialog(
+            title = dialog.title,
+            message = dialog.message,
+            onDismiss = { onIntent(BindEmailIntent.DismissDialog) }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun BindEmailPreview() {
+    AppSkinTheme {
+        BindEmailScreen(
+            state = BindEmailUiState(
+                email = TextFieldValue("new@changli.app"),
+                captcha = TextFieldValue("1234"),
+                canBind = true,
+                isCountDown = false,
+                countDown = 0
+            ),
+            onBack = {},
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "BindEmail Countdown")
+@Composable
+private fun BindEmailCountDownPreview() {
+    AppSkinTheme {
+        BindEmailScreen(
+            state = BindEmailUiState(
+                email = TextFieldValue("new@changli.app"),
+                captcha = TextFieldValue(""),
+                canBind = false,
+                isCountDown = true,
+                countDown = 18
+            ),
+            onBack = {},
+            onIntent = {}
+        )
     }
 }

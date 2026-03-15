@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.theme.AppTheme
-import com.creamaker.changli_planet_app.feature.common.ui.FunctionColors
 
 /**
  * 主功能区 + 可展开文件夹

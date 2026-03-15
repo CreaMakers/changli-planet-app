@@ -10,9 +10,9 @@ import com.creamaker.changli_planet_app.core.network.OkHttpHelper
 import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
 import com.creamaker.changli_planet_app.settings.redux.action.BindingUserAction
 import com.creamaker.changli_planet_app.settings.redux.state.BindingUserState
-import com.creamaker.changli_planet_app.utils.Event.FinishEvent
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.PlanetConst
+import com.creamaker.changli_planet_app.utils.event.FinishEvent
 import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
 import okhttp3.Response
 
@@ -37,7 +37,7 @@ class BindingUserStore : Store<BindingUserState, BindingUserAction>() {  // 修�
                     override fun onSuccess(response: Response) {
                         try {
                             val fromJson = OkHttpHelper.gson.fromJson(
-                                response.body?.string(),
+                                response.body.string(),
                                 MyResponse::class.java
                             )
                             when (fromJson.code) {
@@ -92,7 +92,6 @@ class BindingUserStore : Store<BindingUserState, BindingUserAction>() {  // 修�
                 currentState
             }
 
-            else -> currentState
         }
 
         // 通知状态更新
