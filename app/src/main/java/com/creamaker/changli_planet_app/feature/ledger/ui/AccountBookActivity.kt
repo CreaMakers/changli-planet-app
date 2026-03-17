@@ -31,7 +31,9 @@ class AccountBookActivity : FullScreenActivity<ActivityAccountBookBinding>() {
     private var mFloatView: AddItemFloatView? = null
     private val avatar by lazy { binding.avatar }
 
-    override fun createViewBinding(): ActivityAccountBookBinding = ActivityAccountBookBinding.inflate(layoutInflater)
+    override fun createViewBinding(): ActivityAccountBookBinding =
+        ActivityAccountBookBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
@@ -40,7 +42,7 @@ class AccountBookActivity : FullScreenActivity<ActivityAccountBookBinding>() {
             insets
         }
 
-        GlideUtils.load(this,avatar,UserInfoManager.userAvatar,false) //加载用户头像
+        GlideUtils.load(this, avatar, UserInfoManager.userAvatar, false) //加载用户头像
         handleEvents()
         showCatLoading()
         object : CountDownTimer(1 * 1000L, 12312L) {
@@ -73,7 +75,8 @@ class AccountBookActivity : FullScreenActivity<ActivityAccountBookBinding>() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.topCard.collect { topCard ->
-                        val cardData = topCard ?: LedgerTopCardEntity(UserInfoManager.username, 0, 0.0, 0.0)
+                        val cardData =
+                            topCard ?: LedgerTopCardEntity(UserInfoManager.username, 0, 0.0, 0.0)
                         binding.allMoneyNumber.text = String.format("¥%.2f", cardData.totalMoney)
                         binding.dailyCostNumber.text = String.format("¥%.2f", cardData.dailyAverage)
                     }
@@ -117,10 +120,32 @@ class AccountBookActivity : FullScreenActivity<ActivityAccountBookBinding>() {
             Route.goAddSomethingAccount(this@AccountBookActivity)
         }
 
-        // 设置初始位置 (右下角)
-        mFloatView?.x = resources.displayMetrics.widthPixels - 200f
-        mFloatView?.y = resources.displayMetrics.heightPixels - 300f
-        mFloatView?.elevation = 100f
         binding.root.addView(mFloatView)
+
+        mFloatView?.setOnTouchListener { _, event ->
+            when (event.actionMasked) {
+                android.view.MotionEvent.ACTION_UP -> {
+                    Route.goAddSomethingAccount(this@AccountBookActivity)
+                    true
+                }
+                else -> true
+            }
+        }
+
+        mFloatView?.post {
+            val floatView = mFloatView?: return@post
+            val bottomMargin = 24 * resources.displayMetrics.density
+            floatView.x = (binding.root.width - floatView.width) / 2f
+            floatView.y = binding.root.height - floatView.height - bottomMargin
+            floatView.elevation = 100f
+        }
+
+
+        // 设置初始位置 (右下角)
+//        mFloatView?.x = resources.displayMetrics.widthPixels - 200f
+//        mFloatView?.y = resources.displayMetrics.heightPixels - 300f
+//        mFloatView?.elevation = 100f
+//        binding.root.addView(mFloatView)
+//    }
     }
 }

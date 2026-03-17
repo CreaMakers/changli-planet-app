@@ -1,6 +1,7 @@
 package com.creamaker.changli_planet_app.feature.ledger.ui
 
 import ProductCategoryPicker
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -136,7 +137,15 @@ class AddSomethingAccountActivity : FullScreenActivity<ActivityAddSomethingAccou
 
     private fun showDatePicker() {
         val dialog = DatePickerDialog(this)
-        dialog.setDate(2023, 3, 9)
+        val current = Calendar.getInstance()
+       // dialog.setDate(2023, 3, 9)
+
+        dialog.setDate(
+            current.get(Calendar.YEAR),
+            current.get(Calendar.MONTH) + 1,
+            current.get(Calendar.DAY_OF_MONTH)
+        )
+
         dialog.setOnDateSelectedListener { year, month, day ->
             val date = String.format("%d-%02d-%02d", year, month, day)
             buyTime.text = date
@@ -155,16 +164,20 @@ class AddSomethingAccountActivity : FullScreenActivity<ActivityAddSomethingAccou
         }
     }
 
-    private  fun save() {
+    private fun save() {
         binding.saveButton.setOnClickListener {
-            lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    viewModel.addSomethingItem()
+            if (buyTime.text == "") {
+                Toast.makeText(applicationContext, "请选择购买时间!", Toast.LENGTH_SHORT).show()
+            } else {
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        viewModel.addSomethingItem()
+                    }
+                    Toast.makeText(applicationContext, "添加成功", Toast.LENGTH_SHORT).show()
+                    delay(800)
+                    //Route.goAccountBook(this@AddSomethingAccountActivity)
+                    finish()
                 }
-                Toast.makeText(applicationContext, "添加成功", Toast.LENGTH_SHORT).show()
-                delay(800)
-                //Route.goAccountBook(this@AddSomethingAccountActivity)
-                finish()
             }
         }
     }
