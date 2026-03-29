@@ -553,8 +553,8 @@ class TimeTableActivity : AppCompatActivity() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onPause() {
+        super.onPause()
         refreshWidget()
     }
 

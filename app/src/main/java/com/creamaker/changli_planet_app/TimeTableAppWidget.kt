@@ -8,39 +8,32 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import com.airbnb.lottie.LottieCompositionFactory.fromJson
-import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.creamaker.changli_planet_app.common.cache.CommonInfo
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.core.PlanetApplication
-import com.creamaker.changli_planet_app.core.network.HttpUrlHelper
-import com.creamaker.changli_planet_app.core.network.MyResponse
-import com.creamaker.changli_planet_app.core.network.OkHttpHelper
-import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
-import com.creamaker.changli_planet_app.feature.common.data.remote.dto.Course
+import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
 import com.creamaker.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.creamaker.changli_planet_app.utils.ResourceUtil
-import com.google.gson.reflect.TypeToken
-import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Response
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import kotlin.ranges.step
 
 /**
  * Implementation of App Widget functionality.
  */
 class TimeTableAppWidget : AppWidgetProvider() {
 
-    private val TAG = "TimeTableAppWidget"
+    companion object {
+        private const val TAG = "TimeTableAppWidget"
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -66,22 +59,6 @@ class TimeTableAppWidget : AppWidgetProvider() {
 
 private val studentId by lazy { StudentInfoManager.studentId }
 private val studentPassword by lazy { StudentInfoManager.studentPassword }
-private val curTerm by lazy { getCurrentTerm() }
-private val curWeekDay by lazy { getCurrentWeek() }
-private val curSchoolWeek: Int by lazy { getCurrentSchoolWeek() }
-
-private val mmkv by lazy { MMKV.mmkvWithID(TAG) }
-var isRefresh: Boolean
-    get() = mmkv.getBoolean("isRefresh", true)
-    set(value) {
-        mmkv.putBoolean("isRefresh", value)
-    }
-
-private var courses: String
-    get() = mmkv.getString("courses", "") ?: ""
-    set(value) {
-        mmkv.putString("courses", value)
-    }
 
 private val times = arrayOf(
     "8:00\n8:45", "8:55\n9:40", "10:10\n10:55", "11:05\n11:50",
@@ -91,13 +68,15 @@ private val times = arrayOf(
 
 private const val TAG = "TimeTableAppWidget"
 
-private const val refreshCount = 3
 internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
     Log.d("TimeTableAppWidget", "updateAppWidget")
+    val curTerm = getCurrentTerm()
+    val curWeekDay = getCurrentWeek()
+    val curSchoolWeek = getCurrentSchoolWeek(curTerm)
     // 创建点击意图，拉起主Activity
     val intent = Intent(context, TimeTableActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -138,10 +117,9 @@ internal fun updateAppWidget(
         return
     }
     views.setViewVisibility(R.id.student_error_tv, View.GONE)
-    if (isHolidayOrError()) {
+    if (isHolidayOrError(curTerm)) {
         views.setViewVisibility(R.id.end_tv, View.VISIBLE)
         views.setTextViewText(R.id.end_tv, "还没有开学哦٩(◦`꒳´◦)۶")
-        // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views)
     } else {
         getCourseInfo { courses ->
@@ -154,7 +132,7 @@ internal fun updateAppWidget(
                 }
             } else {
                 views.setViewVisibility(R.id.student_error_tv, View.GONE)
-                val result = courses.filter { it.weekday == curWeekDay }
+                val result = courses.asSequence().filter { it.weekday == curWeekDay }
                     .filter { !it.weeks.isNullOrEmpty() and it.weeks!!.contains(curSchoolWeek) }
                     .sortedBy { it.start }
                     .filter { course ->
@@ -172,7 +150,7 @@ internal fun updateAppWidget(
                             false
                         }
                     }
-                    .take(2)
+                    .take(2).toList()
                 Log.d("TimeTableAppWidget", "result size: ${result.size}")
                 if (result.isEmpty()) {
                     Log.d("TimeTableAppWidget", "no_classes_today")
@@ -229,71 +207,30 @@ internal fun updateAppWidget(
 }
 
 private fun getCourseInfo(callback: (List<TimeTableMySubject>?) -> Unit) {
-    val subjects = mutableListOf<TimeTableMySubject>()
-
-    // 先尝试使用缓存
-    if (!isRefresh) {
-        val cached = OkHttpHelper.gson.fromJson(
-            courses,
-            object : TypeToken<List<TimeTableMySubject>>() {}.type
-        ) as List<TimeTableMySubject>?
-        callback(cached)
-        return
-    }
-
-    // 异步进行网络请求并在完成后通过回调返回结果（确保在主线程回调）
+    val curTerm = getCurrentTerm()
     CoroutineScope(Dispatchers.IO).launch {
-        var isSuccess = false
-
-        for (i in 0 until refreshCount) {
-            try {
-                var dataGetCourses:List<com.dcelysia.csust_spider.education.data.remote.model.Course> = emptyList()
-                val dataGetCoursesResource = EducationHelper.getCourseScheduleByTerm("", curTerm)
-                if (dataGetCoursesResource is com.dcelysia.csust_spider.core.Resource.Success){
-                    dataGetCourses = dataGetCoursesResource.data
+        try {
+            val courses = CoursesDataBase.getDatabase(PlanetApplication.appContext)
+                .courseDao()
+                .getCoursesByTerm(curTerm, studentId, studentPassword)
+                .distinctBy {
+                    "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
                 }
-                val localCourses = dataGetCourses.map {
-                    Course(
-                        classroom = it.classroom,
-                        courseName = it.courseName,
-                        teacher = it.teacher,
-                        weeks = it.weeks,
-                        weekday = it.weekday
-                    )
-                }
-
-                if (localCourses.isNotEmpty()) {
-                    Log.d("TimeTableAppWidget", "获取课表成功，刷新缓存")
-                    subjects.addAll(generateSubjects(localCourses, curTerm))
-                    val result = subjects.distinctBy {
-                        "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
-                    }.toList()
-
-                    // 更新缓存与标志
-                    courses = OkHttpHelper.gson.toJson(result)
-                    isRefresh = false
-                    isSuccess = true
-
-                    withContext(Dispatchers.Main) {
-                        callback(result)
+                .map { course ->
+                    if (course.weekday == 7) {
+                        val adjustedWeeks = course.weeks?.map { week -> week - 1 }
+                        course.copy(weeks = adjustedWeeks)
+                    } else {
+                        course
                     }
-                    break
-                } else {
-                    Log.e("TimeTableAppWidget", "课程获取为空，尝试重试：$i")
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        if (!isSuccess) {
-            // 所有尝试失败，返回缓存结果（可能为空）
-            val cached = OkHttpHelper.gson.fromJson(
-                courses,
-                object : TypeToken<List<TimeTableMySubject>>() {}.type
-            ) as List<TimeTableMySubject>?
             withContext(Dispatchers.Main) {
-                callback(cached)
+                callback(courses)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "读取课表数据库失败", e)
+            withContext(Dispatchers.Main) {
+                callback(null)
             }
         }
     }
@@ -310,7 +247,7 @@ private fun getCurrentTerm(): String {
     }
 }
 
-private fun getCurrentSchoolWeek(): Int {
+private fun getCurrentSchoolWeek(curTerm: String): Int {
     val startTime = CommonInfo.termMap[curTerm]!!
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     val startDate = formatter.parse(startTime)!!
@@ -319,7 +256,7 @@ private fun getCurrentSchoolWeek(): Int {
     return ((diffTime / 1000 / 3600 / 24) / 7 + 1).toInt()
 }
 
-private fun isHolidayOrError(): Boolean {
+private fun isHolidayOrError(curTerm: String): Boolean {
     val startTime = CommonInfo.termMap[curTerm] ?: return true
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     val startDate = formatter.parse(startTime)
@@ -344,80 +281,3 @@ private fun getCurrentWeek(): Int {
         else -> -1
     }
 }
-
-private fun generateSubjects(
-    courses: List<Course>,
-    newTerm: String
-): MutableList<TimeTableMySubject> {
-    val subjects = mutableListOf<TimeTableMySubject>()
-    courses.forEach {
-        val weeks = parseWeeks(it.weeks).weeks
-        val start = parseWeeks(it.weeks).start
-        val step = parseWeeks(it.weeks).step
-        subjects.add(
-            TimeTableMySubject(
-                courseName = it.courseName,
-                classroom = it.classroom,
-                teacher = it.teacher,
-                weeks = weeks,
-                start = start,
-                step = step,
-                weekday = it.weekday.toInt(),
-                term = newTerm,
-                studentId = studentId,
-                studentPassword = studentPassword
-            )
-        )
-    }
-    return subjects
-}
-
-private fun parseWeeks(weekJson: String): weekJsonInfo {
-    // 匹配周数范围、单双周（可选）、以及节次范围
-    val pattern = java.util.regex.Pattern.compile(
-        "(\\d+(?:-\\d+)?(?:,\\d+(?:-\\d+)?)*)\\((周|单周|双周)?\\)?\\[(\\d{2})(?:-(\\d{2}))?(?:-(\\d{2}))?(?:-(\\d{2}))?节\\]"
-    )
-    val matcher = pattern.matcher(weekJson)
-    if (matcher.find()) {
-        val weeksRange = matcher.group(1) // 周数范围
-        val weekType = matcher.group(2)   // 单周、双周、周
-        val startClass = matcher.group(3)?.toIntOrNull() ?: 0 // 起始节次
-        val endClass = listOfNotNull(
-            matcher.group(4)?.toIntOrNull(),
-            matcher.group(5)?.toIntOrNull(),
-            matcher.group(6)?.toIntOrNull(),
-        ).lastOrNull() ?: startClass // 结束节次
-
-        val step = endClass - startClass + 1 // 计算 step（持续节次数量）
-
-        // 解析周数列表
-        val weeks = try {
-            weeksRange?.let { range ->
-                range.split(",").flatMap { part ->
-                    if (part.contains("-")) {
-                        // 范围周数处理，例如 "1-3"
-                        val (weekStart, weekEnd) = part.split("-").map { it.toInt() }
-                        when (weekType) {
-                            "单周" -> (weekStart..weekEnd).filter { it % 2 != 0 } // 奇数周
-                            "双周" -> (weekStart..weekEnd).filter { it % 2 == 0 } // 偶数周
-                            else -> (weekStart..weekEnd).toList() // 全部周（包括 null 和 "周"）
-                        }
-                    } else {
-                        // 单个周数处理，例如 "5"
-                        listOf(part.toInt())
-                    }
-                }
-            } ?: listOf()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            listOf() // 异常时返回空列表
-        }
-
-        // 返回解析结果
-        return weekJsonInfo(weeks, startClass, step)
-    }
-
-    // 返回空的结果
-    return weekJsonInfo(listOf(), 0, 0)
-}
-data class weekJsonInfo(val weeks: List<Int>, val start: Int, val step: Int)
