@@ -11,7 +11,7 @@ import com.creamaker.changli_planet_app.common.ui.WebViewActivity
 import com.creamaker.changli_planet_app.feature.common.ui.CalendarActivity
 import com.creamaker.changli_planet_app.feature.common.ui.CampusMapActivity
 import com.creamaker.changli_planet_app.feature.common.ui.CetActivity
-//import com.creamaker.changli_planet_app.feature.common.ui.ClassInfoActivity
+import com.creamaker.changli_planet_app.feature.common.ui.ClassInfoActivity
 import com.creamaker.changli_planet_app.feature.common.ui.ContractActivity
 import com.creamaker.changli_planet_app.feature.common.ui.ElectronicActivity
 
@@ -54,11 +54,10 @@ object Route {
         context.startActivity(intent)
     }
 
-
-//    fun goClassInfo(context: Context) {
-//        val intent = Intent(context, ClassInfoActivity::class.java)
-//        context.startActivity(intent)
-//    }
+    fun goClassInfo(context: Context) {
+        val intent = Intent(context, ClassInfoActivity::class.java)
+        context.startActivity(intent)
+    }
 
     fun goLogin(context: Context) {
         val intent = Intent(context, LoginActivity::class.java)

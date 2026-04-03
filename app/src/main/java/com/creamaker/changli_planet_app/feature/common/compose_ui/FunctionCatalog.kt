@@ -21,6 +21,7 @@ enum class FunctionDestination {
     Timetable,
     ScoreInquiry,
     CampusMap,
+    Classroom,
     Homework,
     Electronic,
     ExamArrangement,
@@ -37,6 +38,7 @@ fun primaryFunctionShortcuts(): List<FunctionShortcut> =
         FunctionShortcut("schedule", "课表", R.drawable.ic_timetable, FunctionColors.Schedule, FunctionDestination.Timetable),
         FunctionShortcut("grade", "成绩查询", R.drawable.ic_exam, FunctionColors.Grade, FunctionDestination.ScoreInquiry),
         FunctionShortcut("map", "校园地图", R.drawable.ic_map, FunctionColors.Map, FunctionDestination.CampusMap),
+        FunctionShortcut("classroom", "空教室", R.drawable.ic_classroom, FunctionColors.Classroom, FunctionDestination.Classroom),
         FunctionShortcut("homework", "作业查询", R.drawable.ic_homework, FunctionColors.Homework, FunctionDestination.Homework),
         FunctionShortcut("electric", "电费查询", R.drawable.ic_bill, FunctionColors.Electric, FunctionDestination.Electronic),
         FunctionShortcut("exam", "考试安排", R.drawable.ic_schedule, FunctionColors.Exam, FunctionDestination.ExamArrangement),
@@ -66,6 +68,7 @@ fun openFunctionShortcut(context: Context, destination: FunctionDestination) {
         FunctionDestination.Timetable -> Route.goTimetable(context)
         FunctionDestination.ScoreInquiry -> Route.goScoreInquiry(context)
         FunctionDestination.CampusMap -> CustomToast.showMessage(context, "正在全力开发中")
+        FunctionDestination.Classroom -> Route.goClassInfo(context)
         FunctionDestination.Homework -> Route.goMooc(context)
         FunctionDestination.Electronic -> Route.goElectronic(context)
         FunctionDestination.ExamArrangement -> Route.goExamArrangement(context)
