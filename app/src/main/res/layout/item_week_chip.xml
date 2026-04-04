@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvWeekChip"
+    android:layout_width="match_parent"
+    android:layout_height="38dp"
+    android:layout_margin="4dp"
+    android:background="@drawable/selector_week_chip_bg"
+    android:gravity="center"
+    android:paddingStart="6dp"
+    android:paddingEnd="6dp"
+    android:text="第1周"
+    android:textColor="@color/selector_week_chip_text"
+    android:textSize="13sp"
+    android:textStyle="bold" />
