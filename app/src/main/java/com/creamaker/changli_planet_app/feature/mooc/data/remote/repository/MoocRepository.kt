@@ -401,7 +401,7 @@ class MoocRepository private constructor() {
                 )
             }
 
-            emit(ApiResponse.Success(tests))
+            emit(ApiResponse.Success(tests.toList()))
 
         } catch (e: Exception) {
             e.printStackTrace()

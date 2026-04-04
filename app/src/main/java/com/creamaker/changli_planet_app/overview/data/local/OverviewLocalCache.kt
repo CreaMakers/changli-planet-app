@@ -1,6 +1,7 @@
 package com.creamaker.changli_planet_app.overview.data.local
 
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewHomeworkUiModel
+import com.creamaker.changli_planet_app.overview.ui.model.OverviewTestUiModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
@@ -8,6 +9,7 @@ import com.tencent.mmkv.MMKV
 object OverviewLocalCache {
     private const val CACHE_ID = "overview_local_cache"
     private const val KEY_HOMEWORKS = "pending_homeworks"
+    private const val KEY_TESTS = "pending_tests"
     private const val KEY_ELECTRICITY_HISTORY = "electricity_history"
     private const val KEY_LAST_ELECTRICITY = "last_electricity"
     private const val KEY_PREV_ELECTRICITY = "prev_electricity"
@@ -27,9 +29,61 @@ object OverviewLocalCache {
             gson.fromJson<List<OverviewHomeworkUiModel>>(
                 json,
                 object : TypeToken<List<OverviewHomeworkUiModel>>() {}.type
-            ).orEmpty()
+            ).orEmpty().map { item ->
+                item.copy(
+                    title = item.safeTitle(),
+                    courseName = item.safeCourseName(),
+                    deadlineText = item.safeDeadlineText(),
+                    urgencyText = item.safeUrgencyText(),
+                    statusText = item.safeStatusText()
+                )
+            }
         }.getOrDefault(emptyList())
     }
+
+    fun savePendingTests(items: List<OverviewTestUiModel>) {
+        mmkv.encode(KEY_TESTS, gson.toJson(items))
+    }
+
+    fun getPendingTests(): List<OverviewTestUiModel> {
+        val json = mmkv.decodeString(KEY_TESTS) ?: return emptyList()
+        return runCatching {
+            gson.fromJson<List<OverviewTestUiModel>>(
+                json,
+                object : TypeToken<List<OverviewTestUiModel>>() {}.type
+            ).orEmpty().map { item ->
+                item.copy(
+                    title = item.safeTitle(),
+                    courseName = item.safeCourseName(),
+                    timeText = item.safeTimeText(),
+                    urgencyText = item.safeUrgencyText(),
+                    statusText = item.safeStatusText()
+                )
+            }
+        }.getOrDefault(emptyList())
+    }
+
+    private fun OverviewHomeworkUiModel.safeTitle(): String = runCatching { title }.getOrDefault("")
+
+    private fun OverviewHomeworkUiModel.safeCourseName(): String = runCatching { courseName }.getOrDefault("")
+
+    private fun OverviewHomeworkUiModel.safeDeadlineText(): String = runCatching { deadlineText }.getOrDefault("")
+
+    private fun OverviewHomeworkUiModel.safeUrgencyText(): String = runCatching { urgencyText }.getOrDefault("")
+
+    private fun OverviewHomeworkUiModel.safeStatusText(): String =
+        runCatching { statusText }.getOrDefault("待提交")
+
+    private fun OverviewTestUiModel.safeTitle(): String = runCatching { title }.getOrDefault("")
+
+    private fun OverviewTestUiModel.safeCourseName(): String = runCatching { courseName }.getOrDefault("")
+
+    private fun OverviewTestUiModel.safeTimeText(): String = runCatching { timeText }.getOrDefault("")
+
+    private fun OverviewTestUiModel.safeUrgencyText(): String = runCatching { urgencyText }.getOrDefault("")
+
+    private fun OverviewTestUiModel.safeStatusText(): String =
+        runCatching { statusText }.getOrDefault("待测试")
 
     fun saveElectricitySnapshot(value: Float) {
         appendElectricityHistory(value)

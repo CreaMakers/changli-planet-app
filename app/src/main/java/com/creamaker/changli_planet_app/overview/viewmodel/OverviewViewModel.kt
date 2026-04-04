@@ -60,6 +60,7 @@ class OverviewViewModel : ViewModel() {
 
         val keepCourses = current.todayCourses.isNotEmpty() && incoming.todayCourses.isEmpty()
         val keepHomeworks = current.pendingHomeworks.isNotEmpty() && incoming.pendingHomeworks.isEmpty()
+        val keepTests = current.pendingTests.isNotEmpty() && incoming.pendingTests.isEmpty()
         val keepExams = current.upcomingExams.isNotEmpty() && incoming.upcomingExams.isEmpty()
 
         return incoming.copy(
@@ -68,6 +69,8 @@ class OverviewViewModel : ViewModel() {
             todayCourseMessage = if (keepCourses) current.todayCourseMessage else incoming.todayCourseMessage,
             pendingHomeworks = if (keepHomeworks) current.pendingHomeworks else incoming.pendingHomeworks,
             pendingHomeworkMessage = if (keepHomeworks) current.pendingHomeworkMessage else incoming.pendingHomeworkMessage,
+            pendingTests = if (keepTests) current.pendingTests else incoming.pendingTests,
+            pendingTestMessage = if (keepTests) current.pendingTestMessage else incoming.pendingTestMessage,
             upcomingExams = if (keepExams) current.upcomingExams else incoming.upcomingExams,
             examMessage = if (keepExams) current.examMessage else incoming.examMessage
         )

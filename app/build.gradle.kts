@@ -51,7 +51,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 22
-        versionName = "2.0.3.1"
+        versionName = "2.0.3.2"
 
 
         ndk {
@@ -209,7 +209,7 @@ dependencies {
     // Coil for image loading
     implementation(libs.coil.compose)
     //csustDataGet
-    implementation(files("libs/csust_spider-release.aar"))
+    implementation(libs.csustdataget)
     implementation(libs.androidx.constraintlayout.compose)
 }
 ksp {

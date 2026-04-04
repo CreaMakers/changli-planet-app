@@ -6,7 +6,6 @@ import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.creamaker.changli_planet_app.common.data.local.room.database.UserDataBase
-import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.feature.common.compose_ui.FunctionDestination
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.Grade
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
@@ -14,9 +13,6 @@ import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ExamArran
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCache
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
 import com.creamaker.changli_planet_app.feature.common.data.repository.ElectricityRepository
-import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.MoocHomework
-import com.creamaker.changli_planet_app.feature.mooc.data.remote.dto.PendingAssignmentCourse
-import com.creamaker.changli_planet_app.feature.mooc.data.remote.repository.MoocRepository
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache.ElectricityHistoryEntry
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache.ElectricitySnapshot
@@ -24,12 +20,18 @@ import com.creamaker.changli_planet_app.overview.ui.model.OverviewCourseUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewExamUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewHomeworkUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewMetricUiModel
+import com.creamaker.changli_planet_app.overview.ui.model.OverviewTestUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewUiState
 import com.creamaker.changli_planet_app.utils.NetworkUtil
 import com.dcelysia.csust_spider.core.Resource
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.dcelysia.csust_spider.education.data.remote.services.ExamArrangeService
+import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocCourse
+import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocHomework
+import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocTest
+import com.dcelysia.csust_spider.mooc.data.remote.dto.PendingAssignmentCourse
+import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -60,6 +62,7 @@ class OverviewRepository(
             grades = ScoreCache.getGrades().orEmpty(),
             exams = examCache.getExamArrangement().orEmpty().toUiExams(),
             homeworks = OverviewLocalCache.getPendingHomeworks(),
+            tests = OverviewLocalCache.getPendingTests(),
             localOnly = true
         )
     }
@@ -71,12 +74,14 @@ class OverviewRepository(
             val gradesDeferred = async(Dispatchers.IO) { fetchGrades() }
             val examsDeferred = async(Dispatchers.IO) { fetchExams(currentTerm) }
             val homeworkDeferred = async(Dispatchers.IO) { fetchPendingHomeworks() }
+            val testDeferred = async(Dispatchers.IO) { fetchPendingTests() }
             val electricityDeferred = async(Dispatchers.IO) { refreshElectricityIfNeeded() }
 
             val courses = courseDeferred.await() ?: readLocalCourses()
             val grades = gradesDeferred.await() ?: ScoreCache.getGrades().orEmpty()
             val exams = examsDeferred.await() ?: examCache.getExamArrangement().orEmpty().toUiExams()
             val homeworks = homeworkDeferred.await() ?: OverviewLocalCache.getPendingHomeworks()
+            val tests = testDeferred.await() ?: OverviewLocalCache.getPendingTests()
             electricityDeferred.await()
 
             buildState(
@@ -84,6 +89,7 @@ class OverviewRepository(
                 grades = grades,
                 exams = exams,
                 homeworks = homeworks,
+                tests = tests,
                 localOnly = false
             ).copy(isSilentSyncing = false)
         }
@@ -94,6 +100,7 @@ class OverviewRepository(
         grades: List<Grade>,
         exams: List<OverviewExamUiModel>,
         homeworks: List<OverviewHomeworkUiModel>,
+        tests: List<OverviewTestUiModel>,
         localOnly: Boolean
     ): OverviewUiState = withContext(Dispatchers.IO) {
         val studentId = StudentInfoManager.studentId
@@ -125,10 +132,16 @@ class OverviewRepository(
                 todayCourses.isNotEmpty() -> ""
                 else -> "没有数据"
             },
-            pendingHomeworks = homeworks.take(3),
+            pendingHomeworks = homeworks,
             pendingHomeworkMessage = when {
                 studentId.isBlank() || studentPassword.isBlank() -> "先绑定学号"
                 homeworks.isNotEmpty() -> ""
+                else -> "没有数据"
+            },
+            pendingTests = tests,
+            pendingTestMessage = when {
+                studentId.isBlank() || studentPassword.isBlank() -> "先绑定学号"
+                tests.isNotEmpty() -> ""
                 else -> "没有数据"
             },
             upcomingExams = exams.take(3),
@@ -195,13 +208,19 @@ class OverviewRepository(
                 }.distinctBy {
                     "${it.courseName}${it.classroom}${it.teacher}${it.start}${it.step}${it.weekday}${it.term}"
                 }
-                if (subjects.isNotEmpty()) {
+                val studentId = StudentInfoManager.studentId
+                val studentPassword = StudentInfoManager.studentPassword
+                if (subjects.isNotEmpty() && studentId.isNotBlank() && studentPassword.isNotBlank()) {
                     withContext(Dispatchers.IO) {
-                        courseDao.clearAllCourses()
+                        courseDao.deleteNetworkCoursesByTerm(term, studentId, studentPassword)
                         courseDao.insertCourses(subjects.toMutableList())
                     }
                 }
-                subjects
+                if (studentId.isBlank() || studentPassword.isBlank()) {
+                    subjects
+                } else {
+                    courseDao.getCoursesByTerm(term, studentId, studentPassword)
+                }
             }
 
             else -> null
@@ -225,13 +244,13 @@ class OverviewRepository(
 
         runCatching { moocRepository.login(studentId, studentPassword).toList() }
 
-        var final: ApiResponse<List<PendingAssignmentCourse>>? = null
+        var final: Resource<List<PendingAssignmentCourse>>? = null
         runCatching {
             moocRepository.getCourseNamesWithPendingHomeworks().collect {
-                if (it !is ApiResponse.Loading) final = it
+                if (it !is Resource.Loading) final = it
             }
         }
-        val response = final as? ApiResponse.Success ?: return null
+        val response = final as? Resource.Success ?: return null
         val items = response.data.flatMap { course ->
             fetchCourseHomeworkItems(course)
         }.sortedBy { it.deadlineMillisForSort() }
@@ -240,14 +259,36 @@ class OverviewRepository(
         return items
     }
 
-    private suspend fun fetchCourseHomeworkItems(course: PendingAssignmentCourse): List<OverviewHomeworkUiModel> {
-        var final: ApiResponse<List<MoocHomework>>? = null
+    private suspend fun fetchPendingTests(): List<OverviewTestUiModel>? {
+        val studentId = StudentInfoManager.studentId
+        val studentPassword = StudentInfoManager.studentPassword
+        if (studentId.isBlank() || studentPassword.isBlank()) return null
+
+        runCatching { moocRepository.login(studentId, studentPassword).toList() }
+
+        var final: Resource<MutableList<MoocCourse>>? = null
         runCatching {
-            moocRepository.getCourseHomeworks(course.id).collect {
-                if (it !is ApiResponse.Loading) final = it
+            moocRepository.getCourses().collect {
+                if (it !is Resource.Loading) final = it
             }
         }
-        val response = final as? ApiResponse.Success ?: return emptyList()
+        val response = final as? Resource.Success ?: return null
+        val items = response.data.flatMap { course ->
+            fetchCourseTestItems(course.id, course.name)
+        }.sortedBy { it.testMillisForSort() }
+
+        OverviewLocalCache.savePendingTests(items)
+        return items
+    }
+
+    private suspend fun fetchCourseHomeworkItems(course: PendingAssignmentCourse): List<OverviewHomeworkUiModel> {
+        var final: Resource<List<MoocHomework>>? = null
+        runCatching {
+            moocRepository.getCourseHomeworks(course.id).collect {
+                if (it !is Resource.Loading) final = it
+            }
+        }
+        val response = final as? Resource.Success ?: return emptyList()
         return response.data
             .filter { it.canSubmit && !it.submitStatus }
             .map { homework ->
@@ -257,11 +298,43 @@ class OverviewRepository(
                 OverviewHomeworkUiModel(
                     id = "${course.id}_${homework.id}",
                     title = homework.title,
+                    courseName = course.name,
                     deadlineText = homework.deadline,
                     urgencyText = buildHomeworkUrgencyText(remainingMillis),
                     isUrgent = isUrgent
                 )
             }
+    }
+
+    private suspend fun fetchCourseTestItems(courseId: String, courseName: String): List<OverviewTestUiModel> {
+        val tests = runCatching { moocRepository.getCourseTestsDirect(courseId) }.getOrElse { return emptyList() }
+        return tests
+            .filterActivePendingTests()
+            .map { test ->
+                val endDate = parseDateOrNull(test.endTime)
+                val remainingMillis = endDate?.time?.minus(System.currentTimeMillis())
+                val isUrgent = remainingMillis != null && remainingMillis in 1 until TimeUnit.DAYS.toMillis(1)
+                OverviewTestUiModel(
+                    id = "${courseId}_${test.title}",
+                    title = test.title,
+                    courseName = courseName,
+                    timeText = "${test.startTime} - ${test.endTime}",
+                    urgencyText = buildHomeworkUrgencyText(remainingMillis),
+                    isUrgent = isUrgent
+                )
+            }
+    }
+
+    private fun List<MoocTest>.filterActivePendingTests(): List<MoocTest> {
+        return filterNot { it.isSubmitted }
+            .filter { isWithinCurrentWindow(it.startTime, it.endTime) }
+    }
+
+    private fun isWithinCurrentWindow(startTime: String, endTime: String): Boolean {
+        val startDate = parseDateOrNull(startTime) ?: return false
+        val endDate = parseDateOrNull(endTime) ?: return false
+        val now = System.currentTimeMillis()
+        return now in startDate.time..endDate.time
     }
 
     private fun buildMetrics(
@@ -329,6 +402,9 @@ class OverviewRepository(
 
     private fun OverviewHomeworkUiModel.deadlineMillisForSort(): Long =
         parseDateOrNull(deadlineText)?.time ?: Long.MAX_VALUE
+
+    private fun OverviewTestUiModel.testMillisForSort(): Long =
+        parseDateOrNull(timeText.substringAfterLast(" - ", missingDelimiterValue = timeText))?.time ?: Long.MAX_VALUE
 
     private fun preprocessGrades(rawData: List<Grade>): List<Grade> {
         return rawData

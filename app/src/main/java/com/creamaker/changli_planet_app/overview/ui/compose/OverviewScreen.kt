@@ -61,11 +61,13 @@ import com.creamaker.changli_planet_app.overview.ui.model.OverviewCourseUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewExamUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewHomeworkUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewMetricUiModel
+import com.creamaker.changli_planet_app.overview.ui.model.OverviewTestUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewUiState
 import com.creamaker.changli_planet_app.overview.viewmodel.OverviewViewModel
 import kotlinx.coroutines.delay
 
 private val HomeworkAccent = Color(0xFFEF9442)
+private val TestAccent = Color(0xFF4F7FED)
 private val IconContainerShape = RoundedCornerShape(14.dp)
 
 @Composable
@@ -147,6 +149,15 @@ private fun OverviewScreen(
         } else {
             items(state.pendingHomeworks, key = { it.id }) { homework ->
                 HomeworkCard(homework)
+            }
+        }
+
+        if (state.pendingTests.isNotEmpty()) {
+            item {
+                SectionTitle("待完成测试", "查看全部") { onQuickActionClick("homework") }
+            }
+            items(state.pendingTests, key = { it.id }) { test ->
+                TestCard(test)
             }
         }
 
@@ -469,6 +480,7 @@ private fun MetricSubtitle(metric: OverviewMetricUiModel) {
 @Composable
 private fun HomeworkCard(homework: OverviewHomeworkUiModel) {
     val colors = AppTheme.colors
+    val courseName = runCatching { homework.courseName }.getOrDefault("")
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = if (homework.isUrgent) colors.overviewUrgentBackgroundColor else colors.bgCardColor,
@@ -490,7 +502,9 @@ private fun HomeworkCard(homework: OverviewHomeworkUiModel) {
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
             ) {
                 Text(
                     text = homework.title,
@@ -501,6 +515,17 @@ private fun HomeworkCard(homework: OverviewHomeworkUiModel) {
                     overflow = TextOverflow.Ellipsis,
                     lineHeight = 23.sp
                 )
+                if (courseName.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = courseName,
+                        color = colors.secondaryTextColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 if (homework.deadlineText.isNotBlank()) {
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
@@ -583,6 +608,92 @@ private fun ExamCard(exam: OverviewExamUiModel) {
 }
 
 @Composable
+private fun TestCard(test: OverviewTestUiModel) {
+    val colors = AppTheme.colors
+    val courseName = runCatching { test.courseName }.getOrDefault("")
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        color = if (test.isUrgent) colors.overviewUrgentBackgroundColor else colors.bgCardColor,
+        border = if (test.isUrgent) BorderStroke(1.5.dp, colors.overviewUrgentBorderColor) else null
+    ) {
+        Row(
+            modifier = Modifier
+                .height(IntrinsicSize.Min)
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 20.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(6.dp)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(TestAccent)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            ) {
+                Text(
+                    text = test.title,
+                    color = colors.primaryTextColor,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Black,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 23.sp
+                )
+                if (courseName.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = courseName,
+                        color = colors.secondaryTextColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                if (test.timeText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = test.timeText,
+                        color = if (test.isUrgent) colors.overviewUrgentBorderColor else colors.secondaryTextColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                if (test.urgencyText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = test.urgencyText,
+                        color = if (test.isUrgent) colors.overviewUrgentBorderColor else colors.secondaryTextColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(TestAccent.copy(alpha = 0.12f))
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = test.statusText,
+                    color = TestAccent,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun NeutralCard(text: String) {
     val colors = AppTheme.colors
     Surface(
@@ -622,8 +733,11 @@ private fun OverviewScreenPreview() {
                     OverviewCourseUiModel("2", "大学英语", "云塘 B305", "李老师", "3-4节", "校园课表", Color(0xFFF08D3C))
                 ),
                 pendingHomeworks = listOf(
-                    OverviewHomeworkUiModel("1", "大数据存储与管理实验A", "2026-03-13 23:59", "8小时内截止", true),
-                    OverviewHomeworkUiModel("2", "数据库原理与技术", "2026-03-15 20:00", "2天内截止", false)
+                    OverviewHomeworkUiModel("1", "大数据存储与管理实验A", "计算机网络", "2026-03-13 23:59", "8小时内截止", true),
+                    OverviewHomeworkUiModel("2", "数据库原理与技术", "数据库系统概论", "2026-03-15 20:00", "2天内截止", false)
+                ),
+                pendingTests = listOf(
+                    OverviewTestUiModel("1", "第3章随堂测试", "数据库原理与技术", "2026-03-14 09:00 - 2026-03-14 22:00", "今天内截止", true)
                 ),
                 upcomingExams = listOf(
                     OverviewExamUiModel("1", "大学物理实验", "2026-03-14 09:00", "云塘校区 · 综合楼", "明天")

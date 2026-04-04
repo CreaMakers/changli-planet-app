@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
@@ -18,10 +17,9 @@ import com.creamaker.changli_planet_app.core.noOpDelegate
 import com.creamaker.changli_planet_app.databinding.ActivityAddCourseInTimetableBinding
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
-import com.creamaker.changli_planet_app.feature.timetable.viewmodel.TimeTableViewModel
+import com.creamaker.changli_planet_app.widget.dialog.WeekMultiSelectBottomDialog
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
-import kotlin.getValue
 
 /**
  * 在课表中添加自定义课程类
@@ -32,9 +30,13 @@ class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding
     private val courseName by lazy { binding.customCourseName }
     private val courseRoom by lazy { binding.customCourseRoom }
     private val courseTeacher by lazy { binding.customTeacherName }
-    private val courseWeek by lazy { binding.customWeekAndDay }
+    private val courseWeekDay by lazy { binding.customWeekAndDay }
+    private val courseWeeks by lazy { binding.customWeeks }
+    private val courseWeeksContainer by lazy { binding.customWeeksContainer }
     private val courseStep by lazy { binding.customCourseStep }
     private var curWeek: Int = 0
+    private var selectedWeekDay: Int = 1
+    private val selectedWeeks = linkedSetOf<Int>()
     private val studentId by lazy { StudentInfoManager.studentId }
     private val studentPassword by lazy { StudentInfoManager.studentPassword }
     private val weekDayMap = mapOf(
@@ -62,9 +64,13 @@ class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding
         supportActionBar?.hide()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val startCourse = intent.getIntExtra("start", 0)
-        curWeek = intent.getIntExtra("curWeek", 0)
+        curWeek = intent.getIntExtra("curWeek", 1).coerceIn(1, 20)
+        selectedWeekDay = intent.getIntExtra("day", 1).coerceIn(1, 7)
+        selectedWeeks.clear()
+        selectedWeeks.add(curWeek)
         courseStep.text = "0$startCourse - 0${startCourse + 1} 节"
-        courseWeek.text = weekDayMap[intent.getIntExtra("day", 0)]
+        courseWeekDay.text = weekDayMap[selectedWeekDay]
+        refreshSelectedWeeksText()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar){view,windowInsets->
             val insets=windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -107,6 +113,11 @@ class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding
             }
         }
 
+        courseWeeksContainer.setOnClickListener {
+            showWeekSelectorDialog()
+        }
+        courseWeeks.setOnClickListener { showWeekSelectorDialog() }
+
         binding.addCourseBtn.setOnClickListener {
             val mySubject =
                 TimeTableMySubject(isCustom = true, studentId = studentId, studentPassword = studentPassword)
@@ -135,7 +146,12 @@ class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding
                 return@setOnClickListener
             }
 
-            mySubject.weeks = listOf(curWeek)
+            if (selectedWeeks.isEmpty()) {
+                Toast.makeText(this, "请选择周次", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            mySubject.weeks = selectedWeeks.toList().sorted()
             val intent = Intent().apply {
                 putExtra("newCourse", gson.toJson(mySubject))
             }
@@ -146,6 +162,34 @@ class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding
             val intent = Intent()
             setResult(RESULT_OK, intent)
             finish()
+        }
+    }
+
+    private fun showWeekSelectorDialog() {
+        val dialog = WeekMultiSelectBottomDialog(selectedWeeks.toSet()) { chosenWeeks ->
+            selectedWeeks.clear()
+            selectedWeeks.addAll(chosenWeeks.sorted())
+            refreshSelectedWeeksText()
+        }
+        dialog.show(supportFragmentManager, "WeekMultiSelectBottomDialog")
+    }
+
+    private fun refreshSelectedWeeksText() {
+        courseWeeks.text = formatWeeks(selectedWeeks)
+    }
+
+    private fun formatWeeks(weeks: Set<Int>): String {
+        if (weeks.isEmpty()) return "未选择周次"
+        val sorted = weeks.sorted()
+        val first = sorted.first()
+        val last = sorted.last()
+        val full = (first..last).toList()
+        return when {
+            sorted.size == 1 -> "${sorted.first()}周"
+            sorted == full -> "$first-${last}周"
+            sorted == full.filter { it % 2 == 0 } -> "$first-${last}周(双周)"
+            sorted == full.filter { it % 2 != 0 } -> "$first-${last}周(单周)"
+            else -> sorted.joinToString(",") + "周"
         }
     }
 }

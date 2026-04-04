@@ -28,8 +28,15 @@ interface CourseDao {
     @Query("DELETE FROM courses")
     fun clearAllCourses()
 
-    @Query("DELETE FROM courses WHERE start = :start AND weekday = :day AND :curDisplayWeek IN (weeks) AND isCustom = 1")
-    fun deleteCourse(start: Int, day: Int, curDisplayWeek: Int): Int
+    @Query("DELETE FROM courses WHERE id = :courseId AND isCustom = 1")
+    fun deleteCustomCourseById(courseId: Int): Int
+
+    @Query("DELETE FROM courses WHERE term = :term AND studentId = :studentId AND studentPassword = :studentPassword AND isCustom = 0")
+    fun deleteNetworkCoursesByTerm(
+        term: String,
+        studentId: String,
+        studentPassword: String,
+    ): Int
 
     @Query("SELECT COUNT(*) FROM courses")
     fun getAllCourseCount(): Int

@@ -92,17 +92,9 @@ class TimeTableViewModel : ViewModel() {
                 val count = courseDao.getCoursesCountByTerm(term)
                 val lastUpdate = mmkv.decodeLong("lastUpdate_$term", 0L)
                 val needRefresh = count == 0 || forceRefresh || (cur - lastUpdate > 1000 * 60 * 60 * 48)
-                val courses = courseDao.getCoursesByTerm(term, studentId, studentPassword)
-                    .distinctBy {
-                        "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
-                    }.map { course ->
-                        if (course.weekday == 7) {
-                            val adjustedWeeks = course.weeks?.map { week -> week - 1 }
-                            course.copy(weeks = adjustedWeeks)
-                        } else {
-                            course
-                        }
-                    }
+                val courses = normalizeCourses(
+                    courseDao.getCoursesByTerm(term, studentId, studentPassword)
+                )
                 if (!needRefresh && courses.isEmpty()) {
                     _coursesResponse.tryEmit(ApiResponse.Error("该学期暂无课程数据"))
                 } else {
@@ -137,15 +129,18 @@ class TimeTableViewModel : ViewModel() {
                         }
 
                         val mergedCourses = distinctSubjects(subjects)
-                        courseDao.clearAllCourses()
+                        courseDao.deleteNetworkCoursesByTerm(term, studentId, studentPassword)
                         courseDao.insertCourses(mergedCourses)
+                        val allLocalCourses = normalizeCourses(
+                            courseDao.getCoursesByTerm(term, studentId, studentPassword)
+                        )
 
                         mmkv.encode("lastUpdate_$term", System.currentTimeMillis())
 
                         withContext(Dispatchers.Main) {
-                            updateUiState(mergedCourses, term)
+                            updateUiState(allLocalCourses.toMutableList(), term)
                         }
-                        _coursesResponse.tryEmit(ApiResponse.Success(mergedCourses))
+                        _coursesResponse.tryEmit(ApiResponse.Success(allLocalCourses))
                     }
 
                     is Resource.Error -> {
@@ -179,18 +174,38 @@ class TimeTableViewModel : ViewModel() {
         }.toMutableList()
     }
 
+    private fun normalizeCourses(courses: List<TimeTableMySubject>): List<TimeTableMySubject> {
+        return courses.distinctBy {
+            "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
+        }.map { course ->
+            if (course.weekday == 7) {
+                val adjustedWeeks = course.weeks?.map { week -> week - 1 }
+                course.copy(weeks = adjustedWeeks)
+            } else {
+                course
+            }
+        }
+    }
+
     fun addCourse(course: TimeTableMySubject) {
         viewModelScope.launch {
             _addCourseResponse.value = ApiResponse.Loading()
 
             try {
-                withContext(Dispatchers.IO) {
+                val insertedId = withContext(Dispatchers.IO) {
                     courseDao.insertCourse(course)
                 }
 
+                if (insertedId == -1L) {
+                    _addCourseResponse.value = ApiResponse.Error("该课程已存在，无法重复添加")
+                    return@launch
+                }
+
+                val insertedCourse = course.copy(id = insertedId.toInt())
+
                 val currentState = _uiState.value ?: TimeTableUiState()
                 val updatedSubjects = currentState.subjects.toMutableList().apply {
-                    add(course)
+                    add(insertedCourse)
                 }
 
                 updateUiState(updatedSubjects, currentState.term)
@@ -203,24 +218,24 @@ class TimeTableViewModel : ViewModel() {
         }
     }
 
-    fun deleteCourse(day: Int, start: Int, curDisplayWeek: Int, term: String) {
+    fun deleteCourse(courseId: Int, term: String) {
         viewModelScope.launch {
             _deleteCourseResponse.value = ApiResponse.Loading()
 
             try {
+                val deletedRows = withContext(Dispatchers.IO) {
+                    courseDao.deleteCustomCourseById(courseId)
+                }
+
+                if (deletedRows <= 0) {
+                    _deleteCourseResponse.value = ApiResponse.Error("删除失败，课程不存在或非自定义课程")
+                    return@launch
+                }
+
                 val currentState = _uiState.value ?: TimeTableUiState()
                 val updatedSubjects = currentState.subjects.filterNot {
-                    it.term == term &&
-                            it.start == start &&
-                            it.weekday == day &&
-                            curDisplayWeek in (it.weeks ?: emptyList()) &&
-                            it.isCustom
+                    it.id == courseId && it.isCustom
                 }.toMutableList()
-
-                withContext(Dispatchers.IO) {
-                    courseDao.clearAllCourses()
-                    courseDao.insertCourses(updatedSubjects)
-                }
 
                 updateUiState(updatedSubjects, term)
                 _deleteCourseResponse.value = ApiResponse.Success(Unit)

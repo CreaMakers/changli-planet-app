@@ -221,7 +221,7 @@ class TimeTableActivity : AppCompatActivity() {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            viewModel.deleteCourse(course.dayOfWeek, course.startSection, displayWeek, term)
+                            viewModel.deleteCourse(course.id, term)
                             pendingDeleteCourse = null
                         }
                     ) {

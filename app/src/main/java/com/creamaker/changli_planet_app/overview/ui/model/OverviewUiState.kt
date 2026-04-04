@@ -23,6 +23,8 @@ data class OverviewUiState(
     val todayCourseMessage: String = "",
     val pendingHomeworks: List<OverviewHomeworkUiModel> = emptyList(),
     val pendingHomeworkMessage: String = "",
+    val pendingTests: List<OverviewTestUiModel> = emptyList(),
+    val pendingTestMessage: String = "",
     val upcomingExams: List<OverviewExamUiModel> = emptyList(),
     val examMessage: String = ""
 )
@@ -63,8 +65,20 @@ data class OverviewExamUiModel(
 data class OverviewHomeworkUiModel(
     val id: String,
     val title: String,
+    val courseName: String = "",
     val deadlineText: String = "",
     val urgencyText: String = "",
     val isUrgent: Boolean = false,
     val statusText: String = "待提交"
+)
+
+@Immutable
+data class OverviewTestUiModel(
+    val id: String,
+    val title: String,
+    val courseName: String = "",
+    val timeText: String = "",
+    val urgencyText: String = "",
+    val isUrgent: Boolean = false,
+    val statusText: String = "待测试"
 )
