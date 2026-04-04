@@ -210,6 +210,7 @@ dependencies {
     implementation(libs.coil.compose)
     //csustDataGet
     implementation(libs.csustdataget)
+//    implementation(files("libs/csust_spider-release.aar"))
     implementation(libs.androidx.constraintlayout.compose)
 }
 ksp {
