@@ -251,7 +251,10 @@ class OverviewRepository(
             }
         }
         val response = final as? Resource.Success ?: return null
-        val items = response.data.flatMap { course ->
+        val items = response.data.map {
+            val cleanId = it.id.substringBefore("&").replace(Regex("[^0-9]"), "")
+            PendingAssignmentCourse(id = cleanId, name = it.name)
+        }.flatMap { course ->
             fetchCourseHomeworkItems(course)
         }.sortedBy { it.deadlineMillisForSort() }
 
@@ -268,12 +271,46 @@ class OverviewRepository(
 
         var final: Resource<MutableList<MoocCourse>>? = null
         runCatching {
-            moocRepository.getCourses().collect {
-                if (it !is Resource.Loading) final = it
+            moocRepository.getCourses().collect { result ->
+                if (result is Resource.Success) {
+                    val courses = result.data ?: emptyList()
+                    for (course in courses) {
+                        val cleanCourseId = course.id.substringBefore("&").replace(Regex("[^0-9]"), "")
+                        val testsResult = runCatching { moocRepository.getCourseTestsDirect(cleanCourseId) }.getOrElse { emptyList() }
+                        // Keep this reflection/casting safe or just use whatever they had
+                        val testsForCourse = testsResult as List<*>
+                        testsForCourse
+                            .filterIsInstance<MoocTest>()
+                            .filterActivePendingTests()
+                            .map { test ->
+                                val endDate = parseDateOrNull(test.endTime)
+                                val remainingMillis = endDate?.time?.minus(System.currentTimeMillis())
+                                val isUrgent = remainingMillis != null && remainingMillis in 1 until TimeUnit.DAYS.toMillis(1)
+                                OverviewTestUiModel(
+                                    id = "${cleanCourseId}_${test.title}",
+                                    title = test.title,
+                                    courseName = course.name,
+                                    timeText = "${test.startTime} - ${test.endTime}",
+                                    urgencyText = buildHomeworkUrgencyText(remainingMillis),
+                                    isUrgent = isUrgent
+                                )
+                            }
+                    }
+                }
+                if (result !is Resource.Loading) final = result
             }
         }
         val response = final as? Resource.Success ?: return null
-        val items = response.data.flatMap { course ->
+        val items = response.data.map { course ->
+            val cleanId = course.id.substringBefore("&").replace(Regex("[^0-9]"), "")
+            MoocCourse(
+                id = cleanId,
+                number = course.number,
+                name = course.name,
+                department = course.department,
+                teacher = course.teacher
+            )
+        }.flatMap { course ->
             fetchCourseTestItems(course.id, course.name)
         }.sortedBy { it.testMillisForSort() }
 
