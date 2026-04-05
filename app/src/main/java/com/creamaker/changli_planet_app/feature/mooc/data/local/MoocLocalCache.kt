@@ -12,6 +12,7 @@ object MoocLocalCache {
     private const val KEY_PENDING_COURSES = "pending_courses"
     private const val KEY_PENDING_HOMEWORKS = "pending_homeworks_by_course"
     private const val KEY_PENDING_TESTS = "pending_tests_by_course"
+    private const val KEY_LAST_SUCCESSFUL_REFRESH_TIME = "last_successful_refresh_time"
 
     private val mmkv by lazy { MMKV.mmkvWithID(CACHE_ID) }
     private val gson by lazy { Gson() }
@@ -56,5 +57,17 @@ object MoocLocalCache {
                 object : TypeToken<Map<String, List<MoocTest>>>() {}.type
             ).orEmpty()
         }.getOrDefault(emptyMap())
+    }
+
+    fun markSuccessfulRefresh() {
+        mmkv.encode(KEY_LAST_SUCCESSFUL_REFRESH_TIME, System.currentTimeMillis())
+    }
+
+    fun getLastSuccessfulRefreshTime(): Long {
+        return mmkv.decodeLong(KEY_LAST_SUCCESSFUL_REFRESH_TIME, 0L)
+    }
+
+    fun clear() {
+        mmkv.clearAll()
     }
 }

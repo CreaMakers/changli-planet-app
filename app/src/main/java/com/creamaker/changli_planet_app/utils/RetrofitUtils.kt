@@ -126,14 +126,6 @@ object RetrofitUtils {
             .build()
     }
 
-    val instanceMooc: Retrofit by lazy {
-        Retrofit.Builder()
-            .baseUrl(MOOC_LOCATION)
-            .client(moocClient)
-            .addConverterFactory(retrofit2.converter.scalars.ScalarsConverterFactory.create())  // 支持 String 响应
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
 
     val instanceSSOAuth: Retrofit by lazy {
         Retrofit.Builder()

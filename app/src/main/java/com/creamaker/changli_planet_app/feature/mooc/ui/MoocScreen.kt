@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -32,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -70,16 +72,24 @@ fun MoocScreen(
     onBack: () -> Unit = {}
 ) {
     val pendingCourses by moocViewModel.pendingCourse.collectAsStateWithLifecycle()
+    val dialogMessage by moocViewModel.dialogMessage.collectAsStateWithLifecycle()
+    val showForceRefreshPrompt by moocViewModel.showForceRefreshPrompt.collectAsStateWithLifecycle()
+    val isRefreshing by moocViewModel.isRefreshing.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        moocViewModel.loginAndFetchCourses(
-            StudentInfoManager.studentId,
-            StudentInfoManager.studentPassword
-        )
+        if (moocViewModel.shouldAutoRefreshOnEnter()) {
+            moocViewModel.loginAndFetchCourses(
+                StudentInfoManager.studentId,
+                StudentInfoManager.studentPassword
+            )
+        }
     }
 
     MoocScreenContent(
         pendingCourses = pendingCourses,
+        dialogMessage = dialogMessage,
+        showForceRefreshPrompt = showForceRefreshPrompt,
+        isRefreshing = isRefreshing,
         moocViewModel = moocViewModel,
         onBack = onBack
     )
@@ -89,10 +99,66 @@ fun MoocScreen(
 @Composable
 private fun MoocScreenContent(
     pendingCourses: ApiResponse<List<PendingAssignmentCourse>>,
+    dialogMessage: String?,
+    showForceRefreshPrompt: Boolean,
+    isRefreshing: Boolean,
     moocViewModel: MoocViewModel,
     onBack: () -> Unit
 ) {
     val colors = AppTheme.colors
+    if (!dialogMessage.isNullOrBlank()) {
+        AlertDialog(
+            onDismissRequest = moocViewModel::dismissDialog,
+            confirmButton = {
+                TextButton(onClick = moocViewModel::dismissDialog) {
+                    Text(text = "我知道了")
+                }
+            },
+            title = {
+                Text(
+                    text = "加载失败",
+                    color = colors.primaryTextColor,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = dialogMessage,
+                    color = colors.secondaryTextColor
+                )
+            },
+            containerColor = colors.bgCardColor
+        )
+    }
+    if (showForceRefreshPrompt) {
+        AlertDialog(
+            onDismissRequest = moocViewModel::dismissForceRefreshPrompt,
+            confirmButton = {
+                TextButton(onClick = moocViewModel::confirmForceRefresh) {
+                    Text(text = "开始刷新")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = moocViewModel::dismissForceRefreshPrompt) {
+                    Text(text = "取消")
+                }
+            },
+            title = {
+                Text(
+                    text = "强制刷新提醒",
+                    color = colors.primaryTextColor,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = "将进行网络强制刷新，再重新拉取作业和测试数据。不适合太频繁使用。",
+                    color = colors.secondaryTextColor
+                )
+            },
+            containerColor = colors.bgCardColor
+        )
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -122,6 +188,18 @@ private fun MoocScreenContent(
                         )
                     }
                 },
+                actions = {
+                    TextButton(
+                        onClick = moocViewModel::requestForceRefresh,
+                        enabled = !isRefreshing
+                    ) {
+                        Text(
+                            text = if (isRefreshing) "刷新中" else "强制刷新",
+                            color = colors.primaryTextColor,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colors.overviewPageBackgroundColor,
                     titleContentColor = colors.primaryTextColor,
@@ -141,6 +219,16 @@ private fun MoocScreenContent(
         ) {
             item {
                 SummaryCard(pendingCourses = pendingCourses)
+            }
+
+            if (isRefreshing) {
+                item {
+                    MessageCard(
+                        title = "正在刷新",
+                        message = "正在拉取最新作业和测试数据，请稍候~",
+                        accent = colors.loadingColor
+                    )
+                }
             }
 
             when (pendingCourses) {

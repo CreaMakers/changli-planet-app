@@ -5,16 +5,19 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.creamaker.changli_planet_app.R
+import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.feature.mooc.data.local.MoocLocalCache
 import com.creamaker.changli_planet_app.utils.ResourceUtil
 import com.dcelysia.csust_spider.core.Resource
+import com.dcelysia.csust_spider.core.RetrofitUtils
 import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocCourse
 import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocHomework
 import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocTest
 import com.dcelysia.csust_spider.mooc.data.remote.dto.PendingAssignmentCourse
 import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
@@ -30,6 +33,8 @@ import java.util.concurrent.TimeUnit
 class MoocViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         private const val TAG = "MoocViewModel"
+        private const val TEST_SCAN_DELAY_MS = 40L
+        private const val AUTO_REFRESH_INTERVAL_MS = 86_400_000L
     }
 
     private val _isSuccessLogin = MutableStateFlow<ApiResponse<Boolean>>(ApiResponse.Loading())
@@ -49,6 +54,12 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
     private val _preloadedCourseIds = MutableStateFlow<Set<String>>(setOf())
     val preloadedCourseIds = _preloadedCourseIds.asStateFlow()
     private val _homeworkCourseIds = MutableStateFlow<Set<String>>(setOf())
+    private val _dialogMessage = MutableStateFlow<String?>(null)
+    val dialogMessage = _dialogMessage.asStateFlow()
+    private val _showForceRefreshPrompt = MutableStateFlow(false)
+    val showForceRefreshPrompt = _showForceRefreshPrompt.asStateFlow()
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
     // 新增：每个作业是否一天内到期的状态 map（key = homeworkId）
     private val _isDueSoonMap = MutableStateFlow<Map<String, ApiResponse<Boolean>>>(mapOf())
     val isDueSoonMap = _isDueSoonMap.asStateFlow()
@@ -188,131 +199,288 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
         }.launchIn(viewModelScope)
     }
 
-    fun loginAndFetchCourses(account: String, password: String) {
+    fun dismissDialog() {
+        _dialogMessage.value = null
+    }
+
+    fun requestForceRefresh() {
+        _showForceRefreshPrompt.value = true
+    }
+
+    fun dismissForceRefreshPrompt() {
+        _showForceRefreshPrompt.value = false
+    }
+
+    fun confirmForceRefresh() {
+        _showForceRefreshPrompt.value = false
+        loginAndFetchCourses(
+            StudentInfoManager.studentId,
+            StudentInfoManager.studentPassword,
+            forceRefresh = true
+        )
+    }
+
+    private fun showDialog(message: String) {
+        if (message.isBlank()) return
+        _dialogMessage.value = message
+    }
+
+    private fun hasCachedCourses(): Boolean {
+        return (pendingCourse.value as? ApiResponse.Success)?.data?.isNotEmpty() == true
+    }
+
+    fun shouldAutoRefreshOnEnter(): Boolean {
+        if (!hasCachedCourses()) return true
+        val lastRefreshTime = MoocLocalCache.getLastSuccessfulRefreshTime()
+        if (lastRefreshTime <= 0L) return true
+        return System.currentTimeMillis() - lastRefreshTime >= AUTO_REFRESH_INTERVAL_MS
+    }
+
+    private fun shouldRetryNetworkError(message: String?): Boolean {
+        return message?.contains("网络错误") == true
+    }
+
+    private suspend fun awaitLoginResult(username: String, password: String): Resource<Boolean> {
+        return repository.login(username, password)
+            .filter { it !is Resource.Loading }
+            .first()
+    }
+
+    private suspend fun clearMoocSession() {
+        runCatching {
+            RetrofitUtils.ClearClient("moocClient")
+        }.onFailure {
+            Log.e(TAG, "Failed to clear MOOC session", it)
+        }
+    }
+
+    private fun clearLocalMoocCache() {
+        runCatching {
+            MoocLocalCache.clear()
+        }.onFailure {
+            Log.e(TAG, "Failed to clear local MOOC cache", it)
+        }
+    }
+
+    private suspend fun loginWithRetry(username: String, password: String, forceRefresh: Boolean): Resource<Boolean> {
+        if (forceRefresh) {
+            clearMoocSession()
+            clearLocalMoocCache()
+        }
+        val first = awaitLoginResult(username, password)
+        if (first !is Resource.Error || !shouldRetryNetworkError(first.msg)) {
+            return first
+        }
+        clearMoocSession()
+        return awaitLoginResult(username, password)
+    }
+
+    private suspend fun <T> executeWithRetry(
+        username: String,
+        password: String,
+        block: suspend () -> Resource<T>
+    ): Resource<T> {
+        val first = block()
+        if (first !is Resource.Error || !shouldRetryNetworkError(first.msg)) {
+            return first
+        }
+        clearMoocSession()
+        val relogin = awaitLoginResult(username, password)
+        if (relogin is Resource.Success && relogin.data) {
+            return block()
+        }
+        return if (relogin is Resource.Error) {
+            Resource.Error(relogin.msg)
+        } else {
+            first
+        }
+    }
+
+    fun loginAndFetchCourses(account: String, password: String, forceRefresh: Boolean = false) {
         viewModelScope.launch {
             try {
                 if (account.isEmpty() || password.isEmpty()) {
                     val message = ResourceUtil.getStringRes(R.string.school_account_not_bound_cannot_query)
-                    _pendingCourse.value = ApiResponse.Error(message)
                     _isSuccessLogin.value = ApiResponse.Error(message)
+                    showDialog(message)
+                    if (!hasCachedCourses()) {
+                        _pendingCourse.value = ApiResponse.Error(message)
+                    }
                     return@launch
                 }
+                _isRefreshing.value = true
                 _isSuccessLogin.value = ApiResponse.Loading()
                 if (_pendingCourse.value !is ApiResponse.Success) {
                     _pendingCourse.value = ApiResponse.Loading()
                 }
-                val loginResult = repository.login(account, password)
-                    .filter { it !is Resource.Loading }
-                    .first()
-                val loginApiResponse = loginResult.toApiResponse()
-                _isSuccessLogin.value = loginApiResponse
-                if (loginResult is Resource.Success && loginResult.data) {
-                    val courseResult = repository.getCourseNamesWithPendingHomeworks()
+
+                if (forceRefresh) {
+                    val loginResult = loginWithRetry(account, password, forceRefresh = true)
+                    _isSuccessLogin.value = loginResult.toApiResponse()
+                    if (loginResult !is Resource.Success || !loginResult.data) {
+                        val errorMessage = (loginResult as? Resource.Error)?.msg
+                            ?: ResourceUtil.getStringRes(R.string.error_unknown)
+                        showDialog("慕课登录失败：$errorMessage")
+                        if (!hasCachedCourses()) {
+                            _pendingCourse.value = ApiResponse.Error(errorMessage)
+                        }
+                        return@launch
+                    }
+                }
+
+                val courseResult = executeWithRetry(account, password) {
+                    repository.getCourseNamesWithPendingHomeworks()
                         .filter { it !is Resource.Loading }
                         .first()
-                    Log.d(TAG, courseResult.toString())
-                    when (courseResult) {
-                        is Resource.Success -> {
-                            val homeworkCourses = courseResult.data.map {
-                                val cleanId = it.id.substringBefore("&").replace(Regex("[^0-9]"), "")
-                                PendingAssignmentCourse(id = cleanId, name = it.name)
-                            }.distinctBy { it.id }
-                            _homeworkCourseIds.value = homeworkCourses.map { it.id }.toSet()
-                            updatePendingCourses(
-                                mergeCourses(
-                                    (pendingCourse.value as? ApiResponse.Success)?.data.orEmpty(),
-                                    homeworkCourses
-                                )
-                            )
-                            scanCoursesForTests(homeworkCourses)
-                        }
+                }
+                Log.d(TAG, courseResult.toString())
+                when (courseResult) {
+                    is Resource.Success -> {
+                        _isSuccessLogin.value = ApiResponse.Success(true)
+                        val homeworkCourses = courseResult.data.map {
+                            val cleanId = it.id.substringBefore("&").replace(Regex("[^0-9]"), "")
+                            PendingAssignmentCourse(id = cleanId, name = it.name)
+                        }.distinctBy { it.id }
+                        _homeworkCourseIds.value = homeworkCourses.map { it.id }.toSet()
+                        val mergedCourses = scanCoursesForTests(account, password, homeworkCourses)
+                        updatePendingCourses(mergedCourses)
+                        MoocLocalCache.markSuccessfulRefresh()
+                    }
 
-                        is Resource.Error -> {
+                    is Resource.Error -> {
+                        _isSuccessLogin.value = ApiResponse.Error(courseResult.msg)
+                        showDialog("作业课程列表刷新失败：${courseResult.msg}")
+                        if (!hasCachedCourses()) {
                             _pendingCourse.value = ApiResponse.Error(courseResult.msg)
                         }
-
-                        is Resource.Loading -> Unit
                     }
-                } else {
-                    val errorMessage = (loginApiResponse as? ApiResponse.Error)?.msg
-                        ?: ResourceUtil.getStringRes(R.string.error_unknown)
-                    _pendingCourse.value = ApiResponse.Error(errorMessage)
+
+                    is Resource.Loading -> Unit
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Login and fetch courses failed", e)
-                _isSuccessLogin.value =
-                    ApiResponse.Error(e.message ?: ResourceUtil.getStringRes(R.string.error_unknown))
-                _pendingCourse.value =
-                    ApiResponse.Error(e.message ?: ResourceUtil.getStringRes(R.string.error_unknown))
+                val message = e.message ?: ResourceUtil.getStringRes(R.string.error_unknown)
+                _isSuccessLogin.value = ApiResponse.Error(message)
+                showDialog("慕课数据刷新失败：$message")
+                if (!hasCachedCourses()) {
+                    _pendingCourse.value = ApiResponse.Error(message)
+                }
+            } finally {
+                _isRefreshing.value = false
             }
         }
     }
 
-    private suspend fun scanCoursesForTests(homeworkCourses: List<PendingAssignmentCourse>) {
+    private suspend fun scanCoursesForTests(
+        account: String,
+        password: String,
+        homeworkCourses: List<PendingAssignmentCourse>
+    ): List<PendingAssignmentCourse> {
         val mergedCourses = LinkedHashMap<String, PendingAssignmentCourse>()
         homeworkCourses.forEach { mergedCourses[it.id] = it }
         val homeworkCourseIds = homeworkCourses.map { it.id }.toSet()
+        val scannedTestsByCourse = LinkedHashMap<String, List<MoocTest>>()
+        val testOnlyCourseIds = LinkedHashSet<String>()
 
-        val courseListResult = repository.getCourses()
-            .filter { it !is Resource.Loading }
-            .first()
+        val courseListResult = executeWithRetry(account, password) {
+            repository.getCourses()
+                .filter { it !is Resource.Loading }
+                .first()
+        }
 
         if (courseListResult !is Resource.Success) {
             if (courseListResult is Resource.Error) {
                 Log.e(TAG, "Failed to scan courses for tests: ${courseListResult.msg}")
+                showDialog("测试课程扫描失败：${courseListResult.msg}")
             }
-            return
+            return mergeCourses((pendingCourse.value as? ApiResponse.Success)?.data.orEmpty(), homeworkCourses)
         }
 
         courseListResult.data.forEach { rawCourse: MoocCourse ->
             val cleanCourseId = rawCourse.id.substringBefore("&").replace(Regex("[^0-9]"), "")
-            val rawResponse = repository.getCourseTests(cleanCourseId)
-                .filter { it !is Resource.Loading }
-                .first()
+            delay(TEST_SCAN_DELAY_MS)
+            val rawResponse = executeWithRetry(account, password) {
+                repository.getCourseTests(cleanCourseId)
+                    .filter { it !is Resource.Loading }
+                    .first()
+            }
             val pendingTests = (rawResponse as? Resource.Success)?.data.orEmpty()
                 .filterActivePendingTests()
             if (pendingTests.isNotEmpty()) {
-                updateTestsForCourse(cleanCourseId, ApiResponse.Success(pendingTests))
+                scannedTestsByCourse[cleanCourseId] = pendingTests
             }
             if (pendingTests.isNotEmpty()) {
                 mergedCourses.putIfAbsent(
                     cleanCourseId,
                     PendingAssignmentCourse(id = cleanCourseId, name = rawCourse.name)
                 )
-                if (cleanCourseId !in homeworkCourseIds && _pendingHomeworksByCourse.value[cleanCourseId] == null) {
-                    updateHomeworksForCourse(cleanCourseId, ApiResponse.Success(emptyList()))
+                if (cleanCourseId !in homeworkCourseIds) {
+                    testOnlyCourseIds += cleanCourseId
                 }
             }
         }
 
-        updatePendingCourses(mergedCourses.values.toList())
+        mergedCourses.keys.forEach { courseId ->
+            updateTestsForCourse(
+                courseId,
+                ApiResponse.Success(scannedTestsByCourse[courseId].orEmpty())
+            )
+        }
+        testOnlyCourseIds.forEach { courseId ->
+            updateHomeworksForCourse(courseId, ApiResponse.Success(emptyList()))
+        }
+
+        return mergeCourses((pendingCourse.value as? ApiResponse.Success)?.data.orEmpty(), mergedCourses.values.toList())
     }
 
     fun getCourseHomeworks(courseId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val cleanCourseId = courseId.substringBefore("&").replace(Regex("[^0-9]"), "")
+            val previous = _pendingHomeworksByCourse.value[courseId]
             _pendingHomeworksByCourse.value = _pendingHomeworksByCourse.value.toMutableMap().apply {
-                this[courseId] = ApiResponse.Loading()
+                this[courseId] = if (previous is ApiResponse.Success) previous else ApiResponse.Loading()
             }
             try {
-                val result: ApiResponse<List<MoocHomework>> = repository.getCourseHomeworks(cleanCourseId)
-                    .filter { it !is Resource.Loading }
-                    .first()
-                    .toHomeworkApiResponse()
+                val result = executeWithRetry(
+                    StudentInfoManager.studentId,
+                    StudentInfoManager.studentPassword
+                ) {
+                    repository.getCourseHomeworks(cleanCourseId)
+                        .filter { it !is Resource.Loading }
+                        .first()
+                }
 
-                updateHomeworksForCourse(courseId, result)
-
-                if (result is ApiResponse.Success) {
-                    result.data.forEach { hw ->
-                        val existing = _isDueSoonMap.value[hw.title]
-                        if (existing == null || existing is ApiResponse.Error) {
-                            checkIsDueSoon(hw.title, hw.deadline)
+                when (result) {
+                    is Resource.Success -> {
+                        val apiResponse = ApiResponse.Success(result.data.toList())
+                        updateHomeworksForCourse(courseId, apiResponse)
+                        result.data.forEach { hw ->
+                            val existing = _isDueSoonMap.value[hw.title]
+                            if (existing == null || existing is ApiResponse.Error) {
+                                checkIsDueSoon(hw.title, hw.deadline)
+                            }
                         }
                     }
+
+                    is Resource.Error -> {
+                        showDialog("作业加载失败：${result.msg}")
+                        if (previous is ApiResponse.Success) {
+                            updateHomeworksForCourse(courseId, previous)
+                        } else {
+                            updateHomeworksForCourse(courseId, ApiResponse.Error(result.msg))
+                        }
+                    }
+
+                    is Resource.Loading -> Unit
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "failed to get Homeworks:$e")
-                updateHomeworksForCourse(courseId, ApiResponse.Error(e.message ?: "Unknown error"))
+                showDialog("作业加载失败：${e.message ?: "Unknown error"}")
+                if (previous == null) {
+                    updateHomeworksForCourse(courseId, ApiResponse.Error(e.message ?: "Unknown error"))
+                } else {
+                    updateHomeworksForCourse(courseId, previous)
+                }
             }
         }
     }
@@ -320,22 +488,47 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
     fun getCourseTests(courseId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val cleanCourseId = courseId.substringBefore("&").replace(Regex("[^0-9]"), "")
+            val previous = _pendingTestsByCourse.value[courseId]
             _pendingTestsByCourse.value = _pendingTestsByCourse.value.toMutableMap().apply {
-                this[courseId] = ApiResponse.Loading()
+                this[courseId] = previous as? ApiResponse.Success ?: ApiResponse.Loading()
             }
             try {
-                val rawResult = repository.getCourseTests(cleanCourseId)
-                rawResult.collect { result ->
-                    val apiResponse = when (result) {
-                        is Resource.Success -> ApiResponse.Success(result.data.filterActivePendingTests())
-                        is Resource.Error -> ApiResponse.Error(result.msg)
-                        is Resource.Loading -> ApiResponse.Loading()
+                val rawResult = executeWithRetry(
+                    StudentInfoManager.studentId,
+                    StudentInfoManager.studentPassword
+                ) {
+                    repository.getCourseTests(cleanCourseId)
+                        .filter { it !is Resource.Loading }
+                        .first()
+                }
+
+                when (rawResult) {
+                    is Resource.Success -> {
+                        updateTestsForCourse(
+                            courseId,
+                            ApiResponse.Success(rawResult.data.filterActivePendingTests())
+                        )
                     }
-                    updateTestsForCourse(courseId, apiResponse)
+
+                    is Resource.Error -> {
+                        showDialog("测试加载失败：${rawResult.msg}")
+                        if (previous is ApiResponse.Success) {
+                            updateTestsForCourse(courseId, previous)
+                        } else {
+                            updateTestsForCourse(courseId, ApiResponse.Error(rawResult.msg))
+                        }
+                    }
+
+                    is Resource.Loading -> Unit
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "failed to get Tests:$e")
-                updateTestsForCourse(courseId, ApiResponse.Error(e.message ?: "Unknown error"))
+                showDialog("测试加载失败：${e.message ?: "Unknown error"}")
+                if (previous == null) {
+                    updateTestsForCourse(courseId, ApiResponse.Error(e.message ?: "Unknown error"))
+                } else {
+                    updateTestsForCourse(courseId, previous)
+                }
             }
         }
     }

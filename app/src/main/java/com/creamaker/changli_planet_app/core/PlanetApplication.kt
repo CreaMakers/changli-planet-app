@@ -9,11 +9,13 @@ import android.os.HandlerThread
 import android.provider.Settings
 import android.util.Log
 import com.creamaker.changli_planet_app.BuildConfig
+import com.creamaker.changli_planet_app.core.bus.PlanetEventBusIndex
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
 import com.creamaker.changli_planet_app.skin.SkinManager
 import com.creamaker.changli_planet_app.skin.data.cache.SkinCache
 import com.creamaker.changli_planet_app.utils.StartupTimeTracker
+import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import com.tencent.bugly.crashreport.CrashReport
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
@@ -21,6 +23,7 @@ import com.tencent.msdk.dns.MSDKDnsResolver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
 
 class PlanetApplication : Application() {
     companion object {
@@ -76,12 +79,14 @@ class PlanetApplication : Application() {
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
+                MoocRepository.instance.clearMoocLocalSession()
             }
         }
 
         fun clearLocalCache() {
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("import_cache").clearAll()
+                clearContentCache()
             }
         }
 
@@ -105,6 +110,7 @@ class PlanetApplication : Application() {
 
 
         initMMKV()
+        installEventBusIndex()
         migrateLegacyCacheIfNeeded()
         if (!BuildConfig.DEBUG) {
             CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
@@ -167,6 +173,16 @@ class PlanetApplication : Application() {
 
     private fun initMMKV() {
         MMKV.initialize(this@PlanetApplication)
+    }
+
+    private fun installEventBusIndex() {
+        runCatching {
+            EventBus.builder()
+                .addIndex(PlanetEventBusIndex())
+                .installDefaultEventBus()
+        }.onFailure {
+            Log.w("PlanetApplication", "EventBus default instance already installed", it)
+        }
     }
 
     private fun migrateLegacyCacheIfNeeded() {

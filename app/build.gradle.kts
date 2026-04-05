@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.baselineprofile)
     id("kotlin-parcelize")
+    id("org.jetbrains.kotlin.kapt")
 }
 configurations.all {
     exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
@@ -51,7 +52,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 22
-        versionName = "2.0.3.3"
+        versionName = "2.0.3.4"
 
 
         ndk {
@@ -145,6 +146,7 @@ dependencies {
     implementation(libs.converter.scalars)
     // EventBus
     implementation(libs.eventbus)
+    kapt(libs.eventbus.annotation.processor)
     // Gson
     implementation(libs.gson)
     //TimetableView
@@ -212,6 +214,11 @@ dependencies {
     implementation(libs.csustdataget)
 //    implementation(files("libs/csust_spider-release.aar"))
     implementation(libs.androidx.constraintlayout.compose)
+}
+kapt {
+    arguments {
+        arg("eventBusIndex", "com.creamaker.changli_planet_app.core.bus.PlanetEventBusIndex")
+    }
 }
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
