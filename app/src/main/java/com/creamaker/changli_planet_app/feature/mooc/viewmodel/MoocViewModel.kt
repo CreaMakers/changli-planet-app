@@ -97,12 +97,18 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun restoreFromCache() {
-        val cachedCourses = MoocLocalCache.getPendingCourses()
+        val cachedCourses = MoocLocalCache.getPendingCourses().map {
+            PendingAssignmentCourse(
+                id = it.id.substringBefore("&").replace(Regex("[^0-9]"), ""),
+                name = it.name
+            )
+        }.distinctBy { it.id }
         if (cachedCourses.isNotEmpty()) {
             _pendingCourse.value = ApiResponse.Success(cachedCourses)
         }
 
         val cachedHomeworks = MoocLocalCache.getPendingHomeworksByCourse()
+            .mapKeys { it.key.substringBefore("&").replace(Regex("[^0-9]"), "") }
         if (cachedHomeworks.isNotEmpty()) {
             _pendingHomeworksByCourse.value = cachedHomeworks.mapValues { ApiResponse.Success(it.value) }
             cachedHomeworks.values.flatten().forEach { homework ->
@@ -111,6 +117,7 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         val cachedTests = MoocLocalCache.getPendingTestsByCourse()
+            .mapKeys { it.key.substringBefore("&").replace(Regex("[^0-9]"), "") }
         if (cachedTests.isNotEmpty()) {
             _pendingTestsByCourse.value = cachedTests.mapValues { ApiResponse.Success(it.value) }
         }
