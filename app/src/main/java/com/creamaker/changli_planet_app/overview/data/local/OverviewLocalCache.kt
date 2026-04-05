@@ -31,6 +31,7 @@ object OverviewLocalCache {
                 object : TypeToken<List<OverviewHomeworkUiModel>>() {}.type
             ).orEmpty().map { item ->
                 item.copy(
+                    id = item.id.substringBefore("&").replace(Regex("[^0-9_]"), ""),
                     title = item.safeTitle(),
                     courseName = item.safeCourseName(),
                     deadlineText = item.safeDeadlineText(),
@@ -53,6 +54,7 @@ object OverviewLocalCache {
                 object : TypeToken<List<OverviewTestUiModel>>() {}.type
             ).orEmpty().map { item ->
                 item.copy(
+                    id = item.id.substringBefore("&").replace(Regex("[^0-9_]"), ""),
                     title = item.safeTitle(),
                     courseName = item.safeCourseName(),
                     timeText = item.safeTimeText(),
