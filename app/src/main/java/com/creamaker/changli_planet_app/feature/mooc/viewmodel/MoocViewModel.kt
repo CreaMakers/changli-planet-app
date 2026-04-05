@@ -14,6 +14,7 @@ import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocHomework
 import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocTest
 import com.dcelysia.csust_spider.mooc.data.remote.dto.PendingAssignmentCourse
 import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
@@ -83,6 +84,12 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
         is Resource.Loading -> ApiResponse.Loading()
     }
 
+    private fun Resource<List<MoocHomework>>.toHomeworkApiResponse(): ApiResponse<List<MoocHomework>> = when (this) {
+        is Resource.Success -> ApiResponse.Success(data.toList())
+        is Resource.Error -> ApiResponse.Error(msg)
+        is Resource.Loading -> ApiResponse.Loading()
+    }
+
     private fun Resource<List<MoocTest>>.toTestApiResponse(): ApiResponse<List<MoocTest>> = when (this) {
         is Resource.Success -> ApiResponse.Success(data.toList())
         is Resource.Error -> ApiResponse.Error(msg)
@@ -119,6 +126,10 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updatePendingCourses(courses: List<PendingAssignmentCourse>) {
         val normalized = courses
+            .map {
+                val cleanId = it.id.substringBefore("&").replace(Regex("[^0-9]"), "")
+                PendingAssignmentCourse(id = cleanId, name = it.name)
+            }
             .distinctBy { it.id }
             .sortedBy { it.name }
         _pendingCourse.value = ApiResponse.Success(normalized)
@@ -195,7 +206,10 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
                     Log.d(TAG, courseResult.toString())
                     when (courseResult) {
                         is Resource.Success -> {
-                            val homeworkCourses = courseResult.data.distinctBy { it.id }
+                            val homeworkCourses = courseResult.data.map {
+                                val cleanId = it.id.substringBefore("&").replace(Regex("[^0-9]"), "")
+                                PendingAssignmentCourse(id = cleanId, name = it.name)
+                            }.distinctBy { it.id }
                             _homeworkCourseIds.value = homeworkCourses.map { it.id }.toSet()
                             updatePendingCourses(
                                 mergeCourses(
@@ -243,22 +257,23 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        courseListResult.data.forEach { course: MoocCourse ->
-            val rawResponse = repository.getCourseTests(course.id)
+        courseListResult.data.forEach { rawCourse: MoocCourse ->
+            val cleanCourseId = rawCourse.id.substringBefore("&").replace(Regex("[^0-9]"), "")
+            val rawResponse = repository.getCourseTests(cleanCourseId)
                 .filter { it !is Resource.Loading }
                 .first()
             val pendingTests = (rawResponse as? Resource.Success)?.data.orEmpty()
                 .filterActivePendingTests()
             if (pendingTests.isNotEmpty()) {
-                updateTestsForCourse(course.id, ApiResponse.Success(pendingTests))
+                updateTestsForCourse(cleanCourseId, ApiResponse.Success(pendingTests))
             }
             if (pendingTests.isNotEmpty()) {
                 mergedCourses.putIfAbsent(
-                    course.id,
-                    PendingAssignmentCourse(id = course.id, name = course.name)
+                    cleanCourseId,
+                    PendingAssignmentCourse(id = cleanCourseId, name = rawCourse.name)
                 )
-                if (course.id !in homeworkCourseIds && _pendingHomeworksByCourse.value[course.id] == null) {
-                    updateHomeworksForCourse(course.id, ApiResponse.Success(emptyList()))
+                if (cleanCourseId !in homeworkCourseIds && _pendingHomeworksByCourse.value[cleanCourseId] == null) {
+                    updateHomeworksForCourse(cleanCourseId, ApiResponse.Success(emptyList()))
                 }
             }
         }
@@ -267,14 +282,16 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getCourseHomeworks(courseId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            val cleanCourseId = courseId.substringBefore("&").replace(Regex("[^0-9]"), "")
+            _pendingHomeworksByCourse.value = _pendingHomeworksByCourse.value.toMutableMap().apply {
+                this[courseId] = ApiResponse.Loading()
+            }
             try {
-                updateHomeworksForCourse(courseId, ApiResponse.Loading())
-
-                val result: ApiResponse<List<MoocHomework>> = repository.getCourseHomeworks(courseId)
+                val result: ApiResponse<List<MoocHomework>> = repository.getCourseHomeworks(cleanCourseId)
                     .filter { it !is Resource.Loading }
                     .first()
-                    .toApiResponse()
+                    .toHomeworkApiResponse()
 
                 updateHomeworksForCourse(courseId, result)
 
@@ -294,18 +311,21 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getCourseTests(courseId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            val cleanCourseId = courseId.substringBefore("&").replace(Regex("[^0-9]"), "")
+            _pendingTestsByCourse.value = _pendingTestsByCourse.value.toMutableMap().apply {
+                this[courseId] = ApiResponse.Loading()
+            }
             try {
-                updateTestsForCourse(courseId, ApiResponse.Loading())
-                val rawResult = repository.getCourseTests(courseId)
-                    .filter { it !is Resource.Loading }
-                    .first()
-                val result = when (rawResult) {
-                    is Resource.Success -> ApiResponse.Success(rawResult.data.filterActivePendingTests())
-                    is Resource.Error -> ApiResponse.Error(rawResult.msg)
-                    is Resource.Loading -> ApiResponse.Loading()
+                val rawResult = repository.getCourseTests(cleanCourseId)
+                rawResult.collect { result ->
+                    val apiResponse = when (result) {
+                        is Resource.Success -> ApiResponse.Success(result.data.filterActivePendingTests())
+                        is Resource.Error -> ApiResponse.Error(result.msg)
+                        is Resource.Loading -> ApiResponse.Loading()
+                    }
+                    updateTestsForCourse(courseId, apiResponse)
                 }
-                updateTestsForCourse(courseId, result)
             } catch (e: Exception) {
                 Log.e(TAG, "failed to get Tests:$e")
                 updateTestsForCourse(courseId, ApiResponse.Error(e.message ?: "Unknown error"))
