@@ -1,6 +1,9 @@
 package com.creamaker.changli_planet_app.feature.mooc.data.remote.repository
 
 import android.util.Log
+import android.util.Pair
+import androidx.core.util.component1
+import androidx.core.util.component2
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.feature.mooc.data.remote.api.MoocApi
@@ -21,6 +24,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
 import java.text.SimpleDateFormat
+import java.util.Collections.emptyList
 import java.util.Date
 import java.util.Locale
 import java.util.regex.Pattern
@@ -256,9 +260,13 @@ class MoocRepository private constructor() {
                     continue // 跳过没有链接的行
                 }
 
-                val id = a.attr("onclick")
+                val attr = a.attr("onclick")
+                // Extract courseId from window.open('../homepage/course/course_index.jsp?courseId=58603&t=info','manage_course')
+                val idMatch = kotlin.text.Regex("courseId=(\\d+)").find(attr)
+                val id = idMatch?.groupValues?.get(1) ?: attr
                     .replace("window.open('../homepage/course/course_index.jsp?courseId=", "")
                     .replace("','manage_course')", "")
+                    .substringBefore("&") // Extract just the digits if something appended
                 val department = cols[2].text()
                 val teacher = cols[3].text()
 
@@ -283,8 +291,9 @@ class MoocRepository private constructor() {
     }
 
     fun getCourseHomeworks(courseId: String) = flow {
+        val cleanCourseId = courseId.substringBefore("&").replace(Regex("[^0-9]"), "")
         emit(ApiResponse.Loading())
-        val response = api.getCourseHomeworks(courseId = courseId)
+        val response = api.getCourseHomeworks(courseId = cleanCourseId)
         if (response.code() == 200) {
             val homeworks = response.body()?.datas?.hwtList?.map { item ->
                 MoocHomework(
@@ -343,9 +352,10 @@ class MoocRepository private constructor() {
     }
 
     fun getCourseTests(courseId: String) = flow {
+        val cleanCourseId = courseId.substringBefore("&").replace(Regex("[^0-9]"), "")
         emit(ApiResponse.Loading())
         try {
-            val response = api.getCourseTests(cateId = courseId)
+            val response = api.getCourseTests(cateId = cleanCourseId)
             if (!response.isSuccessful) {
                 emit(ApiResponse.Error("HTTP ${response.code()}"))
                 return@flow
