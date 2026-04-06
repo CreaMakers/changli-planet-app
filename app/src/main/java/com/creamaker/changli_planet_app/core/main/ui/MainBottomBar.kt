@@ -87,9 +87,11 @@ fun MainBottomBar(
                 icon = {
                     val selected = item.index == currentSelectedKey
                     Icon(
-                        painter = painterResource(item.iconResId),
+                        painter = painterResource(
+                            if (selected) item.selectedIconResId else item.unselectedIconResId
+                        ),
                         contentDescription = null,
-                        tint = bottomIconBarTint(selected, colors),
+                        tint = Color.Unspecified,
                         modifier = Modifier.size(BottomBarIconSize)
                     )
                 },
@@ -106,10 +108,6 @@ private fun bottomBarTint(selected: Boolean, colors: SkinColors) =
     if (selected) colors.iconPrimaryColor else colors.iconSecondaryColor
 
 @Composable
-private fun bottomIconBarTint(selected: Boolean, colors: SkinColors) =
-    if (selected) Color.Unspecified else colors.iconSecondaryColor
-
-@Composable
 private fun bottomBarLabelStyle(selected: Boolean): TextStyle =
     TextStyle(
         fontSize = BottomBarLabelSize,
@@ -120,15 +118,36 @@ private val BottomBarIconSize = 26.dp
 private val BottomBarLabelSize = 13.sp
 
 private val bottomBarItems = listOf(
-    MainBottomBarItem(0, R.drawable.ic_overview, R.string.overview),
-    MainBottomBarItem(1, R.drawable.nfeature, R.string.function),
-    MainBottomBarItem(2, R.drawable.nnews, R.string.intel_station),
-    MainBottomBarItem(3, R.drawable.nprofile, R.string.profile_home)
+    MainBottomBarItem(
+        index = 0,
+        selectedIconResId = R.drawable.ic_overview,
+        unselectedIconResId = R.drawable.ic_unselect_overview,
+        labelResId = R.string.overview
+    ),
+    MainBottomBarItem(
+        index = 1,
+        selectedIconResId = R.drawable.nfeature,
+        unselectedIconResId = R.drawable.ic_unselect_nfeature,
+        labelResId = R.string.function
+    ),
+    MainBottomBarItem(
+        index = 2,
+        selectedIconResId = R.drawable.nnews,
+        unselectedIconResId = R.drawable.ic_unselect_nnews,
+        labelResId = R.string.intel_station
+    ),
+    MainBottomBarItem(
+        index = 3,
+        selectedIconResId = R.drawable.nprofile,
+        unselectedIconResId = R.drawable.ic_unselect_nprofile,
+        labelResId = R.string.profile_home
+    )
 )
 
 private data class MainBottomBarItem(
     val index: Int,
-    val iconResId: Int,
+    val selectedIconResId: Int,
+    val unselectedIconResId: Int,
     val labelResId: Int
 )
 
