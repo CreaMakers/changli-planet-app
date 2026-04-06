@@ -121,6 +121,7 @@ android {
 }
 dependencies {
     implementation(libs.androidx.profileinstaller)
+    implementation(libs.androidx.compose.ui.graphics)
     "baselineProfile"(project(":baselineprofile"))
     // leakcanary
     debugImplementation(libs.leakcanary.android)
@@ -214,6 +215,9 @@ dependencies {
     implementation(libs.csustdataget)
 //    implementation(files("libs/csust_spider-release.aar"))
     implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.haze)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
 }
 kapt {
     arguments {

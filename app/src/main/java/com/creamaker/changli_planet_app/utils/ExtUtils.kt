@@ -4,6 +4,17 @@ import android.content.Context
 import android.os.Message
 import android.util.TypedValue
 import android.view.View
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.common.data.local.room.entity.UserEntity
 import com.creamaker.changli_planet_app.common.data.remote.dto.UserProfile
@@ -113,4 +124,39 @@ fun getMessage(what: Int, arg1: Int ?= null, arg2: Int? = null, obj: Any? = null
         arg2?.let { this.arg2 = arg2 }
         obj?.let { this.obj = obj }
     }
+}
+
+/**
+ * 鸿蒙风格边缘柔和发光 / 光晕 Modifier
+ *
+ * @param shape 你的底部导航栏的形状（例如 CircleShape 或 RoundedCornerShape）
+ * @param lightColor 光源的颜色（一般用纯白，或者与主题色相近的浅色）
+ * @param width 边缘高光线的粗细
+ */
+fun Modifier.edgeLightingGlow(
+    shape: Shape,
+    lightColor: Color = Color(0xFFFFFFFF), // 纯白光
+    width: Dp = 2.dp
+) = this.drawBehind {
+    // 1. 绘制外部柔和的弥散光晕 (Outer Glow)
+    drawIntoCanvas { canvas ->
+        val paint = Paint()
+        val frameworkPaint = paint.asFrameworkPaint()
+        frameworkPaint.color = Color.Transparent.toArgb()
+        // 设置阴影发光，radius 控制光晕的扩散范围
+        frameworkPaint.setShadowLayer(
+            15.dp.toPx(),
+            0f,
+            0f,
+            lightColor.copy(alpha = 0.8f).toArgb() // 淡淡的发光
+        )
+        canvas.drawOutline(shape.createOutline(size, layoutDirection, this), paint)
+    }
+
+    // 2. 在边缘勾勒一条极细的内测高光边框（提升玻璃质感）
+    drawOutline(
+        outline = shape.createOutline(size, layoutDirection, this),
+        color = lightColor.copy(alpha = 0.8f),
+        style = Stroke(width = width.toPx())
+    )
 }

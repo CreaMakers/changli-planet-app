@@ -1,47 +1,40 @@
 package com.creamaker.changli_planet_app.core
 
 import android.Manifest
+import android.app.Activity
+import android.app.Application
+import android.content.ComponentCallbacks
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.Surface
 import androidx.core.app.ActivityCompat
 import androidx.core.content.pm.PackageInfoCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.base.FullScreenActivity
 import com.creamaker.changli_planet_app.common.api.DrawerController
 import com.creamaker.changli_planet_app.common.cache.CommonInfo
 import com.creamaker.changli_planet_app.common.pool.TabAnimationPool
 import com.creamaker.changli_planet_app.common.redux.action.UserAction
 import com.creamaker.changli_planet_app.common.redux.store.UserStore
-import com.creamaker.changli_planet_app.databinding.ActivityMainBinding
-import com.creamaker.changli_planet_app.feature.common.ui.FeatureFragment
-import com.creamaker.changli_planet_app.freshNews.ui.NewsFragment
-import com.creamaker.changli_planet_app.overview.ui.OverviewFragment
-import com.creamaker.changli_planet_app.profileSettings.ui.ProfileSettingsFragment
+import com.creamaker.changli_planet_app.core.main.navigation.MainTabNavigator
+import com.creamaker.changli_planet_app.core.main.ui.MainScreen
+import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
+import com.creamaker.changli_planet_app.core.theme.AppTheme
 import com.creamaker.changli_planet_app.utils.event.SelectEvent
-import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController {
-    private lateinit var drawerLayout: DrawerLayout
-    private val fragments = mutableMapOf<Int, Fragment>()
-    private var currentTabPosition: Int = 0
-    private val tabLayout: TabLayout by lazy { binding.tabLayout }
-    override fun createViewBinding(): ActivityMainBinding {
-        return ActivityMainBinding.inflate(layoutInflater)
-    }
-
+class MainActivity : ComponentActivity(), DrawerController {
     private val store by lazy { UserStore() }
-    private var suppress = false
+    private val mainTabNavigator by lazy(LazyThreadSafetyMode.NONE) { MainTabNavigator() }
 
     override fun onResume() {
         super.onResume()
@@ -49,6 +42,7 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setCustomDensity(this, application, 412)
         super.onCreate(savedInstanceState)
         EventBus.getDefault().register(this)
 //        if (PlanetApplication.Companion.accessToken.isNullOrEmpty() && !PlanetApplication.Companion.is_tourist) {
@@ -60,25 +54,14 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
         CommonInfo.startTime = System.currentTimeMillis()
         enableEdgeToEdge()
         val start = System.currentTimeMillis()
-
-
-        PlanetApplication.Companion.startTime = System.currentTimeMillis()
-        setContentView(binding.root)
-
-
-        drawerLayout = binding.drawerLayout
-
-
-        if (savedInstanceState == null) {
-            val firstFragment = OverviewFragment.newInstance()
-            fragments[0] = firstFragment
-
-            supportFragmentManager.beginTransaction()
-                .add(R.id.frag, firstFragment)
-                .commit()
+        PlanetApplication.startTime = System.currentTimeMillis()
+        setContent {
+            AppSkinTheme {
+                Surface(color = AppTheme.colors.bgPrimaryColor) {
+                    MainScreen(navigator = mainTabNavigator)
+                }
+            }
         }
-        setupTabs()
-        setupTabSelectionListener()
         Log.d("MainActivity", "用时 ${System.currentTimeMillis() - start}")
         // 检查版本更新
         Looper.myQueue().addIdleHandler { //添加通知权限
@@ -103,50 +86,27 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                REQUEST_NOTIFICATION
-            )
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_NOTIFICATION
+                )
+            }
         } else {
             return
         }
     }
 
-
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("currentTab", currentTabPosition)  //保存最后的tab下标
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        currentTabPosition = savedInstanceState.getInt("currentTab") //恢复最后的tab下标
-
-        supportFragmentManager.fragments.forEach { fragment ->
-            val key = when (fragment) {
-                is OverviewFragment -> 0
-                is FeatureFragment -> 1
-                is NewsFragment -> 2
-                is ProfileSettingsFragment -> 3
-                else -> throw IllegalStateException("Invalid fragment")
-            }
-            fragments.put(key, fragment)     //重新添加fragment
-        }
-        tabLayout.selectTab(tabLayout.getTabAt(currentTabPosition)) //恢复tabLayout
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
-        disposables.clear()
         TabAnimationPool.clear()
     }
 
     override fun onStart() {
         super.onStart()
-        if(!PlanetApplication.isExpired) {   //游客模式不获取用户信息
+        if (!PlanetApplication.isExpired) {   //游客模式不获取用户信息
             lifecycleScope.launch {
                 launch(Dispatchers.IO) {
                     store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
@@ -154,18 +114,6 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
                 }
             }
         }
-    }
-
-    private fun setupTabs() {
-        // 动态添加 tabs
-        val overviewTab = tabLayout.newTab().setIcon(R.drawable.ic_overview).setText(R.string.overview)
-        val featureTab = tabLayout.newTab().setIcon(R.drawable.nfeature).setText(R.string.function)
-        val postTab = tabLayout.newTab().setIcon(R.drawable.nnews).setText(R.string.intel_station)
-        val profileTab = tabLayout.newTab().setIcon(R.drawable.nprofile).setText(R.string.profile_home)
-        tabLayout.addTab(overviewTab)
-        tabLayout.addTab(featureTab)
-        tabLayout.addTab(postTab)
-        tabLayout.addTab(profileTab)
     }
 
     private fun getNetPermissions() {
@@ -187,86 +135,53 @@ class MainActivity : FullScreenActivity<ActivityMainBinding>(), DrawerController
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<out String>,
+        permissions: Array<String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             REQUEST_READ_TELEPHONE -> getNotificationPermissions()
-
         }
-    }
-
-    private fun setupTabSelectionListener() {
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                if (suppress) return
-                if (currentTabPosition == tab.position) return
-
-                val fragment = fragments.getOrPut(tab.position) {
-                    when (tab.position) {
-                        0 -> OverviewFragment.newInstance()
-                        1 -> FeatureFragment.Companion.newInstance()
-                        2 -> NewsFragment.Companion.newInstance()
-                        3 -> ProfileSettingsFragment.Companion.newInstance()
-                        else -> throw IllegalStateException("Invalid position")
-                    }
-                }
-                switchFragment(fragment)
-                currentTabPosition = tab.position
-                animateTabSelect(tab) // 动画效果
-
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab) {
-                // 可选：处理未选中事件
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab) {
-                // 可选：处理重新选中事件
-            }
-        })
-    }
-
-    private fun switchFragment(newFragment: Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
-
-        fragments[currentTabPosition]?.let {
-            transaction.hide(it)
-        }
-        if (newFragment.isAdded) {
-            transaction.show(newFragment)
-        } else {
-            transaction.add(R.id.frag, newFragment)
-        }
-        transaction.commit()
-
-    }
-
-    private fun initFragment(fragment: Fragment) {
-        val fragmentationTemp = supportFragmentManager
-        val transactions = fragmentationTemp.beginTransaction()
-        transactions.replace(R.id.frag, fragment).commit()
-    }
-
-    fun animateTabSelect(tab: TabLayout.Tab) {
-        TabAnimationPool.animateTabSelect(tab)
     }
 
     override fun openDrawer() {
-
     }
 
     companion object {
         private const val REQUEST_READ_TELEPHONE = 1001
         private const val REQUEST_NOTIFICATION = 1002
     }
+
     @Subscribe
-    fun selectProfileFragment(selectEvent: SelectEvent){
-        tabLayout.selectTab(tabLayout.getTabAt(selectEvent.eventType))
+    fun onSelectEvent(selectEvent: SelectEvent) {
+        mainTabNavigator.select(selectEvent.eventType)
     }
-    @Subscribe
-    fun selectFeatureFragment(selectEvent: SelectEvent){
-        tabLayout.selectTab(tabLayout.getTabAt(selectEvent.eventType))
+
+    private fun setCustomDensity(activity: Activity, application: Application, designWidthDp: Int) {
+        val appDisplayMetrics = application.resources.displayMetrics
+        val targetDensity = appDisplayMetrics.widthPixels / designWidthDp.toFloat()
+        val targetDensityDpi = (targetDensity * 160).toInt()
+        var nonCompatScaleDensity = appDisplayMetrics.scaledDensity
+
+        application.registerComponentCallbacks(object : ComponentCallbacks {
+            override fun onConfigurationChanged(newConfig: Configuration) {
+                if (newConfig.fontScale > 0) {
+                    nonCompatScaleDensity = application.resources.displayMetrics.scaledDensity
+                }
+            }
+
+            override fun onLowMemory() = Unit
+        })
+
+        val targetScaleDensity =
+            targetDensity * (nonCompatScaleDensity / appDisplayMetrics.density)
+
+        appDisplayMetrics.density = targetDensity
+        appDisplayMetrics.densityDpi = targetDensityDpi
+        appDisplayMetrics.scaledDensity = targetScaleDensity
+
+        activity.resources.displayMetrics.density = targetDensity
+        activity.resources.displayMetrics.densityDpi = targetDensityDpi
+        activity.resources.displayMetrics.scaledDensity = targetScaleDensity
     }
 }
