@@ -50,6 +50,8 @@ data class SkinColors(
     // 分隔线/描边补充
     val controlDividerColor: Color = DesignColors.ControlDivider,
     val outlineColor: Color = DesignColors.Outline,
+    val bottomBarGlassColor: Color = Color(0xFFEFF2F6).copy(alpha = 0.84f),
+    val bottomBarGlassEdgeColor: Color = Color(0xFFF7FAFF),
 
     // 帖子专用
     val postTextPrimaryColor: Color = DesignColors.PostTextPrimary,
@@ -111,6 +113,8 @@ private val LightSkinColors = SkinColors(
     iconSettingColor = DesignColors.IconSetting,
     controlDividerColor = DesignColors.ControlDivider,
     outlineColor = DesignColors.Outline,
+    bottomBarGlassColor = Color(0xFFEFF2F6).copy(alpha = 0.84f),
+    bottomBarGlassEdgeColor = Color(0xFFF7FAFF),
     postTextPrimaryColor = DesignColors.PostTextPrimary,
     postTextTitleColor = DesignColors.PostTextTitle,
     postTextHintColor = DesignColors.PostTextHint,
@@ -160,6 +164,8 @@ private val DarkSkinColors = SkinColors(
     iconSettingColor = Color(0xFF0D57ED),
     controlDividerColor = Color(0xFF909AA7),
     outlineColor = Color(0xFFD0D0D0),
+    bottomBarGlassColor = Color(0xFF616772).copy(alpha = 0.92f),
+    bottomBarGlassEdgeColor = Color(0xFFA7AFBC),
     postTextPrimaryColor = Color(0xFFF8F8F8),
     postTextTitleColor = Color(0xFF000000),
     postTextHintColor = Color(0xFFABABAB),

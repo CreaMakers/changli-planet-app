@@ -22,6 +22,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -518,12 +519,17 @@ private fun SharedTransitionScope.InlineTab(
                 shape = shapes.tabBarShape,
                 elevation = elevations.inlineElevation
             )
-            .edgeLightingGlow(shapes.tabBarShape, width = 1.dp)
+            .edgeLightingGlow(
+                shape = shapes.tabBarShape,
+                lightColor = colors.edgeGlowColor,
+                width = 0.55.dp
+            )
             .background(
                 color = colors.backgroundColor,
                 shape = shapes.tabBarShape
             )
             .clip(shapes.tabBarShape)
+            .border(0.45.dp, colors.edgeGlowColor.copy(alpha = 0.18f), shapes.tabBarShape)
             .then(tabBarContentModifier)
             .touchGlowOverlay(colors.touchGlowColor, glowCenter, glowAlpha, glowRadius)
             .pointerInteropFilter { event ->
@@ -600,12 +606,17 @@ private fun SharedTransitionScope.InlineStandaloneTab(
                 shape = shapes.standaloneTabShape,
                 elevation = elevations.inlineElevation
             )
-            .edgeLightingGlow(shapes.standaloneTabShape, width = 1.dp)
+            .edgeLightingGlow(
+                shape = shapes.standaloneTabShape,
+                lightColor = colors.edgeGlowColor,
+                width = 0.55.dp
+            )
             .background(
                 color = colors.backgroundColor,
                 shape = shapes.standaloneTabShape
             )
             .clip(shapes.standaloneTabShape)
+            .border(0.45.dp, colors.edgeGlowColor.copy(alpha = 0.18f), shapes.standaloneTabShape)
             .then(tabBarContentModifier)
             .clickable(
                 onClick = standaloneTab.onClick,
@@ -811,12 +822,17 @@ private fun SharedTransitionScope.ExpandedTabs(
                 shape = shapes.tabBarShape,
                 elevation = elevations.expandedElevation
             )
-            .edgeLightingGlow(shapes.tabBarShape, width = 1.dp)
+            .edgeLightingGlow(
+                shape = shapes.tabBarShape,
+                lightColor = colors.edgeGlowColor,
+                width = 0.55.dp
+            )
             .background(
                 color = colors.backgroundColor,
                 shape = shapes.tabBarShape
             )
             .clip(shapes.tabBarShape)
+            .border(0.45.dp, colors.edgeGlowColor.copy(alpha = 0.18f), shapes.tabBarShape)
             .then(tabBarContentModifier)
             .touchGlowOverlay(colors.touchGlowColor, glowCenter, glowAlpha, glowRadius)
             .pointerInteropFilter { event ->
@@ -929,12 +945,17 @@ private fun SharedTransitionScope.ExpandedStandaloneTab(
                 shape = shapes.standaloneTabShape,
                 elevation = elevations.expandedElevation
             )
-            .edgeLightingGlow(shapes.standaloneTabShape, width = 1.dp)
+            .edgeLightingGlow(
+                shape = shapes.standaloneTabShape,
+                lightColor = colors.edgeGlowColor,
+                width = 0.55.dp
+            )
             .background(
                 color = colors.backgroundColor,
                 shape = shapes.standaloneTabShape
             )
             .clip(shapes.standaloneTabShape)
+            .border(0.45.dp, colors.edgeGlowColor.copy(alpha = 0.18f), shapes.standaloneTabShape)
             .then(tabBarContentModifier)
             .clickable(
                 onClick = standaloneTab.onClick,
@@ -1119,6 +1140,7 @@ data class FloatingTabBarColors(
     val backgroundColor: Color,
     val accessoryBackgroundColor: Color,
     val touchGlowColor: Color,
+    val edgeGlowColor: Color,
 )
 
 /**
@@ -1168,10 +1190,12 @@ object FloatingTabBarDefaults {
         backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
         accessoryBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
         touchGlowColor: Color = Color.Unspecified,
+        edgeGlowColor: Color = Color.Unspecified,
     ): FloatingTabBarColors = FloatingTabBarColors(
         backgroundColor = backgroundColor,
         accessoryBackgroundColor = accessoryBackgroundColor,
         touchGlowColor = touchGlowColor,
+        edgeGlowColor = edgeGlowColor,
     )
 
     /**

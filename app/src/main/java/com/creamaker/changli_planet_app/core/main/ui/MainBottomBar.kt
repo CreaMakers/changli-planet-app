@@ -35,8 +35,6 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.rememberHazeState
 
-private val BottomBarGlassColor = Color(0xFFEFF2F6).copy(alpha = 0.84f)
-
 @Composable
 fun MainBottomBar(
     selectedDestination: MainTabDestination,
@@ -62,9 +60,10 @@ fun MainBottomBar(
             .windowInsetsPadding(WindowInsets.navigationBars),
         tabBarContentModifier = hazeModifier,
         colors = FloatingTabBarDefaults.colors(
-            backgroundColor = BottomBarGlassColor,
-            accessoryBackgroundColor = BottomBarGlassColor,
-            touchGlowColor = colors.commonColor
+            backgroundColor = colors.bottomBarGlassColor,
+            accessoryBackgroundColor = colors.bottomBarGlassColor,
+            touchGlowColor = colors.commonColor,
+            edgeGlowColor = colors.bottomBarGlassEdgeColor
         ),
         sizes = FloatingTabBarDefaults.sizes(
             tabBarContentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
