@@ -3,9 +3,21 @@ package com.creamaker.changli_planet_app.utils
 import android.content.Context
 import android.os.Message
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shape
@@ -13,6 +25,7 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.creamaker.changli_planet_app.R
@@ -135,7 +148,7 @@ fun getMessage(what: Int, arg1: Int ?= null, arg2: Int? = null, obj: Any? = null
  */
 fun Modifier.edgeLightingGlow(
     shape: Shape,
-    lightColor: Color = Color(0xFFFFFFFF), // 纯白光
+    lightColor: Color = Color(0xFFF7FAFF),
     width: Dp = 2.dp
 ) = this.drawBehind {
     // 1. 绘制外部柔和的弥散光晕 (Outer Glow)
@@ -145,10 +158,10 @@ fun Modifier.edgeLightingGlow(
         frameworkPaint.color = Color.Transparent.toArgb()
         // 设置阴影发光，radius 控制光晕的扩散范围
         frameworkPaint.setShadowLayer(
-            15.dp.toPx(),
+            12.dp.toPx(),
             0f,
             0f,
-            lightColor.copy(alpha = 0.8f).toArgb() // 淡淡的发光
+            lightColor.copy(alpha = 0.42f).toArgb()
         )
         canvas.drawOutline(shape.createOutline(size, layoutDirection, this), paint)
     }
@@ -156,7 +169,65 @@ fun Modifier.edgeLightingGlow(
     // 2. 在边缘勾勒一条极细的内测高光边框（提升玻璃质感）
     drawOutline(
         outline = shape.createOutline(size, layoutDirection, this),
-        color = lightColor.copy(alpha = 0.8f),
+        color = lightColor.copy(alpha = 0.62f),
         style = Stroke(width = width.toPx())
     )
+}
+
+fun Modifier.glassTouchGlow(
+    glowColor: Color,
+    restingRadius: Dp = 26.dp,
+    expandedRadius: Dp = 94.dp
+) = if (glowColor == Color.Unspecified) {
+    this
+} else {
+    composed {
+        var glowCenter by remember { mutableStateOf(Offset.Unspecified) }
+        var isPressed by remember { mutableStateOf(false) }
+        val animatedAlpha by animateFloatAsState(
+            targetValue = if (isPressed) 1f else 0f,
+            animationSpec = tween(durationMillis = if (isPressed) 140 else 220),
+            label = "glassTouchGlowAlpha"
+        )
+        val animatedRadius by animateDpAsState(
+            targetValue = if (isPressed) expandedRadius else restingRadius,
+            animationSpec = tween(durationMillis = if (isPressed) 220 else 260),
+            label = "glassTouchGlowRadius"
+        )
+
+        this
+            .motionEventSpy { event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN,
+                    MotionEvent.ACTION_MOVE -> {
+                        glowCenter = Offset(event.x, event.y)
+                        isPressed = true
+                    }
+
+                    MotionEvent.ACTION_UP,
+                    MotionEvent.ACTION_CANCEL -> {
+                        glowCenter = Offset(event.x, event.y)
+                        isPressed = false
+                    }
+                }
+            }
+            .drawWithContent {
+                if (glowCenter != Offset.Unspecified && animatedAlpha > 0.001f) {
+                    val radiusPx = animatedRadius.toPx()
+                    drawRect(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                glowColor.copy(alpha = 0.22f * animatedAlpha),
+                                glowColor.copy(alpha = 0.12f * animatedAlpha),
+                                glowColor.copy(alpha = 0.06f * animatedAlpha),
+                                Color.Transparent
+                            ),
+                            center = glowCenter,
+                            radius = radiusPx
+                        )
+                    )
+                }
+                drawContent()
+            }
+    }
 }

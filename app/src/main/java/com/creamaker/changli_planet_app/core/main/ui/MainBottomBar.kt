@@ -63,7 +63,8 @@ fun MainBottomBar(
         tabBarContentModifier = hazeModifier,
         colors = FloatingTabBarDefaults.colors(
             backgroundColor = BottomBarGlassColor,
-            accessoryBackgroundColor = BottomBarGlassColor
+            accessoryBackgroundColor = BottomBarGlassColor,
+            touchGlowColor = colors.commonColor
         ),
         sizes = FloatingTabBarDefaults.sizes(
             tabBarContentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
@@ -75,6 +76,7 @@ fun MainBottomBar(
         bottomBarItems.forEach { item ->
             tab(
                 key = item.index,
+                indication = null,
                 title = {
                     val selected = item.index == currentSelectedKey
                     Text(

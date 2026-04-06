@@ -2,6 +2,7 @@
 
 package com.creamaker.changli_planet_app.widget.view
 
+import android.view.MotionEvent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterExitState
@@ -10,8 +11,11 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -38,21 +42,28 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -342,6 +353,52 @@ interface FloatingTabBarScope {
 }
 
 @Composable
+private fun rememberTouchGlow(
+    isPressed: Boolean,
+    pressedOffset: Offset,
+    restingRadius: Dp = 24.dp,
+    expandedRadius: Dp = 94.dp
+): Triple<Offset, Float, Dp> {
+    val alpha by animateFloatAsState(
+        targetValue = if (isPressed) 1f else 0f,
+        animationSpec = tween(durationMillis = if (isPressed) 120 else 220),
+        label = "floatingTouchGlowAlpha"
+    )
+    val radius by animateDpAsState(
+        targetValue = if (isPressed) expandedRadius else restingRadius,
+        animationSpec = tween(durationMillis = if (isPressed) 210 else 260),
+        label = "floatingTouchGlowRadius"
+    )
+    return Triple(pressedOffset, alpha, radius)
+}
+
+private fun Modifier.touchGlowOverlay(
+    glowColor: Color,
+    center: Offset,
+    alpha: Float,
+    radius: Dp
+): Modifier {
+    if (glowColor == Color.Unspecified) return this
+    return drawWithContent {
+        drawContent()
+        if (center != Offset.Unspecified && alpha > 0.001f) {
+            drawRect(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        glowColor.copy(alpha = 0.24f * alpha),
+                        glowColor.copy(alpha = 0.13f * alpha),
+                        glowColor.copy(alpha = 0.06f * alpha),
+                        Color.Transparent
+                    ),
+                    center = center,
+                    radius = radius.toPx()
+                )
+            )
+        }
+    }
+}
+
+@Composable
 private fun SharedTransitionScope.InlineBar(
     scope: FloatingTabBarScopeImpl,
     selectedTabKey: Any?,
@@ -447,6 +504,9 @@ private fun SharedTransitionScope.InlineTab(
     modifier: Modifier,
     tabBarContentModifier: Modifier
 ) {
+    var pressedOffset by remember { mutableStateOf(Offset.Unspecified) }
+    var isPressed by remember { mutableStateOf(false) }
+    val (glowCenter, glowAlpha, glowRadius) = rememberTouchGlow(isPressed, pressedOffset)
     Box(
         modifier = modifier
             .sharedElement(
@@ -465,14 +525,36 @@ private fun SharedTransitionScope.InlineTab(
             )
             .clip(shapes.tabBarShape)
             .then(tabBarContentModifier)
-            .clickable(
-                onClick = {
-                    onInlineTabClick()
-                    inlineTab.onClick()
-                },
-                indication = inlineTab.indication?.invoke(),
-                interactionSource = remember { MutableInteractionSource() }
-            )
+            .touchGlowOverlay(colors.touchGlowColor, glowCenter, glowAlpha, glowRadius)
+            .pointerInteropFilter { event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        pressedOffset = Offset(event.x, event.y)
+                        isPressed = true
+                        true
+                    }
+
+                    MotionEvent.ACTION_MOVE -> {
+                        pressedOffset = Offset(event.x, event.y)
+                        true
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        pressedOffset = Offset(event.x, event.y)
+                        isPressed = false
+                        onInlineTabClick()
+                        inlineTab.onClick()
+                        true
+                    }
+
+                    MotionEvent.ACTION_CANCEL -> {
+                        isPressed = false
+                        true
+                    }
+
+                    else -> false
+                }
+            }
             .padding(sizes.tabInlineContentPadding)
     ) {
         Tab(
@@ -712,6 +794,10 @@ private fun SharedTransitionScope.ExpandedTabs(
     tabBarContentModifier: Modifier
 ) {
     val inlineTab = scope.getInlineTab(selectedTabKey)
+    val tabBounds = remember { mutableStateMapOf<Any, Rect>() }
+    var pressedOffset by remember { mutableStateOf(Offset.Unspecified) }
+    var isPressed by remember { mutableStateOf(false) }
+    val (glowCenter, glowAlpha, glowRadius) = rememberTouchGlow(isPressed, pressedOffset)
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(sizes.tabSpacing),
@@ -732,12 +818,51 @@ private fun SharedTransitionScope.ExpandedTabs(
             )
             .clip(shapes.tabBarShape)
             .then(tabBarContentModifier)
+            .touchGlowOverlay(colors.touchGlowColor, glowCenter, glowAlpha, glowRadius)
+            .pointerInteropFilter { event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        pressedOffset = Offset(event.x, event.y)
+                        isPressed = true
+                        true
+                    }
+
+                    MotionEvent.ACTION_MOVE -> {
+                        pressedOffset = Offset(event.x, event.y)
+                        true
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        val releasePoint = Offset(event.x, event.y)
+                        pressedOffset = releasePoint
+                        isPressed = false
+                        val selectedKey = tabBounds.entries.firstOrNull { (_, bounds) ->
+                            bounds.contains(releasePoint)
+                        }?.key
+                        scope.tabs.firstOrNull { it.key == selectedKey }?.onClick?.invoke()
+                        true
+                    }
+
+                    MotionEvent.ACTION_CANCEL -> {
+                        isPressed = false
+                        true
+                    }
+
+                    else -> false
+                }
+            }
             .padding(sizes.tabBarContentPadding)
             .fillMaxWidth()
             .animateContentSize()
     ) {
         scope.tabs.forEach { tab ->
-            Box(modifier = Modifier.weight(1f)) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .onGloballyPositioned { coordinates ->
+                        tabBounds[tab.key] = coordinates.boundsInParent()
+                    }
+            ) {
                 Tab(
                     icon = {
                         Box(
@@ -772,11 +897,6 @@ private fun SharedTransitionScope.ExpandedTabs(
                         .fillMaxWidth()
                         .skipToLookaheadSize()
                         .clip(shapes.tabShape)
-                        .clickable(
-                            onClick = tab.onClick,
-                            indication = tab.indication?.invoke(),
-                            interactionSource = remember { MutableInteractionSource() }
-                        )
                         .padding(sizes.tabExpandedContentPadding)
                 )
             }
@@ -998,6 +1118,7 @@ private data class FloatingTabBarTab(
 data class FloatingTabBarColors(
     val backgroundColor: Color,
     val accessoryBackgroundColor: Color,
+    val touchGlowColor: Color,
 )
 
 /**
@@ -1046,9 +1167,11 @@ object FloatingTabBarDefaults {
     fun colors(
         backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
         accessoryBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        touchGlowColor: Color = Color.Unspecified,
     ): FloatingTabBarColors = FloatingTabBarColors(
         backgroundColor = backgroundColor,
         accessoryBackgroundColor = accessoryBackgroundColor,
+        touchGlowColor = touchGlowColor,
     )
 
     /**
