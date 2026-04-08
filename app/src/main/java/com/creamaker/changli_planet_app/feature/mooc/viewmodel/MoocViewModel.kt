@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -264,14 +265,19 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun loginWithRetry(username: String, password: String, forceRefresh: Boolean): Resource<Boolean> {
         if (forceRefresh) {
-            clearMoocSession()
+            withContext(Dispatchers.IO) {
+                clearMoocSession()
+            }
+
             clearLocalMoocCache()
         }
         val first = awaitLoginResult(username, password)
         if (first !is Resource.Error || !shouldRetryNetworkError(first.msg)) {
             return first
         }
-        clearMoocSession()
+        withContext(Dispatchers.IO) {
+            clearMoocSession()
+        }
         return awaitLoginResult(username, password)
     }
 
@@ -284,7 +290,9 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
         if (first !is Resource.Error || !shouldRetryNetworkError(first.msg)) {
             return first
         }
-        clearMoocSession()
+        withContext(Dispatchers.IO){
+            clearMoocSession()
+        }
         val relogin = awaitLoginResult(username, password)
         if (relogin is Resource.Success && relogin.data) {
             return block()
@@ -445,6 +453,7 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
                     StudentInfoManager.studentId,
                     StudentInfoManager.studentPassword
                 ) {
+                    Log.d(TAG, "Fetching homeworks for courseId=$cleanCourseId")
                     repository.getCourseHomeworks(cleanCourseId)
                         .filter { it !is Resource.Loading }
                         .first()
@@ -452,6 +461,7 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
 
                 when (result) {
                     is Resource.Success -> {
+                        Log.d(TAG, "Successfully fetched homeworks for courseId=$cleanCourseId: ${result.data.size} items")
                         val apiResponse = ApiResponse.Success(result.data.toList())
                         updateHomeworksForCourse(courseId, apiResponse)
                         result.data.forEach { hw ->
@@ -463,6 +473,7 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
                     }
 
                     is Resource.Error -> {
+                        Log.d(TAG, "Failed to fetch homeworks for courseId=$cleanCourseId: ${result.msg}")
                         showDialog("作业加载失败：${result.msg}")
                         if (previous is ApiResponse.Success) {
                             updateHomeworksForCourse(courseId, previous)
@@ -541,15 +552,26 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
             markCourseAsPreloaded(courseId)
             if (courseId in _homeworkCourseIds.value) {
                 if (_pendingHomeworksByCourse.value[courseId] == null || _pendingHomeworksByCourse.value[courseId] is ApiResponse.Error) {
+                    Log.d(TAG, "Loading homeworks for course $courseId")
                     getCourseHomeworks(courseId)
                 }
+                else{
+                    Log.d(TAG, "Homeworks for course $courseId already loaded or loading")
+                }
             } else if (_pendingHomeworksByCourse.value[courseId] == null) {
+                Log.d(TAG, "Course $courseId has no homework, setting empty list")
                 updateHomeworksForCourse(courseId, ApiResponse.Success(emptyList()))
+            }
+            else{
+                Log.d(TAG, "Homeworks for course $courseId already loaded or loading")
             }
             val cachedTests = _pendingTestsByCourse.value[courseId]
             if (cachedTests == null || cachedTests is ApiResponse.Error) {
                 getCourseTests(courseId)
             }
+        }
+        else{
+            Log.d(TAG, "Course $courseId collapsed by user")
         }
     }
 
