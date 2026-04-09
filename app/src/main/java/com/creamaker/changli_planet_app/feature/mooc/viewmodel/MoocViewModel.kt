@@ -138,8 +138,11 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
         if (cachedIds.isNotEmpty()) {
             _preloadedCourseIds.value = cachedIds
         }
-        if (cachedHomeworks.isNotEmpty()) {
-            _homeworkCourseIds.value = cachedHomeworks.keys
+        val cachedHomeworkCourseIds = MoocLocalCache.getHomeworkCourseIds()
+        _homeworkCourseIds.value = when {
+            cachedHomeworkCourseIds.isNotEmpty() -> cachedHomeworkCourseIds
+            cachedHomeworks.isNotEmpty() -> cachedHomeworks.keys
+            else -> emptySet()
         }
     }
 
@@ -255,21 +258,11 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun clearLocalMoocCache() {
-        runCatching {
-            MoocLocalCache.clear()
-        }.onFailure {
-            Log.e(TAG, "Failed to clear local MOOC cache", it)
-        }
-    }
-
     private suspend fun loginWithRetry(username: String, password: String, forceRefresh: Boolean): Resource<Boolean> {
         if (forceRefresh) {
             withContext(Dispatchers.IO) {
                 clearMoocSession()
             }
-
-            clearLocalMoocCache()
         }
         val first = awaitLoginResult(username, password)
         if (first !is Resource.Error || !shouldRetryNetworkError(first.msg)) {
@@ -302,6 +295,15 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             first
         }
+    }
+
+    private fun pruneCourseCaches(validCourseIds: Set<String>) {
+        _pendingHomeworksByCourse.value = _pendingHomeworksByCourse.value
+            .filterKeys { it in validCourseIds }
+        _pendingTestsByCourse.value = _pendingTestsByCourse.value
+            .filterKeys { it in validCourseIds }
+        persistHomeworkCache()
+        persistTestCache()
     }
 
     fun loginAndFetchCourses(account: String, password: String, forceRefresh: Boolean = false) {
@@ -350,7 +352,9 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
                             PendingAssignmentCourse(id = cleanId, name = it.name)
                         }.distinctBy { it.id }
                         _homeworkCourseIds.value = homeworkCourses.map { it.id }.toSet()
+                        MoocLocalCache.saveHomeworkCourseIds(_homeworkCourseIds.value)
                         val mergedCourses = scanCoursesForTests(account, password, homeworkCourses)
+                        pruneCourseCaches(mergedCourses.map { it.id }.toSet())
                         updatePendingCourses(mergedCourses)
                         MoocLocalCache.markSuccessfulRefresh()
                     }
@@ -550,7 +554,11 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
         
         if (!isCurrentlyExpanded) {
             markCourseAsPreloaded(courseId)
-            if (courseId in _homeworkCourseIds.value) {
+            Log.d(TAG,"jiance:"+_pendingHomeworksByCourse.value[courseId].toString())
+            val shouldTryLoadHomework =
+                courseId in _homeworkCourseIds.value || _homeworkCourseIds.value.isEmpty()
+            if (shouldTryLoadHomework) {
+
                 if (_pendingHomeworksByCourse.value[courseId] == null || _pendingHomeworksByCourse.value[courseId] is ApiResponse.Error) {
                     Log.d(TAG, "Loading homeworks for course $courseId")
                     getCourseHomeworks(courseId)
