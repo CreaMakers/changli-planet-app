@@ -21,10 +21,14 @@ import kotlinx.coroutines.withContext
 class OverviewViewModel : ViewModel() {
     companion object {
         private const val TAG = "OverviewViewModel"
+        private const val REFRESH_INTERVAL_MS = 30 * 60 * 1000L // 30 分钟
     }
 
     private val repository by lazy { OverviewRepository(PlanetApplication.appContext) }
     private var loadJob: Job? = null
+
+    // 上次网络刷新成功的时间戳
+    private var lastRefreshTimeMs: Long = 0L
 
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
@@ -53,8 +57,12 @@ class OverviewViewModel : ViewModel() {
 
             loadMoocFromCache()
 
-            if (localState.isBoundStudent && localState.isOnline) {
+            val shouldRefresh = localState.isBoundStudent && localState.isOnline &&
+                (lastRefreshTimeMs == 0L || System.currentTimeMillis() - lastRefreshTimeMs >= REFRESH_INTERVAL_MS)
+
+            if (shouldRefresh) {
                 val refreshedState = repository.refreshState()
+                lastRefreshTimeMs = System.currentTimeMillis()
                 _uiState.value = mergeForDisplay(
                     current = _uiState.value,
                     incoming = refreshedState,
@@ -62,6 +70,8 @@ class OverviewViewModel : ViewModel() {
                 )
                 // 异步刷新慕课网络数据
                 refreshMoocData()
+            } else if (localState.isBoundStudent && localState.isOnline) {
+                Log.d(TAG, "Skip refresh, cache valid (lastRefresh=${lastRefreshTimeMs})")
             }
         }
     }

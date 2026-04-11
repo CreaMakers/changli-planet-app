@@ -21,6 +21,7 @@ data class OverviewUiState(
     val metrics: List<OverviewMetricUiModel> = emptyList(),
     val todayCourses: List<OverviewCourseUiModel> = emptyList(),
     val todayCourseMessage: String = "",
+    val isShowingTomorrow: Boolean = false,
     val pendingHomeworks: List<OverviewHomeworkUiModel> = emptyList(),
     val pendingHomeworkMessage: String = "",
     val pendingTests: List<OverviewTestUiModel> = emptyList(),

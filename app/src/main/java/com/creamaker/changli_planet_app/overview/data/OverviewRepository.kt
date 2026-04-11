@@ -86,7 +86,33 @@ class OverviewRepository(
         val currentTerm = getCurrentTerm()
         val currentWeek = getCurrentWeek(currentTerm)
         val currentUser = UserInfoManager.userId.takeIf { it > 0 }?.let { userDao.getUserById(it) }
-        val todayCourses = courses.toTodayCourses(currentWeek)
+
+        val isShowingTomorrow = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) >= 21
+        val targetWeekday: Int
+        val targetWeek: Int
+        val targetCalendar: Calendar
+
+        if (isShowingTomorrow) {
+            targetCalendar = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, 1) }
+            targetWeekday = targetCalendar.let {
+                when (it.get(Calendar.DAY_OF_WEEK)) {
+                    Calendar.SUNDAY -> 7
+                    else -> it.get(Calendar.DAY_OF_WEEK) - 1
+                }
+            }
+            targetWeek = getCurrentWeekForDate(currentTerm, targetCalendar)
+        } else {
+            targetCalendar = Calendar.getInstance()
+            targetWeekday = Calendar.getInstance().let {
+                when (it.get(Calendar.DAY_OF_WEEK)) {
+                    Calendar.SUNDAY -> 7
+                    else -> it.get(Calendar.DAY_OF_WEEK) - 1
+                }
+            }
+            targetWeek = currentWeek
+        }
+
+        val displayCourses = courses.toDayCourses(targetWeekday, targetWeek)
         val electricitySnapshot = OverviewLocalCache.getElectricitySnapshot()
         val isElectricityBound = hasElectricityBinding() || electricitySnapshot != null
 
@@ -99,17 +125,18 @@ class OverviewRepository(
             accountName = currentUser?.account?.takeIf { it.isNotBlank() } ?: UserInfoManager.account.ifBlank { "长理星球" },
             avatarUrl = currentUser?.avatarUrl?.takeIf { it.isNotBlank() } ?: UserInfoManager.userAvatar,
             studentId = studentId,
-            dateText = buildDateText(currentTerm, currentWeek),
+            dateText = buildDateText(currentTerm, currentWeek, targetCalendar, isShowingTomorrow),
             currentTerm = currentTerm,
             currentWeek = currentWeek,
             dataSourceLabel = if (courses.isEmpty() && grades.isEmpty()) "本地数据已上屏" else "已完成静默刷新",
             metrics = buildMetrics(grades, electricitySnapshot, isElectricityBound),
-            todayCourses = todayCourses,
+            todayCourses = displayCourses,
             todayCourseMessage = when {
                 studentId.isBlank() || studentPassword.isBlank() -> "先绑定学号"
-                todayCourses.isNotEmpty() -> ""
+                displayCourses.isNotEmpty() -> ""
                 else -> "没有数据"
             },
+            isShowingTomorrow = isShowingTomorrow,
             pendingHomeworks = emptyList(),
             pendingHomeworkMessage = when {
                 studentId.isBlank() || studentPassword.isBlank() -> "先绑定学号"
@@ -346,10 +373,10 @@ class OverviewRepository(
 
     private fun hasNetwork(): Boolean = NetworkUtil.getNetworkType(appContext) != NetworkUtil.NetworkType.None
 
-    private fun buildDateText(term: String, week: Int): String {
-        val now = Calendar.getInstance()
-        val weekday = listOf("", "周日", "周一", "周二", "周三", "周四", "周五", "周六")[now.get(Calendar.DAY_OF_WEEK)]
-        return "${now.get(Calendar.MONTH) + 1}月${now.get(Calendar.DAY_OF_MONTH)}日 $weekday  ·  $term 第${week}周"
+    private fun buildDateText(term: String, week: Int, targetCalendar: Calendar = Calendar.getInstance(), isShowingTomorrow: Boolean = false): String {
+        val weekday = listOf("", "周日", "周一", "周二", "周三", "周四", "周五", "周六")[targetCalendar.get(Calendar.DAY_OF_WEEK)]
+        val prefix = if (isShowingTomorrow) "明日" else ""
+        return "${prefix}${targetCalendar.get(Calendar.MONTH) + 1}月${targetCalendar.get(Calendar.DAY_OF_MONTH)}日 $weekday  ·  $term 第${week}周"
     }
 
     private fun getCurrentTerm(): String {
@@ -374,6 +401,20 @@ class OverviewRepository(
                 set(Calendar.MILLISECOND, 0)
             }.time
             (((today.time - startDate.time) / TimeUnit.DAYS.toMillis(1)) / 7 + 1).toInt().coerceAtLeast(1)
+        }.getOrDefault(1)
+    }
+
+    private fun getCurrentWeekForDate(term: String, calendar: Calendar): Int {
+        val startTime = com.creamaker.changli_planet_app.common.cache.CommonInfo.termMap[term] ?: return 1
+        return runCatching {
+            val startDate = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).parse(startTime.take(10)) ?: return 1
+            val targetDate = calendar.apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.time
+            (((targetDate.time - startDate.time) / TimeUnit.DAYS.toMillis(1)) / 7 + 1).toInt().coerceAtLeast(1)
         }.getOrDefault(1)
     }
 
@@ -417,15 +458,9 @@ class OverviewRepository(
             }
         }
 
-    private fun List<TimeTableMySubject>.toTodayCourses(currentWeek: Int): List<OverviewCourseUiModel> {
-        val todayWeekday = Calendar.getInstance().let {
-            when (it.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY -> 7
-                else -> it.get(Calendar.DAY_OF_WEEK) - 1
-            }
-        }
+    private fun List<TimeTableMySubject>.toDayCourses(targetWeekday: Int, currentWeek: Int): List<OverviewCourseUiModel> {
         val colors = listOf(Color(0xFF5E87F6), Color(0xFF45B979), Color(0xFFF08D3C), Color(0xFFB974F0))
-        return filter { it.weekday == todayWeekday && (it.weeks.isNullOrEmpty() || currentWeek in it.weeks.orEmpty()) }
+        return filter { it.weekday == targetWeekday && (it.weeks.isNullOrEmpty() || currentWeek in it.weeks.orEmpty()) }
             .sortedBy { it.start }
             .mapIndexed { index, course ->
                 OverviewCourseUiModel(

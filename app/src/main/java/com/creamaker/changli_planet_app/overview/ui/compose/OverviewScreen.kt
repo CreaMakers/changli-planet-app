@@ -120,7 +120,7 @@ private fun OverviewScreen(
         }
 
         item {
-            SectionTitle("今日课程", "查看全部") { onQuickActionClick("schedule") }
+            SectionTitle(if (state.isShowingTomorrow) "明日课程" else "今日课程", "查看全部") { onQuickActionClick("schedule") }
         }
 
         item {
