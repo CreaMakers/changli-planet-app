@@ -52,6 +52,10 @@
 
 欢迎使用长理星球的时候留下你宝贵的意见
 
+## 友链
+
+[计算机学院往年考试题仓库](https://github.com/MedivhTirisfal/csust_test_database)
+
 ## FAQ
 
 ### 在长理星球中输入自己的学生账号与密码是否有泄露的风险
