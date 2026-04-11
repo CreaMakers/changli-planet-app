@@ -100,7 +100,7 @@ class OverviewRepository(
                     else -> it.get(Calendar.DAY_OF_WEEK) - 1
                 }
             }
-            targetWeek = getCurrentWeekForDate(currentTerm, targetCalendar)
+            targetWeek = if (targetWeekday == 1) currentWeek + 1 else currentWeek
         } else {
             targetCalendar = Calendar.getInstance()
             targetWeekday = Calendar.getInstance().let {
@@ -125,7 +125,7 @@ class OverviewRepository(
             accountName = currentUser?.account?.takeIf { it.isNotBlank() } ?: UserInfoManager.account.ifBlank { "长理星球" },
             avatarUrl = currentUser?.avatarUrl?.takeIf { it.isNotBlank() } ?: UserInfoManager.userAvatar,
             studentId = studentId,
-            dateText = buildDateText(currentTerm, currentWeek, targetCalendar, isShowingTomorrow),
+            dateText = buildDateText(currentTerm, targetWeek, targetCalendar, isShowingTomorrow),
             currentTerm = currentTerm,
             currentWeek = currentWeek,
             dataSourceLabel = if (courses.isEmpty() && grades.isEmpty()) "本地数据已上屏" else "已完成静默刷新",
