@@ -13,33 +13,22 @@ import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ExamArran
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCache
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
 import com.creamaker.changli_planet_app.feature.common.data.repository.ElectricityRepository
-import com.creamaker.changli_planet_app.feature.mooc.data.local.MoocLocalCache
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache.ElectricityHistoryEntry
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache.ElectricitySnapshot
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewCourseUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewExamUiModel
-import com.creamaker.changli_planet_app.overview.ui.model.OverviewHomeworkUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewMetricUiModel
-import com.creamaker.changli_planet_app.overview.ui.model.OverviewTestUiModel
 import com.creamaker.changli_planet_app.overview.ui.model.OverviewUiState
 import com.creamaker.changli_planet_app.utils.NetworkUtil
 import com.dcelysia.csust_spider.core.Resource
-import com.dcelysia.csust_spider.core.RetrofitUtils
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.dcelysia.csust_spider.education.data.remote.services.ExamArrangeService
-import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocCourse
-import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocHomework
-import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocTest
-import com.dcelysia.csust_spider.mooc.data.remote.dto.PendingAssignmentCourse
-import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -51,32 +40,18 @@ import kotlin.math.abs
 class OverviewRepository(
     context: Context
 ) {
-    private data class PendingMoocRefreshResult(
-        val homeworks: List<OverviewHomeworkUiModel>?,
-        val tests: List<OverviewTestUiModel>?,
-        val homeworkRefreshed: Boolean,
-        val testRefreshed: Boolean
-    )
-
-    companion object {
-        private const val MOOC_SCAN_DELAY_MS = 40L
-    }
 
     private val appContext = context.applicationContext
     private val courseDao by lazy { CoursesDataBase.getDatabase(appContext).courseDao() }
     private val userDao by lazy { UserDataBase.getInstance(appContext).itemDao() }
     private val examCache by lazy { ExamArrangementCache() }
-    private val moocRepository by lazy { MoocRepository.instance }
     private val electricityRepository by lazy { ElectricityRepository() }
 
     suspend fun loadLocalState(): OverviewUiState = withContext(Dispatchers.IO) {
         buildState(
             courses = readLocalCourses(),
             grades = ScoreCache.getGrades().orEmpty(),
-            exams = examCache.getExamArrangement().orEmpty().toUiExams(),
-            homeworks = OverviewLocalCache.getPendingHomeworks(),
-            tests = OverviewLocalCache.getPendingTests(),
-            localOnly = true
+            exams = examCache.getExamArrangement().orEmpty().toUiExams()
         )
     }
 
@@ -86,87 +61,25 @@ class OverviewRepository(
             val courseDeferred = async(Dispatchers.IO) { fetchCourses(currentTerm) }
             val gradesDeferred = async(Dispatchers.IO) { fetchGrades() }
             val examsDeferred = async(Dispatchers.IO) { fetchExams(currentTerm) }
-            val moocDeferred = async(Dispatchers.IO) { fetchPendingMoocState() }
             val electricityDeferred = async(Dispatchers.IO) { refreshElectricityIfNeeded() }
 
             val courses = courseDeferred.await() ?: readLocalCourses()
             val grades = gradesDeferred.await() ?: ScoreCache.getGrades().orEmpty()
             val exams = examsDeferred.await() ?: examCache.getExamArrangement().orEmpty().toUiExams()
-            val moocState = moocDeferred.await()
-            val homeworks = if (moocState.homeworkRefreshed) {
-                moocState.homeworks.orEmpty()
-            } else {
-                OverviewLocalCache.getPendingHomeworks()
-            }
-            val tests = if (moocState.testRefreshed) {
-                moocState.tests.orEmpty()
-            } else {
-                OverviewLocalCache.getPendingTests()
-            }
             electricityDeferred.await()
 
             buildState(
                 courses = courses,
                 grades = grades,
-                exams = exams,
-                homeworks = homeworks,
-                tests = tests,
-                localOnly = false
+                exams = exams
             ).copy(isSilentSyncing = false)
         }
-    }
-
-    private suspend fun clearMoocSession() {
-        runCatching { RetrofitUtils.ClearClient("moocClient") }
-    }
-
-    private suspend fun awaitLoginResult(studentId: String, studentPassword: String): Resource<Boolean> {
-        var final: Resource<Boolean>? = null
-        runCatching {
-            moocRepository.login(studentId, studentPassword).collect {
-                if (it !is Resource.Loading) final = it
-            }
-        }
-        return final ?: Resource.Error("网络错误")
-    }
-
-    private suspend fun loginMoocWithRetry(studentId: String, studentPassword: String): Resource<Boolean> {
-        val first = awaitLoginResult(studentId, studentPassword)
-        if (first !is Resource.Error || !shouldRetryNetworkError(first.msg)) {
-            return first
-        }
-        clearMoocSession()
-        return awaitLoginResult(studentId, studentPassword)
-    }
-
-    private fun shouldRetryNetworkError(message: String?): Boolean {
-        return message?.contains("网络错误") == true
-    }
-
-    private suspend fun <T> executeMoocRequestWithRetry(
-        studentId: String,
-        studentPassword: String,
-        block: suspend () -> Resource<T>
-    ): Resource<T> {
-        val first = block()
-        if (first !is Resource.Error || !shouldRetryNetworkError(first.msg)) {
-            return first
-        }
-        clearMoocSession()
-        val relogin = awaitLoginResult(studentId, studentPassword)
-        if (relogin is Resource.Success && relogin.data) {
-            return block()
-        }
-        return if (relogin is Resource.Error) Resource.Error(relogin.msg) else first
     }
 
     private suspend fun buildState(
         courses: List<TimeTableMySubject>,
         grades: List<Grade>,
-        exams: List<OverviewExamUiModel>,
-        homeworks: List<OverviewHomeworkUiModel>,
-        tests: List<OverviewTestUiModel>,
-        localOnly: Boolean
+        exams: List<OverviewExamUiModel>
     ): OverviewUiState = withContext(Dispatchers.IO) {
         val studentId = StudentInfoManager.studentId
         val studentPassword = StudentInfoManager.studentPassword
@@ -179,7 +92,7 @@ class OverviewRepository(
 
         OverviewUiState(
             isRefreshing = false,
-            isSilentSyncing = !localOnly && hasNetwork(),
+            isSilentSyncing = hasNetwork(),
             isBoundStudent = studentId.isNotBlank() && studentPassword.isNotBlank(),
             isOnline = hasNetwork(),
             isElectricityBound = isElectricityBound,
@@ -189,7 +102,7 @@ class OverviewRepository(
             dateText = buildDateText(currentTerm, currentWeek),
             currentTerm = currentTerm,
             currentWeek = currentWeek,
-            dataSourceLabel = if (localOnly) "本地数据已上屏" else "已完成静默刷新",
+            dataSourceLabel = if (courses.isEmpty() && grades.isEmpty()) "本地数据已上屏" else "已完成静默刷新",
             metrics = buildMetrics(grades, electricitySnapshot, isElectricityBound),
             todayCourses = todayCourses,
             todayCourseMessage = when {
@@ -197,16 +110,14 @@ class OverviewRepository(
                 todayCourses.isNotEmpty() -> ""
                 else -> "没有数据"
             },
-            pendingHomeworks = homeworks,
+            pendingHomeworks = emptyList(),
             pendingHomeworkMessage = when {
                 studentId.isBlank() || studentPassword.isBlank() -> "先绑定学号"
-                homeworks.isNotEmpty() -> ""
                 else -> "没有数据"
             },
-            pendingTests = tests,
+            pendingTests = emptyList(),
             pendingTestMessage = when {
                 studentId.isBlank() || studentPassword.isBlank() -> "先绑定学号"
-                tests.isNotEmpty() -> ""
                 else -> "没有数据"
             },
             upcomingExams = exams.take(3),
@@ -302,161 +213,6 @@ class OverviewRepository(
         return exams.toUiExams()
     }
 
-    private suspend fun fetchPendingMoocState(): PendingMoocRefreshResult {
-        val studentId = StudentInfoManager.studentId
-        val studentPassword = StudentInfoManager.studentPassword
-        if (studentId.isBlank() || studentPassword.isBlank()) {
-            return PendingMoocRefreshResult(
-                homeworks = null,
-                tests = null,
-                homeworkRefreshed = false,
-                testRefreshed = false
-            )
-        }
-
-        val loginResult = loginMoocWithRetry(studentId, studentPassword)
-        if (loginResult !is Resource.Success || !loginResult.data) {
-            return PendingMoocRefreshResult(
-                homeworks = null,
-                tests = null,
-                homeworkRefreshed = false,
-                testRefreshed = false
-            )
-        }
-
-        val homeworkCoursesResult = executeMoocRequestWithRetry(studentId, studentPassword) {
-            var final: Resource<List<PendingAssignmentCourse>>? = null
-            runCatching {
-                moocRepository.getCourseNamesWithPendingHomeworks().collect {
-                    if (it !is Resource.Loading) final = it
-                }
-            }
-            final ?: Resource.Error("网络错误")
-        }
-        val homeworkCourses = (homeworkCoursesResult as? Resource.Success)?.data.orEmpty()
-        val homeworks = homeworkCourses.map {
-            val cleanId = it.id.substringBefore("&").replace(Regex("[^0-9]"), "")
-            PendingAssignmentCourse(id = cleanId, name = it.name)
-        }.flatMap { course -> fetchCourseHomeworkItems(course, studentId, studentPassword) }
-            .sortedBy { it.deadlineMillisForSort() }
-
-        val allCoursesResult = executeMoocRequestWithRetry(studentId, studentPassword) {
-            var final: Resource<MutableList<MoocCourse>>? = null
-            runCatching {
-                moocRepository.getCourses().collect {
-                    if (it !is Resource.Loading) final = it
-                }
-            }
-            final ?: Resource.Error("网络错误")
-        }
-        val tests = (allCoursesResult as? Resource.Success)?.data.orEmpty().map { course ->
-            val cleanId = course.id.substringBefore("&").replace(Regex("[^0-9]"), "")
-            MoocCourse(
-                id = cleanId,
-                number = course.number,
-                name = course.name,
-                department = course.department,
-                teacher = course.teacher
-            )
-        }.flatMap { course ->
-            delay(MOOC_SCAN_DELAY_MS)
-            fetchCourseTestItems(course.id, course.name, studentId, studentPassword)
-        }.sortedBy { it.testMillisForSort() }
-
-        val homeworkRefreshed = homeworkCoursesResult is Resource.Success
-        val testRefreshed = allCoursesResult is Resource.Success
-        if (homeworkRefreshed) {
-            OverviewLocalCache.savePendingHomeworks(homeworks)
-        }
-        if (testRefreshed) {
-            OverviewLocalCache.savePendingTests(tests)
-        }
-        if (homeworkRefreshed || testRefreshed) {
-            MoocLocalCache.markSuccessfulRefresh()
-        }
-
-        return PendingMoocRefreshResult(
-            homeworks = homeworks,
-            tests = tests,
-            homeworkRefreshed = homeworkRefreshed,
-            testRefreshed = testRefreshed
-        )
-    }
-
-    private suspend fun fetchCourseHomeworkItems(
-        course: PendingAssignmentCourse,
-        studentId: String,
-        studentPassword: String
-    ): List<OverviewHomeworkUiModel> {
-        val response = executeMoocRequestWithRetry(studentId, studentPassword) {
-            var final: Resource<List<MoocHomework>>? = null
-            runCatching {
-                moocRepository.getCourseHomeworks(course.id).collect {
-                    if (it !is Resource.Loading) final = it
-                }
-            }
-            final ?: Resource.Error("网络错误")
-        } as? Resource.Success ?: return emptyList()
-        return response.data
-            .filter { it.canSubmit && !it.submitStatus }
-            .map { homework ->
-                val deadline = parseDateOrNull(homework.deadline)
-                val remainingMillis = deadline?.time?.minus(System.currentTimeMillis())
-                val isUrgent = remainingMillis != null && remainingMillis in 1 until TimeUnit.DAYS.toMillis(1)
-                OverviewHomeworkUiModel(
-                    id = "${course.id}_${homework.id}",
-                    title = homework.title,
-                    courseName = course.name,
-                    deadlineText = homework.deadline,
-                    urgencyText = buildHomeworkUrgencyText(remainingMillis),
-                    isUrgent = isUrgent
-                )
-            }
-    }
-
-    private suspend fun fetchCourseTestItems(
-        courseId: String,
-        courseName: String,
-        studentId: String,
-        studentPassword: String
-    ): List<OverviewTestUiModel> {
-        val tests = when (val result = executeMoocRequestWithRetry(studentId, studentPassword) {
-            runCatching {
-                Resource.Success(moocRepository.getCourseTestsDirect(courseId))
-            }.getOrElse { Resource.Error(it.message ?: "网络错误") }
-        }) {
-            is Resource.Success -> result.data
-            else -> emptyList()
-        }
-        return tests
-            .filterActivePendingTests()
-            .map { test ->
-                val endDate = parseDateOrNull(test.endTime)
-                val remainingMillis = endDate?.time?.minus(System.currentTimeMillis())
-                val isUrgent = remainingMillis != null && remainingMillis in 1 until TimeUnit.DAYS.toMillis(1)
-                OverviewTestUiModel(
-                    id = "${courseId}_${test.title}",
-                    title = test.title,
-                    courseName = courseName,
-                    timeText = "${test.startTime} - ${test.endTime}",
-                    urgencyText = buildHomeworkUrgencyText(remainingMillis),
-                    isUrgent = isUrgent
-                )
-            }
-    }
-
-    private fun List<MoocTest>.filterActivePendingTests(): List<MoocTest> {
-        return filterNot { it.isSubmitted }
-            .filter { isWithinCurrentWindow(it.startTime, it.endTime) }
-    }
-
-    private fun isWithinCurrentWindow(startTime: String, endTime: String): Boolean {
-        val startDate = parseDateOrNull(startTime) ?: return false
-        val endDate = parseDateOrNull(endTime) ?: return false
-        val now = System.currentTimeMillis()
-        return now in startDate.time..endDate.time
-    }
-
     private fun buildMetrics(
         grades: List<Grade>,
         electricitySnapshot: ElectricitySnapshot?,
@@ -504,27 +260,6 @@ class OverviewRepository(
             .trimEnd('0')
             .trimEnd('.')
     }
-
-    private fun buildHomeworkUrgencyText(remainingMillis: Long?): String {
-        if (remainingMillis == null) return ""
-        if (remainingMillis <= 0L) return "已截止"
-        if (remainingMillis < TimeUnit.HOURS.toMillis(1)) {
-            val minutes = (remainingMillis / TimeUnit.MINUTES.toMillis(1)).coerceAtLeast(1)
-            return "${minutes}分钟内截止"
-        }
-        if (remainingMillis < TimeUnit.DAYS.toMillis(1)) {
-            val hours = (remainingMillis / TimeUnit.HOURS.toMillis(1)).coerceAtLeast(1)
-            return "${hours}小时内截止"
-        }
-        val days = (remainingMillis / TimeUnit.DAYS.toMillis(1)).coerceAtLeast(1)
-        return "${days}天内截止"
-    }
-
-    private fun OverviewHomeworkUiModel.deadlineMillisForSort(): Long =
-        parseDateOrNull(deadlineText)?.time ?: Long.MAX_VALUE
-
-    private fun OverviewTestUiModel.testMillisForSort(): Long =
-        parseDateOrNull(timeText.substringAfterLast(" - ", missingDelimiterValue = timeText))?.time ?: Long.MAX_VALUE
 
     private fun preprocessGrades(rawData: List<Grade>): List<Grade> {
         return rawData
@@ -667,26 +402,6 @@ class OverviewRepository(
             }
         }.orEmpty()
         return WeekJsonInfo(weeks, startClass, endClass - startClass + 1)
-    }
-
-    private fun parseDateOrNull(dateString: String?): Date? {
-        if (dateString.isNullOrBlank()) return null
-        val formats = listOf(
-            "yyyy-MM-dd HH:mm:ss",
-            "yyyy-MM-dd HH:mm",
-            "yyyy-MM-dd",
-            "MM/dd/yyyy HH:mm",
-            "MM/dd/yyyy"
-        )
-        for (format in formats) {
-            try {
-                return SimpleDateFormat(format, Locale.getDefault()).apply {
-                    isLenient = false
-                }.parse(dateString)
-            } catch (_: ParseException) {
-            }
-        }
-        return null
     }
 
     private fun List<ExamArrange>.toUiExams(): List<OverviewExamUiModel> =

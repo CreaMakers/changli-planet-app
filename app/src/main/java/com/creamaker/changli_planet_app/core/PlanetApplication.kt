@@ -8,10 +8,15 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.provider.Settings
 import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import com.creamaker.changli_planet_app.BuildConfig
 import com.creamaker.changli_planet_app.core.bus.PlanetEventBusIndex
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
+import com.creamaker.changli_planet_app.feature.mooc.viewmodel.MoocViewModel
 import com.creamaker.changli_planet_app.skin.SkinManager
 import com.creamaker.changli_planet_app.skin.data.cache.SkinCache
 import com.creamaker.changli_planet_app.utils.StartupTimeTracker
@@ -25,7 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 
-class PlanetApplication : Application() {
+class PlanetApplication : Application(), ViewModelStoreOwner {
     companion object {
         private const val TIME_TABLE_APP_WIDGET = "TimeTableAppWidget"
         private const val CACHE_SCHEMA_VERSION_KEY = "cache_schema_version"
@@ -99,6 +104,20 @@ class PlanetApplication : Application() {
                 else -> androidId
             }
         }
+    }
+
+    private val _appViewModelStore = ViewModelStore()
+    override val viewModelStore: ViewModelStore get() = _appViewModelStore
+
+    private val moocViewModelFactory = object : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return MoocViewModel(this@PlanetApplication) as T
+        }
+    }
+
+    val moocViewModel: MoocViewModel by lazy {
+        ViewModelProvider(this, moocViewModelFactory)[MoocViewModel::class.java]
     }
 
     private val fpsHandlerThread = HandlerThread("fpsHandlerThread").apply { start() }

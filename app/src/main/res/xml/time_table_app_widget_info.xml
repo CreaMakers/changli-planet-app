@@ -4,10 +4,11 @@
     android:minHeight="@dimen/dp171"
     android:updatePeriodMillis="5400000"
     android:initialLayout="@layout/time_table_app_widget"
+    android:previewImage="@drawable/ic_timetable_widget"
     android:description="@string/app_timetable_widget_description"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
-    android:previewLayout="@layout/time_table_app_widget"
+    android:previewLayout="@layout/time_table_app_widget_preview"
     android:targetCellHeight="2"
     android:targetCellWidth="2"
     android:initialKeyguardLayout="@layout/time_table_app_widget" />

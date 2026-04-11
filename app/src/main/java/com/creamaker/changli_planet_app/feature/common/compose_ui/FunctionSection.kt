@@ -178,7 +178,7 @@ fun ExpandableFolderSystemPreview() {
                 iconRes = R.drawable.ic_document,
                 tintColor = FunctionColors.Document
             ) {
-                Route.goContract(context)
+//                showNormalDialog("该功能暂时关闭")
             },
 
             FunctionItemData(

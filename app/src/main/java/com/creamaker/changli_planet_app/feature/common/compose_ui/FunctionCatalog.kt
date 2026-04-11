@@ -76,7 +76,7 @@ fun openFunctionShortcut(context: Context, destination: FunctionDestination) {
         FunctionDestination.Cet -> Route.goCet(context)
         FunctionDestination.LostFound -> CustomToast.showMessage(context, "正在全力开发中")
         FunctionDestination.AccountBook -> Route.goAccountBook(context)
-        FunctionDestination.Contract -> Route.goContract(context)
+        FunctionDestination.Contract -> CustomToast.showMessage(context, "正在全力开发中")
         FunctionDestination.Mandarin -> Route.goMande(context)
     }
 }

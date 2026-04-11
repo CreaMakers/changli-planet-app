@@ -37,7 +37,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,12 +51,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.core.theme.AppTheme
+import com.creamaker.changli_planet_app.feature.mooc.data.model.CourseItem
+import com.creamaker.changli_planet_app.feature.mooc.data.model.HomeworkItem
+import com.creamaker.changli_planet_app.feature.mooc.data.model.MoocUiState
 import com.creamaker.changli_planet_app.feature.mooc.viewmodel.MoocViewModel
 import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocHomework
 import com.dcelysia.csust_spider.mooc.data.remote.dto.MoocTest
@@ -68,29 +68,18 @@ private val TestAccent = Color(0xFF4F7FED)
 
 @Composable
 fun MoocScreen(
-    moocViewModel: MoocViewModel = viewModel(),
+    moocViewModel: MoocViewModel,
     onBack: () -> Unit = {}
 ) {
-    val pendingCourses by moocViewModel.pendingCourse.collectAsStateWithLifecycle()
-    val dialogMessage by moocViewModel.dialogMessage.collectAsStateWithLifecycle()
-    val showForceRefreshPrompt by moocViewModel.showForceRefreshPrompt.collectAsStateWithLifecycle()
-    val isRefreshing by moocViewModel.isRefreshing.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        if (moocViewModel.shouldAutoRefreshOnEnter()) {
-            moocViewModel.loginAndFetchCourses(
-                StudentInfoManager.studentId,
-                StudentInfoManager.studentPassword
-            )
-        }
-    }
+    val uiState by moocViewModel.uiState.collectAsStateWithLifecycle()
 
     MoocScreenContent(
-        pendingCourses = pendingCourses,
-        dialogMessage = dialogMessage,
-        showForceRefreshPrompt = showForceRefreshPrompt,
-        isRefreshing = isRefreshing,
-        moocViewModel = moocViewModel,
+        uiState = uiState,
+        onToggleExpand = moocViewModel::handleCourseClick,
+        onDismissDialog = moocViewModel::dismissDialog,
+        onRequestForceRefresh = moocViewModel::requestForceRefresh,
+        onDismissForceRefreshPrompt = moocViewModel::dismissForceRefreshPrompt,
+        onConfirmForceRefresh = moocViewModel::confirmForceRefresh,
         onBack = onBack
     )
 }
@@ -98,19 +87,20 @@ fun MoocScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MoocScreenContent(
-    pendingCourses: ApiResponse<List<PendingAssignmentCourse>>,
-    dialogMessage: String?,
-    showForceRefreshPrompt: Boolean,
-    isRefreshing: Boolean,
-    moocViewModel: MoocViewModel,
+    uiState: MoocUiState,
+    onToggleExpand: (String) -> Unit,
+    onDismissDialog: () -> Unit,
+    onRequestForceRefresh: () -> Unit,
+    onDismissForceRefreshPrompt: () -> Unit,
+    onConfirmForceRefresh: () -> Unit,
     onBack: () -> Unit
 ) {
     val colors = AppTheme.colors
-    if (!dialogMessage.isNullOrBlank()) {
+    if (!uiState.dialogMessage.isNullOrBlank()) {
         AlertDialog(
-            onDismissRequest = moocViewModel::dismissDialog,
+            onDismissRequest = onDismissDialog,
             confirmButton = {
-                TextButton(onClick = moocViewModel::dismissDialog) {
+                TextButton(onClick = onDismissDialog) {
                     Text(text = "我知道了")
                 }
             },
@@ -123,23 +113,23 @@ private fun MoocScreenContent(
             },
             text = {
                 Text(
-                    text = dialogMessage,
+                    text = uiState.dialogMessage,
                     color = colors.secondaryTextColor
                 )
             },
             containerColor = colors.bgCardColor
         )
     }
-    if (showForceRefreshPrompt) {
+    if (uiState.showForceRefreshPrompt) {
         AlertDialog(
-            onDismissRequest = moocViewModel::dismissForceRefreshPrompt,
+            onDismissRequest = onDismissForceRefreshPrompt,
             confirmButton = {
-                TextButton(onClick = moocViewModel::confirmForceRefresh) {
+                TextButton(onClick = onConfirmForceRefresh) {
                     Text(text = "开始刷新")
                 }
             },
             dismissButton = {
-                TextButton(onClick = moocViewModel::dismissForceRefreshPrompt) {
+                TextButton(onClick = onDismissForceRefreshPrompt) {
                     Text(text = "取消")
                 }
             },
@@ -190,11 +180,11 @@ private fun MoocScreenContent(
                 },
                 actions = {
                     TextButton(
-                        onClick = moocViewModel::requestForceRefresh,
-                        enabled = !isRefreshing
+                        onClick = onRequestForceRefresh,
+                        enabled = !uiState.isRefreshing
                     ) {
                         Text(
-                            text = if (isRefreshing) "刷新中" else "强制刷新",
+                            text = if (uiState.isRefreshing) "刷新中" else "强制刷新",
                             color = colors.primaryTextColor,
                             fontWeight = FontWeight.Bold
                         )
@@ -218,10 +208,10 @@ private fun MoocScreenContent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                SummaryCard(pendingCourses = pendingCourses)
+                SummaryCard(courses = uiState.courses)
             }
 
-            if (isRefreshing) {
+            if (uiState.isRefreshing) {
                 item {
                     MessageCard(
                         title = "正在刷新",
@@ -231,7 +221,7 @@ private fun MoocScreenContent(
                 }
             }
 
-            when (pendingCourses) {
+            when (val courses = uiState.courses) {
                 is ApiResponse.Loading -> {
                     item { LoadingCard() }
                 }
@@ -240,15 +230,15 @@ private fun MoocScreenContent(
                     item {
                         MessageCard(
                             title = "加载失败",
-                            message = pendingCourses.msg.ifBlank { "当前无法获取慕课数据，请稍后再试" },
+                            message = courses.msg.ifBlank { "当前无法获取慕课数据，请稍后再试" },
                             accent = colors.errorRedColor
                         )
                     }
                 }
 
                 is ApiResponse.Success -> {
-                    val courses = pendingCourses.data
-                    if (courses.isEmpty()) {
+                    val courseList = courses.data
+                    if (courseList.isEmpty()) {
                         item {
                             MessageCard(
                                 title = "当前没有待处理事项",
@@ -257,8 +247,11 @@ private fun MoocScreenContent(
                             )
                         }
                     } else {
-                        items(courses, key = { it.id }) { course ->
-                            CourseCard(course = course, moocViewModel = moocViewModel)
+                        items(courseList, key = { it.course.id }) { courseItem ->
+                            CourseCard(
+                                courseItem = courseItem,
+                                onToggleExpand = onToggleExpand
+                            )
                         }
                     }
                 }
@@ -268,9 +261,9 @@ private fun MoocScreenContent(
 }
 
 @Composable
-private fun SummaryCard(pendingCourses: ApiResponse<List<PendingAssignmentCourse>>) {
+private fun SummaryCard(courses: ApiResponse<List<CourseItem>>) {
     val colors = AppTheme.colors
-    val count = (pendingCourses as? ApiResponse.Success)?.data?.size ?: 0
+    val count = (courses as? ApiResponse.Success)?.data?.size ?: 0
     Surface(
         shape = RoundedCornerShape(26.dp),
         color = colors.bgCardColor,
@@ -352,16 +345,11 @@ private fun MessageCard(
 
 @Composable
 private fun CourseCard(
-    course: PendingAssignmentCourse,
-    moocViewModel: MoocViewModel
+    courseItem: CourseItem,
+    onToggleExpand: (String) -> Unit
 ) {
     val colors = AppTheme.colors
-    val expandedIds by moocViewModel.expandedCourseIds.collectAsStateWithLifecycle()
-    val pendingHomeworksByCourse by moocViewModel.pendingHomeworksByCourse.collectAsStateWithLifecycle()
-    val pendingTestsByCourse by moocViewModel.pendingTestsByCourse.collectAsStateWithLifecycle()
-    val expanded = expandedIds.contains(course.id)
-    val homeworks = pendingHomeworksByCourse[course.id] ?: ApiResponse.Loading()
-    val tests = pendingTestsByCourse[course.id] ?: ApiResponse.Loading()
+    val expanded = courseItem.isExpanded
     val rotationAngle by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         label = "courseExpansionAngle"
@@ -378,7 +366,7 @@ private fun CourseCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { moocViewModel.handleCourseClick(course.id) }
+                    .clickable { onToggleExpand(courseItem.course.id) }
                     .padding(horizontal = 20.dp, vertical = 18.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -388,7 +376,7 @@ private fun CourseCard(
                 ) {
                     StatusPill(text = "课程待办", accent = HomeworkAccent, filled = false)
                     Text(
-                        text = course.name,
+                        text = courseItem.course.name,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Black,
                         color = colors.primaryTextColor,
@@ -397,7 +385,7 @@ private fun CourseCard(
                         lineHeight = 24.sp
                     )
                     Text(
-                        text = "课程 ID: ${course.id}",
+                        text = "课程 ID: ${courseItem.course.id}",
                         fontSize = 12.sp,
                         color = colors.secondaryTextColor,
                         fontWeight = FontWeight.Medium
@@ -431,14 +419,14 @@ private fun CourseCard(
                         subtitle = "按截止时间排序",
                         accent = HomeworkAccent
                     ) {
-                        HomeworkContent(homeworks = homeworks, moocViewModel = moocViewModel)
+                        HomeworkContent(homeworkItems = courseItem.homeworks)
                     }
                     TaskSection(
                         title = "待测试",
                         subtitle = "展示未完成的课程测试",
                         accent = TestAccent
                     ) {
-                        TestContent(tests = tests)
+                        TestContent(tests = courseItem.tests)
                     }
                 }
             }
@@ -474,77 +462,30 @@ private fun TaskSection(
 
 @Composable
 private fun HomeworkContent(
-    homeworks: ApiResponse<List<MoocHomework>>,
-    moocViewModel: MoocViewModel
+    homeworkItems: List<HomeworkItem>
 ) {
     val colors = AppTheme.colors
-    when (homeworks) {
-        is ApiResponse.Loading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = colors.loadingColor,
-                    modifier = Modifier.size(26.dp),
-                    strokeWidth = 2.5.dp
-                )
-            }
-        }
-
-        is ApiResponse.Error -> {
-            SectionMessage(text = "作业加载失败：${homeworks.msg}", accent = colors.errorRedColor)
-        }
-
-        is ApiResponse.Success -> {
-            if (homeworks.data.isEmpty()) {
-                SectionMessage(text = "当前没有待提交作业", accent = colors.secondaryTextColor)
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    homeworks.data.forEach { homework ->
-                        HomeworkItem(homework = homework, moocViewModel = moocViewModel)
-                    }
-                }
+    if (homeworkItems.isEmpty()) {
+        SectionMessage(text = "当前没有待提交作业", accent = colors.secondaryTextColor)
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            homeworkItems.forEach { item ->
+                HomeworkItemRow(homeworkItem = item)
             }
         }
     }
 }
 
 @Composable
-private fun TestContent(tests: ApiResponse<List<MoocTest>>) {
+private fun TestContent(tests: List<MoocTest>) {
     val colors = AppTheme.colors
-    when (tests) {
-        is ApiResponse.Loading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = colors.loadingColor,
-                    modifier = Modifier.size(26.dp),
-                    strokeWidth = 2.5.dp
-                )
-            }
-        }
-
-        is ApiResponse.Error -> {
-            SectionMessage(text = "测试加载失败：${tests.msg}", accent = colors.errorRedColor)
-        }
-
-        is ApiResponse.Success -> {
-            val pendingTests = tests.data.filterNot { it.isSubmitted }
-            if (pendingTests.isEmpty()) {
-                SectionMessage(text = "当前没有待完成测试", accent = colors.secondaryTextColor)
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    pendingTests.forEach { test ->
-                        TestItem(test = test)
-                    }
-                }
+    val pendingTests = tests.filterNot { it.isSubmitted }
+    if (pendingTests.isEmpty()) {
+        SectionMessage(text = "当前没有待完成测试", accent = colors.secondaryTextColor)
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            pendingTests.forEach { test ->
+                TestItem(test = test)
             }
         }
     }
@@ -570,17 +511,12 @@ private fun SectionMessage(
 }
 
 @Composable
-private fun HomeworkItem(
-    homework: MoocHomework,
-    moocViewModel: MoocViewModel
+private fun HomeworkItemRow(
+    homeworkItem: HomeworkItem
 ) {
     val colors = AppTheme.colors
-    val isDueSoonMap by moocViewModel.isDueSoonMap.collectAsStateWithLifecycle()
-    val isDueSoon = when (val res = isDueSoonMap[homework.title]) {
-        is ApiResponse.Success -> res.data
-        else -> false
-    }
-    val titleColor = if (isDueSoon) colorResource(R.color.color_base_red) else colors.primaryTextColor
+    val homework = homeworkItem.homework
+    val titleColor = if (homeworkItem.isDueSoon) colorResource(R.color.color_base_red) else colors.primaryTextColor
 
     Surface(
         shape = RoundedCornerShape(20.dp),
@@ -695,10 +631,10 @@ private fun MoocScreenPreview() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             SummaryCard(
-                pendingCourses = ApiResponse.Success(
+                courses = ApiResponse.Success(
                     listOf(
-                        PendingAssignmentCourse("10842", "数据库原理与技术"),
-                        PendingAssignmentCourse("20491", "大数据平台开发")
+                        CourseItem(course = PendingAssignmentCourse("10842", "数据库原理与技术")),
+                        CourseItem(course = PendingAssignmentCourse("20491", "大数据平台开发"))
                     )
                 )
             )
