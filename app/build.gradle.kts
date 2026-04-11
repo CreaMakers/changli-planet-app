@@ -52,7 +52,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 23
-        versionName = "2.0.4.1"
+        versionName = "2.0.4.2"
 
 
         ndk {
@@ -195,6 +195,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
