@@ -25,10 +25,15 @@ import com.tencent.bugly.crashreport.CrashReport
 import com.tencent.mmkv.MMKV
 import com.tencent.msdk.dns.DnsConfig
 import com.tencent.msdk.dns.MSDKDnsResolver
+import io.fastkv.FastKV
+import io.fastkv.FastKVConfig
+import io.fastkv.interfaces.FastLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
+import java.lang.Exception
 
 class PlanetApplication : Application(), ViewModelStoreOwner {
     companion object {
@@ -72,7 +77,8 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
             }
         }
-        fun clearSchoolDataCacheAll(){
+
+        fun clearSchoolDataCacheAll() {
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
@@ -129,6 +135,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
 
 
         initMMKV()
+        initFastKv()
         installEventBusIndex()
         migrateLegacyCacheIfNeeded()
         if (!BuildConfig.DEBUG) {
@@ -166,20 +173,23 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
     private fun startMemoryMonitor() {
         fpsHandler.post(object : Runnable {
             override fun run() {
-                val activityManager = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                val activityManager =
+                    applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                 val memoryInfo = ActivityManager.MemoryInfo()
                 activityManager.getMemoryInfo(memoryInfo)
 
                 val debugMemoryInfo = Debug.MemoryInfo()
                 Debug.getMemoryInfo(debugMemoryInfo)
 
-                val logString = "系统内存可用 ${memoryInfo.availMem shr 20}MB /总内存 ${memoryInfo.totalMem shr 20}MB " +
-                        "java内存 ${debugMemoryInfo.dalvikPss shr 10}MB native内存 ${debugMemoryInfo.nativePss shr 10}MB"
+                val logString =
+                    "系统内存可用 ${memoryInfo.availMem shr 20}MB /总内存 ${memoryInfo.totalMem shr 20}MB " +
+                            "java内存 ${debugMemoryInfo.dalvikPss shr 10}MB native内存 ${debugMemoryInfo.nativePss shr 10}MB"
                 Log.v("Memory", logString)
                 fpsHandler.postDelayed(this, 2000)
             }
         })
     }
+
     private fun initDNS() {
         val dnsConfigBuilder = DnsConfig.Builder()
             .dnsId("98468")
@@ -192,6 +202,23 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
 
     private fun initMMKV() {
         MMKV.initialize(this@PlanetApplication)
+    }
+
+    private fun initFastKv() {
+        FastKVConfig.setLogger(object : FastLogger {
+            override fun e(p0: String, p1: Exception) {
+                Log.e("FastKV", "FastKV error: $p0", p1)
+            }
+
+            override fun i(p0: String, p1: String) {
+                Log.i("FastKV", "FastKV info: $p0 - $p1")
+            }
+
+            override fun w(p0: String, p1: Exception) {
+                Log.w("FastKV", "FastKV warning: $p0", p1)
+            }
+        })
+        FastKVConfig.setExecutor { Dispatchers.Default.asExecutor() }
     }
 
     private fun installEventBusIndex() {
@@ -218,7 +245,8 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
 
         kv.encode(CACHE_SCHEMA_VERSION_KEY, CURRENT_CACHE_SCHEMA_VERSION)
     }
-    private fun saveDefaultSkin(){
+
+    private fun saveDefaultSkin() {
         SkinCache.saveSkinDownloaded("skin_default")
         SkinCache.saveSkinDownloaded("skin_dark.apk")
     }

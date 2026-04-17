@@ -135,6 +135,9 @@ dependencies {
     ksp(libs.glide.ksp)
     //MMKV
     implementation(libs.mmkv)
+    //FastKv
+    implementation(libs.fastkv)
+
     //腾讯云HTTPDNS
     implementation(libs.httpdns.sdk)
     // OkHttp

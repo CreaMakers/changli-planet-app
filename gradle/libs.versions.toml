@@ -29,6 +29,7 @@ composeBom = "2026.03.01"
 espressoCore = "3.7.0"
 constraintlayoutCompose = "1.1.1"
 mmkv = "2.4.0"
+fastkv = "3.0.1"
 okhttp = "5.3.2"
 okhttpUrlconnection = "5.3.2"
 photoview = "2.3.0"
@@ -104,6 +105,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 mmkv = { module = "com.tencent:mmkv", version.ref = "mmkv" }
+fastkv = { module = "io.github.billywei01:fastkv", version.ref = "fastkv" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-urlconnection = { module = "com.squareup.okhttp3:okhttp-urlconnection", version.ref = "okhttpUrlconnection" }
 photoview = { module = "com.github.chrisbanes:PhotoView", version.ref = "photoview" }
