@@ -1,20 +1,23 @@
 package com.creamaker.changli_planet_app.freshNews.data.local.mmkv
 
+import com.creamaker.changli_planet_app.common.data.local.kv.MigratingKv
+
 object CommentsCache {
-    private val mmkv by lazy {
-        com.tencent.mmkv.MMKV.mmkvWithID("comments_cache")
-    }
+    private val kv by lazy { MigratingKv("comments_cache") }
 
     fun saveIp(ip: String) {
-        mmkv.encode("ip", ip)
+        kv.putString("ip", ip)
     }
+
     fun getIp(): String {
-        return mmkv.decodeString("ip", "未知") ?: "未知"
+        return kv.getString("ip", "未知") ?: "未知"
     }
+
     fun savaLikeState(commentId: Int, isLiked: Boolean) {
-        mmkv.encode("comment_like_$commentId", isLiked)
+        kv.putBoolean("comment_like_$commentId", isLiked)
     }
+
     fun getLikeState(commentId: Int): Boolean {
-        return mmkv.decodeBool("comment_like_$commentId", false)
+        return kv.getBoolean("comment_like_$commentId", false)
     }
 }

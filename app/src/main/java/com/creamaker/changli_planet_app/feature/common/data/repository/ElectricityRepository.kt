@@ -1,16 +1,16 @@
 package com.creamaker.changli_planet_app.feature.common.data.repository
 
+import com.creamaker.changli_planet_app.common.data.local.kv.MigratingKv
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache
 import com.example.csustdataget.CampusCard.CampusCardHelper
-import com.tencent.mmkv.MMKV
 
 class ElectricityRepository {
-    private val mmkv by lazy { MMKV.defaultMMKV() }
+    private val kv by lazy { MigratingKv(CACHE_ID) }
 
     fun getBinding(): ElectricityBinding? {
-        val school = mmkv.decodeString(KEY_SCHOOL, DEFAULT_SCHOOL).orEmpty()
-        val dorm = mmkv.decodeString(KEY_DORM, DEFAULT_DORM).orEmpty()
-        val room = mmkv.decodeString(KEY_ROOM, "").orEmpty()
+        val school = kv.getString(KEY_SCHOOL, DEFAULT_SCHOOL).orEmpty()
+        val dorm = kv.getString(KEY_DORM, DEFAULT_DORM).orEmpty()
+        val room = kv.getString(KEY_ROOM, "").orEmpty()
         if (school == DEFAULT_SCHOOL || dorm == DEFAULT_DORM || room.isBlank()) return null
         return ElectricityBinding(school = school, dorm = dorm, room = room)
     }
@@ -18,7 +18,7 @@ class ElectricityRepository {
     fun hasBinding(): Boolean = getBinding() != null
 
     fun shouldAutoRefresh(): Boolean {
-        val binding = getBinding() ?: return false
+        if (getBinding() == null) return false
         val snapshot = OverviewLocalCache.getElectricitySnapshot() ?: return true
         if (snapshot.lastTime <= 0L) return true
         return System.currentTimeMillis() - snapshot.lastTime >= AUTO_REFRESH_INTERVAL_MS
@@ -56,9 +56,9 @@ class ElectricityRepository {
     }
 
     fun saveBinding(school: String, dorm: String, room: String) {
-        mmkv.encode(KEY_SCHOOL, school)
-        mmkv.encode(KEY_DORM, dorm)
-        mmkv.encode(KEY_ROOM, room)
+        kv.putString(KEY_SCHOOL, school)
+        kv.putString(KEY_DORM, dorm)
+        kv.putString(KEY_ROOM, room)
     }
 
     fun getCachedResult(): ElectricityQueryResult? {
@@ -100,6 +100,7 @@ class ElectricityRepository {
     )
 
     companion object {
+        private const val CACHE_ID = "default_kv_cache"
         private const val KEY_SCHOOL = "school"
         private const val KEY_DORM = "dor"
         private const val KEY_ROOM = "door_number"

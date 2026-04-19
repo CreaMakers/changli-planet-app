@@ -1,8 +1,8 @@
 package com.creamaker.changli_planet_app.overview.data.local
 
+import com.creamaker.changli_planet_app.common.data.local.kv.MigratingKv
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.tencent.mmkv.MMKV
 
 object OverviewLocalCache {
     private const val CACHE_ID = "overview_local_cache"
@@ -12,28 +12,28 @@ object OverviewLocalCache {
     private const val KEY_LAST_ELECTRICITY_TIME = "last_electricity_time"
     private const val KEY_PREV_ELECTRICITY_TIME = "prev_electricity_time"
     private const val MAX_ELECTRICITY_HISTORY_SIZE = 20
-    private val mmkv by lazy { MMKV.mmkvWithID(CACHE_ID) }
+    private val kv by lazy { MigratingKv(CACHE_ID) }
     private val gson by lazy { Gson() }
 
     fun saveElectricitySnapshot(value: Float) {
         appendElectricityHistory(value)
-        val oldValue = mmkv.decodeFloat(KEY_LAST_ELECTRICITY, Float.NaN)
-        val oldTime = mmkv.decodeLong(KEY_LAST_ELECTRICITY_TIME, 0L)
+        val oldValue = kv.getFloat(KEY_LAST_ELECTRICITY, Float.NaN)
+        val oldTime = kv.getLong(KEY_LAST_ELECTRICITY_TIME, 0L)
         if (!oldValue.isNaN() && oldTime > 0L) {
-            mmkv.encode(KEY_PREV_ELECTRICITY, oldValue)
-            mmkv.encode(KEY_PREV_ELECTRICITY_TIME, oldTime)
+            kv.putFloat(KEY_PREV_ELECTRICITY, oldValue)
+            kv.putLong(KEY_PREV_ELECTRICITY_TIME, oldTime)
         }
-        mmkv.encode(KEY_LAST_ELECTRICITY, value)
-        mmkv.encode(KEY_LAST_ELECTRICITY_TIME, System.currentTimeMillis())
+        kv.putFloat(KEY_LAST_ELECTRICITY, value)
+        kv.putLong(KEY_LAST_ELECTRICITY_TIME, System.currentTimeMillis())
     }
 
     fun getElectricitySnapshot(): ElectricitySnapshot? {
-        val lastValue = mmkv.decodeFloat(KEY_LAST_ELECTRICITY, Float.NaN)
-        val lastTime = mmkv.decodeLong(KEY_LAST_ELECTRICITY_TIME, 0L)
+        val lastValue = kv.getFloat(KEY_LAST_ELECTRICITY, Float.NaN)
+        val lastTime = kv.getLong(KEY_LAST_ELECTRICITY_TIME, 0L)
         if (lastValue.isNaN() || lastTime <= 0L) return null
 
-        val prevValue = mmkv.decodeFloat(KEY_PREV_ELECTRICITY, Float.NaN)
-        val prevTime = mmkv.decodeLong(KEY_PREV_ELECTRICITY_TIME, 0L)
+        val prevValue = kv.getFloat(KEY_PREV_ELECTRICITY, Float.NaN)
+        val prevTime = kv.getLong(KEY_PREV_ELECTRICITY_TIME, 0L)
         return ElectricitySnapshot(
             lastValue = lastValue,
             lastTime = lastTime,
@@ -44,7 +44,7 @@ object OverviewLocalCache {
     }
 
     fun getElectricityHistory(): List<ElectricityHistoryEntry> {
-        val json = mmkv.decodeString(KEY_ELECTRICITY_HISTORY) ?: return emptyList()
+        val json = kv.getString(KEY_ELECTRICITY_HISTORY, null) ?: return emptyList()
         return runCatching {
             gson.fromJson<List<ElectricityHistoryEntry>>(
                 json,
@@ -63,7 +63,7 @@ object OverviewLocalCache {
             history += ElectricityHistoryEntry(value = value, timestamp = now)
         }
         val trimmed = history.takeLast(MAX_ELECTRICITY_HISTORY_SIZE)
-        mmkv.encode(KEY_ELECTRICITY_HISTORY, gson.toJson(trimmed))
+        kv.putString(KEY_ELECTRICITY_HISTORY, gson.toJson(trimmed))
     }
 
     data class ElectricitySnapshot(

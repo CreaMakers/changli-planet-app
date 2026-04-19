@@ -1,9 +1,9 @@
 package com.creamaker.changli_planet_app.feature.mooc.cookie
 
 import android.util.Log
+import com.creamaker.changli_planet_app.common.data.local.kv.MigratingKv
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 
 class PersistentCookieJar : CookieJar {
-    private val mmkv by lazy { MMKV.mmkvWithID("MoocCookiejar") }
+    private val kv by lazy { MigratingKv("MoocCookiejar") }
     private val gson = Gson()
 
     //内存缓存
@@ -37,7 +37,7 @@ class PersistentCookieJar : CookieJar {
 
         //mmkv加载到内存
         val list = memoryCache.computeIfAbsent(host) {
-            val json = mmkv.decodeString(host)
+            val json = kv.getString(host, null)
             Log.d(TAG, "saveFromResponse: Reading from MMKV for host: $host, json: $json")
             if (json != null) {
                 parseCookiesFromCache(host, json)
@@ -65,7 +65,7 @@ class PersistentCookieJar : CookieJar {
         Log.d(TAG, "loadForRequest: Loading cookies for host: $host")
         val now = System.currentTimeMillis()
         val list = memoryCache.computeIfAbsent(host) {
-            val json = mmkv.decodeString(host)
+            val json = kv.getString(host, null)
             Log.d(TAG, "loadForRequest: Reading from MMKV for host: $host, json: $json")
             if (json != null) {
                 parseCookiesFromCache(host, json)
@@ -98,7 +98,7 @@ class PersistentCookieJar : CookieJar {
         val list = memoryCache[host] ?: return
         Log.d(TAG, "persistHost: Persisting ${list.size} cookies for host: $host")
         val now = System.currentTimeMillis()
-        val toSave = list.filter { it.expiresAt > now }.map { it ->
+        val toSave = list.filter { it.expiresAt > now }.map {
             SerializableCookie(
                 name = it.name,
                 value = it.value,
@@ -111,7 +111,7 @@ class PersistentCookieJar : CookieJar {
             )
         }
         Log.d(TAG, "persistHost: Saving ${toSave.size} valid cookies to MMKV for host: $host")
-        mmkv.encode(host, gson.toJson(toSave))
+        kv.putString(host, gson.toJson(toSave))
         pendingJobs.remove(host)
     }
 
@@ -120,7 +120,7 @@ class PersistentCookieJar : CookieJar {
             val type = object : TypeToken<List<SerializableCookie>>() {}.type
             val serializableCookies: List<SerializableCookie>? = gson.fromJson(json, type)
             if (serializableCookies.isNullOrEmpty()) {
-                mmkv.removeValueForKey(host)
+                kv.remove(host)
                 memoryCache.remove(host)
                 return mutableListOf()
             }
@@ -133,20 +133,20 @@ class PersistentCookieJar : CookieJar {
             }.toMutableList()
             if (cookies.isEmpty()) {
                 Log.w(TAG, "parseCookiesFromCache: No valid cookies remain, clearing cache for host: $host")
-                mmkv.removeValueForKey(host)
+                kv.remove(host)
                 memoryCache.remove(host)
             }
             Log.d(TAG, "parseCookiesFromCache: Loaded ${cookies.size} valid cookies from MMKV for host: $host")
             cookies
         }.getOrElse {
-            clearHostCache(host, "Failed to parse cookies from cache, clear host cache", it)
+            clearHostCache(host, it)
             mutableListOf()
         }
     }
 
-    private fun clearHostCache(host: String, reason: String, throwable: Throwable? = null) {
-        Log.w(TAG, "clearHostCache: host=$host, reason=$reason", throwable)
-        mmkv.removeValueForKey(host)
+    private fun clearHostCache(host: String, throwable: Throwable? = null) {
+        Log.w(TAG, "clearHostCache: host=$host, reason=Failed to parse cookies from cache", throwable)
+        kv.remove(host)
         memoryCache.remove(host)
         pendingJobs.remove(host)?.cancel()
     }
@@ -158,7 +158,7 @@ class PersistentCookieJar : CookieJar {
         pendingJobs.clear()
         scope.cancel()
         memoryCache.clear()
-        mmkv.clearAll()
+        kv.clearAll()
         Log.d(TAG, "clear: Cleared MMKV and memory cache")
     }
 }

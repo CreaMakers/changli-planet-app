@@ -1,39 +1,39 @@
 package com.creamaker.changli_planet_app.freshNews.data.local.mmkv
 
-import com.tencent.mmkv.MMKV
+import com.creamaker.changli_planet_app.common.data.local.kv.MigratingKv
 
 object RefreshNewsCache {
-    private val mmkv by lazy { MMKV.mmkvWithID("news_local_state") }
+    private val kv by lazy { MigratingKv("news_local_state") }
 
     fun saveLikeState(newsId: Int, isLiked: Boolean) {
-        mmkv?.encode("like_$newsId", isLiked)
+        kv.putBoolean("like_$newsId", isLiked)
     }
 
     fun getLikeState(newsId: Int): Boolean {
-        return mmkv?.decodeBool("like_$newsId", false) ?: false
+        return kv.getBoolean("like_$newsId", false)
     }
 
-    fun saveLikeNum(newsId: Int, LikeNum: Int) {
-        mmkv?.encode("likeNum_$newsId", LikeNum)
+    fun saveLikeNum(newsId: Int, likeNum: Int) {
+        kv.putInt("likeNum_$newsId", likeNum)
     }
 
     fun getLikeNum(newsId: Int): Int {
-        return mmkv?.decodeInt("likeNum_$newsId", 0) ?: 0
+        return kv.getInt("likeNum_$newsId", 0)
     }
 
     fun saveFavoriteState(newsId: Int, isFavorited: Boolean) {
-        mmkv?.encode("favorite_$newsId", isFavorited)
+        kv.putBoolean("favorite_$newsId", isFavorited)
     }
 
-    fun saveFavoriteNum(newsId: Int, FavoriteNum: Int) {
-        mmkv?.encode("favoriteNum_$newsId", FavoriteNum)
+    fun saveFavoriteNum(newsId: Int, favoriteNum: Int) {
+        kv.putInt("favoriteNum_$newsId", favoriteNum)
     }
 
     fun getFavoriteNum(newsId: Int): Int {
-        return mmkv?.decodeInt("favoriteNum_$newsId", 0) ?: 0
+        return kv.getInt("favoriteNum_$newsId", 0)
     }
 
     fun getFavoriteState(newsId: Int): Boolean {
-        return mmkv?.decodeBool("favorite_$newsId", false) ?: false
+        return kv.getBoolean("favorite_$newsId", false)
     }
 }

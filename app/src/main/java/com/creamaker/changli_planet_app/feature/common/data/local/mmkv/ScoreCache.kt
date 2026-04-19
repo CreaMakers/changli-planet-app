@@ -1,52 +1,55 @@
 package com.creamaker.changli_planet_app.feature.common.data.local.mmkv
 
+import com.creamaker.changli_planet_app.common.data.local.kv.MigratingKv
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.Grade
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.tencent.mmkv.MMKV
 
 object ScoreCache {
 
-    private val mmkv by lazy { MMKV.mmkvWithID("content_cache") }
+    private const val CACHE_ID = "content_cache"
+    private const val KEY_GRADES = "grades"
+
+    private val kv by lazy { MigratingKv(CACHE_ID) }
     private val gson = Gson()
 
     fun saveGrades(grades: List<Grade>) {
         val normalized = grades.mapNotNull(::normalizeGrade)
         if (normalized.isEmpty()) {
-            mmkv.removeValueForKey("grades")
+            kv.remove(KEY_GRADES)
             return
         }
-        mmkv.encode("grades", gson.toJson(normalized))
+        kv.putString(KEY_GRADES, gson.toJson(normalized))
     }
 
     fun saveGradesDetailByUrl(url: String, details: String) {
-        mmkv.encode(url, details)
+        kv.putString(url, details)
     }
 
     fun getGradesDetailByUrl(url: String): String {
-        return mmkv.getString(url, "") ?: ""
+        return kv.getString(url, "") ?: ""
     }
 
     fun getGrades(): List<Grade>? {
-        val json = mmkv.decodeString("grades") ?: return null
+        val json = kv.getString(KEY_GRADES, null) ?: return null
         val type = object : TypeToken<List<Grade>>() {}.type
         return try {
             val grades: List<Grade>? = gson.fromJson(json, type)
             if (grades == null) {
-                mmkv.removeValueForKey("grades")
+                kv.remove(KEY_GRADES)
                 return null
             }
             val normalized = grades.mapNotNull(::normalizeGrade)
             if (normalized.isEmpty()) {
-                mmkv.removeValueForKey("grades")
+                kv.remove(KEY_GRADES)
                 return null
             }
             if (normalized.size != grades.size) {
-                mmkv.encode("grades", gson.toJson(normalized))
+                kv.putString(KEY_GRADES, gson.toJson(normalized))
             }
             normalized
         } catch (e: Exception) {
-            mmkv.removeValueForKey("grades")
+            kv.remove(KEY_GRADES)
             null
         }
     }
@@ -77,6 +80,6 @@ object ScoreCache {
     }
 
     fun clearCache() {
-        mmkv.clearAll()
+        kv.clearAll()
     }
 }

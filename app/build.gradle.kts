@@ -215,7 +215,8 @@ dependencies {
     // Coil for image loading
     implementation(libs.coil.compose)
     //csustDataGet
-    implementation(libs.csustdataget)
+    implementation("com.github.CreaMakers:CSUSTDataGet:49887c0f99")
+//    implementation(libs.csustdataget)
 //    implementation(files("libs/csust_spider-release.aar"))
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.haze)

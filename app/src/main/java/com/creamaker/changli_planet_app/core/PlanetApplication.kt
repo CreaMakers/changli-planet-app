@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import com.creamaker.changli_planet_app.BuildConfig
+import com.creamaker.changli_planet_app.common.data.local.kv.MigratingKv
 import com.creamaker.changli_planet_app.core.bus.PlanetEventBusIndex
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
@@ -38,19 +39,26 @@ import java.lang.Exception
 class PlanetApplication : Application(), ViewModelStoreOwner {
     companion object {
         private const val TIME_TABLE_APP_WIDGET = "TimeTableAppWidget"
+        private const val DEFAULT_KV_CACHE_ID = "default_kv_cache"
         private const val CACHE_SCHEMA_VERSION_KEY = "cache_schema_version"
         private const val CURRENT_CACHE_SCHEMA_VERSION = 3
+        private const val KEY_TOKEN = "token"
+        private const val KEY_IS_EXPIRED = "is_expired"
+
+        private val defaultKv by lazy {
+            MigratingKv(DEFAULT_KV_CACHE_ID) { listOfNotNull(MMKV.defaultMMKV()) }
+        }
 
         var accessToken: String?
-            get() = MMKV.defaultMMKV().getString("token", null)
+            get() = defaultKv.getString(KEY_TOKEN, null)
             set(value) {
-                MMKV.defaultMMKV().putString("token", value)
+                defaultKv.putString(KEY_TOKEN, value)
             }
 
         var isExpired: Boolean
-            get() = MMKV.defaultMMKV().getBoolean("is_expired", true)
+            get() = defaultKv.getBoolean(KEY_IS_EXPIRED, true)
             set(value) {
-                MMKV.defaultMMKV().putBoolean("is_expired", value)
+                defaultKv.putBoolean(KEY_IS_EXPIRED, value)
             }
 
         var startTime: Long = 0
@@ -133,6 +141,8 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
 
         super.onCreate()
 
+        appContext = applicationContext
+
 
         initMMKV()
         initFastKv()
@@ -158,7 +168,6 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         if (BuildConfig.DEBUG) {
             startMemoryMonitor()
         }
-        appContext = applicationContext
         setSkin()
         saveDefaultSkin()
     }
@@ -218,7 +227,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
                 Log.w("FastKV", "FastKV warning: $p0", p1)
             }
         })
-        FastKVConfig.setExecutor { Dispatchers.Default.asExecutor() }
+        FastKVConfig.setExecutor(Dispatchers.Default.asExecutor())
     }
 
     private fun installEventBusIndex() {
@@ -232,8 +241,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
     }
 
     private fun migrateLegacyCacheIfNeeded() {
-        val kv = MMKV.defaultMMKV() ?: return
-        val version = kv.decodeInt(CACHE_SCHEMA_VERSION_KEY, 0)
+        val version = defaultKv.getInt(CACHE_SCHEMA_VERSION_KEY, 0)
         if (version >= CURRENT_CACHE_SCHEMA_VERSION) return
 
         runCatching {
@@ -243,7 +251,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
             MMKV.mmkvWithID("MoocCookiejar").clearAll()
         }
 
-        kv.encode(CACHE_SCHEMA_VERSION_KEY, CURRENT_CACHE_SCHEMA_VERSION)
+        defaultKv.putInt(CACHE_SCHEMA_VERSION_KEY, CURRENT_CACHE_SCHEMA_VERSION)
     }
 
     private fun saveDefaultSkin() {

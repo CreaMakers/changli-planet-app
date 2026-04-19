@@ -1,36 +1,40 @@
 package com.creamaker.changli_planet_app.feature.common.data.local.mmkv
 
+import com.creamaker.changli_planet_app.common.data.local.kv.MigratingKv
 import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.tencent.mmkv.MMKV
 
 class ExamArrangementCache {
+    companion object {
+        private const val CACHE_ID = "content_cache"
+        private const val KEY_EXAMS = "exams"
+    }
 
-    private val mmkv = MMKV.mmkvWithID("content_cache")
+    private val kv = MigratingKv(CACHE_ID)
     private val gson = Gson()
 
     fun saveExamArrangement(exams: List<ExamArrange>) {
-        mmkv.encode("exams", gson.toJson(exams))
+        kv.putString(KEY_EXAMS, gson.toJson(exams))
     }
 
     fun getExamArrangement(): List<ExamArrange>? {
-        val json = mmkv.decodeString("exams") ?: return null
+        val json = kv.getString(KEY_EXAMS, null) ?: return null
         val type = object : TypeToken<List<ExamArrange>>() {}.type
         return try {
             val exams: List<ExamArrange>? = gson.fromJson(json, type)
             if (exams.isNullOrEmpty()) {
-                mmkv.removeValueForKey("exams")
+                kv.remove(KEY_EXAMS)
                 return null
             }
             val valid = exams.filter { it.isCacheCompatible() }
             if (valid.size != exams.size) {
-                mmkv.removeValueForKey("exams")
+                kv.remove(KEY_EXAMS)
                 return null
             }
             valid
         } catch (e: Exception) {
-            mmkv.removeValueForKey("exams")
+            kv.remove(KEY_EXAMS)
             null
         }
     }
@@ -40,6 +44,6 @@ class ExamArrangementCache {
     }.getOrDefault(false)
 
     fun clearCache() {
-        mmkv.clearAll()
+        kv.clearAll()
     }
 }
