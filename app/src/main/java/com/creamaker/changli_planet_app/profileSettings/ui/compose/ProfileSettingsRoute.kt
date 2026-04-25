@@ -56,7 +56,7 @@ import com.creamaker.changli_planet_app.profileSettings.ui.model.SettingItemUiMo
 private const val FEI_SHU_URL =
     "https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false"
 
-private const val CREAMAKER_URL=  "planet.zhelearn.com"
+private const val CREAMAKER_URL=  "https://planet.zhelearn.com"
 
 @Composable
 fun ProfileSettingsRoute(
@@ -338,7 +338,7 @@ private fun createSettingItems(): List<SettingItemUiModel> = listOf(
     SettingItemUiModel.Option("4", "清除缓存", R.drawable.qingchu),
     SettingItemUiModel.Option("5", "绑定学号", R.drawable.ic_bianji),
     SettingItemUiModel.Option("6", "主题设置", R.drawable.zhuti_tiaosepan),
-    SettingItemUiModel.Option("9", "关于我们", R.drawable.ic_guanyuwomen),
+    SettingItemUiModel.Option("9", "软件官网", R.drawable.ic_guanyuwomen),
     SettingItemUiModel.Option("10", "意见反馈", R.drawable.yijianfankui)
 )
 
