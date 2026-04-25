@@ -16,9 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 import java.util.TimeZone
 
 data class AvailableClassroomUiState(
@@ -173,35 +171,9 @@ class AvailableClassroomViewModel : ViewModel() {
         }
     }
 
-    private fun getCurrentTerm(): String {
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1
-        return when {
-            currentMonth >= 7 -> "$currentYear-${currentYear + 1}-1"
-            currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"
-            else -> "${currentYear - 1}-${currentYear}-1"
-        }
-    }
+    private fun getCurrentTerm(): String = CommonInfo.getCurrentTerm()
 
-    private fun getCurrentWeek(term: String): Int {
-        val startTime = CommonInfo.termMap[term] ?: return 1
-        return runCatching {
-            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
-            val startDate = formatter.parse(startTime.substring(0, 10)) ?: return 1
-            val today = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai")).apply {
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.time
-
-            val diffInMillis = today.time - startDate.time
-            val daysBetween = diffInMillis / (1000 * 60 * 60 * 24)
-            val diffInWeeks = if (daysBetween < 0) 1 else (daysBetween / 7 + 1).toInt()
-            diffInWeeks.coerceIn(1, 20)
-        }.getOrDefault(1)
-    }
+    private fun getCurrentWeek(term: String): Int = CommonInfo.getCurrentWeekInt(term)
 
     private fun getTodayDayOfWeek(): DayOfWeek {
         return when (Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai")).get(Calendar.DAY_OF_WEEK)) {

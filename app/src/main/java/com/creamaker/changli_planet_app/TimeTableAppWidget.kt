@@ -236,28 +236,20 @@ private fun getCourseInfo(callback: (List<TimeTableMySubject>?) -> Unit) {
     }
 }
 
-private fun getCurrentTerm(): String {
-    val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-    val currentYear = calendar.get(Calendar.YEAR)
-    val currentMonth = calendar.get(Calendar.MONTH) + 1
-    return when {
-        currentMonth >= 7 -> "$currentYear-${currentYear + 1}-1"  // 第一学期
-        currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"  // 第二学期
-        else -> "${currentYear - 1}-${currentYear}-1"  // 上学年第一学期
-    }
-}
+private fun getCurrentTerm(): String =
+    com.creamaker.changli_planet_app.common.cache.CommonInfo.getCurrentTerm()
 
 private fun getCurrentSchoolWeek(curTerm: String): Int {
-    val startTime = CommonInfo.termMap[curTerm]!!
+    val startTime = CommonInfo.getTermStartDate(curTerm) ?: return 1
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    val startDate = formatter.parse(startTime)!!
+    val startDate = formatter.parse(startTime) ?: return 1
     val currentDate = Date()
     val diffTime = currentDate.time - startDate.time
     return ((diffTime / 1000 / 3600 / 24) / 7 + 1).toInt()
 }
 
 private fun isHolidayOrError(curTerm: String): Boolean {
-    val startTime = CommonInfo.termMap[curTerm] ?: return true
+    val startTime = CommonInfo.getTermStartDate(curTerm) ?: return true
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     val startDate = formatter.parse(startTime)
     val currentDate = Date()

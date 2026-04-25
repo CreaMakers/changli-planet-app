@@ -458,7 +458,7 @@ class TimeTableActivity : AppCompatActivity() {
         val zoneId = ZoneId.of("Asia/Shanghai")
         val today = LocalDate.now(zoneId)
         val startOfCurrentWeek = today.minusDays((today.dayOfWeek.value - 1).toLong())
-        val termStartDate = CommonInfo.termMap[term]?.let {
+        val termStartDate = CommonInfo.getTermStartDate(term)?.let {
             runCatching { LocalDate.parse(it.substring(0, 10)) }.getOrNull()
         }
 

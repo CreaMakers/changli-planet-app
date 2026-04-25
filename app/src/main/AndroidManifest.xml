@@ -41,6 +41,9 @@
             android:name=".feature.common.ui.CalendarActivity"
             android:exported="false" />
         <activity
+            android:name=".feature.calendar.ui.compose.SemesterCalendarDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".feature.mooc.ui.MoocActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

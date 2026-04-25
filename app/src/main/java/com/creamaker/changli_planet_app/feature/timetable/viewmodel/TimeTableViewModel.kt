@@ -12,6 +12,7 @@ import com.creamaker.changli_planet_app.core.network.ApiResponse
 import com.creamaker.changli_planet_app.feature.common.data.local.entity.TimeTableMySubject
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
 import com.creamaker.changli_planet_app.feature.common.data.remote.dto.Course
+import com.creamaker.changli_planet_app.feature.calendar.data.repository.SemesterCalendarRepository
 import com.creamaker.changli_planet_app.feature.timetable.ui.entity.TimeTableUiState
 import com.dcelysia.csust_spider.core.Resource
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
@@ -21,8 +22,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Calendar
-import java.util.TimeZone
 import java.util.regex.Pattern
 
 class TimeTableViewModel : ViewModel() {
@@ -72,16 +71,7 @@ class TimeTableViewModel : ViewModel() {
         }
     }
 
-    fun getCurrentTerm(): String {
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1
-        return when {
-            currentMonth >= 7 -> "$currentYear-${currentYear + 1}-1"
-            currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"
-            else -> "${currentYear - 1}-${currentYear}-1"
-        }
-    }
+    fun getCurrentTerm(): String = CommonInfo.getCurrentTerm()
 
     fun loadCourses(term: String, forceRefresh: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -115,6 +105,8 @@ class TimeTableViewModel : ViewModel() {
 
     private suspend fun fetchCoursesFromNetwork(term: String) {
         withContext(Dispatchers.IO) {
+            // 拉课表前先触发一次校历预取（非阻塞），保证开学日期尽快落盘
+            SemesterCalendarRepository.prefetchDetailIfMissing(term)
             try {
                 when (val coursesResource = EducationHelper.getCourseScheduleByTerm("", term)) {
                     is Resource.Success -> {
@@ -352,34 +344,9 @@ class TimeTableViewModel : ViewModel() {
         }
     }
 
-    fun getCurWeek(term: String): Int {
-        val startTime = CommonInfo.termMap[term] ?: return 1
-        return runCatching {
-            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.CHINA)
-            val startDate = sdf.parse(startTime.substring(0, 10)) ?: return 1
-            val today = java.util.Calendar.getInstance().apply {
-                set(java.util.Calendar.HOUR_OF_DAY, 0)
-                set(java.util.Calendar.MINUTE, 0)
-                set(java.util.Calendar.SECOND, 0)
-                set(java.util.Calendar.MILLISECOND, 0)
-            }.time
+    fun getCurWeek(term: String): Int = CommonInfo.getCurrentWeekInt(term)
 
-            val diffInMillis = today.time - startDate.time
-            val daysBetween = diffInMillis / (1000 * 60 * 60 * 24)
-            val diffInWeeks = if (daysBetween < 0) 1 else (daysBetween / 7 + 1).toInt()
-            diffInWeeks.coerceIn(1, 20)
-        }.getOrDefault(1)
-    }
-
-    fun hasTermStarted(term: String): Boolean {
-        val startTime = CommonInfo.termMap[term] ?: return true
-        return runCatching {
-            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.CHINA)
-            val startDate = sdf.parse(startTime.substring(0, 10)) ?: return true
-            val today = java.util.Calendar.getInstance().time
-            !today.before(startDate)
-        }.getOrDefault(true)
-    }
+    fun hasTermStarted(term: String): Boolean = CommonInfo.hasTermStarted(term)
 
     data class WeekJsonInfo(val weeks: List<Int>, val start: Int, val step: Int)
 }

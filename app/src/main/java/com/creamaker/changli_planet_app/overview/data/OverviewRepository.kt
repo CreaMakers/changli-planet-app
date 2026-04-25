@@ -13,6 +13,7 @@ import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ExamArran
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCache
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
 import com.creamaker.changli_planet_app.feature.common.data.repository.ElectricityRepository
+import com.creamaker.changli_planet_app.feature.calendar.data.repository.SemesterCalendarRepository
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache.ElectricityHistoryEntry
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache.ElectricitySnapshot
@@ -58,6 +59,8 @@ class OverviewRepository(
     suspend fun refreshState(): OverviewUiState = withContext(Dispatchers.IO) {
         coroutineScope {
             val currentTerm = getCurrentTerm()
+            // 刷新前触发一次校历预取（非阻塞 fire-and-forget，失败静默）
+            SemesterCalendarRepository.prefetchDetailIfMissing(currentTerm)
             val courseDeferred = async(Dispatchers.IO) { fetchCourses(currentTerm) }
             val gradesDeferred = async(Dispatchers.IO) { fetchGrades() }
             val examsDeferred = async(Dispatchers.IO) { fetchExams(currentTerm) }
@@ -379,33 +382,14 @@ class OverviewRepository(
         return "${prefix}${targetCalendar.get(Calendar.MONTH) + 1}月${targetCalendar.get(Calendar.DAY_OF_MONTH)}日 $weekday  ·  $term 第${week}周"
     }
 
-    private fun getCurrentTerm(): String {
-        val calendar = Calendar.getInstance()
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1
-        return when {
-            currentMonth >= 9 -> "$currentYear-${currentYear + 1}-1"
-            currentMonth >= 2 -> "${currentYear - 1}-${currentYear}-2"
-            else -> "${currentYear - 1}-${currentYear}-1"
-        }
-    }
+    private fun getCurrentTerm(): String =
+        com.creamaker.changli_planet_app.common.cache.CommonInfo.getCurrentTerm()
 
-    private fun getCurrentWeek(term: String): Int {
-        val startTime = com.creamaker.changli_planet_app.common.cache.CommonInfo.termMap[term] ?: return 1
-        return runCatching {
-            val startDate = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).parse(startTime.take(10)) ?: return 1
-            val today = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.time
-            (((today.time - startDate.time) / TimeUnit.DAYS.toMillis(1)) / 7 + 1).toInt().coerceAtLeast(1)
-        }.getOrDefault(1)
-    }
+    private fun getCurrentWeek(term: String): Int =
+        com.creamaker.changli_planet_app.common.cache.CommonInfo.getCurrentWeekInt(term)
 
     private fun getCurrentWeekForDate(term: String, calendar: Calendar): Int {
-        val startTime = com.creamaker.changli_planet_app.common.cache.CommonInfo.termMap[term] ?: return 1
+        val startTime = com.creamaker.changli_planet_app.common.cache.CommonInfo.getTermStartDate(term) ?: return 1
         return runCatching {
             val startDate = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).parse(startTime.take(10)) ?: return 1
             val targetDate = calendar.apply {

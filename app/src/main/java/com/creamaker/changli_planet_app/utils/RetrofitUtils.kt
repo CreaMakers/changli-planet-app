@@ -28,6 +28,7 @@ object RetrofitUtils {
     private const val SSO_AUTH_URL = "https://authserver.csust.edu.cn"
     private const val SSO_EHALL_URL = "https://ehall.csust.edu.cn"
     private const val TOOLS_IP = "https://csust.creamaker.cn/app/tools/"
+    private const val PlanetIp = "https://api.planet.zhelearn.com/v1/"
 
     //添加公共请求头 - 用于需要认证的 API
     private val client: OkHttpClient by lazy {
@@ -147,6 +148,18 @@ object RetrofitUtils {
     val instanceComments : Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(CommentsIp)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    /**
+     * 长理星球 Go 服务端（v1），目前用于校历等 config 接口。
+     * BaseUrl: `https://api.planet.zhelearn.com/v1/`
+     */
+    val instancePlanet: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(PlanetIp)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
