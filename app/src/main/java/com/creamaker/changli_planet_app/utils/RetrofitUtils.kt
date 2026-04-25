@@ -1,10 +1,8 @@
 package com.creamaker.changli_planet_app.utils
 
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.creamaker.changli_planet_app.auth.ui.LoginActivity
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.network.DnsSafety
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper.AuthInterceptor
@@ -75,10 +73,8 @@ object RetrofitUtils {
             .addInterceptor(AuthInterceptor(object : AuthInterceptor.TokenExpiredHandler {
                 override fun onTokenExpired() {
                     Handler(Looper.getMainLooper()).post {
-                        val intent = Intent(PlanetApplication.appContext, LoginActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                            .putExtra("from_token_expired", true)
-                        PlanetApplication.appContext.startActivity(intent)
+                        // 应用目前已取消账号体系的统一登录，token 过期时仅标记状态
+                        PlanetApplication.isExpired = true
                     }
                 }
             }))

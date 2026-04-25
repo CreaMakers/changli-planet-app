@@ -9,8 +9,8 @@ class GuestLimitedAccessDialog(
     NormalChosenDialog(
         context = context,
         title = "进入未知区域了哦~",
-        content = "当前功能需要登录后才能使用，请先登录！",
-        confirmText = "现在登录",
+        content = "当前功能需要绑定学号后才能使用，现在去绑定？",
+        confirmText = "去绑定",
         cancelText = "我再看看",
-        onConfirm = { Route.goLoginForcibly(context) }
+        onConfirm = { Route.goBindingUser(context) }
     )

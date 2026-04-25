@@ -11,11 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,45 +36,48 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.creamaker.changli_planet_app.R
+import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.core.theme.AppTheme
 import com.creamaker.changli_planet_app.profileSettings.ui.model.SettingItemUiModel
-import com.creamaker.changli_planet_app.utils.NetworkUtil
-import com.creamaker.changli_planet_app.widget.dialog.GuestLimitedAccessDialog
-import com.creamaker.changli_planet_app.widget.view.CustomToast
 
 private const val FEI_SHU_URL =
     "https://creamaker.feishu.cn/share/base/form/shrcn6LjBK78JLJfLeKDMe3hczd?chunked=false"
+
+private const val CREAMAKER_URL=  "planet.zhelearn.com"
 
 @Composable
 fun ProfileSettingsRoute(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val isExpired = PlanetApplication.isExpired
-    val username = if (isExpired) "长理学子~" else UserInfoManager.account
+    val isBound = remember { StudentInfoManager.studentId.isNotBlank() }
+    val username = if (isBound) {
+        UserInfoManager.account.takeIf { it.isNotBlank() } ?: StudentInfoManager.studentId
+    } else {
+        "长理学子~"
+    }
     val avatarUrl = UserInfoManager.userAvatar
     var showCacheDialog by remember { mutableStateOf(false) }
-    var showLogoutDialog by remember { mutableStateOf(false) }
 
     ProfileSettingsScreen(
         modifier = modifier,
         items = createSettingItems(),
         username = username,
         avatarData = avatarUrl,
-        isTourist = isExpired,
+        isBound = isBound,
         onItemClick = { item ->
             if (item.id == "4") {
                 showCacheDialog = true
@@ -85,18 +85,12 @@ fun ProfileSettingsRoute(
                 handleSettingItemClick(context, item)
             }
         },
-        onLogoutClick = { showLogoutDialog = true },
-        onEditProfileClick = {
-            if (isExpired) return@ProfileSettingsScreen
-            if (NetworkUtil.getNetworkType(context) != NetworkUtil.NetworkType.None) {
-                Route.goUserProfile(context)
+        onPrimaryClick = {
+            // 切换学号 / 绑定学号均直接跳转绑定页，旧数据等绑定成功后再清理
+            if (isBound) {
+                Route.goBindingUser(context, isSwitchAccount = true)
             } else {
-                CustomToast.showMessage(context, "网络未连接")
-            }
-        },
-        onAvatarClick = {
-            if (isExpired) {
-                showLogoutDialog = true
+                Route.goBindingUser(context)
             }
         }
     )
@@ -112,20 +106,6 @@ fun ProfileSettingsRoute(
             }
         )
     }
-
-    if (showLogoutDialog) {
-        ConfirmDialog(
-            title = if (isExpired) "登录确认" else "将清除该账号缓存",
-            content = if (isExpired) "现在进行登录吗" else "是否登出",
-            onDismiss = { showLogoutDialog = false },
-            onConfirm = {
-                PlanetApplication.clearLocalCache()
-                PlanetApplication.isExpired = true
-                Route.goLoginForcibly(context)
-                showLogoutDialog = false
-            }
-        )
-    }
 }
 
 @Composable
@@ -133,50 +113,22 @@ private fun ProfileSettingsScreen(
     items: List<SettingItemUiModel>,
     username: String,
     avatarData: Any?,
-    isTourist: Boolean,
+    isBound: Boolean,
     onItemClick: (SettingItemUiModel.Option) -> Unit,
-    onLogoutClick: () -> Unit,
-    onEditProfileClick: () -> Unit,
-    onAvatarClick: () -> Unit,
+    onPrimaryClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    // 结构：外层滚动容器 + 单个 ConstraintLayout。
+    // 头图 / 头像 / 用户名 / 设置卡片 四个子项用约束彼此锚定，
+    // 其中设置卡片顶边约束在"用户名底部 + 20dp"——由约束保证永远不会挡到用户名。
+    ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
             .background(AppTheme.colors.bgPrimaryColor)
             .verticalScroll(rememberScrollState())
-    ) {
-        ProfileHeaderSection(
-            username = username,
-            avatarData = avatarData,
-            isTourist = isTourist,
-            onEditProfileClick = onEditProfileClick,
-            onAvatarClick = onAvatarClick
-        )
-        SettingsListSection(
-            items = items,
-            isTourist = isTourist,
-            onItemClick = onItemClick,
-            onLogoutClick = onLogoutClick
-        )
-    }
-}
-
-@Composable
-private fun ProfileHeaderSection(
-    username: String,
-    avatarData: Any?,
-    isTourist: Boolean,
-    onEditProfileClick: () -> Unit,
-    onAvatarClick: () -> Unit
-) {
-    ConstraintLayout(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
             .navigationBarsPadding()
     ) {
-        val (bgImage, avatar, usernameRow) = createRefs()
+        val (bgImage, avatar, usernameText, settingsCard) = createRefs()
 
         Image(
             painter = painterResource(id = R.drawable.ic_profile_home_bg),
@@ -210,91 +162,82 @@ private fun ProfileHeaderSection(
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
-                .clickable { onAvatarClick() }
         )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .constrainAs(usernameRow) {
-                    top.linkTo(avatar.bottom, margin = 12.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .clickable(enabled = !isTourist) { onEditProfileClick() }
-        ) {
-            Text(
-                text = username,
-                color = AppTheme.colors.primaryTextColor,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            if (!isTourist) {
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_edit_white),
-                    contentDescription = "Edit",
-                    tint = AppTheme.colors.iconPrimaryColor,
-                    modifier = Modifier.size(30.dp)
-                )
+        Text(
+            text = username,
+            color = AppTheme.colors.primaryTextColor,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.constrainAs(usernameText) {
+                top.linkTo(avatar.bottom, margin = 12.dp)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
             }
-        }
+        )
+
+        SettingsCard(
+            items = items,
+            isBound = isBound,
+            onItemClick = onItemClick,
+            onPrimaryClick = onPrimaryClick,
+            modifier = Modifier.constrainAs(settingsCard) {
+                top.linkTo(usernameText.bottom, margin = 20.dp)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+            }
+        )
     }
 }
 
 @Composable
-private fun SettingsListSection(
+private fun SettingsCard(
     items: List<SettingItemUiModel>,
-    isTourist: Boolean,
+    isBound: Boolean,
     onItemClick: (SettingItemUiModel.Option) -> Unit,
-    onLogoutClick: () -> Unit
+    onPrimaryClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .offset(y = (-30).dp)
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        color = AppTheme.colors.bgCardColor
     ) {
-        Spacer(modifier = Modifier.height(20.dp))
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-            color = AppTheme.colors.bgPrimaryColor
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 20.dp)
-            ) {
-                items.forEach { item ->
-                    when (item) {
-                        is SettingItemUiModel.Header -> SettingHeaderItem(item)
-                        is SettingItemUiModel.Option -> {
-                            SettingOptionItem(item = item, onClick = { onItemClick(item) })
-                        }
+            items.forEach { item ->
+                when (item) {
+                    is SettingItemUiModel.Header -> SettingHeaderItem(item)
+                    is SettingItemUiModel.Option -> {
+                        SettingOptionItem(item = item, onClick = { onItemClick(item) })
                     }
                 }
-
-                Spacer(modifier = Modifier.height(20.dp))
-                Button(
-                    onClick = onLogoutClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = AppTheme.colors.bgButtonLowlightColor,
-                        contentColor = AppTheme.colors.functionalTextColor
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp)
-                        .height(50.dp)
-                ) {
-                    Text(
-                        text = if (isTourist) "登录账号" else stringResource(id = R.string.logout),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Spacer(modifier = Modifier.height(20.dp))
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = onPrimaryClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AppTheme.colors.bgButtonLowlightColor,
+                    contentColor = AppTheme.colors.functionalTextColor
+                ),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    .height(50.dp)
+            ) {
+                Text(
+                    text = if (isBound) "切换学号" else "绑定学号",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -333,7 +276,7 @@ private fun SettingOptionItem(
                     .size(24.dp)
                     .padding(end = 4.dp)
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.size(12.dp))
         }
 
         Text(
@@ -383,31 +326,18 @@ private fun handleSettingItemClick(
     item: SettingItemUiModel.Option
 ) {
     when (item.id) {
-        "3" -> {
-            if (PlanetApplication.isExpired) {
-                GuestLimitedAccessDialog(context).show()
-            } else {
-                Route.goAccountSecurity(context)
-            }
-        }
-
         "5" -> Route.goBindingUser(context)
         "6" -> Route.goSkinSecletion(context)
-        "9" -> Route.goAbout(context)
+        "9" -> Route.goWebView(context, CREAMAKER_URL)
         "10" -> Route.goWebView(context, FEI_SHU_URL)
     }
 }
 
 private fun createSettingItems(): List<SettingItemUiModel> = listOf(
     SettingItemUiModel.Header("主要设置"),
-    SettingItemUiModel.Option("2", "隐私设置", R.drawable.yingsi),
-    SettingItemUiModel.Option("3", "账号安全", R.drawable.zhanghao),
-    SettingItemUiModel.Header("常用功能"),
     SettingItemUiModel.Option("4", "清除缓存", R.drawable.qingchu),
     SettingItemUiModel.Option("5", "绑定学号", R.drawable.ic_bianji),
     SettingItemUiModel.Option("6", "主题设置", R.drawable.zhuti_tiaosepan),
-    SettingItemUiModel.Header("帮助与支持"),
-    SettingItemUiModel.Option("8", "帮助中心", R.drawable.ic_help),
     SettingItemUiModel.Option("9", "关于我们", R.drawable.ic_guanyuwomen),
     SettingItemUiModel.Option("10", "意见反馈", R.drawable.yijianfankui)
 )
@@ -420,11 +350,9 @@ private fun ProfileSettingsRoutePreview() {
             items = createSettingItems(),
             username = "长理学子~",
             avatarData = null,
-            isTourist = true,
+            isBound = false,
             onItemClick = {},
-            onLogoutClick = {},
-            onEditProfileClick = {},
-            onAvatarClick = {}
+            onPrimaryClick = {}
         )
     }
 }

@@ -3572,11 +3572,6 @@ SPLcom/bumptech/glide/p;->o(Ll9/f;)Z
 Lcom/bumptech/glide/q;
 SPLcom/bumptech/glide/q;-><init>()V
 SPLcom/bumptech/glide/q;->a()Lcom/bumptech/glide/q;
-Lcom/creamaker/changli_planet_app/auth/ui/BindEmailActivity;
-Lcom/creamaker/changli_planet_app/auth/ui/ForgetPasswordActivity;
-Lcom/creamaker/changli_planet_app/auth/ui/LoginActivity;
-Lcom/creamaker/changli_planet_app/auth/ui/LoginByEmailActivity;
-Lcom/creamaker/changli_planet_app/auth/ui/RegisterActivity;
 Lcom/creamaker/changli_planet_app/base/FullScreenActivity;
 SPLcom/creamaker/changli_planet_app/base/FullScreenActivity;-><init>()V
 SPLcom/creamaker/changli_planet_app/base/FullScreenActivity;->onCreate(Landroid/os/Bundle;)V
@@ -3766,7 +3761,6 @@ SPLcom/creamaker/changli_planet_app/overview/ui/model/OverviewUiState;->getToday
 SPLcom/creamaker/changli_planet_app/overview/ui/model/OverviewUiState;->getUpcomingExams()Ljava/util/List;
 SPLcom/creamaker/changli_planet_app/overview/ui/model/OverviewUiState;->isBoundStudent()Z
 PLcom/creamaker/changli_planet_app/overview/ui/model/OverviewUiState;->isOnline()Z
-Lcom/creamaker/changli_planet_app/settings/ui/AccountSecurityActivity;
 Lcom/creamaker/changli_planet_app/settings/ui/BindingUserActivity;
 PLcom/creamaker/changli_planet_app/settings/ui/BindingUserActivity;-><init>()V
 PLcom/creamaker/changli_planet_app/settings/ui/BindingUserActivity;->onCreate(Landroid/os/Bundle;)V
@@ -3774,8 +3768,6 @@ PLcom/creamaker/changli_planet_app/settings/ui/BindingUserActivity;->onDestroy()
 PLcom/creamaker/changli_planet_app/settings/ui/BindingUserActivity;->onFinish(Lwc/a;)V
 PLcom/creamaker/changli_planet_app/settings/ui/BindingUserActivity;->q()Lv6/a;
 PLcom/creamaker/changli_planet_app/settings/ui/BindingUserActivity;->s(Ljava/lang/String;)V
-Lcom/creamaker/changli_planet_app/settings/ui/ChangeEmailActivity;
-Lcom/creamaker/changli_planet_app/settings/ui/UserProfileActivity;
 Lcom/dcelysia/csust_spider/education/data/remote/model/Course;
 SPLcom/dcelysia/csust_spider/education/data/remote/model/Course;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 SPLcom/dcelysia/csust_spider/education/data/remote/model/Course;->getClassroom()Ljava/lang/String;

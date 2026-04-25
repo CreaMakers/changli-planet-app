@@ -13,8 +13,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.base.FullScreenActivity
+import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.creamaker.changli_planet_app.common.redux.action.UserAction
 import com.creamaker.changli_planet_app.common.redux.store.UserStore
+import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityBindingUserBinding
 import com.creamaker.changli_planet_app.utils.event.FinishEvent
@@ -39,11 +41,22 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
 
     private val store = UserStore()
 
+    /**
+     * 当前是否为"切换学号"场景。该值决定绑定成功后是否清理旧账号的内容缓存 / 过期用户信息。
+     */
+    private var isSwitchAccount: Boolean = false
+
+    companion object {
+        private const val TAG = "BindingUserActivity"
+        const val EXTRA_IS_SWITCH_ACCOUNT = "extra_is_switch_account"
+    }
+
     override fun createViewBinding(): ActivityBindingUserBinding =
         ActivityBindingUserBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isSwitchAccount = intent.getBooleanExtra(EXTRA_IS_SWITCH_ACCOUNT, false)
         initView()
         initListener()
         store.dispatch(UserAction.initilaize())
@@ -167,6 +180,14 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
     @Subscribe
     fun onFinish(finishEvent: FinishEvent) {
         if (finishEvent.name == "bindingUser") {
+            if (isSwitchAccount) {
+                // 切换学号成功：仅在此时清理旧账号遗留的"内容缓存"和不会被新登录覆盖的用户字段，
+                // 避免用户中途放弃绑定时把原有账号数据也丢失。
+                // 注意：StudentInfoManager 的学号/密码、UserInfoManager 的 account/username/userPassword
+                // 已由 UserAction.BindingStudentNumber 写入为新值，这里不要再清，否则会清掉新账号。
+                PlanetApplication.clearContentCache()
+                UserInfoManager.clearStaleProfile()
+            }
             showMessage("学号和密码保存成功！")
             Route.goHomeForcibly(this)
             finish()

@@ -106,14 +106,9 @@ class MainActivity : ComponentActivity(), DrawerController {
 
     override fun onStart() {
         super.onStart()
-        if (!PlanetApplication.isExpired) {   //游客模式不获取用户信息
-            lifecycleScope.launch {
-                launch(Dispatchers.IO) {
-                    store.dispatch(UserAction.GetCurrentUserStats(this@MainActivity))
-                    store.dispatch(UserAction.GetCurrentUserProfile(this@MainActivity))
-                }
-            }
-        }
+        // 账号系统已取消，无需在此拉取服务端用户资料。
+        // 用户相关信息（头像、用户名）由 BindingUserActivity 登录成功后通过
+        // MoocRepository.getLoginUser() 写入 UserInfoManager。
     }
 
     private fun getNetPermissions() {

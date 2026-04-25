@@ -56,4 +56,18 @@ object UserInfoManager {
         userPassword = ""
         PlanetApplication.accessToken = null
     }
+
+    /**
+     * 切换学号成功后的清理：仅移除"不会被新登录覆盖"的旧账号残留字段（邮箱 / userId）。
+     *
+     * 注意：
+     * - username / account / userPassword —— 已由 [UserAction.BindingStudentNumber] 的 SSO 成功分支
+     *   写入为新账号的值，这里不要清。
+     * - userAvatar —— 同样会在 SSO 成功分支被写为新账号头像（UserStore 中），因此不能在此清除，
+     *   否则 UI 会拿回默认占位头像，造成"切换账号后头像丢失"的回归。
+     */
+    fun clearStaleProfile() {
+        mmkv.removeValueForKey(KEY_EMAIL)
+        mmkv.removeValueForKey(KEY_USERID)
+    }
 }

@@ -5,11 +5,7 @@ import android.os.Looper
 import android.util.Log
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
-import com.creamaker.changli_planet_app.common.data.local.room.database.UserDataBase
 import com.creamaker.changli_planet_app.common.data.remote.dto.ApkResponse
-import com.creamaker.changli_planet_app.common.data.remote.dto.UploadAvatarResponse
-import com.creamaker.changli_planet_app.common.data.remote.dto.UserProfileResponse
-import com.creamaker.changli_planet_app.common.data.remote.dto.UserStatsResponse
 import com.creamaker.changli_planet_app.common.redux.action.UserAction
 import com.creamaker.changli_planet_app.common.redux.state.UserState
 import com.creamaker.changli_planet_app.core.PlanetApplication
@@ -19,7 +15,6 @@ import com.creamaker.changli_planet_app.core.network.OkHttpHelper
 import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
 import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.event.FinishEvent
-import com.creamaker.changli_planet_app.utils.toEntity
 import com.creamaker.changli_planet_app.widget.dialog.BindingFromWebDialog
 import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
 import com.creamaker.changli_planet_app.widget.dialog.UpdateDialog
@@ -33,7 +28,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
 
 class UserStore : Store<UserState, UserAction>() {
@@ -42,216 +36,18 @@ class UserStore : Store<UserState, UserAction>() {
         private var currentState = UserState()
     }
 
-    val cache by lazy { UserDataBase.Companion.getInstance(PlanetApplication.Companion.appContext).itemDao() }
-
     private val handler = Handler(Looper.getMainLooper())
+
     override fun handleEvent(action: UserAction) {
         currentState = when (action) {
-            is UserAction.GetCurrentUserProfile -> {
-
-                val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .get(PlanetApplication.Companion.UserIp + "/me/profile")
-                    .build()
-
-                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-                    override fun onSuccess(response: Response) {
-                        val fromJson = OkHttpHelper.gson.fromJson(
-                            response.body?.string(),
-                            UserProfileResponse::class.java
-                        )
-                        when (fromJson.code) {
-                            "200" -> {
-                                fromJson.data?.let {
-                                    CoroutineScope(Dispatchers.IO).launch {
-                                        cache.insertUser(it.toEntity())
-                                    }
-                                    UserInfoManager.account = it.account
-                                    UserInfoManager.userAvatar = it.avatarUrl
-                                    UserInfoManager.userId = it.userId
-                                    UserInfoManager.userEmail = it.emailbox ?: "待绑定"
-                                    currentState.avatarUri = it.avatarUrl
-                                    it.location = if (currentState.locationChangedManually) //防止数据刷新覆盖选择结果
-                                        currentState.userProfile.location
-                                    else
-                                        it.location
-                                    if (currentState.locationChangedManually) currentState.locationChangedManually = false
-                                    currentState.userProfile = it
-
-                                }
-                            }
-
-                            //修改
-//                            else -> {
-//                                Log.d("Trainer", "OK!200")
-//                                handler.post {
-//                                    CustomToast.Companion.showMessage(
-//                                        action.context,
-//                                        "请求失败, ${fromJson.msg}"
-//                                    )
-//                                }
-//                            }
-                        }
-                        _state.onNext(currentState)
-                    }
-
-                    override fun onFailure(error: String) {
-                        handler.post {
-                            CustomToast.Companion.showMessage(action.context, "获取用户信息失败")
-                        }
-                        _state.onNext(currentState)
-                    }
-                })
-                currentState
-            }
-
             is UserAction.initilaize -> {
                 _state.onNext(currentState)
                 currentState
             }
 
-            is UserAction.GetCurrentUserStats -> {
-
-                val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .get(PlanetApplication.Companion.UserIp + "/me/stats")
-                    .build()
-
-                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-                    override fun onSuccess(response: Response) {
-                        val fromJson = OkHttpHelper.gson.fromJson(
-                            response.body.string(),
-                            UserStatsResponse::class.java
-                        )
-                        when (fromJson.code) {
-                            "200" -> {
-                                fromJson.data?.let {
-                                    currentState.userStats = it
-                                }
-                            }
-
-                            //修改
-//                            else -> {
-//                                handler.post {
-//                                    Log.d("Trainer", "!200")
-//                                    CustomToast.Companion.showMessage(
-//                                        action.context,
-//                                        "请求失败, ${fromJson.msg}"
-//                                    )
-//                                }
-//                            }
-                        }
-
-                        _state.onNext(currentState)
-                    }
-
-                    override fun onFailure(error: String) {
-                        handler.post {
-                            CustomToast.Companion.showMessage(action.context, "获取用户动态信息失败")
-                        }
-                        _state.onNext(currentState)
-                    }
-                })
-                currentState
-            }
-
-            is UserAction.UpdateAvatar -> {
-                currentState.avatarUri = action.uri
-                _state.onNext(currentState)
-                currentState
-            }
-
-            is UserAction.UploadAvatar -> {
-                val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .post(PlanetApplication.Companion.UserIp + "/me/avatar")
-                    .addFieldPart(
-                        "avatar",
-                        action.file,
-                        "image/*".toMediaTypeOrNull()
-                    )
-                    .build()
-                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-                    override fun onSuccess(response: Response) {
-                        val fromJson = OkHttpHelper.gson.fromJson(
-                            response.body?.string(),
-                            UploadAvatarResponse::class.java
-                        )
-                        when (fromJson.code) {
-                            "200" -> {
-
-                                UserInfoManager.userAvatar = fromJson.data.toString()
-                                currentState.avatarUri = fromJson.data.toString()
-                                currentState.userProfile.avatarUrl = fromJson.data.toString()
-                                _state.onNext(currentState)
-                            }
-
-                            else -> {
-                                CustomToast.Companion.showMessage(
-                                    PlanetApplication.Companion.appContext,
-                                    "请求失败, ${fromJson.msg}"
-                                )
-                                _state.onNext(currentState)
-                            }
-                        }
-                    }
-
-                    override fun onFailure(error: String) {
-                    }
-
-                })
-
-                currentState
-            }
-
-            is UserAction.UpdateUserProfile -> {
-                action.userProfileRequest.avatarUrl = currentState.userProfile.avatarUrl
-                action.userProfileRequest.userLevel = currentState.userProfile.userLevel
-                action.userProfileRequest.location = currentState.userProfile.location
-
-                val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .put(PlanetApplication.Companion.UserIp + "/me/profile")
-                    .body(OkHttpHelper.gson.toJson(action.userProfileRequest))
-                    .build()
-                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-                    override fun onSuccess(response: Response) {
-                        val fromJson = OkHttpHelper.gson.fromJson(
-                            response.body?.string(),
-                            UserProfileResponse::class.java
-                        )
-                        when (fromJson.code) {
-                            "200" -> {
-                                Log.d(TAG,"返回"+fromJson.data.toString())
-                                currentState.userProfile = fromJson.data!!
-                                UserInfoManager.account = fromJson.data.account
-                                handler.post {
-                                    EventBusHelper.post(FinishEvent("updateUser"))
-                                }
-                            }
-
-                            else -> {
-                                handler.post {
-                                    CustomToast.Companion.showMessage(
-                                        action.context,
-                                        "提交失败, ${fromJson.msg}"
-                                    )
-                                }
-                            }
-                        }
-
-                        _state.onNext(currentState)
-                    }
-
-                    override fun onFailure(error: String) {
-                        handler.post {
-                            CustomToast.Companion.showMessage(action.context, "获取用户动态信息失败")
-                        }
-                        _state.onNext(currentState)
-                    }
-                })
-                currentState
-            }
-
             is UserAction.QueryIsLastedApk -> {
                 val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .get(PlanetApplication.Companion.UserIp + "/apk")
+                    .get(PlanetApplication.UserIp + "/apk")
                     .addQueryParam("versionCode", action.versionCode.toString())
                     .addQueryParam("versionName", action.versionName)
                     .build()
@@ -262,7 +58,6 @@ class UserStore : Store<UserState, UserAction>() {
                                 response.body.string(),
                                 ApkResponse::class.java
                             )
-
                             when (fromJson.code) {
                                 "200" -> {
                                     if (fromJson.msg == "获取最新apk版本成功") {
@@ -279,7 +74,7 @@ class UserStore : Store<UserState, UserAction>() {
 
                                 else -> {
                                     handler.post {
-                                        CustomToast.Companion.showMessage(
+                                        CustomToast.showMessage(
                                             action.context,
                                             "获取最新apk失败, ${fromJson.msg}"
                                         )
@@ -289,15 +84,12 @@ class UserStore : Store<UserState, UserAction>() {
                         } catch (e: Exception) {
                             e.printStackTrace()
                             handler.post {
-                                CustomToast.Companion.showMessage(action.context, "获取新版本失败")
+                                CustomToast.showMessage(action.context, "获取新版本失败")
                             }
                         }
-
                     }
 
-                    override fun onFailure(error: String) {
-
-                    }
+                    override fun onFailure(error: String) {}
                 })
                 currentState
             }
@@ -315,13 +107,33 @@ class UserStore : Store<UserState, UserAction>() {
                         when (ssoResult) {
                             is com.dcelysia.csust_spider.core.Resource.Success -> {
                                 Log.d(TAG, "sso登陆成功")
+                                // SSO 登录成功后抓取 MOOC 用户信息并更新头像 / 用户名，失败不影响主流程
+                                runCatching {
+                                    val userResource = MoocRepository.instance
+                                        .getLoginUser()
+                                        .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
+                                        .first()
+                                    if (userResource is com.dcelysia.csust_spider.core.Resource.Success) {
+                                        userResource.data?.let { sso ->
+                                            val avatarUrl = sso.avatar
+                                            if (avatarUrl.isNotBlank()) {
+                                                UserInfoManager.userAvatar = avatarUrl
+                                                currentState.avatarUri = avatarUrl
+                                                currentState.userProfile.avatarUrl = avatarUrl
+                                            }
+                                            if (sso.userName.isNotBlank()) {
+                                                UserInfoManager.account = sso.userName
+                                            }
+                                        }
+                                    }
+                                }.onFailure { Log.w(TAG, "获取 SSO 用户信息失败", it) }
+
                                 val eduSuccess = AuthService.login(
                                     action.studentNumber,
                                     action.studentPassword
                                 )
                                 if (eduSuccess) {
                                     currentState.uiForLoading = false
-
                                     EducationData.studentId = action.studentNumber
                                     EducationData.studentPassword = action.studentPassword
                                     Log.d(TAG, "教务登录成功")
@@ -346,9 +158,8 @@ class UserStore : Store<UserState, UserAction>() {
                             is com.dcelysia.csust_spider.core.Resource.Error -> {
                                 currentState.userStats.studentNumber = action.studentNumber
                                 currentState.uiForLoading = false
-                                Log.d(TAG,"ssoResult:${ssoResult}")
-                                //如果不用重新在网页登录就不用显示出网页登录选项
-                                if (!(ssoResult.msg.contains("请在手机网页登录一次"))){
+                                Log.d(TAG, "ssoResult:${ssoResult}")
+                                if (!(ssoResult.msg.contains("请在手机网页登录一次"))) {
                                     handler.post {
                                         NormalResponseDialog(
                                             action.context,
@@ -356,8 +167,7 @@ class UserStore : Store<UserState, UserAction>() {
                                             "绑定失败"
                                         ).show()
                                     }
-                                }
-                                else{
+                                } else {
                                     handler.post {
                                         BindingFromWebDialog(
                                             action.context,
@@ -367,7 +177,6 @@ class UserStore : Store<UserState, UserAction>() {
                                         ).show()
                                     }
                                 }
-
                                 _state.onNext(currentState)
                             }
 
@@ -401,28 +210,24 @@ class UserStore : Store<UserState, UserAction>() {
                 _state.onNext(currentState)
                 currentState
             }
-            is UserAction.WebLoginSuccess ->{
-                // 1. 更新 StudentInfoManager
+
+            is UserAction.WebLoginSuccess -> {
                 StudentInfoManager.studentId = action.account
                 StudentInfoManager.studentPassword = action.password
-                // 2. 更新 State，这将通过 observeState 回调来更新UI
-                currentState.userStats = currentState.userStats.copy(studentNumber = action.account)
+                currentState.userStats =
+                    currentState.userStats.copy(studentNumber = action.account)
                 _state.onNext(currentState)
-                // 3. 调用现有的学号绑定逻辑，触发网络请求
-                handleEvent(UserAction.BindingStudentNumber(action.context, action.account, action.password) {})
-                currentState
-            }
-
-            is UserAction.UpdateLocation->{
-                currentState.userProfile.location = action.location
-                currentState.locationChangedManually = true //表示所在地已在本地更新
-                _state.onNext(currentState)
+                handleEvent(
+                    UserAction.BindingStudentNumber(
+                        action.context,
+                        action.account,
+                        action.password
+                    ) {}
+                )
                 currentState
             }
         }
     }
 
-    fun getUserState(): UserState {
-        return currentState
-    }
+    fun getUserState(): UserState = currentState
 }

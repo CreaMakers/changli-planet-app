@@ -2,11 +2,6 @@ package com.creamaker.changli_planet_app.core
 
 import android.content.Context
 import android.content.Intent
-import com.creamaker.changli_planet_app.auth.ui.BindEmailActivity
-import com.creamaker.changli_planet_app.auth.ui.ForgetPasswordActivity
-import com.creamaker.changli_planet_app.auth.ui.LoginActivity
-import com.creamaker.changli_planet_app.auth.ui.LoginByEmailActivity
-import com.creamaker.changli_planet_app.auth.ui.RegisterActivity
 import com.creamaker.changli_planet_app.common.ui.WebViewActivity
 import com.creamaker.changli_planet_app.feature.common.ui.CalendarActivity
 import com.creamaker.changli_planet_app.feature.common.ui.CampusMapActivity
@@ -14,7 +9,6 @@ import com.creamaker.changli_planet_app.feature.common.ui.CetActivity
 import com.creamaker.changli_planet_app.feature.common.ui.ClassInfoActivity
 import com.creamaker.changli_planet_app.feature.common.ui.ContractActivity
 import com.creamaker.changli_planet_app.feature.common.ui.ElectronicActivity
-
 import com.creamaker.changli_planet_app.feature.common.ui.ExamArrangementActivity
 import com.creamaker.changli_planet_app.feature.common.ui.MandeActivity
 import com.creamaker.changli_planet_app.feature.common.ui.ScoreInquiryActivity
@@ -26,15 +20,14 @@ import com.creamaker.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.creamaker.changli_planet_app.freshNews.ui.PublishFreshNewsActivity
 import com.creamaker.changli_planet_app.freshNews.ui.UserHomeActivity
 import com.creamaker.changli_planet_app.profileSettings.ui.AboutActivity
-import com.creamaker.changli_planet_app.settings.ui.AccountSecurityActivity
 import com.creamaker.changli_planet_app.settings.ui.BindingUserActivity
-import com.creamaker.changli_planet_app.settings.ui.ChangeEmailActivity
-import com.creamaker.changli_planet_app.settings.ui.UserProfileActivity
 import com.creamaker.changli_planet_app.skin.ui.SkinSelectionActivity
 
 /**
  * 所有页面跳转逻辑都应卸载Route中，方便统一管理
  * 使用方法：Route.goxx()
+ *
+ * 目前应用唯一的登录入口为 BindingUserActivity（绑定学号）。
  */
 object Route {
 
@@ -56,47 +49,6 @@ object Route {
 
     fun goClassInfo(context: Context) {
         val intent = Intent(context, ClassInfoActivity::class.java)
-        context.startActivity(intent)
-    }
-
-    fun goLogin(context: Context) {
-        val intent = Intent(context, LoginActivity::class.java)
-        context.startActivity(intent)
-    }
-
-    fun goUserProfile(context: Context) {
-        val intent = Intent(context, UserProfileActivity::class.java)
-        context.startActivity(intent)
-    }
-
-    fun goLoginFromRegister(context: Context, name: String, password: String) {
-        val intent = Intent(context, LoginActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        intent.putExtra("username", name)
-        intent.putExtra("password", password)
-        context.startActivity(intent)
-    }
-
-    fun goLoginForcibly(context: Context) {
-        val intent = Intent(context, LoginActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        context.startActivity(intent)
-    }
-
-    fun goLoginByEmail(context: Context) {
-        val intent = Intent(context, LoginByEmailActivity::class.java)
-        context.startActivity(intent)
-    }
-
-    fun goRegister(context: Context) {
-        val intent = Intent(context, RegisterActivity::class.java)
-        context.startActivity(intent)
-    }
-
-    fun goBindEmailFromRegister(context: Context, name: String, password: String) {
-        val intent = Intent(context, BindEmailActivity::class.java)
-        intent.putExtra("username", name)
-        intent.putExtra("password", password)
         context.startActivity(intent)
     }
 
@@ -147,13 +99,24 @@ object Route {
         context.startActivity(intent)
     }
 
-    fun goBindingUser(context: Context) {
+    /**
+     * 应用唯一登录入口：跳转到绑定学号页面。
+     *
+     * @param isSwitchAccount 是否是"切换学号"场景。true 时，绑定成功后会由 BindingUserActivity 负责
+     *   清理旧账号的内容缓存；进入绑定页前不会清除任何数据，避免中途放弃导致账号信息丢失。
+     */
+    fun goBindingUser(context: Context, isSwitchAccount: Boolean = false) {
         val intent = Intent(context, BindingUserActivity::class.java)
+            .putExtra(BindingUserActivity.EXTRA_IS_SWITCH_ACCOUNT, isSwitchAccount)
         context.startActivity(intent)
     }
 
-    fun goAccountSecurity(context: Context) {
-        val intent = Intent(context, AccountSecurityActivity::class.java)
+    /**
+     * 强制清栈并跳转到绑定学号页面，用于 token 过期等场景。
+     */
+    fun goBindingUserForcibly(context: Context) {
+        val intent = Intent(context, BindingUserActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         context.startActivity(intent)
     }
 
@@ -161,6 +124,7 @@ object Route {
         val intent = Intent(context, PublishFreshNewsActivity::class.java)
         context.startActivity(intent)
     }
+
     fun goContract(context: Context) {
         val intent = Intent(context, ContractActivity::class.java)
         context.startActivity(intent)
@@ -180,16 +144,6 @@ object Route {
         val intent = Intent(context, FixSomethingAccountActivity::class.java).apply {
             putExtra("ITEM_ID", itemId)
         }
-        context.startActivity(intent)
-    }
-
-    fun goForgetPassword(context: Context) {
-        val intent = Intent(context, ForgetPasswordActivity::class.java)
-        context.startActivity(intent)
-    }
-
-    fun goChangeEmail(context: Context) {
-        val intent = Intent(context, ChangeEmailActivity::class.java)
         context.startActivity(intent)
     }
 
@@ -214,7 +168,8 @@ object Route {
         val intent = Intent(context, CalendarActivity::class.java)
         context.startActivity(intent)
     }
-    fun goSkinSecletion(context: Context){
+
+    fun goSkinSecletion(context: Context) {
         val intent = Intent(context, SkinSelectionActivity::class.java)
         context.startActivity(intent)
     }
