@@ -38,6 +38,13 @@
     <fields>;
 }
 
+# ========== 高德地图 Android 轻量版 SDK ==========
+-keep class com.amap.api.** { *; }
+-keep interface com.amap.api.** { *; }
+-dontwarn com.amap.api.**
+-keep class com.autonavi.** { *; }
+-dontwarn com.autonavi.**
+
 # --- Baseline Profile Installer ---
 -keep class androidx.profileinstaller.** { *; }
 -keep class com.google.tools.profiler.** { *; }

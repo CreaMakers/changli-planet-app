@@ -67,7 +67,7 @@ fun openFunctionShortcut(context: Context, destination: FunctionDestination) {
     when (destination) {
         FunctionDestination.Timetable -> Route.goTimetable(context)
         FunctionDestination.ScoreInquiry -> Route.goScoreInquiry(context)
-        FunctionDestination.CampusMap -> CustomToast.showMessage(context, "正在全力开发中")
+        FunctionDestination.CampusMap -> Route.goCampusMap(context)
         FunctionDestination.Classroom -> Route.goClassInfo(context)
         FunctionDestination.Homework -> Route.goMooc(context)
         FunctionDestination.Electronic -> Route.goElectronic(context)

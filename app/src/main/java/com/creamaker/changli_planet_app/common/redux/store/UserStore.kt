@@ -5,21 +5,19 @@ import android.os.Looper
 import android.util.Log
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
-import com.creamaker.changli_planet_app.common.data.remote.dto.ApkResponse
+import com.creamaker.changli_planet_app.common.data.remote.api.AppVersionApi
+import com.creamaker.changli_planet_app.common.data.remote.api.LegacyApkApi
 import com.creamaker.changli_planet_app.common.redux.action.UserAction
 import com.creamaker.changli_planet_app.common.redux.state.UserState
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Store
-import com.creamaker.changli_planet_app.core.network.HttpUrlHelper
-import com.creamaker.changli_planet_app.core.network.OkHttpHelper
-import com.creamaker.changli_planet_app.core.network.listener.RequestCallback
 import com.creamaker.changli_planet_app.utils.EventBusHelper
+import com.creamaker.changli_planet_app.utils.RetrofitUtils
 import com.creamaker.changli_planet_app.utils.event.FinishEvent
 import com.creamaker.changli_planet_app.widget.dialog.BindingFromWebDialog
 import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
 import com.creamaker.changli_planet_app.widget.dialog.UpdateDialog
-import com.creamaker.changli_planet_app.widget.view.CustomToast
-import com.dcelysia.csust_spider.core.RetrofitUtils
+import com.dcelysia.csust_spider.core.RetrofitUtils as CsustRetrofitUtils
 import com.dcelysia.csust_spider.education.data.remote.EducationData
 import com.dcelysia.csust_spider.education.data.remote.services.AuthService
 import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
@@ -28,7 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import okhttp3.Response
 
 class UserStore : Store<UserState, UserAction>() {
     companion object {
@@ -46,59 +43,72 @@ class UserStore : Store<UserState, UserAction>() {
             }
 
             is UserAction.QueryIsLastedApk -> {
-                val httpUrlHelper = HttpUrlHelper.HttpRequest()
-                    .get(PlanetApplication.UserIp + "/apk")
-                    .addQueryParam("versionCode", action.versionCode.toString())
-                    .addQueryParam("versionName", action.versionName)
-                    .build()
-                OkHttpHelper.sendRequest(httpUrlHelper, object : RequestCallback {
-                    override fun onSuccess(response: Response) {
-                        try {
-                            val fromJson = OkHttpHelper.gson.fromJson(
-                                response.body.string(),
-                                ApkResponse::class.java
-                            )
-                            when (fromJson.code) {
-                                "200" -> {
-                                    if (fromJson.msg == "获取最新apk版本成功") {
-                                        val data = fromJson.data!!
-                                        handler.post {
-                                            UpdateDialog(
-                                                action.context,
-                                                data.updateMessage,
-                                                data.downloadUrl
-                                            ).show()
-                                        }
-                                    }
-                                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    val newApi = RetrofitUtils.instancePlanet.create(AppVersionApi::class.java)
+                    val newResult = runCatching {
+                        newApi.checkUpdate(
+                            platform = "android",
+                            currentVersionCode = action.versionCode
+                        )
+                    }
 
-                                else -> {
-                                    handler.post {
-                                        CustomToast.showMessage(
-                                            action.context,
-                                            "获取最新apk失败, ${fromJson.msg}"
-                                        )
-                                    }
-                                }
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                    val reachedNewApi = newResult.isSuccess
+                    newResult.getOrNull()?.let { resp ->
+                        val latest = resp.latestVersion
+                        if (resp.hasUpdate && latest != null && latest.downloadUrl.isNotBlank()) {
                             handler.post {
-                                CustomToast.showMessage(action.context, "获取新版本失败")
+                                UpdateDialog(
+                                    action.context,
+                                    latest.releaseNotes,
+                                    latest.downloadUrl
+                                ).show()
                             }
                         }
                     }
 
-                    override fun onFailure(error: String) {}
-                })
+                    if (reachedNewApi) return@launch
+
+                    val err = newResult.exceptionOrNull()
+                    Log.w(TAG, "新版应用更新接口失败，降级到旧接口兜底", err)
+
+                    runCatching {
+                        val legacyApi = RetrofitUtils.instanceUser.create(LegacyApkApi::class.java)
+                        legacyApi.queryLatestApk(
+                            versionCode = action.versionCode.toString(),
+                            versionName = action.versionName
+                        )
+                    }.onSuccess { legacyResp ->
+                        if (legacyResp.code == "200" && legacyResp.msg == "获取最新apk版本成功") {
+                            legacyResp.data?.let { data ->
+                                if (data.downloadUrl.isNotBlank()) {
+                                    handler.post {
+                                        UpdateDialog(
+                                            action.context,
+                                            data.updateMessage,
+                                            data.downloadUrl
+                                        ).show()
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.w(
+                                TAG,
+                                "旧接口返回非成功：code=${legacyResp.code}, msg=${legacyResp.msg}"
+                            )
+                        }
+                    }.onFailure { e ->
+                        Log.w(TAG, "旧版应用更新接口也失败，放弃本次检查", e)
+                        // 两个接口都失败：静默，不打扰用户。
+                    }
+                }
                 currentState
             }
 
             is UserAction.BindingStudentNumber -> {
                 currentState.uiForLoading = true
                 CoroutineScope(Dispatchers.IO).launch {
-                    RetrofitUtils.ClearClient("moocClient")
-                    RetrofitUtils.ClearClient("EducationClient")
+                    CsustRetrofitUtils.ClearClient("moocClient")
+                    CsustRetrofitUtils.ClearClient("EducationClient")
                     try {
                         val ssoResult = MoocRepository.instance
                             .login(action.studentNumber, action.studentPassword)

@@ -151,6 +151,26 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         appContext = applicationContext
         setSkin()
         saveDefaultSkin()
+        initAMapPrivacy()
+    }
+
+    /**
+     * 高德定位 SDK 隐私合规声明。
+     *
+     * 必须在 [com.amap.api.location.AMapLocationClient] 任何 API 被调用前执行。
+     * 轻量版地图 SDK 本身基于 WebView 实现，不需要 privacy 声明（`MapsInitializer`
+     * 未提供对应方法），所以这里只对定位 SDK 声明即可。
+     *
+     * 失败不会阻塞 app 启动，但会导致 `AMapLocationClient` 构造抛异常；
+     * 失败原因通过 Log.e 打出，便于线上定位。
+     */
+    private fun initAMapPrivacy() {
+        try {
+            com.amap.api.location.AMapLocationClient.updatePrivacyShow(this, true, true)
+            com.amap.api.location.AMapLocationClient.updatePrivacyAgree(this, true)
+        } catch (t: Throwable) {
+            Log.e("AMap", "privacy init failed - location will be unavailable", t)
+        }
     }
 
     private fun setSkin() {

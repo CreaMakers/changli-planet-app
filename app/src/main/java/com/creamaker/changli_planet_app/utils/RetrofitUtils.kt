@@ -3,6 +3,7 @@ package com.creamaker.changli_planet_app.utils
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.creamaker.changli_planet_app.BuildConfig
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.network.DnsSafety
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper.AuthInterceptor
@@ -26,7 +27,17 @@ object RetrofitUtils {
     private const val SSO_AUTH_URL = "https://authserver.csust.edu.cn"
     private const val SSO_EHALL_URL = "https://ehall.csust.edu.cn"
     private const val TOOLS_IP = "https://csust.creamaker.cn/app/tools/"
-    private const val PlanetIp = "https://api.planet.zhelearn.com/v1/"
+
+    /**
+     * 长理星球 Go 服务端（v1）BaseUrl。
+     *
+     * 真实值由 Gradle 通过 `BuildConfig.PLANET_API_BASE_URL` 注入，来源优先级：
+     *   1. `local.properties` 的 `planet.apiBaseUrl.debug` / `planet.apiBaseUrl.release`
+     *   2. 环境变量 `PLANET_API_BASE_URL_DEBUG` / `PLANET_API_BASE_URL_RELEASE`
+     *   3. 代码内兜底默认值（见 app/build.gradle.kts）
+     *
+     */
+    private val PlanetIp: String = BuildConfig.PLANET_API_BASE_URL
 
     //添加公共请求头 - 用于需要认证的 API
     private val client: OkHttpClient by lazy {
@@ -150,8 +161,7 @@ object RetrofitUtils {
     }
 
     /**
-     * 长理星球 Go 服务端（v1），目前用于校历等 config 接口。
-     * BaseUrl: `https://api.planet.zhelearn.com/v1/`
+     * 长理星球 Go 服务端（v1），用于校历、应用版本检查等 config 接口。
      */
     val instancePlanet: Retrofit by lazy {
         Retrofit.Builder()
