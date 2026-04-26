@@ -226,6 +226,46 @@ class UserStore : Store<UserState, UserAction>() {
                 )
                 currentState
             }
+
+            is UserAction.RefreshMoocProfileSilently -> {
+                val studentId = StudentInfoManager.studentId
+                val studentPassword = StudentInfoManager.studentPassword
+                val alreadyHasProfile = UserInfoManager.account.isNotBlank()
+                val canRefresh = studentId.isNotBlank() &&
+                    studentPassword.isNotBlank() &&
+                    !alreadyHasProfile
+                if (canRefresh) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        runCatching {
+                            val ssoResult = MoocRepository.instance
+                                .login(studentId, studentPassword)
+                                .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
+                                .first()
+                            if (ssoResult !is com.dcelysia.csust_spider.core.Resource.Success) {
+                                return@runCatching
+                            }
+
+                            val userResource = MoocRepository.instance
+                                .getLoginUser()
+                                .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
+                                .first()
+                            if (userResource !is com.dcelysia.csust_spider.core.Resource.Success) {
+                                return@runCatching
+                            }
+
+                            userResource.data?.let { sso ->
+                                if (sso.avatar.isNotBlank()) {
+                                    UserInfoManager.userAvatar = sso.avatar
+                                }
+                                if (sso.userName.isNotBlank()) {
+                                    UserInfoManager.account = sso.userName
+                                }
+                            }
+                        }.onFailure { Log.w(TAG, "静默刷新 MOOC 用户资料失败", it) }
+                    }
+                }
+                currentState
+            }
         }
     }
 

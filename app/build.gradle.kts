@@ -49,8 +49,8 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 24
-        versionName = "2.0.5"
+        versionCode = 25
+        versionName = "2.0.6"
 
 
         ndk {

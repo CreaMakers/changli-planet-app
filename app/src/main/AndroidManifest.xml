@@ -48,6 +48,11 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".feature.mooc.ui.MoocCoursePageActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|uiMode|keyboardHidden|keyboard|locale|layoutDirection|fontScale|density"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".profileSettings.ui.AboutActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

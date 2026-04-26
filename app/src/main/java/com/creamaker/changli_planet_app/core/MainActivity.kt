@@ -106,9 +106,12 @@ class MainActivity : ComponentActivity(), DrawerController {
 
     override fun onStart() {
         super.onStart()
-        // 账号系统已取消，无需在此拉取服务端用户资料。
-        // 用户相关信息（头像、用户名）由 BindingUserActivity 登录成功后通过
-        // MoocRepository.getLoginUser() 写入 UserInfoManager。
+        // 账号系统已取消，不再拉取自研后端的用户资料。
+        // 但从老版本升级上来时，MMKV 中原本由自研后端写入的头像/昵称已被
+        // migrateLegacyCacheIfNeeded 清除，这里用已绑定的学号/密码做一次静默 SSO
+        // 重新登录 + getLoginUser，把 MOOC(网络教学平台) 的用户名/头像写回 UserInfoManager。
+        // 若未绑定、或 UserInfoManager.account 已有值，action 内部会直接跳过，无网络开销。
+        store.dispatch(UserAction.RefreshMoocProfileSilently)
     }
 
     private fun getNetPermissions() {

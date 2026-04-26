@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +32,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -54,6 +58,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,6 +72,7 @@ import com.tencent.mmkv.MMKV
 
 private val ALPHANUMERIC_REGEX = Regex("^[a-zA-Z0-9]*$")
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ElectronicScreen(
     viewModel: ElectronicViewModel,
@@ -231,9 +237,17 @@ fun ElectronicScreen(
                         fontWeight = FontWeight.W500,
                         color = colors.campusInkColor
                     )
-                    OutlinedTextField(
+                    val interactionSource = remember { MutableInteractionSource() }
+                    val textFieldColors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = colors.campusDividerColor,
+                        focusedBorderColor = colors.campusSkyBlueColor,
+                        unfocusedContainerColor = colors.campusSkyBlueGhostColor,
+                        focusedContainerColor = colors.campusSkyBlueGhostColor,
+                        cursorColor = colors.campusSkyBlueColor
+                    )
+                    BasicTextField(
                         value = roomText,
-                        onValueChange = { newText ->
+                        onValueChange = { newText: String ->
                             if (ALPHANUMERIC_REGEX.matches(newText)) {
                                 roomText = newText
                             }
@@ -241,28 +255,43 @@ fun ElectronicScreen(
                         modifier = Modifier
                             .width(160.dp)
                             .height(48.dp),
-                        placeholder = {
-                            Text(
-                                "填写房间号",
-                                color = colors.campusMistColor,
-                                fontSize = 14.sp
-                            )
-                        },
                         textStyle = TextStyle(
                             fontSize = 14.sp,
                             color = colors.campusInkColor,
                             fontWeight = FontWeight.W500,
                             fontFeatureSettings = "\"tnum\""
                         ),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedBorderColor = colors.campusDividerColor,
-                            focusedBorderColor = colors.campusSkyBlueColor,
-                            unfocusedContainerColor = colors.campusSkyBlueGhostColor,
-                            focusedContainerColor = colors.campusSkyBlueGhostColor,
-                            cursorColor = colors.campusSkyBlueColor
-                        ),
-                        singleLine = true
+                        cursorBrush = SolidColor(colors.campusSkyBlueColor),
+                        singleLine = true,
+                        interactionSource = interactionSource,
+                        decorationBox = { innerTextField ->
+                            OutlinedTextFieldDefaults.DecorationBox(
+                                value = roomText,
+                                innerTextField = innerTextField,
+                                enabled = true,
+                                singleLine = true,
+                                visualTransformation = VisualTransformation.None,
+                                interactionSource = interactionSource,
+                                placeholder = {
+                                    Text(
+                                        "填写房间号",
+                                        color = colors.campusMistColor,
+                                        fontSize = 14.sp
+                                    )
+                                },
+                                colors = textFieldColors,
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                                container = {
+                                    OutlinedTextFieldDefaults.Container(
+                                        enabled = true,
+                                        isError = false,
+                                        interactionSource = interactionSource,
+                                        colors = textFieldColors,
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                }
+                            )
+                        }
                     )
                 }
             }

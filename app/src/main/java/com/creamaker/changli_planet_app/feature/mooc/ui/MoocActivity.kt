@@ -24,7 +24,10 @@ class MoocActivity : ComposeActivity() {
         setComposeContent {
             MoocScreen(
                 moocViewModel = moocViewModel,
-                onBack = ::finish
+                onBack = ::finish,
+                onOpenCoursePage = { courseId ->
+                    Route.goMoocCoursePage(this, courseId)
+                }
             )
         }
     }

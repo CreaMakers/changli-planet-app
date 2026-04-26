@@ -38,6 +38,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -69,7 +70,8 @@ private val TestAccent = Color(0xFF4F7FED)
 @Composable
 fun MoocScreen(
     moocViewModel: MoocViewModel,
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onOpenCoursePage: (String) -> Unit = {}
 ) {
     val uiState by moocViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -80,6 +82,7 @@ fun MoocScreen(
         onRequestForceRefresh = moocViewModel::requestForceRefresh,
         onDismissForceRefreshPrompt = moocViewModel::dismissForceRefreshPrompt,
         onConfirmForceRefresh = moocViewModel::confirmForceRefresh,
+        onOpenCoursePage = onOpenCoursePage,
         onBack = onBack
     )
 }
@@ -93,6 +96,7 @@ private fun MoocScreenContent(
     onRequestForceRefresh: () -> Unit,
     onDismissForceRefreshPrompt: () -> Unit,
     onConfirmForceRefresh: () -> Unit,
+    onOpenCoursePage: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val colors = AppTheme.colors
@@ -250,7 +254,8 @@ private fun MoocScreenContent(
                         items(courseList, key = { it.course.id }) { courseItem ->
                             CourseCard(
                                 courseItem = courseItem,
-                                onToggleExpand = onToggleExpand
+                                onToggleExpand = onToggleExpand,
+                                onOpenCoursePage = onOpenCoursePage
                             )
                         }
                     }
@@ -346,7 +351,8 @@ private fun MessageCard(
 @Composable
 private fun CourseCard(
     courseItem: CourseItem,
-    onToggleExpand: (String) -> Unit
+    onToggleExpand: (String) -> Unit,
+    onOpenCoursePage: (String) -> Unit
 ) {
     val colors = AppTheme.colors
     val expanded = courseItem.isExpanded
@@ -354,6 +360,14 @@ private fun CourseCard(
         targetValue = if (expanded) 180f else 0f,
         label = "courseExpansionAngle"
     )
+    val courseId = courseItem.course.id
+    // 固定 lambda 引用，避免 LazyColumn item 在相邻重组时因 lambda 新实例导致下游重组
+    val openThisCourse = remember(courseId, onOpenCoursePage) {
+        { onOpenCoursePage(courseId) }
+    }
+    val toggleThisCourse = remember(courseId, onToggleExpand) {
+        { onToggleExpand(courseId) }
+    }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -366,7 +380,7 @@ private fun CourseCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onToggleExpand(courseItem.course.id) }
+                    .clickable(onClick = toggleThisCourse)
                     .padding(horizontal = 20.dp, vertical = 18.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -385,10 +399,22 @@ private fun CourseCard(
                         lineHeight = 24.sp
                     )
                     Text(
-                        text = "课程 ID: ${courseItem.course.id}",
+                        text = "课程 ID: $courseId",
                         fontSize = 12.sp,
                         color = colors.secondaryTextColor,
                         fontWeight = FontWeight.Medium
+                    )
+                }
+
+                TextButton(
+                    onClick = openThisCourse,
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "前往课程",
+                        color = HomeworkAccent,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -416,17 +442,23 @@ private fun CourseCard(
                     HorizontalDivider(color = colors.dividerColor.copy(alpha = 0.3f))
                     TaskSection(
                         title = "待提交作业",
-                        subtitle = "按截止时间排序",
+                        subtitle = "点击条目进入课程提交",
                         accent = HomeworkAccent
                     ) {
-                        HomeworkContent(homeworkItems = courseItem.homeworks)
+                        HomeworkContent(
+                            homeworkItems = courseItem.homeworks,
+                            onClickItem = openThisCourse
+                        )
                     }
                     TaskSection(
                         title = "待测试",
-                        subtitle = "展示未完成的课程测试",
+                        subtitle = "点击条目进入课程测试",
                         accent = TestAccent
                     ) {
-                        TestContent(tests = courseItem.tests)
+                        TestContent(
+                            tests = courseItem.tests,
+                            onClickItem = openThisCourse
+                        )
                     }
                 }
             }
@@ -462,7 +494,8 @@ private fun TaskSection(
 
 @Composable
 private fun HomeworkContent(
-    homeworkItems: List<HomeworkItem>
+    homeworkItems: List<HomeworkItem>,
+    onClickItem: () -> Unit
 ) {
     val colors = AppTheme.colors
     if (homeworkItems.isEmpty()) {
@@ -470,14 +503,17 @@ private fun HomeworkContent(
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             homeworkItems.forEach { item ->
-                HomeworkItemRow(homeworkItem = item)
+                HomeworkItemRow(homeworkItem = item, onClick = onClickItem)
             }
         }
     }
 }
 
 @Composable
-private fun TestContent(tests: List<MoocTest>) {
+private fun TestContent(
+    tests: List<MoocTest>,
+    onClickItem: () -> Unit
+) {
     val colors = AppTheme.colors
     val pendingTests = tests.filterNot { it.isSubmitted }
     if (pendingTests.isEmpty()) {
@@ -485,7 +521,7 @@ private fun TestContent(tests: List<MoocTest>) {
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             pendingTests.forEach { test ->
-                TestItem(test = test)
+                TestItem(test = test, onClick = onClickItem)
             }
         }
     }
@@ -512,7 +548,8 @@ private fun SectionMessage(
 
 @Composable
 private fun HomeworkItemRow(
-    homeworkItem: HomeworkItem
+    homeworkItem: HomeworkItem,
+    onClick: () -> Unit
 ) {
     val colors = AppTheme.colors
     val homework = homeworkItem.homework
@@ -521,7 +558,8 @@ private fun HomeworkItemRow(
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = colors.bgSecondaryColor,
-        tonalElevation = 0.dp
+        tonalElevation = 0.dp,
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier
@@ -562,11 +600,15 @@ private fun HomeworkItemRow(
 }
 
 @Composable
-private fun TestItem(test: MoocTest) {
+private fun TestItem(
+    test: MoocTest,
+    onClick: () -> Unit
+) {
     val colors = AppTheme.colors
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = colors.bgSecondaryColor
+        color = colors.bgSecondaryColor,
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier

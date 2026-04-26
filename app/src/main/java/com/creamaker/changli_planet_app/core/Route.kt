@@ -16,6 +16,7 @@ import com.creamaker.changli_planet_app.feature.ledger.ui.AccountBookActivity
 import com.creamaker.changli_planet_app.feature.ledger.ui.AddSomethingAccountActivity
 import com.creamaker.changli_planet_app.feature.ledger.ui.FixSomethingAccountActivity
 import com.creamaker.changli_planet_app.feature.mooc.ui.MoocActivity
+import com.creamaker.changli_planet_app.feature.mooc.ui.MoocCoursePageActivity
 import com.creamaker.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.creamaker.changli_planet_app.freshNews.ui.PublishFreshNewsActivity
 import com.creamaker.changli_planet_app.freshNews.ui.UserHomeActivity
@@ -161,6 +162,19 @@ object Route {
 
     fun goMooc(context: Context) {
         val intent = Intent(context, MoocActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    /**
+     * 跳转到 Mooc 课程主页 WebView（自动注入 cookie，免登录）。
+     *
+     * @param courseId 课程 ID（已经 `cleanCourseId()` 后的纯数字/字母串）
+     */
+    fun goMoocCoursePage(context: Context, courseId: String) {
+        if (courseId.isBlank()) return
+        val intent = Intent(context, MoocCoursePageActivity::class.java).apply {
+            putExtra(MoocCoursePageActivity.EXTRA_COURSE_ID, courseId)
+        }
         context.startActivity(intent)
     }
 
