@@ -54,7 +54,8 @@ import java.util.Calendar
  *    超出屏幕时由外层 `horizontalScroll` 承担"整张表格横滑"体验
  *  - 月份列用主色 + 淡底块强调，与周次列形成明显视觉区分
  *  - 周次列显示**教学周序号**（从开学那周起 1,2,3...），开学前的周显示"准备周/假期"琥珀色标签
- *  - 假期 / 准备周整行使用淡黄色底，Light/Dark 两种主题都清晰可见
+ *  - 假期 / 学期外的日期**按格**染淡黄底（Light/Dark 两种主题都清晰可见），
+ *    开学/结课当周的边界那一天不会误染（如 03-08 黄、03-09 白）
  *  - 仅周日数字用 `errorRedColor`（符合中国日历习惯）
  *  - 今天、开学日、结课日分别用"实心圆点 / 空心圆圈"标识
  *  - 所有颜色取自 [AppTheme.colors] token，自动 Dark Mode 适配
@@ -99,11 +100,11 @@ private val RING_STROKE: Dp = 1.2.dp
 /** 教学周蓝色折线描边宽度。 */
 private val TEACHING_PATH_STROKE: Dp = 1.6.dp
 
-/** 假期 / 准备周整行背景 alpha。
+/** 假期 / 学期外日期格背景 alpha。
  *  - Light（`#F0A855` 琥珀）× 0.20 叠白 ≈ `#FBEBD8`，淡黄清楚
  *  - Dark（`#F0B86A` 暖黄）× 0.20 叠黑 ≈ `#302415`，深棕但可识别；再配合周次列 `campusAmberColor` 文字即可明确辨识
  */
-private const val HOLIDAY_ROW_ALPHA: Float = 0.20f
+private const val HOLIDAY_CELL_ALPHA: Float = 0.20f
 
 // ---------------- 顶部学期概览 ----------------
 
@@ -269,12 +270,10 @@ internal fun WeekRowCard(
     val accent = AppTheme.colors.campusSkyBlueColor
     val isHolidayRow = range != null
 
-    // 行底色优先级：当前周 > 假期/准备周 > 默认透明
-    val rowBg = when {
-        isCurrentRow -> accent.copy(alpha = 0.10f)
-        isHolidayRow -> AppTheme.colors.campusAmberColor.copy(alpha = HOLIDAY_ROW_ALPHA)
-        else -> Color.Transparent
-    }
+    // 整行底色：仅"当前周"使用浅蓝色强调。
+    // 假期黄底**不再整行**，下移到 [DayCell] 按"每一格是否在学期内"逐格判定，
+    // 以正确处理跨界那一周（如 03-08 黄 / 03-09 开始白）。
+    val rowBg = if (isCurrentRow) accent.copy(alpha = 0.10f) else Color.Transparent
 
     Row(
         modifier = Modifier
@@ -295,13 +294,21 @@ internal fun WeekRowCard(
         MonthCell(monthLabel = monthLabel, dividerColor = dividerColor)
 
         // 7 天单元（days[0]=周日, days[6]=周六；仅周日列红字）
+        // 每一格独立判定是否"学期外/假期周"，是则画黄色底，让开学/结课那一周的边界日精细可见
         row.days.forEachIndexed { index, day ->
+            val isOutOfSemester = isDayOutOfSemester(
+                day = day,
+                semesterStartMs = semesterStartMs,
+                semesterEndMs = semesterEndMs,
+                wholeWeekIsHoliday = isHolidayRow
+            )
             DayCell(
                 day = day,
                 semesterStartMs = semesterStartMs,
                 semesterEndMs = semesterEndMs,
                 todayMs = todayMs,
                 isSunday = index == 0,
+                isOutOfSemester = isOutOfSemester,
                 modifier = Modifier
                     .width(DAY_COL_WIDTH)
                     .fillMaxHeight()
@@ -312,6 +319,30 @@ internal fun WeekRowCard(
         // 备注列：200dp 足够放完整文字，最多 2 行
         NoteCell(notes = notes, noteOrdinals = noteOrdinals, dividerColor = dividerColor)
     }
+}
+
+/**
+ * 判断某一"日期格"是否属于"学期外/假期"。
+ *
+ * 为 true 的情况：
+ *  1. 该日期所在整周被 `customWeekRanges` 标记为假期/准备周等（整周非教学）
+ *  2. 该日期 < `semesterStart` 或 > `semesterEnd`（学期边界外）
+ *
+ * 为 false：正常教学周内的每一天。
+ *
+ * 空格（[day] == null）返回 false，空格不需要上色。
+ */
+private fun isDayOutOfSemester(
+    day: DayCellData?,
+    semesterStartMs: Long?,
+    semesterEndMs: Long?,
+    wholeWeekIsHoliday: Boolean
+): Boolean {
+    if (day == null) return false
+    if (wholeWeekIsHoliday) return true
+    if (semesterStartMs != null && day.dateMs < semesterStartMs) return true
+    if (semesterEndMs != null && day.dateMs > semesterEndMs) return true
+    return false
 }
 
 /**
@@ -494,6 +525,9 @@ private fun circledNumber(n: Int): String {
  *  - 今天：实心圆点底 + 白字
  *  - 开学日 / 结课日：空心圆圈边框（不抢走"今天"的视觉）
  *  - 普通日：数字；仅周日（[isSunday]=true）用 `errorRedColor`
+ *  - 学期外 / 假期周（[isOutOfSemester]=true）：整格填淡黄色底
+ *
+ * 黄底与"今天/开学/结课"三种标记可共存：标记圆圈画在黄底之上。
  */
 @Composable
 internal fun DayCell(
@@ -502,6 +536,7 @@ internal fun DayCell(
     semesterEndMs: Long?,
     todayMs: Long,
     isSunday: Boolean,
+    isOutOfSemester: Boolean,
     modifier: Modifier = Modifier
 ) {
     val isToday = day != null && day.dateMs == todayMs
@@ -515,7 +550,17 @@ internal fun DayCell(
         else -> AppTheme.colors.primaryTextColor
     }
 
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+    // 学期外 / 假期格：整格填淡黄底；与"今天/开学/结课"的圆圈标记叠加时，标记仍画在顶层
+    val cellBgModifier = if (isOutOfSemester) {
+        Modifier.background(AppTheme.colors.campusAmberColor.copy(alpha = HOLIDAY_CELL_ALPHA))
+    } else {
+        Modifier
+    }
+
+    Box(
+        modifier = modifier.then(cellBgModifier),
+        contentAlignment = Alignment.Center
+    ) {
         when {
             day == null -> Unit
             isToday -> {
