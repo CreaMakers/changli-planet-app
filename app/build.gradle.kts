@@ -23,10 +23,10 @@ val localProperties = Properties().apply {
 // 值需以 "/" 结尾（Retrofit BaseUrl 要求）。
 val planetApiBaseUrlDebug: String = localProperties.getProperty("planet.apiBaseUrl.debug")
     ?: System.getenv("PLANET_API_BASE_URL_DEBUG")
-    ?: ""
+    ?: "https://api-dev.planet.zhelearn.com/v1/"
 val planetApiBaseUrlRelease: String = localProperties.getProperty("planet.apiBaseUrl.release")
     ?: System.getenv("PLANET_API_BASE_URL_RELEASE")
-    ?: ""
+    ?: "https://api.planet.zhelearn.com/v1/"
 
 android {
     namespace = "com.creamaker.changli_planet_app"
@@ -60,8 +60,8 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 25
-        versionName = "2.0.6"
+        versionCode = 26
+        versionName = "2.0.5.1"
 
         val amapKeyFromLocal: String = localProperties.getProperty("amap.apiKey")
             ?: System.getenv("AMAP_API_KEY")
