@@ -17,5 +17,9 @@
         <!-- 评论系统 -->
         <domain includeSubdomains="true">freshnews.csust.creamaker.cn</domain>
         <domain includeSubdomains="true">csust.creamaker.cn</domain>
+        <domain includeSubdomains="true">amap.com</domain>
+        <domain includeSubdomains="true">aliyun.com</domain>
+        <domain includeSubdomains="true">autonavi.com</domain>
+        <domain includeSubdomains="true">alicdn.com</domain>
     </domain-config>
 </network-security-config>

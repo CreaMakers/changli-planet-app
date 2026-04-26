@@ -3,6 +3,7 @@ package com.creamaker.changli_planet_app.feature.common.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -108,7 +109,10 @@ import com.creamaker.changli_planet_app.feature.common.data.remote.dto.CampusMap
 import com.creamaker.changli_planet_app.feature.common.map.Campus
 import com.creamaker.changli_planet_app.feature.common.map.CampusCoordinateConverter
 import com.creamaker.changli_planet_app.feature.common.viewModel.CampusMapViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
 /**
  * 校园地图页面。
@@ -332,7 +336,14 @@ private fun AMapContent(
     }
 
     val locationSource = remember { CampusLocationSource(context.applicationContext) }
-    val mapView = remember { MapView(context) }
+    val mapView = remember {
+        MapView(context).apply {
+            // 轻量版地图底图由 WebView + WebGL 绘制，必须开启硬件加速。
+            // 虽然主题已默认开启，但某些低端机 / 深色节电模式 / 自定义 Window 会降级成软件层，
+            // 表现为"polygon / 定位蓝点可见但底图瓦片空白"。显式 setLayerType 作为兜底。
+            setLayerType(View.LAYER_TYPE_HARDWARE, null)
+        }
+    }
 
     // 异步拿到 AMap 实例后再做初始化；因为 getMapAsyn 可能在 onCreate 后才回调，
     // 这里用一个专门的 state 承接，避免在 factory 里反复调用 getMapAsyn
@@ -408,9 +419,14 @@ private fun applyMyLocation(aMap: AMap, source: CampusLocationSource, granted: B
  * 按 id 增量同步 Polygon：新增的 feature 创建 polygon，已经消失的 feature 对应 polygon remove。
  * 常规情况下网络拉到的数据与缓存一致 → 两个 Set 相等 → 什么都不做。
  *
+ * 性能要点：
+ *  - 坐标转换 (WGS-84→GCJ-02) 放到 [Dispatchers.Default]，避免 124*~50 个点的循环阻塞主线程；
+ *  - `aMap.addPolygon` 是跨 JSBridge 调用，单次 ~2-5ms，**必须回到主线程**，并且**按批 yield**
+ *    让出主线程给 WebView JS 侧消化消息，否则低端机会出现 1-2 秒"白屏假死"。
+ *
  * @return 是否实际发生了增删（供上层递增 polygonVersion 触发下游刷新）
  */
-private fun rebuildPolygonsIfNeeded(
+private suspend fun rebuildPolygonsIfNeeded(
     aMap: AMap,
     polygonMap: MutableMap<String, Polygon>,
     features: List<CampusMapFeature>
@@ -426,28 +442,42 @@ private fun rebuildPolygonsIfNeeded(
             changed = true
         }
     }
-    features.forEach { feat ->
-        if (polygonMap.containsKey(feat.stableId)) return@forEach
-        val ring = feat.geometry.coordinates.firstOrNull().orEmpty()
-        if (ring.isEmpty()) return@forEach
-        val latLngs = ring.map { pt ->
-            val gcj = CampusCoordinateConverter.wgs84ToGcj02(
-                lat = pt.getOrNull(1) ?: 0.0,
-                lon = pt.getOrNull(0) ?: 0.0
-            )
-            LatLng(gcj[0], gcj[1])
+
+    // 1. 在后台线程批量完成坐标转换，避免主线程卡顿
+    val toAdd = features.filter { it.stableId !in polygonMap.keys }
+    if (toAdd.isEmpty()) return changed
+
+    data class Prepared(val id: String, val latLngs: List<LatLng>, val color: Int)
+    val prepared = withContext(Dispatchers.Default) {
+        toAdd.mapNotNull { feat ->
+            val ring = feat.geometry.coordinates.firstOrNull().orEmpty()
+            if (ring.isEmpty()) return@mapNotNull null
+            val latLngs = ring.map { pt ->
+                val gcj = CampusCoordinateConverter.wgs84ToGcj02(
+                    lat = pt.getOrNull(1) ?: 0.0,
+                    lon = pt.getOrNull(0) ?: 0.0
+                )
+                LatLng(gcj[0], gcj[1])
+            }
+            Prepared(feat.stableId, latLngs, colorForCategory(feat.properties.category))
         }
-        val color = colorForCategory(feat.properties.category)
+    }
+
+    // 2. 回主线程批量 addPolygon；每 20 个 yield 一次让 WebView 消化 JSBridge 消息，
+    //    否则 124 个 polygon 连续下发会把主线程锁死约 0.5-1s。
+    val chunkSize = 20
+    prepared.forEachIndexed { index, p ->
         val polygon = aMap.addPolygon(
             PolygonOptions()
-                .addAll(latLngs)
-                .fillColor(withAlpha(color, 0x80))
-                .strokeColor(color)
+                .addAll(p.latLngs)
+                .fillColor(withAlpha(p.color, 0x80))
+                .strokeColor(p.color)
                 .strokeWidth(3f)
                 .zIndex(1f)
         )
-        polygonMap[feat.stableId] = polygon
+        polygonMap[p.id] = polygon
         changed = true
+        if ((index + 1) % chunkSize == 0) yield()
     }
     return changed
 }
