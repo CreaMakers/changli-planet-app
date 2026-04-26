@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
-import com.creamaker.changli_planet_app.utils.EventBusHelper
+import com.creamaker.changli_planet_app.utils.event.AppEventBus
 import com.creamaker.changli_planet_app.utils.event.SelectEvent
 
 class ClassInfoAdapter(
@@ -33,15 +33,15 @@ class ClassInfoAdapter(
             // 星期选择
             if (list.size == 7) {
                 changeDay(list[position])
-                EventBusHelper.post(SelectEvent(1))
+                AppEventBus.selectEvent.tryEmit(SelectEvent(1))
             } else if (list.size == 2) {
                 // 校区选择
                 changeRegion(list[position])
-                EventBusHelper.post(SelectEvent(1))
+                AppEventBus.selectEvent.tryEmit(SelectEvent(1))
             } else {
                 // 周次选择
                 changeWeek((position + 1).toString())
-                EventBusHelper.post(SelectEvent(1))
+                AppEventBus.selectEvent.tryEmit(SelectEvent(1))
             }
         }
     }

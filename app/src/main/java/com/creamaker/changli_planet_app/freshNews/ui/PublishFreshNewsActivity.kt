@@ -47,8 +47,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
+import com.creamaker.changli_planet_app.utils.event.AppEventBus
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -73,7 +74,21 @@ class PublishFreshNewsActivity : FullScreenActivity<ActivityPublishFreshNewsBind
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        EventBus.getDefault().register(this)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                AppEventBus.freshNewsEvent.collect { event ->
+                    when (event) {
+                        FreshNewsContract.Event.closePublish -> {
+                            Log.d(TAG, "收到关闭发布动态的事件")
+                            if (!isFinishing && !isDestroyed) {
+                                finish()
+                            }
+                        }
+                        else -> {}
+                    }
+                }
+            }
+        }
         maxImageSize = dpToPx(115)          //给maxImageSize赋addImage大小的初值
 
         setContentMinHeight()
@@ -108,25 +123,7 @@ class PublishFreshNewsActivity : FullScreenActivity<ActivityPublishFreshNewsBind
     }
 
     override fun onDestroy() {
-        EventBus.getDefault().unregister(this)
         super.onDestroy()
-    }
-
-    @Subscribe
-    public fun closeActivity(event: FreshNewsContract.Event) {
-        when (event) {
-            FreshNewsContract.Event.closePublish -> {
-                Log.d(TAG, "收到关闭发布动态的事件")
-                // Check if activity is still active before setting result
-                if (!isFinishing && !isDestroyed) {
-
-                    finish()
-                } else {
-                    Log.w(TAG, "Activity is finishing or destroyed, skipping setResult")
-                }
-            }
-            else -> {}
-        }
     }
 
     private fun addImage() {

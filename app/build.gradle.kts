@@ -60,7 +60,7 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 24
+        versionCode = 25
         versionName = "2.0.6"
 
         val amapKeyFromLocal: String = localProperties.getProperty("amap.apiKey")
@@ -183,8 +183,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.converter.scalars)
-    // EventBus
-    implementation(libs.eventbus)
     // Gson
     implementation(libs.gson)
     //TimetableView

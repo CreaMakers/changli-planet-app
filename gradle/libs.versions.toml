@@ -7,7 +7,6 @@ common = "4.0.1"
 converterGson = "3.0.0"
 crashreport = "4.1.9.3"
 csustdataget = "1.0.9"
-eventbus = "3.3.1"
 flexbox = "3.0.0"
 fragmentKtx = "1.8.9"
 glide = "5.0.7"
@@ -74,7 +73,6 @@ converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterGson" }
 crashreport = { module = "com.tencent.bugly:crashreport", version.ref = "crashreport" }
 csustdataget = { module = "com.github.CreaMakers:CSUSTDataGet", version.ref = "csustdataget" }
-eventbus = { module = "org.greenrobot:eventbus", version.ref = "eventbus" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }

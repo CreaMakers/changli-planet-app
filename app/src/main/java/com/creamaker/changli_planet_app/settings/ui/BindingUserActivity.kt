@@ -19,15 +19,18 @@ import com.creamaker.changli_planet_app.common.redux.store.UserStore
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Route
 import com.creamaker.changli_planet_app.databinding.ActivityBindingUserBinding
+import com.creamaker.changli_planet_app.utils.event.AppEventBus
 import com.creamaker.changli_planet_app.utils.event.FinishEvent
 import com.creamaker.changli_planet_app.widget.view.CustomToast
 import com.dcelysia.csust_spider.core.RetrofitUtils
 import com.example.changli_planet_app.widget.Dialog.SSOWebviewDialog
 import com.google.android.material.button.MaterialButton
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 
 /**
  * 绑定用户类
@@ -90,7 +93,21 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
     }
 
     private fun initView() {
-        EventBus.getDefault().register(this)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                AppEventBus.finishEvent.collect { finishEvent ->
+                    if (finishEvent.name == "bindingUser") {
+                        if (isSwitchAccount) {
+                            PlanetApplication.clearContentCache()
+                            UserInfoManager.clearStaleProfile()
+                        }
+                        showMessage("学号和密码保存成功！")
+                        Route.goHomeForcibly(this@BindingUserActivity)
+                        finish()
+                    }
+                }
+            }
+        }
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
@@ -174,23 +191,5 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
 
     override fun onDestroy() {
         super.onDestroy()
-        EventBus.getDefault().unregister(this)
-    }
-
-    @Subscribe
-    fun onFinish(finishEvent: FinishEvent) {
-        if (finishEvent.name == "bindingUser") {
-            if (isSwitchAccount) {
-                // 切换学号成功：仅在此时清理旧账号遗留的"内容缓存"和不会被新登录覆盖的用户字段，
-                // 避免用户中途放弃绑定时把原有账号数据也丢失。
-                // 注意：StudentInfoManager 的学号/密码、UserInfoManager 的 account/username/userPassword
-                // 已由 UserAction.BindingStudentNumber 写入为新值，这里不要再清，否则会清掉新账号。
-                PlanetApplication.clearContentCache()
-                UserInfoManager.clearStaleProfile()
-            }
-            showMessage("学号和密码保存成功！")
-            Route.goHomeForcibly(this)
-            finish()
-        }
     }
 }

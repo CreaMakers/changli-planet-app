@@ -26,11 +26,11 @@ import com.creamaker.changli_planet_app.core.main.navigation.MainTabNavigator
 import com.creamaker.changli_planet_app.core.main.ui.MainScreen
 import com.creamaker.changli_planet_app.core.theme.AppSkinTheme
 import com.creamaker.changli_planet_app.core.theme.AppTheme
-import com.creamaker.changli_planet_app.utils.event.SelectEvent
+import com.creamaker.changli_planet_app.utils.event.AppEventBus
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 
 class MainActivity : ComponentActivity(), DrawerController {
     private val store by lazy { UserStore() }
@@ -44,7 +44,13 @@ class MainActivity : ComponentActivity(), DrawerController {
     override fun onCreate(savedInstanceState: Bundle?) {
         setCustomDensity(this, application, 412)
         super.onCreate(savedInstanceState)
-        EventBus.getDefault().register(this)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                AppEventBus.selectEvent.collect { event ->
+                    mainTabNavigator.select(event.eventType)
+                }
+            }
+        }
 //        if (PlanetApplication.Companion.accessToken.isNullOrEmpty() && !PlanetApplication.Companion.is_tourist) {
 //            Route.goLogin(this@MainActivity)
 //            finish()
@@ -100,7 +106,6 @@ class MainActivity : ComponentActivity(), DrawerController {
 
     override fun onDestroy() {
         super.onDestroy()
-        EventBus.getDefault().unregister(this)
         TabAnimationPool.clear()
     }
 
@@ -148,11 +153,6 @@ class MainActivity : ComponentActivity(), DrawerController {
     companion object {
         private const val REQUEST_READ_TELEPHONE = 1001
         private const val REQUEST_NOTIFICATION = 1002
-    }
-
-    @Subscribe
-    fun onSelectEvent(selectEvent: SelectEvent) {
-        mainTabNavigator.select(selectEvent.eventType)
     }
 
     private fun setCustomDensity(activity: Activity, application: Application, designWidthDp: Int) {

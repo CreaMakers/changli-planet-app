@@ -31,14 +31,14 @@ import com.creamaker.changli_planet_app.utils.load
 import com.creamaker.changli_planet_app.widget.dialog.ImageSliderDialog
 import com.creamaker.changli_planet_app.widget.dialog.Level2CommentsDialog
 import com.creamaker.changli_planet_app.widget.view.CustomToast
+import com.creamaker.changli_planet_app.utils.event.AppEventBus
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.EventBus
 import kotlin.math.max
 import kotlin.math.min
 
 class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
     private val freshNewsItem: FreshNewsItem? by lazy {
-        EventBus.getDefault().getStickyEvent(FreshNewsItem::class.java)
+        AppEventBus.currentFreshNews.replayCache.firstOrNull()
     }
     private val rvParent: RecyclerView by lazy { binding.rvParent }
     private val commentsViewModel: CommentsViewModel by viewModels()
@@ -106,9 +106,9 @@ class CommentsActivity : FullScreenActivity<ActivityCommentsBinding>() {
         // 防止输入法内存泄漏
         currentFocus?.clearFocus()
         try {
-            EventBus.getDefault().removeStickyEvent(FreshNewsItem::class.java)
+            AppEventBus.currentFreshNews.resetReplayCache()
         } catch (e: Exception) {
-            Log.w(TAG, "onDestroy: removeStickyEvent failed", e)
+            Log.w(TAG, "onDestroy: resetReplayCache failed", e)
         }
         super.onDestroy()
     }

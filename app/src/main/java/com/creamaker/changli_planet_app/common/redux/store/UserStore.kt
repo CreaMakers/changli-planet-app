@@ -11,8 +11,8 @@ import com.creamaker.changli_planet_app.common.redux.action.UserAction
 import com.creamaker.changli_planet_app.common.redux.state.UserState
 import com.creamaker.changli_planet_app.core.PlanetApplication
 import com.creamaker.changli_planet_app.core.Store
-import com.creamaker.changli_planet_app.utils.EventBusHelper
 import com.creamaker.changli_planet_app.utils.RetrofitUtils
+import com.creamaker.changli_planet_app.utils.event.AppEventBus
 import com.creamaker.changli_planet_app.utils.event.FinishEvent
 import com.creamaker.changli_planet_app.widget.dialog.BindingFromWebDialog
 import com.creamaker.changli_planet_app.widget.dialog.NormalResponseDialog
@@ -149,7 +149,7 @@ class UserStore : Store<UserState, UserAction>() {
                                     Log.d(TAG, "教务登录成功")
                                     StudentInfoManager.studentId = action.studentNumber
                                     StudentInfoManager.studentPassword = action.studentPassword
-                                    handler.post { EventBusHelper.post(FinishEvent("bindingUser")) }
+                                    handler.post { AppEventBus.finishEvent.tryEmit(FinishEvent("bindingUser")) }
                                     PlanetApplication.clearSchoolDataCacheAll()
                                     _state.onNext(currentState)
                                 } else {

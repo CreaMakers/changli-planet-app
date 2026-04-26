@@ -8,12 +8,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.creamaker.changli_planet_app.R
 import com.creamaker.changli_planet_app.feature.common.ui.adapter.ClassInfoAdapter
-import com.creamaker.changli_planet_app.utils.EventBusLifecycleObserver
-import com.creamaker.changli_planet_app.utils.event.SelectEvent
+import com.creamaker.changli_planet_app.utils.event.AppEventBus
 import com.creamaker.changli_planet_app.widget.view.DividerItemDecoration
 import com.creamaker.changli_planet_app.widget.view.MaxHeightLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.greenrobot.eventbus.Subscribe
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 
 
 class ClassInfoBottomDialog(
@@ -33,7 +35,13 @@ class ClassInfoBottomDialog(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        lifecycle.addObserver(EventBusLifecycleObserver(this))
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                AppEventBus.selectEvent.collect { event ->
+                    if (event.eventType == 1) dismiss()
+                }
+            }
+        }
         val view = inflater.inflate(R.layout.select_in_userprofile, container, false)
         recyclerView = view.findViewById(R.id.selectRecyclerUserProfile)
 
@@ -54,12 +62,5 @@ class ClassInfoBottomDialog(
 
     fun setTitle(title: String) {
         text = title
-    }
-
-    @Subscribe
-    fun ClickEvent(selectEvent: SelectEvent) {
-        if (selectEvent.eventType == 1) {
-            dismiss()
-        }
     }
 }
