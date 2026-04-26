@@ -65,7 +65,9 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -809,6 +811,7 @@ private fun SharedTransitionScope.ExpandedTabs(
     var pressedOffset by remember { mutableStateOf(Offset.Unspecified) }
     var isPressed by remember { mutableStateOf(false) }
     val (glowCenter, glowAlpha, glowRadius) = rememberTouchGlow(isPressed, pressedOffset)
+    val hapticFeedback = LocalHapticFeedback.current
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(sizes.tabSpacing),
@@ -855,6 +858,9 @@ private fun SharedTransitionScope.ExpandedTabs(
                         val selectedKey = tabBounds.entries.firstOrNull { (_, bounds) ->
                             bounds.contains(releasePoint)
                         }?.key
+                        if (selectedKey != null && selectedKey != selectedTabKey) {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
                         scope.tabs.firstOrNull { it.key == selectedKey }?.onClick?.invoke()
                         true
                     }
