@@ -1,11 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "com.dcelysia.cp_common"
     compileSdk = 36
+    compileSdkMinor = 1
 
     defaultConfig {
         minSdk = 24

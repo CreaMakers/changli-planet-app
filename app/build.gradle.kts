@@ -1,15 +1,12 @@
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.baselineprofile)
     id("kotlin-parcelize")
-    id("org.jetbrains.kotlin.kapt")
 }
 configurations.all {
     exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
@@ -17,6 +14,7 @@ configurations.all {
 android {
     namespace = "com.creamaker.changli_planet_app"
     compileSdk = 36
+    compileSdkMinor = 1
     buildFeatures {
         buildConfig = true
         compose = true
@@ -82,16 +80,6 @@ android {
         }
     }
 
-    applicationVariants.all {
-        outputs.all {
-            val buildType = buildType.name
-            val versionName = versionName
-
-            (this as BaseVariantOutputImpl).outputFileName =
-                "clPlanetApp_${buildType}_v${versionName}.apk"
-
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -116,6 +104,16 @@ android {
     }
     buildFeatures {
         viewBinding = true
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.outputs.forEach { output ->
+            val versionName = output.versionName.orNull ?: ""
+            (output as? com.android.build.api.variant.impl.VariantOutputImpl)
+                ?.outputFileName?.set("clPlanetApp_${variant.name}_v${versionName}.apk")
+        }
     }
 }
 dependencies {
@@ -146,7 +144,6 @@ dependencies {
     implementation(libs.converter.scalars)
     // EventBus
     implementation(libs.eventbus)
-    kapt(libs.eventbus.annotation.processor)
     // Gson
     implementation(libs.gson)
     //TimetableView
@@ -218,11 +215,6 @@ dependencies {
     implementation(libs.haze)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
-}
-kapt {
-    arguments {
-        arg("eventBusIndex", "com.creamaker.changli_planet_app.core.bus.PlanetEventBusIndex")
-    }
 }
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")

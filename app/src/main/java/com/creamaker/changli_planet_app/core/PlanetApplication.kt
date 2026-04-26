@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import com.creamaker.changli_planet_app.BuildConfig
-import com.creamaker.changli_planet_app.core.bus.PlanetEventBusIndex
 import com.creamaker.changli_planet_app.core.network.OkHttpHelper
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
 import com.creamaker.changli_planet_app.feature.mooc.viewmodel.MoocViewModel
@@ -28,13 +27,12 @@ import com.tencent.msdk.dns.MSDKDnsResolver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.EventBus
 
 class PlanetApplication : Application(), ViewModelStoreOwner {
     companion object {
         private const val TIME_TABLE_APP_WIDGET = "TimeTableAppWidget"
         private const val CACHE_SCHEMA_VERSION_KEY = "cache_schema_version"
-        private const val CURRENT_CACHE_SCHEMA_VERSION = 3
+        private const val CURRENT_CACHE_SCHEMA_VERSION = 4
 
         var accessToken: String?
             get() = MMKV.defaultMMKV().getString("token", null)
@@ -129,7 +127,6 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
 
 
         initMMKV()
-        installEventBusIndex()
         migrateLegacyCacheIfNeeded()
         if (!BuildConfig.DEBUG) {
             CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
@@ -194,26 +191,26 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         MMKV.initialize(this@PlanetApplication)
     }
 
-    private fun installEventBusIndex() {
-        runCatching {
-            EventBus.builder()
-                .addIndex(PlanetEventBusIndex())
-                .installDefaultEventBus()
-        }.onFailure {
-            Log.w("PlanetApplication", "EventBus default instance already installed", it)
-        }
-    }
-
     private fun migrateLegacyCacheIfNeeded() {
         val kv = MMKV.defaultMMKV() ?: return
         val version = kv.decodeInt(CACHE_SCHEMA_VERSION_KEY, 0)
         if (version >= CURRENT_CACHE_SCHEMA_VERSION) return
 
         runCatching {
-            MMKV.mmkvWithID("education_cache").clearAll()
-            MMKV.mmkvWithID("content_cache").removeValueForKey("grades")
-            MMKV.mmkvWithID("content_cache").removeValueForKey("exams")
-            MMKV.mmkvWithID("MoocCookiejar").clearAll()
+            if (version < 3) {
+                MMKV.mmkvWithID("education_cache").clearAll()
+                MMKV.mmkvWithID("content_cache").removeValueForKey("grades")
+                MMKV.mmkvWithID("content_cache").removeValueForKey("exams")
+                MMKV.mmkvWithID("MoocCookiejar").clearAll()
+            }
+            if (version < 4) {
+                MMKV.mmkvWithID("import_cache").apply {
+                    removeValueForKey("user_account") // UserInfoManager.account（MOOC userName）
+                    removeValueForKey("user_avatar")  // UserInfoManager.userAvatar
+                    removeValueForKey("user_id")      // UserInfoManager.userId
+                    removeValueForKey("user_email")   // UserInfoManager.userEmail
+                }
+            }
         }
 
         kv.encode(CACHE_SCHEMA_VERSION_KEY, CURRENT_CACHE_SCHEMA_VERSION)

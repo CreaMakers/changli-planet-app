@@ -1,6 +1,6 @@
 [versions]
 activityKtx = "1.13.0"
-agp = "8.13.2"
+agp = "9.2.0"
 codelocatorCore = "2.0.4"
 coilCompose = "2.7.0"
 common = "4.0.1"
@@ -14,7 +14,7 @@ glide = "5.0.7"
 gson = "2.14.0"
 httpdnsSdk = "4.11.0"
 jsoup = "1.22.2"
-kotlin = "2.3.20"
+kotlin = "2.3.21"
 coreKtx = "1.18.0"
 appcompat = "1.7.1"
 leakcanaryAndroid = "2.14"
@@ -45,9 +45,9 @@ workRxjava2 = "2.11.2"
 junit = "1.3.0"
 uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.4.1"
-baselineprofile = "1.4.1"
+baselineprofile = "1.5.0-alpha05"
 profileinstaller = "1.4.1"
-ksp = "2.2.21-2.0.5"
+ksp = "2.3.7"
 haze = "1.7.2"
 nav3Core = "1.1.1"
 navigationRuntimeKtx = "2.9.8"
@@ -75,7 +75,6 @@ converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", versi
 crashreport = { module = "com.tencent.bugly:crashreport", version.ref = "crashreport" }
 csustdataget = { module = "com.github.CreaMakers:CSUSTDataGet", version.ref = "csustdataget" }
 eventbus = { module = "org.greenrobot:eventbus", version.ref = "eventbus" }
-eventbus-annotation-processor = { module = "org.greenrobot:eventbus-annotation-processor", version.ref = "eventbus" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }

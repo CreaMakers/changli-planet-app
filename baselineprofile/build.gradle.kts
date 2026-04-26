@@ -1,12 +1,12 @@
 plugins {
     alias(libs.plugins.android.test)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.baselineprofile)
 }
 
 android {
     namespace = "com.dcelysia.baselineprofile"
     compileSdk = 36
+    compileSdkMinor = 1
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
