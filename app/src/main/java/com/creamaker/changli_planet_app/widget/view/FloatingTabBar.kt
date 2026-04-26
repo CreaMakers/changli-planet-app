@@ -385,11 +385,11 @@ private fun Modifier.touchGlowOverlay(
         if (center != Offset.Unspecified && alpha > 0.001f) {
             drawRect(
                 brush = Brush.radialGradient(
-                    colors = listOf(
-                        glowColor.copy(alpha = 0.24f * alpha),
-                        glowColor.copy(alpha = 0.13f * alpha),
-                        glowColor.copy(alpha = 0.06f * alpha),
-                        Color.Transparent
+                    colorStops = arrayOf(
+                        0f to glowColor.copy(alpha = 0.35f * alpha),
+                        0.25f to glowColor.copy(alpha = 0.19f * alpha),
+                        0.6f to glowColor.copy(alpha = 0.06f * alpha),
+                        1f to Color.Transparent
                     ),
                     center = center,
                     radius = radius.toPx()
