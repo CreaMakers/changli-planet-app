@@ -148,7 +148,7 @@ private fun OverviewScreen(
             }
         } else {
             items(state.pendingHomeworks, key = { it.id }) { homework ->
-                HomeworkCard(homework)
+                HomeworkCard(homework, onClick = { onQuickActionClick("homework") })
             }
         }
 
@@ -157,7 +157,7 @@ private fun OverviewScreen(
                 SectionTitle("待完成测试", "查看全部") { onQuickActionClick("homework") }
             }
             items(state.pendingTests, key = { it.id }) { test ->
-                TestCard(test)
+                TestCard(test, onClick = { onQuickActionClick("homework") })
             }
         }
 
@@ -478,13 +478,14 @@ private fun MetricSubtitle(metric: OverviewMetricUiModel) {
 }
 
 @Composable
-private fun HomeworkCard(homework: OverviewHomeworkUiModel) {
+private fun HomeworkCard(homework: OverviewHomeworkUiModel, onClick: () -> Unit) {
     val colors = AppTheme.colors
     val courseName = runCatching { homework.courseName }.getOrDefault("")
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = if (homework.isUrgent) colors.overviewUrgentBackgroundColor else colors.bgCardColor,
-        border = if (homework.isUrgent) BorderStroke(1.5.dp, colors.overviewUrgentBorderColor) else null
+        border = if (homework.isUrgent) BorderStroke(1.5.dp, colors.overviewUrgentBorderColor) else null,
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
         Row(
             modifier = Modifier
@@ -608,13 +609,14 @@ private fun ExamCard(exam: OverviewExamUiModel) {
 }
 
 @Composable
-private fun TestCard(test: OverviewTestUiModel) {
+private fun TestCard(test: OverviewTestUiModel, onClick: () -> Unit) {
     val colors = AppTheme.colors
     val courseName = runCatching { test.courseName }.getOrDefault("")
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = if (test.isUrgent) colors.overviewUrgentBackgroundColor else colors.bgCardColor,
-        border = if (test.isUrgent) BorderStroke(1.5.dp, colors.overviewUrgentBorderColor) else null
+        border = if (test.isUrgent) BorderStroke(1.5.dp, colors.overviewUrgentBorderColor) else null,
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
         Row(
             modifier = Modifier

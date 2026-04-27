@@ -4,14 +4,17 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.creamaker.changli_planet_app.BuildConfig
 import com.creamaker.changli_planet_app.feature.common.data.remote.dto.CampusMapFeature
 import com.creamaker.changli_planet_app.feature.common.data.remote.dto.CampusMapGeoJson
 import com.creamaker.changli_planet_app.feature.common.data.repository.CampusMapRepository
 import com.creamaker.changli_planet_app.feature.common.map.Campus
-import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -44,35 +47,7 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
         val isLoading: Boolean = false,
         val errorMessage: String? = null,
         val cameraTarget: CameraTarget? = null
-    ) {
-        val filteredBuildings: List<CampusMapFeature>
-            get() {
-                val afterCampus = if (selectedCampus != null) {
-                    allBuildings.filter { it.properties.campus == selectedCampus.rawName }
-                } else allBuildings
-
-                val afterCategory = if (selectedCategory != null) {
-                    afterCampus.filter { it.properties.category == selectedCategory }
-                } else afterCampus
-
-                val q = searchText.trim()
-                return if (q.isEmpty()) afterCategory
-                else afterCategory.filter { fuzzyMatches(it.properties.name, q) }
-            }
-
-        /**
-         * 下拉筛选里的分类候选：null（=全部）永远在首位，后面是当前校区实际出现过的分类。
-         */
-        val availableCategories: List<String?>
-            get() {
-                val src = if (selectedCampus != null) {
-                    allBuildings.filter { it.properties.campus == selectedCampus.rawName }
-                } else allBuildings
-                val uniq = linkedSetOf<String>()
-                src.forEach { uniq += it.properties.category }
-                return listOf<String?>(null) + uniq.toList()
-            }
-    }
+    )
 
     /** 相机目标状态：[span] 为纬/经跨度（度），越小越"放大"。 */
     data class CameraTarget(
@@ -82,12 +57,37 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
         val token: Long = System.nanoTime()
     )
 
-    private val mmkv by lazy { MMKV.mmkvWithID(MMKV_ID) }
-
     private val _uiState = MutableStateFlow(
-        UiState(selectedCampus = loadPersistedCampus())
+        UiState(selectedCampus = Campus.JINPENLING)
     )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    /** 过滤后的建筑列表：基于 uiState 派生，避免每次 recomposition 重算 124 条数据。 */
+    val filteredBuildings: StateFlow<List<CampusMapFeature>> = _uiState
+        .map { s ->
+            val afterCampus = s.selectedCampus?.let { c ->
+                s.allBuildings.filter { it.properties.campus == c.rawName }
+            } ?: s.allBuildings
+            val afterCategory = s.selectedCategory?.let { cat ->
+                afterCampus.filter { it.properties.category == cat }
+            } ?: afterCampus
+            val q = s.searchText.trim()
+            if (q.isEmpty()) afterCategory
+            else afterCategory.filter { fuzzyMatches(it.properties.name, q) }
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** 分类候选：null（=全部）永远在首位。 */
+    val availableCategories: StateFlow<List<String?>> = _uiState
+        .map { s ->
+            val src = s.selectedCampus?.let { c ->
+                s.allBuildings.filter { it.properties.campus == c.rawName }
+            } ?: s.allBuildings
+            val uniq = linkedSetOf<String>()
+            src.forEach { uniq += it.properties.category }
+            listOf<String?>(null) + uniq.toList()
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, listOf(null))
 
     @Volatile
     private var hasInitialLoaded = false
@@ -125,14 +125,13 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
         }
         // 如首屏没 cameraTarget，则按当前 campus 居中
         if (_uiState.value.cameraTarget == null) centerOnCurrentCampus()
-        Log.d(TAG, "applyData fromCache=$fromCache size=${geoJson.features.size}")
+        if (BuildConfig.DEBUG) Log.d(TAG, "applyData fromCache=$fromCache size=${geoJson.features.size}")
     }
 
     // ------- 用户操作 -------
 
     fun onCampusSelected(campus: Campus?) {
         if (_uiState.value.selectedCampus == campus) return
-        persistCampus(campus)
         _uiState.update {
             it.copy(
                 selectedCampus = campus,
@@ -208,18 +207,8 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
         return sumLat / n to sumLon / n
     }
 
-    private fun loadPersistedCampus(): Campus? =
-        mmkv.decodeString(KEY_CAMPUS, null)?.let(Campus::fromRawName)
-
-    private fun persistCampus(campus: Campus?) {
-        if (campus == null) mmkv.removeValueForKey(KEY_CAMPUS)
-        else mmkv.encode(KEY_CAMPUS, campus.rawName)
-    }
-
     companion object {
         private const val TAG = "CampusMapVM"
-        private const val MMKV_ID = "campus_map"
-        private const val KEY_CAMPUS = "selected_campus"
 
         /** 与 iOS 保持一致的模糊匹配：忽略大小写，按字符顺序逐一匹配。 */
         fun fuzzyMatches(source: String, pattern: String): Boolean {

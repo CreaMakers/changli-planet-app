@@ -61,8 +61,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 26
-        versionName = "2.0.5.2"
-
+        versionName = "2.0.5.7"
         val amapKeyFromLocal: String = localProperties.getProperty("amap.apiKey")
             ?: System.getenv("AMAP_API_KEY")
             ?: ""

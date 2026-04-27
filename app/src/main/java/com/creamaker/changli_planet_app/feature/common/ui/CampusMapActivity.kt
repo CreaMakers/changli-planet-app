@@ -3,7 +3,6 @@ package com.creamaker.changli_planet_app.feature.common.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +14,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -110,22 +110,15 @@ import com.creamaker.changli_planet_app.feature.common.map.Campus
 import com.creamaker.changli_planet_app.feature.common.map.CampusCoordinateConverter
 import com.creamaker.changli_planet_app.feature.common.viewModel.CampusMapViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
-/**
- * 校园地图页面。
- *
- * 设计要点：
- * - 地图使用高德「轻量版地图 SDK」本地 jar（`app/libs/Lite3DMap.jar`）。
- * - 整个 Activity 基于 Compose，[MapView] 通过 [AndroidView] 嵌入；
- *   生命周期通过 [DisposableEffect] + [LifecycleEventObserver] 正确转接。
- * - 定位蓝点通过实现 [LocationSource] + 外部 [AMapLocationClient] 喂给地图（轻量版 SDK 官方要求）。
- * - WGS-84 坐标在 UI 层转 GCJ-02，避免把地图 SDK 依赖扩散到 ViewModel。
- * - Polygon 实例在 `onMapReady` 时一次性建好并缓存；过滤与选中态只调 `setVisible`/`setFillColor`，
- *   不做 `remove+addPolygon` 抖动，保证滚动/筛选时无卡顿。
- */
+/** 校园地图页面（高德轻量版 SDK，基于 WebView+WebGL 渲染）。 */
 class CampusMapActivity : ComposeActivity() {
 
     private val viewModel: CampusMapViewModel by viewModels()
@@ -152,34 +145,41 @@ private fun CampusMapScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val filteredBuildings by viewModel.filteredBuildings.collectAsStateWithLifecycle()
+    val availableCategories by viewModel.availableCategories.collectAsStateWithLifecycle()
     val colors = AppTheme.colors
     val context = LocalContext.current
     val isDark = isSystemInDarkTheme()
 
-    // 限制 Sheet 展开高度：最大 55% 屏幕，避免"一滑到顶"遮挡整张地图
     val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
-    val sheetMaxHeight = screenHeight * 0.55f
+    val sheetMaxHeight = configuration.screenHeightDp.dp * 0.55f
 
-    // 地图引用：Compose 内跨 recomposition 共享；AndroidView.factory 只执行一次
     var mapRef by remember { mutableStateOf<AMap?>(null) }
     val polygonMap = remember { mutableMapOf<String, Polygon>() }
+    val polygonStyles = remember { mutableMapOf<String, PolygonStyle>() }
+    val rebuildMutex = remember { Mutex() }
 
-    // polygonMap 本身不是 SnapshotState，无法驱动 Compose 重组；
-    // 每次增删 polygon 后用 polygonVersion++ 通知下游 LaunchedEffect 重新跑一次刷新逻辑。
+    // polygonMap 非 SnapshotState，用版本号驱动下游 LaunchedEffect 重跑
     var polygonVersion by remember { mutableIntStateOf(0) }
+
+    // MapView 被销毁后 polygon 引用失效；mapRef 置 null 时一并清空本地缓存
+    LaunchedEffect(mapRef) {
+        if (mapRef == null) {
+            polygonMap.clear()
+            polygonStyles.clear()
+        }
+    }
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
     )
     val scope = rememberCoroutineScope()
 
-    // 主题切换时更新地图 day/night，不用销毁重建
     LaunchedEffect(mapRef, isDark) {
         mapRef?.mapType = if (isDark) AMap.MAP_TYPE_NIGHT else AMap.MAP_TYPE_NORMAL
     }
 
-    // 相机目标：uiState.cameraTarget 变化时平移地图（一次性事件，消费后清空）
+    // 一次性事件：消费后清空
     LaunchedEffect(uiState.cameraTarget, mapRef) {
         val map = mapRef ?: return@LaunchedEffect
         val target = uiState.cameraTarget ?: return@LaunchedEffect
@@ -192,33 +192,44 @@ private fun CampusMapScreen(
         viewModel.consumeCameraTarget()
     }
 
-    // 全量数据变化 → 建/删 Polygon
     LaunchedEffect(uiState.allBuildings, mapRef) {
         val map = mapRef ?: return@LaunchedEffect
-        val changed = rebuildPolygonsIfNeeded(map, polygonMap, uiState.allBuildings)
-        if (changed) polygonVersion++
+        rebuildMutex.withLock {
+            if (rebuildPolygonsIfNeeded(map, polygonMap, uiState.allBuildings)) polygonVersion++
+        }
     }
 
-    // 过滤/选中 → 更新 Polygon 可见性与高亮
-    LaunchedEffect(uiState.filteredBuildings, uiState.selectedBuildingId, polygonVersion) {
+    LaunchedEffect(filteredBuildings, uiState.selectedBuildingId, polygonVersion) {
         if (polygonMap.isEmpty()) return@LaunchedEffect
-        val visibleIds = uiState.filteredBuildings.mapTo(HashSet()) { it.stableId }
-        polygonMap.forEach { (id, polygon) ->
-            val feat = uiState.allBuildings.firstOrNull { it.stableId == id } ?: return@forEach
-            val visible = id in visibleIds
-            polygon.isVisible = visible
-            if (visible) {
-                val selected = id == uiState.selectedBuildingId
+        val visibleIds = filteredBuildings.mapTo(HashSet()) { it.stableId }
+        val featureById = uiState.allBuildings.associateBy { it.stableId }
+        rebuildMutex.withLock {
+            polygonMap.forEach { (id, polygon) ->
+                val feat = featureById[id] ?: return@forEach
+                val visible = id in visibleIds
+                val selected = visible && id == uiState.selectedBuildingId
                 val baseColor = colorForCategory(feat.properties.category)
-                polygon.fillColor = withAlpha(baseColor, if (selected) 0xCC else 0x80)
-                polygon.strokeColor = if (selected) 0xFF222222.toInt() else baseColor
-                polygon.strokeWidth = if (selected) 6f else 3f
-                polygon.zIndex = if (selected) 2f else 1f
+                val next = PolygonStyle(
+                    visible = visible,
+                    fillColor = withAlpha(baseColor, if (selected) 0xCC else 0x80),
+                    strokeColor = if (selected) 0xFF222222.toInt() else baseColor,
+                    strokeWidth = if (selected) 6f else 3f,
+                    zIndex = if (selected) 2f else 1f,
+                )
+                val prev = polygonStyles[id]
+                if (prev == next) return@forEach
+                if (prev?.visible != next.visible) polygon.isVisible = next.visible
+                if (next.visible) {
+                    if (prev?.fillColor != next.fillColor) polygon.fillColor = next.fillColor
+                    if (prev?.strokeColor != next.strokeColor) polygon.strokeColor = next.strokeColor
+                    if (prev?.strokeWidth != next.strokeWidth) polygon.strokeWidth = next.strokeWidth
+                    if (prev?.zIndex != next.zIndex) polygon.zIndex = next.zIndex
+                }
+                polygonStyles[id] = next
             }
         }
     }
 
-    // 错误一次性 Toast
     LaunchedEffect(uiState.errorMessage) {
         val msg = uiState.errorMessage ?: return@LaunchedEffect
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
@@ -231,8 +242,7 @@ private fun CampusMapScreen(
         sheetContainerColor = colors.bgCardColor,
         sheetContentColor = colors.primaryTextColor,
         sheetContent = {
-            // 关键：限制 sheet 内容最大高度 = 屏幕 55%，防止向上滑一下就全屏遮挡地图。
-            // sheet 最多展开到内容高度，这里由 heightIn 兜底。
+            // heightIn 兜底 sheet 最大展开高度
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -240,6 +250,8 @@ private fun CampusMapScreen(
             ) {
                 BuildingsListSheet(
                     uiState = uiState,
+                    filteredBuildings = filteredBuildings,
+                    availableCategories = availableCategories,
                     onSearchTextChanged = viewModel::onSearchTextChanged,
                     onClearSearch = viewModel::clearSearch,
                     onCategorySelected = viewModel::onCategorySelected,
@@ -259,8 +271,9 @@ private fun CampusMapScreen(
                 onMapReady = { mapRef = it }
             )
 
-            // 顶部控件：只吃 statusBars.top（避免底部被 Navigation bar 内边距影响），
-            // 再额外留 8dp 呼吸感
+            // 5s 内底图仍未出现（WebView 可能被 Key/网络/NSC 拦）给出可感知提示
+            MapLoadingHint(mapReady = mapRef != null)
+
             TopBar(
                 selectedCampus = uiState.selectedCampus,
                 onBack = onBack,
@@ -274,7 +287,6 @@ private fun CampusMapScreen(
             )
 
             if (uiState.isLoading) {
-                // TopBar 高度 ≈ 状态栏 + 8dp + 34dp(IconButton)，向下留 16dp 间隙再放进度条
                 LinearProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -286,24 +298,21 @@ private fun CampusMapScreen(
         }
     }
 
-    // 首次进入把 sheet 展开到 partial，便于看到建筑列表
     LaunchedEffect(Unit) {
         scope.launch { scaffoldState.bottomSheetState.partialExpand() }
     }
 }
 
-/** 高德 zoom 级别 ≈ log2(360/span)，轻量地图可用 zoom ~3–19。 */
-private fun spanToZoom(span: Double): Float {
-    val zoom = (Math.log(360.0 / span) / Math.log(2.0)).toFloat()
-    return zoom.coerceIn(3f, 19f)
-}
+/** 高德 zoom 级别 ≈ log2(360/span)，有效范围 3–19。 */
+private fun spanToZoom(span: Double): Float =
+    (kotlin.math.log2(360.0 / span)).toFloat().coerceIn(3f, 19f)
 
 // ============================== 地图容器 ==============================
 
 @Composable
 private fun AMapContent(
     isDark: Boolean,
-    onMapReady: (AMap) -> Unit
+    onMapReady: (AMap?) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -336,17 +345,9 @@ private fun AMapContent(
     }
 
     val locationSource = remember { CampusLocationSource(context.applicationContext) }
-    val mapView = remember {
-        MapView(context).apply {
-            // 轻量版地图底图由 WebView + WebGL 绘制，必须开启硬件加速。
-            // 虽然主题已默认开启，但某些低端机 / 深色节电模式 / 自定义 Window 会降级成软件层，
-            // 表现为"polygon / 定位蓝点可见但底图瓦片空白"。显式 setLayerType 作为兜底。
-            setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        }
-    }
+    val mapView = remember { MapView(context) }
 
-    // 异步拿到 AMap 实例后再做初始化；因为 getMapAsyn 可能在 onCreate 后才回调，
-    // 这里用一个专门的 state 承接，避免在 factory 里反复调用 getMapAsyn
+    // getMapAsyn 异步回调，用 state 承接，避免 factory 里反复调用
     var amapReady by remember { mutableStateOf<AMap?>(null) }
 
     DisposableEffect(lifecycleOwner, mapView) {
@@ -362,10 +363,6 @@ private fun AMapContent(
                 }
                 Lifecycle.Event.ON_RESUME -> mapView.onResume()
                 Lifecycle.Event.ON_PAUSE -> mapView.onPause()
-                Lifecycle.Event.ON_DESTROY -> {
-                    locationSource.shutdown()
-                    mapView.onDestroy()
-                }
                 else -> Unit
             }
         }
@@ -373,15 +370,16 @@ private fun AMapContent(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             locationSource.shutdown()
+            // MapView 生命周期必须在此处终结：否则 Compose 被移除但 Activity 还活时会泄漏
+            amapReady = null
+            runCatching { mapView.onDestroy() }
         }
     }
 
-    // AMap 就绪后向外抛
     LaunchedEffect(amapReady) {
-        amapReady?.let(onMapReady)
+        onMapReady(amapReady)
     }
 
-    // 权限变化后调整定位蓝点
     LaunchedEffect(locationGranted, amapReady) {
         val amap = amapReady ?: return@LaunchedEffect
         applyMyLocation(amap, locationSource, locationGranted)
@@ -396,7 +394,6 @@ private fun AMapContent(
 private fun configureMap(aMap: AMap, isDark: Boolean) {
     aMap.mapType = if (isDark) AMap.MAP_TYPE_NIGHT else AMap.MAP_TYPE_NORMAL
     aMap.uiSettings.apply {
-        // 轻量版 UiSettings 仅支持这几个手势开关；zoom 按钮/指南针/比例尺由内置 UI 或默认行为提供
         isScrollGesturesEnabled = true
         isZoomGesturesEnabled = true
         isTiltGesturesEnabled = false
@@ -416,15 +413,10 @@ private fun applyMyLocation(aMap: AMap, source: CampusLocationSource, granted: B
 }
 
 /**
- * 按 id 增量同步 Polygon：新增的 feature 创建 polygon，已经消失的 feature 对应 polygon remove。
- * 常规情况下网络拉到的数据与缓存一致 → 两个 Set 相等 → 什么都不做。
- *
- * 性能要点：
- *  - 坐标转换 (WGS-84→GCJ-02) 放到 [Dispatchers.Default]，避免 124*~50 个点的循环阻塞主线程；
- *  - `aMap.addPolygon` 是跨 JSBridge 调用，单次 ~2-5ms，**必须回到主线程**，并且**按批 yield**
- *    让出主线程给 WebView JS 侧消化消息，否则低端机会出现 1-2 秒"白屏假死"。
- *
- * @return 是否实际发生了增删（供上层递增 polygonVersion 触发下游刷新）
+ * 按 id 增量同步 Polygon：新增 feature 创建 polygon，已消失的 feature 移除。
+ * - 坐标转换在 Default 线程批量完成；
+ * - `addPolygon` 必须主线程，每 [POLYGON_BATCH_SIZE] 个 `yield()` 让 WebView 消化 JSBridge，避免卡顿；
+ * - 全程维护 polygonMap 的幂等性：即便协程被取消，下一次重启也能从残留状态继续补齐。
  */
 private suspend fun rebuildPolygonsIfNeeded(
     aMap: AMap,
@@ -443,7 +435,6 @@ private suspend fun rebuildPolygonsIfNeeded(
         }
     }
 
-    // 1. 在后台线程批量完成坐标转换，避免主线程卡顿
     val toAdd = features.filter { it.stableId !in polygonMap.keys }
     if (toAdd.isEmpty()) return changed
 
@@ -463,33 +454,39 @@ private suspend fun rebuildPolygonsIfNeeded(
         }
     }
 
-    // 2. 回主线程批量 addPolygon；每 20 个 yield 一次让 WebView 消化 JSBridge 消息，
-    //    否则 124 个 polygon 连续下发会把主线程锁死约 0.5-1s。
-    val chunkSize = 20
-    prepared.forEachIndexed { index, p ->
-        val polygon = aMap.addPolygon(
-            PolygonOptions()
-                .addAll(p.latLngs)
-                .fillColor(withAlpha(p.color, 0x80))
-                .strokeColor(p.color)
-                .strokeWidth(3f)
-                .zIndex(1f)
-        )
-        polygonMap[p.id] = polygon
-        changed = true
-        if ((index + 1) % chunkSize == 0) yield()
+    // 主线程 addPolygon 包 NonCancellable，协程取消时保证 polygonMap 写入幂等完整
+    withContext(NonCancellable) {
+        prepared.forEachIndexed { index, p ->
+            val polygon = aMap.addPolygon(
+                PolygonOptions()
+                    .addAll(p.latLngs)
+                    .fillColor(withAlpha(p.color, 0x80))
+                    .strokeColor(p.color)
+                    .strokeWidth(3f)
+                    .zIndex(1f)
+            )
+            polygonMap[p.id] = polygon
+            changed = true
+            if ((index + 1) % POLYGON_BATCH_SIZE == 0) yield()
+        }
     }
     return changed
 }
 
+private const val POLYGON_BATCH_SIZE = 8
+
+/** Polygon 样式缓存；用于 diff 避免重复 setter 的 JSBridge 调用。 */
+private data class PolygonStyle(
+    val visible: Boolean,
+    val fillColor: Int,
+    val strokeColor: Int,
+    val strokeWidth: Float,
+    val zIndex: Float,
+)
+
 // ============================== 定位源 ==============================
 
-/**
- * 轻量版 SDK 地图本身不内置定位，需实现 [LocationSource] + 外接 [AMapLocationClient]。
- *
- * - 地图调 [activate] 时启动定位；调 [deactivate] 时停止。
- * - Activity 销毁必须调 [shutdown] 确保 Client 释放（地图自身调用 deactivate 也会走到）。
- */
+/** 轻量版 SDK 地图不内置定位，需自建 [LocationSource] + [AMapLocationClient]。 */
 private class CampusLocationSource(private val appContext: android.content.Context) : LocationSource,
     AMapLocationListener {
 
@@ -534,6 +531,36 @@ private class CampusLocationSource(private val appContext: android.content.Conte
 
 // ============================== 顶栏 / Sheet ==============================
 
+/**
+ * 地图首屏降级提示：超过 5s 底图仍未出现时显示，提示用户可能是 Key/NSC/网络问题。
+ */
+@Composable
+private fun BoxScope.MapLoadingHint(mapReady: Boolean) {
+    var showHint by remember { mutableStateOf(false) }
+    LaunchedEffect(mapReady) {
+        showHint = false
+        if (!mapReady) {
+            delay(5000)
+            showHint = !mapReady
+        }
+    }
+    if (showHint) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .clip(RoundedCornerShape(12.dp))
+                .background(AppTheme.colors.bgCardColor.copy(alpha = 0.92f))
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            Text(
+                text = "地图加载较慢，请检查网络或稍后重试",
+                color = AppTheme.colors.primaryTextColor,
+                fontSize = 13.sp
+            )
+        }
+    }
+}
+
 @Composable
 private fun TopBar(
     selectedCampus: Campus?,
@@ -547,8 +574,6 @@ private fun TopBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 与「统一作业」页一致的返回图标：ic_arrow_right + 180° 旋转；
-        // 叠在地图上阅读性差，因此保留 bgCardColor 圆形背景 + 阴影。
         IconButton(
             onClick = onBack,
             modifier = Modifier
@@ -603,6 +628,8 @@ private fun CampusChip(label: String, selected: Boolean, onClick: () -> Unit) {
 @Composable
 private fun BuildingsListSheet(
     uiState: CampusMapViewModel.UiState,
+    filteredBuildings: List<CampusMapFeature>,
+    availableCategories: List<String?>,
     onSearchTextChanged: (String) -> Unit,
     onClearSearch: () -> Unit,
     onCategorySelected: (String?) -> Unit,
@@ -648,7 +675,7 @@ private fun BuildingsListSheet(
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            uiState.availableCategories.forEach { cat ->
+            availableCategories.forEach { cat ->
                 CategoryChip(
                     label = cat ?: "全部",
                     selected = uiState.selectedCategory == cat,
@@ -662,7 +689,7 @@ private fun BuildingsListSheet(
         val listState = rememberLazyListState()
         LaunchedEffect(uiState.selectedBuildingId) {
             val id = uiState.selectedBuildingId ?: return@LaunchedEffect
-            val index = uiState.filteredBuildings.indexOfFirst { it.stableId == id }
+            val index = filteredBuildings.indexOfFirst { it.stableId == id }
             if (index >= 0) listState.animateScrollToItem(index)
         }
 
@@ -672,14 +699,14 @@ private fun BuildingsListSheet(
             contentPadding = PaddingValues(vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(uiState.filteredBuildings, key = { it.stableId }) { feat ->
+            items(filteredBuildings, key = { it.stableId }) { feat ->
                 BuildingRow(
                     feat = feat,
                     selected = uiState.selectedBuildingId == feat.stableId,
                     onClick = { onBuildingSelected(feat.stableId) }
                 )
             }
-            if (uiState.filteredBuildings.isEmpty()) {
+            if (filteredBuildings.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier
