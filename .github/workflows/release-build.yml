@@ -35,6 +35,10 @@ jobs:
         run: |
           echo ${{ secrets.RELEASE_KEYSTORE }} | base64 --decode > app/release-key.jks
 
+      - name: Write local.properties
+        run: |
+          echo "amap.apiKey=${{ secrets.AMAP_API_KEY }}" >> local.properties
+
       - name: Build Release APK
         run: ./gradlew assembleRelease
         env:
