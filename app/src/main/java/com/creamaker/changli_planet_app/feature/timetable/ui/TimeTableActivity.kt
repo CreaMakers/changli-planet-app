@@ -98,8 +98,12 @@ class TimeTableActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val courseJson = result.data?.getStringExtra("newCourse")
             courseJson?.let {
-                val course = Gson().fromJson(it, TimeTableMySubject::class.java)
-                viewModel.addCourse(course)
+                val course = runCatching {
+                    Gson().fromJson(it, TimeTableMySubject::class.java)
+                }.getOrNull()
+                if (course != null) {
+                    viewModel.addCourse(course)
+                }
             }
         }
     }

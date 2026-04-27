@@ -88,7 +88,10 @@ object OkHttpHelper {
 
             val jsonString = response.peekBody(Long.MAX_VALUE).string()
             Log.d(TAG, jsonString)
-            val realResponse = gson.fromJson(jsonString, NormalResponse::class.java)
+
+            val realResponse = runCatching {
+                gson.fromJson(jsonString, NormalResponse::class.java)
+            }.getOrNull()
             if (realResponse?.code == "401" &&
                 realResponse.msg == PlanetConst.UNAUTHORIZATION &&
                 retryCount < MAX_RETRY_ATTEMPTS

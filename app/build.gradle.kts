@@ -60,8 +60,8 @@ android {
         applicationId = "com.example.changli_planet_app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 26
-        versionName = "2.0.5.7"
+        versionCode = 27
+        versionName = "2.0.6"
         val amapKeyFromLocal: String = localProperties.getProperty("amap.apiKey")
             ?: System.getenv("AMAP_API_KEY")
             ?: ""
