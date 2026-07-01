@@ -19,7 +19,9 @@ import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.regex.Pattern
@@ -55,6 +57,21 @@ class TimeTableViewModel : ViewModel() {
     // Current Display Week
     private val _curDisplayWeek = MutableLiveData<Int>()
     val curDisplayWeek: LiveData<Int> = _curDisplayWeek
+
+    /**
+     * 当前所选学期的开学日期（`yyyy-MM-dd HH:mm:ss`）。
+     *
+     * 用于驱动课表日期表头按**校历**锚定，而非"当前自然周"兜底。
+     * - [selectTerm] 切换学期时先同步填入缓存命中值，
+     *   再异步拉取 [SemesterCalendarRepository.getDetail] 让开学日期落盘，
+     *   到账后更新本 State，UI 即可 recompose 出正确的日期头。
+     */
+    private val _termStartDate = MutableStateFlow<String?>(null)
+    val termStartDate: StateFlow<String?> = _termStartDate
+
+    /** 当前所选学期开学日期是否为"校历未发布时的兜底估算"。 */
+    private val _termStartDateEstimated = MutableStateFlow(false)
+    val termStartDateEstimated: StateFlow<Boolean> = _termStartDateEstimated
 
     init {
         val initState = TimeTableUiState(term = getCurrentTerm())
@@ -248,6 +265,38 @@ class TimeTableViewModel : ViewModel() {
 
     fun selectTerm(term: String) {
         loadCourses(term)
+        ensureTermStartDate(term)
+    }
+
+/**
+     * 确保所选学期的"校历开学日期"已落盘并暴露给 UI。
+     *
+     * 流程：
+     *  1. 同步先填入缓存命中值（命中即按校历渲染，未命中暂时为 null）；
+     *  2. 调用 [SemesterCalendarRepository.getDetail] 拉取详情并**使用其结果**：
+     *     - `success` 时内部已回写内存/本地，直接取 `semesterStart` 转换后写入
+     *       [_termStartDate]，触发日期表头按校历重新渲染；
+     *     - `failure` 时保留既有值（不把 null 覆盖回已命中的缓存值）。
+     */
+    fun ensureTermStartDate(term: String) {
+        val cachedResult = CommonInfo.resolveTermStartDate(term)
+        _termStartDate.value = cachedResult.date
+        _termStartDateEstimated.value = cachedResult.estimated
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = SemesterCalendarRepository.getDetail(term, forceRefresh = false)
+            val resolved = result.getOrNull()?.let { detail ->
+                CommonInfo.toTermStartDate(detail.semesterStart)
+                    ?.let { CommonInfo.TermStartDateResult(it, false) }
+            } ?: CommonInfo.resolveTermStartDate(term)
+            val newDate = resolved.date
+            val newEstimated = resolved.estimated
+            if (newDate != _termStartDate.value) {
+                _termStartDate.value = newDate
+            }
+            if (newEstimated != _termStartDateEstimated.value) {
+                _termStartDateEstimated.value = newEstimated
+            }
+        }
     }
 
     private fun updateUiState(subjects: MutableList<TimeTableMySubject>, term: String) {

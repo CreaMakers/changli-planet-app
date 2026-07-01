@@ -74,7 +74,12 @@ object CommonInfo {
     /**
      * 计算当前学期代码（统一规则，全 App 共用）。
      *
-     * 切换规则（基于上海时区）：
+     * 优先按**已知的开学日期**判断：合并内置 [termMap] 与已缓存的学期列表，
+     * 选取"开学日不晚于现在、且仍在教学周区间（[MAX_TEACHING_WEEK] 周内）"的
+     * 最近一个学期。唯有当没有任何已知学期覆盖当前日期时，才回退到基于月份的
+     * 兜底规则，避免在两个学期的交界处提前跳到下一学期。
+     *
+     * 月份兜底规则（基于上海时区）：
      *  - 7-12 月 → `当年-下一年-1`（秋季）
      *  - 2-6 月 → `上一年-当年-2`（春季）
      *  - 1 月   → `上一年-当年-1`（上学年延续）
@@ -82,6 +87,7 @@ object CommonInfo {
      * @return 形如 `"2025-2026-1"` 的学期代码
      */
     fun getCurrentTerm(): String {
+        resolveCurrentTermByDate()?.let { return it }
         val calendar = Calendar.getInstance(shanghaiTz)
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH) + 1
@@ -90,6 +96,44 @@ object CommonInfo {
             month >= 2 -> "${year - 1}-${year}-2"
             else -> "${year - 1}-${year}-1"
         }
+    }
+
+    /**
+     * 基于已知开学日期推断"当前正在进行的学期"。
+     *
+     * 选取规则：
+     *  1. 合并内置 [termMap] 与已缓存学期列表（缓存优先覆盖）；
+     *  2. 过滤出"开学日不晚于现在"的候选；
+     *  3. 在候选中再取"教学周仍在 [1, [MAX_TEACHING_WEEK]] 区间内"者，
+     *     没有任何学期仍处于教学周时，退而求其次保留最近一个已开学学期，
+     *     以便用户仍能看到上一学期的课表，而不是直接跳到下一学期；
+     *  4. 取开学日最近的一个返回。
+     *
+     * @return 学期代码，或 null（无任何已知学期已开学，由调用方回退到月份规则）
+     */
+    private fun resolveCurrentTermByDate(): String? {
+        val nowStr = formatNowForTermComparison()
+
+        val merged = HashMap<String, String>(termMap.size + 4).apply {
+            putAll(termMap)
+            SemesterCalendarRepository.getListSync()?.forEach { item ->
+                val start = SemesterCalendarRepository.getTermStartDate(item.semesterCode)
+                if (!start.isNullOrBlank()) put(item.semesterCode, start)
+            }
+        }
+
+        val started = merged.entries
+            .asSequence()
+            .filter { it.value <= nowStr }
+            .sortedByDescending { it.value }
+            .toList()
+        if (started.isEmpty()) return null
+
+        // 优先返回仍处于教学周内的学期；若全部已超过教学周上限，
+        // 则保留最近一个已开学学期，避免提前跳到下一学期。
+        return started.firstOrNull { (_, startDateStr) ->
+            computeWeekNumber(startDateStr)?.let { it in 1..MAX_TEACHING_WEEK } ?: false
+        }?.key ?: started.first().key
     }
 
     // ---------------- 开学日期（统一入口） ----------------
@@ -107,9 +151,76 @@ object CommonInfo {
      * @param term 学期代码，如 `"2024-2025-1"`
      * @return 开学日期字符串，或 null（未命中）
      */
-    fun getTermStartDate(term: String): String? {
-        if (term.isBlank()) return null
-        return SemesterCalendarRepository.getTermStartDate(term) ?: termMap[term]
+    fun getTermStartDate(term: String): String? = resolveTermStartDate(term).date
+
+    /**
+     * 解析学期开学日期，并附带来源标记（真实数据 / 估算兜底）。
+     *
+     * 供 UI 判断是否需要提示用户"当前日期为估算值"。
+     */
+    fun resolveTermStartDate(term: String): TermStartDateResult {
+        if (term.isBlank()) return TermStartDateResult(null, false)
+        SemesterCalendarRepository.getTermStartDate(term)?.let {
+            return TermStartDateResult(it, false)
+        }
+        termMap[term]?.let { return TermStartDateResult(it, false) }
+        return TermStartDateResult(estimateTermStartDate(term), true)
+    }
+
+    /** 学期开学日期解析结果：[date] 为日期，[estimated] 为 true 表示来自兜底估算。 */
+    data class TermStartDateResult(val date: String?, val estimated: Boolean)
+
+    /**
+     * 当校历未发布、[termMap] 也缺数据时，按长理历史开学规律估算开学日（周一）。
+     *
+     * 规律（参考内置 [termMap]）：
+     *  - 秋季 ("-1")：startYear 的 9 月初（取 9 月 1 日所在 ISO 周的周一）；
+     *  - 春季 ("-2")：endYear 的 2 月下旬（取 2 月 25 日所在 ISO 周的周一）。
+     *
+     * 仅为兜底；一旦校历详情落盘，[getTermStartDate] 会优先用真实日期。
+     *
+     * @return 估算的开学日 (`yyyy-MM-dd 00:00:00`)，或 null（学期代码不合法）
+     */
+    fun estimateTermStartDate(term: String): String? {
+        val parts = term.split("-")
+        if (parts.size != 3) return null
+        val startYear = parts[0].toIntOrNull()?.takeIf { it > 2000 } ?: return null
+        val endYear = parts[1].toIntOrNull()?.takeIf { it == startYear + 1 } ?: return null
+        val idx = parts[2].toIntOrNull() ?: return null
+        val (targetYear, anchorMonth, anchorDay) = when (idx) {
+            1 -> Triple(startYear, Calendar.SEPTEMBER, 1)
+            2 -> Triple(endYear, Calendar.FEBRUARY, 25)
+            else -> return null
+        }
+        val cal = Calendar.getInstance(shanghaiTz).apply {
+            clear()
+            set(Calendar.YEAR, targetYear)
+            set(Calendar.MONTH, anchorMonth)
+            set(Calendar.DAY_OF_MONTH, anchorDay)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            // 把 anchor 日往前回退到本周周一（ISO：周一为一周第一天）
+            val dow = get(Calendar.DAY_OF_WEEK) // Sunday=1..Saturday=7
+            add(Calendar.DAY_OF_MONTH, -((dow + 5) % 7))
+        }
+        val sdf = SimpleDateFormat(TERM_DATE_FORMAT, Locale.CHINA).apply { timeZone = shanghaiTz }
+        return "${sdf.format(cal.time)} 00:00:00"
+    }
+
+    /**
+     * 将校历服务端的 ISO 8601 UTC 开学日期（如 `"2026-09-07T00:00:00Z"`）
+     * 转换为与 [termMap] 一致的 `"yyyy-MM-dd HH:mm:ss"` 格式。
+     *
+     * 供 ViewModel 在拿到 [SemesterCalendarDetail.semesterStart] 后直接喂给 UI，
+     * 不必再绕一圈读缓存。无法解析返回 null。
+     */
+    fun toTermStartDate(iso: String?): String? {
+        if (iso.isNullOrBlank()) return null
+        val datePart = iso.substringBefore('T')
+        if (datePart.length != 10) return null
+        return "$datePart 00:00:00"
     }
 
     // ---------------- 当前周（文本 & 数值统一入口） ----------------

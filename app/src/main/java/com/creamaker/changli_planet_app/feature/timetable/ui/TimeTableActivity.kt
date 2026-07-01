@@ -153,8 +153,10 @@ class TimeTableActivity : AppCompatActivity() {
         val state = uiState
         val displayWeek = extractWeekNumber(state.weekInfo)
         val term = state.term.ifBlank { viewModel.getCurrentTerm() }
-        val currentWeek = remember(term) { viewModel.getCurWeek(term) }
-        val termStarted = remember(term) { viewModel.hasTermStarted(term) }
+        val termStartDate by viewModel.termStartDate.collectAsState()
+        val termDateEstimated by viewModel.termStartDateEstimated.collectAsState()
+        val currentWeek = remember(term, termStartDate) { viewModel.getCurWeek(term) }
+        val termStarted = remember(term, termStartDate) { viewModel.hasTermStarted(term) }
         val courses = remember(state.subjects) {
             state.subjects.map { it.toComposeUi() }
         }
@@ -175,8 +177,14 @@ class TimeTableActivity : AppCompatActivity() {
             displayWeek = displayWeek,
             currentWeek = currentWeek,
             termStarted = termStarted,
+            termDateEstimated = termDateEstimated,
             courses = courses,
-            dateHeaderProvider = { week -> buildDayHeaders(term, week) },
+            dateHeaderProvider = remember(term, termStartDate) {
+    { week ->
+        val anchor = termStartDate?.let { runCatching { LocalDate.parse(it.substring(0, 10)) }.getOrNull() }
+        buildDayHeaders(term, week, anchor)
+    }
+},
             isRefreshing = isRefreshing,
             onRefreshClick = {
                 viewModel.loadCourses(term, forceRefresh = true)
@@ -458,16 +466,17 @@ class TimeTableActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun buildDayHeaders(term: String, targetWeek: Int): Pair<String, List<TimeTableDayHeaderUi>> {
+    private fun buildDayHeaders(
+        term: String,
+        targetWeek: Int,
+        anchorStartDate: LocalDate?
+    ): Pair<String, List<TimeTableDayHeaderUi>> {
         val zoneId = ZoneId.of("Asia/Shanghai")
         val today = LocalDate.now(zoneId)
         val startOfCurrentWeek = today.minusDays((today.dayOfWeek.value - 1).toLong())
-        val termStartDate = CommonInfo.getTermStartDate(term)?.let {
-            runCatching { LocalDate.parse(it.substring(0, 10)) }.getOrNull()
-        }
 
-        val weekStartDate = if (termStartDate != null) {
-            termStartDate.plusWeeks((targetWeek - 1).toLong())
+        val weekStartDate = if (anchorStartDate != null) {
+            anchorStartDate.plusWeeks((targetWeek - 1).toLong())
         } else {
             val currentWeek = viewModel.getCurWeek(term)
             startOfCurrentWeek.plusWeeks((targetWeek - currentWeek).toLong())

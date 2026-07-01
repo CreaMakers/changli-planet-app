@@ -128,6 +128,7 @@ fun TimeTableComposeScreen(
     displayWeek: Int,
     currentWeek: Int,
     termStarted: Boolean,
+    termDateEstimated: Boolean,
     courses: List<TimeTableCourseUi>,
     dateHeaderProvider: (Int) -> Pair<String, List<TimeTableDayHeaderUi>>,
     isRefreshing: Boolean,
@@ -210,6 +211,16 @@ fun TimeTableComposeScreen(
             onTermClick = onTermClick,
             onWeekClick = onWeekClick,
         )
+        if (termDateEstimated) {
+            Text(
+                text = "校历未发布，开学日期为估算，仅供参考",
+                color = colors.secondaryTextColor,
+                fontSize = 10.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
+            )
+        }
         DateHeaderRow(
             monthText = monthText,
             dayHeaders = dayHeaders,
@@ -728,6 +739,7 @@ private fun TimeTableScreenPreview() {
             displayWeek = 5,
             currentWeek = 5,
             termStarted = true,
+            termDateEstimated = false,
             isRefreshing = false,
             courses = listOf(
                 TimeTableCourseUi(1, "高等数学", "张老师", "明理楼A201", 1, 1, 2, setOf(1, 2, 3, 4, 5), false),
