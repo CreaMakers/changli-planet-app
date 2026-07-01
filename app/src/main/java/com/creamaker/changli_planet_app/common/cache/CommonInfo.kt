@@ -1,6 +1,10 @@
 package com.creamaker.changli_planet_app.common.cache
 
+import com.creamaker.changli_planet_app.feature.calendar.data.local.SemesterCalendarCache
 import com.creamaker.changli_planet_app.feature.calendar.data.repository.SemesterCalendarRepository
+import com.dcelysia.csust_spider.education.data.remote.EducationHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -144,83 +148,38 @@ object CommonInfo {
      * 查找顺序：内存/本地缓存 → 内置 [termMap]；均未命中返回 null。
      *
      * 本方法**不会触发网络请求**（保持同步行为，适合 Widget、ViewModel init 等场景调用）；
-     * 如果需要主动刷新，请调用
-     * [SemesterCalendarRepository.prefetchDetailIfMissing] 或
-     * [SemesterCalendarRepository.getDetail]。
+     * 如需拉取最新开学日，调用挂起的 [fetchTermStartDate]。
      *
      * @param term 学期代码，如 `"2024-2025-1"`
      * @return 开学日期字符串，或 null（未命中）
      */
-    fun getTermStartDate(term: String): String? = resolveTermStartDate(term).date
-
-    /**
-     * 解析学期开学日期，并附带来源标记（真实数据 / 估算兜底）。
-     *
-     * 供 UI 判断是否需要提示用户"当前日期为估算值"。
-     */
-    fun resolveTermStartDate(term: String): TermStartDateResult {
-        if (term.isBlank()) return TermStartDateResult(null, false)
-        SemesterCalendarRepository.getTermStartDate(term)?.let {
-            return TermStartDateResult(it, false)
-        }
-        termMap[term]?.let { return TermStartDateResult(it, false) }
-        return TermStartDateResult(estimateTermStartDate(term), true)
-    }
-
-    /** 学期开学日期解析结果：[date] 为日期，[estimated] 为 true 表示来自兜底估算。 */
-    data class TermStartDateResult(val date: String?, val estimated: Boolean)
-
-    /**
-     * 当校历未发布、[termMap] 也缺数据时，按长理历史开学规律估算开学日（周一）。
-     *
-     * 规律（参考内置 [termMap]）：
-     *  - 秋季 ("-1")：startYear 的 9 月初（取 9 月 1 日所在 ISO 周的周一）；
-     *  - 春季 ("-2")：endYear 的 2 月下旬（取 2 月 25 日所在 ISO 周的周一）。
-     *
-     * 仅为兜底；一旦校历详情落盘，[getTermStartDate] 会优先用真实日期。
-     *
-     * @return 估算的开学日 (`yyyy-MM-dd 00:00:00`)，或 null（学期代码不合法）
-     */
-    fun estimateTermStartDate(term: String): String? {
-        val parts = term.split("-")
-        if (parts.size != 3) return null
-        val startYear = parts[0].toIntOrNull()?.takeIf { it > 2000 } ?: return null
-        val endYear = parts[1].toIntOrNull()?.takeIf { it == startYear + 1 } ?: return null
-        val idx = parts[2].toIntOrNull() ?: return null
-        val (targetYear, anchorMonth, anchorDay) = when (idx) {
-            1 -> Triple(startYear, Calendar.SEPTEMBER, 1)
-            2 -> Triple(endYear, Calendar.FEBRUARY, 25)
-            else -> return null
-        }
-        val cal = Calendar.getInstance(shanghaiTz).apply {
-            clear()
-            set(Calendar.YEAR, targetYear)
-            set(Calendar.MONTH, anchorMonth)
-            set(Calendar.DAY_OF_MONTH, anchorDay)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-            // 把 anchor 日往前回退到本周周一（ISO：周一为一周第一天）
-            val dow = get(Calendar.DAY_OF_WEEK) // Sunday=1..Saturday=7
-            add(Calendar.DAY_OF_MONTH, -((dow + 5) % 7))
-        }
-        val sdf = SimpleDateFormat(TERM_DATE_FORMAT, Locale.CHINA).apply { timeZone = shanghaiTz }
-        return "${sdf.format(cal.time)} 00:00:00"
+    fun getTermStartDate(term: String): String? {
+        if (term.isBlank()) return null
+        SemesterCalendarRepository.getTermStartDate(term)?.let { return it }
+        return termMap[term]
     }
 
     /**
-     * 将校历服务端的 ISO 8601 UTC 开学日期（如 `"2026-09-07T00:00:00Z"`）
-     * 转换为与 [termMap] 一致的 `"yyyy-MM-dd HH:mm:ss"` 格式。
+     * 通过网络库 [EducationHelper.getSemesterStartDate] 拉取学期开学日，
+     * 归一化后回写本地缓存（[SemesterCalendarCache.saveTermStartDate]）并返回。
      *
-     * 供 ViewModel 在拿到 [SemesterCalendarDetail.semesterStart] 后直接喂给 UI，
-     * 不必再绕一圈读缓存。无法解析返回 null。
+     * 向 [SemesterCalendarRepository] 内存层同样回写一份 detail（仅含 [SemesterCalendarDetail.semesterStart]），
+     * 以便同步读 [getTermStartDate] 立即命中。
+     *
+     * 在 IO 上执行；失败返回 null，不抛异常。
+     *
+     * @return 开学日（`yyyy-MM-dd HH:mm:ss`），或 null
      */
-    fun toTermStartDate(iso: String?): String? {
-        if (iso.isNullOrBlank()) return null
-        val datePart = iso.substringBefore('T')
-        if (datePart.length != 10) return null
-        return "$datePart 00:00:00"
+    suspend fun fetchTermStartDate(term: String): String? {
+        if (term.isBlank()) return null
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val date = EducationHelper.getSemesterStartDate(term) ?: return@withContext null
+                val formatted = "$date 00:00:00" // yyyy-MM-dd -> yyyy-MM-dd HH:mm:ss
+                SemesterCalendarCache.saveTermStartDate(term, formatted)
+                formatted
+            }.getOrNull()
+        }
     }
 
     // ---------------- 当前周（文本 & 数值统一入口） ----------------

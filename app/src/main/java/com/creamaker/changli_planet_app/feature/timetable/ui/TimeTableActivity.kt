@@ -154,7 +154,6 @@ class TimeTableActivity : AppCompatActivity() {
         val displayWeek = extractWeekNumber(state.weekInfo)
         val term = state.term.ifBlank { viewModel.getCurrentTerm() }
         val termStartDate by viewModel.termStartDate.collectAsState()
-        val termDateEstimated by viewModel.termStartDateEstimated.collectAsState()
         val currentWeek = remember(term, termStartDate) { viewModel.getCurWeek(term) }
         val termStarted = remember(term, termStartDate) { viewModel.hasTermStarted(term) }
         val courses = remember(state.subjects) {
@@ -177,7 +176,6 @@ class TimeTableActivity : AppCompatActivity() {
             displayWeek = displayWeek,
             currentWeek = currentWeek,
             termStarted = termStarted,
-            termDateEstimated = termDateEstimated,
             courses = courses,
             dateHeaderProvider = remember(term, termStartDate) {
     { week ->
