@@ -9,6 +9,10 @@
 /.idea/deviceManager.xml
 /.idea/assetWizardSettings.xml
 .idea/
+gradle
+.claude/
+.codegraph/
+/app/schemas/com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase/10.json
 .DS_Store
 /build
 /captures
