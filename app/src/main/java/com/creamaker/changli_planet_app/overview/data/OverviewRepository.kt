@@ -197,7 +197,7 @@ class OverviewRepository(
     private suspend fun fetchCourses(term: String): List<TimeTableMySubject>? {
         return when (val result = runCatching { EducationHelper.getCourseScheduleByTerm("", term) }.getOrNull()) {
             is Resource.Success -> {
-                val subjects = result.data.map {
+                val subjects = result.data.courses.map {
                     val weekInfo = parseWeeks(it.weeks)
                     TimeTableMySubject(
                         courseName = it.courseName,

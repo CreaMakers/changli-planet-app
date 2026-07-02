@@ -15,6 +15,9 @@ import com.creamaker.changli_planet_app.feature.common.data.remote.dto.Course
 import com.creamaker.changli_planet_app.feature.timetable.ui.entity.TimeTableUiState
 import com.dcelysia.csust_spider.core.Resource
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
+import com.dcelysia.csust_spider.education.data.remote.model.CourseScheduleData
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -100,8 +103,9 @@ class TimeTableViewModel : ViewModel() {
                 if (!needRefresh && courses.isEmpty()) {
                     _coursesResponse.tryEmit(ApiResponse.Error("该学期暂无课程数据"))
                 } else {
+                    val remark = loadRemarkFromLocal(term)
                     withContext(Dispatchers.Main) {
-                        updateUiState(courses.toMutableList(), term)
+                        updateUiState(courses.toMutableList(), term, remark)
                     }
                     _coursesResponse.tryEmit(ApiResponse.Success(courses))
                 }
@@ -122,7 +126,10 @@ class TimeTableViewModel : ViewModel() {
             try {
                 when (val coursesResource = EducationHelper.getCourseScheduleByTerm("", term)) {
                     is Resource.Success -> {
-                        val localCourses = toLocalCourse(coursesResource.data)
+                        val scheduleData: CourseScheduleData = coursesResource.data
+                        val localCourses = toLocalCourse(scheduleData.courses)
+                        val remark = scheduleData.remark
+                        saveRemarkToLocal(term, remark)
                         val subjects = generateSubjects(localCourses, term)
 
                         if (subjects.isEmpty()) {
@@ -142,7 +149,7 @@ class TimeTableViewModel : ViewModel() {
                         mmkv.encode("lastUpdate_$term", System.currentTimeMillis())
 
                         withContext(Dispatchers.Main) {
-                            updateUiState(allLocalCourses.toMutableList(), term)
+                            updateUiState(allLocalCourses.toMutableList(), term, remark)
                         }
                         _coursesResponse.tryEmit(ApiResponse.Success(allLocalCourses))
                     }
@@ -282,13 +289,14 @@ class TimeTableViewModel : ViewModel() {
         }
     }
 
-    private fun updateUiState(subjects: MutableList<TimeTableMySubject>, term: String) {
+    private fun updateUiState(subjects: MutableList<TimeTableMySubject>, term: String, remark: List<String> = emptyList()) {
         val currentWeekInfo = _uiState.value?.weekInfo ?: "第1周"
         _uiState.value = TimeTableUiState(
             subjects = subjects,
             term = term,
             weekInfo = currentWeekInfo,
-            lastUpdate = System.currentTimeMillis()
+            lastUpdate = System.currentTimeMillis(),
+            remark = remark,
         )
     }
 
@@ -296,6 +304,22 @@ class TimeTableViewModel : ViewModel() {
         val regex = Regex("\\d+")
         val matchResult = regex.find(weekString)
         return matchResult?.value?.toInt() ?: 1
+    }
+
+
+    private fun saveRemarkToLocal(term: String, remark: List<String>) {
+        mmkv.encode("remark_$term", Gson().toJson(remark))
+    }
+
+    private fun loadRemarkFromLocal(term: String): List<String> {
+        val json = mmkv.decodeString("remark_$term", "") ?: ""
+        if (json.isBlank()) return emptyList()
+        return try {
+            val type = object : TypeToken<List<String>>() {}.type
+            Gson().fromJson(json, type)
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     private fun parseWeeks(weekJson: String): WeekJsonInfo {

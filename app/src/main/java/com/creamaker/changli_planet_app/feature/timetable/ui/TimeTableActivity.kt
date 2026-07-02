@@ -177,6 +177,7 @@ class TimeTableActivity : AppCompatActivity() {
             currentWeek = currentWeek,
             termStarted = termStarted,
             courses = courses,
+            remark = state.remark,
             dateHeaderProvider = remember(term, termStartDate) {
     { week ->
         val anchor = termStartDate?.let { runCatching { LocalDate.parse(it.substring(0, 10)) }.getOrNull() }

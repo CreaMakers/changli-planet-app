@@ -1,11 +1,14 @@
 package com.creamaker.changli_planet_app.common.cache
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.creamaker.changli_planet_app.feature.calendar.data.local.SemesterCalendarCache
 import com.creamaker.changli_planet_app.feature.calendar.data.repository.SemesterCalendarRepository
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -170,12 +173,22 @@ object CommonInfo {
      *
      * @return 开学日（`yyyy-MM-dd HH:mm:ss`），或 null
      */
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun fetchTermStartDate(term: String): String? {
         if (term.isBlank()) return null
         return withContext(Dispatchers.IO) {
             runCatching {
-                val date = EducationHelper.getSemesterStartDate(term) ?: return@withContext null
-                val formatted = "$date 00:00:00" // yyyy-MM-dd -> yyyy-MM-dd HH:mm:ss
+                val dateStr = EducationHelper.getSemesterStartDate(term) ?: return@withContext null
+
+                // 1. 将 "yyyy-MM-dd" 格式的字符串解析为 LocalDate
+                val localDate = LocalDate.parse(dateStr)
+
+                // 2. 往后加一天
+                val nextDay = localDate.plusDays(1)
+
+                // 3. 拼接时间（LocalDate 默认的 toString() 格式就是 yyyy-MM-dd）
+                val formatted = "$nextDay 00:00:00"
+
                 SemesterCalendarCache.saveTermStartDate(term, formatted)
                 formatted
             }.getOrNull()

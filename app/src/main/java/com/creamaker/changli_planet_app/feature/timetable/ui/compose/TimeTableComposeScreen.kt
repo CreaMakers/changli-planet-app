@@ -1,5 +1,6 @@
 package com.creamaker.changli_planet_app.feature.timetable.ui.compose
 
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,15 +27,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -44,6 +50,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -129,6 +136,7 @@ fun TimeTableComposeScreen(
     currentWeek: Int,
     termStarted: Boolean,
     courses: List<TimeTableCourseUi>,
+    remark: List<String> = emptyList(),
     dateHeaderProvider: (Int) -> Pair<String, List<TimeTableDayHeaderUi>>,
     isRefreshing: Boolean,
     onRefreshClick: () -> Unit,
@@ -204,6 +212,7 @@ fun TimeTableComposeScreen(
             onRefreshClick = onRefreshClick,
         )
         TermWeekBar(
+            remark = remark,
             termText = termText,
             weekText = "第${effectiveWeek}周",
             weekBadgeState = weekBadgeState,
@@ -312,10 +321,13 @@ private fun TermWeekBar(
     termText: String,
     weekText: String,
     weekBadgeState: WeekBadgeState,
+    remark: List<String> = emptyList(),
     onTermClick: () -> Unit,
     onWeekClick: () -> Unit,
 ) {
     val colors = AppTheme.colors
+    var showRemarkDialog = remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val badgeContainerColor = when (weekBadgeState) {
         WeekBadgeState.NotStarted -> colors.textHeighLightColor.copy(alpha = 0.14f)
         WeekBadgeState.Current -> colors.successGreenColor.copy(alpha = 0.16f)
@@ -350,6 +362,23 @@ private fun TermWeekBar(
                 trailingIcon = R.drawable.coursetable_ic_extend,
                 onClick = onWeekClick,
             )
+            IconButton(
+                onClick = {
+                    if (remark.isNotEmpty()) {
+                        showRemarkDialog.value = true
+                    } else {
+                        Toast.makeText(context, "暂无备注", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                modifier = Modifier.size(36.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = "备注",
+                    tint = colors.secondaryTextColor,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
             Surface(
                 shape = CircleShape,
                 color = badgeContainerColor,
@@ -363,9 +392,16 @@ private fun TermWeekBar(
                 )
             }
         }
+    if (showRemarkDialog.value) {
+        RemarkDialog(
+            remark = remark,
+            onDismiss = { showRemarkDialog.value = false },
+        )
     }
-}
 
+    }
+
+}
 @Composable
 private fun TimetableCapsule(
     text: String,
@@ -716,6 +752,40 @@ private fun TimeTableCourseCard(
             }
         }
     }
+}
+
+
+@Composable
+private fun RemarkDialog(
+    remark: List<String>,
+    onDismiss: () -> Unit,
+) {
+    val colors = AppTheme.colors
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = "我知道了", color = colors.commonColor)
+            }
+        },
+        title = {
+            Text(text = "备注", fontWeight = FontWeight.Bold)
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                remark.forEachIndexed { index, item ->
+                    Text(
+                        text = "${index + 1}. $item",
+                        color = colors.primaryTextColor,
+                        fontSize = 14.sp,
+                    )
+                }
+            }
+        },
+        containerColor = colors.bgCardColor,
+        titleContentColor = colors.primaryTextColor,
+        textContentColor = colors.secondaryTextColor,
+    )
 }
 
 @Preview(showBackground = true)
