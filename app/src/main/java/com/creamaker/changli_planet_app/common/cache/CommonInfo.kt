@@ -6,6 +6,8 @@ import com.creamaker.changli_planet_app.feature.calendar.data.local.SemesterCale
 import com.creamaker.changli_planet_app.feature.calendar.data.repository.SemesterCalendarRepository
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -24,6 +26,9 @@ import java.util.TimeZone
  *  - 学期切换规则、当前周计算也统一收敛到本 object，避免全仓库 5+ 份副本不一致。
  */
 object CommonInfo {
+
+    /** 串行化开学日期的首次拉取，避免多个页面同时未命中缓存时重复请求教务。 */
+    private val termStartDateFetchMutex = Mutex()
 
     // ---------------- 常量 ----------------
 
@@ -163,11 +168,15 @@ object CommonInfo {
     }
 
     /**
-     * 通过网络库 [EducationHelper.getSemesterStartDate] 拉取学期开学日，
-     * 归一化后回写本地缓存（[SemesterCalendarCache.saveTermStartDate]）并返回。
+     * 确保学期开学日期已缓存。
      *
-     * 向 [SemesterCalendarRepository] 内存层同样回写一份 detail（仅含 [SemesterCalendarDetail.semesterStart]），
-     * 以便同步读 [getTermStartDate] 立即命中。
+     * 优先读取 [SemesterCalendarRepository] 的内存/MMKV 真实缓存；仅在缓存缺失时，
+     * 才通过 [EducationHelper.getSemesterStartDate] 请求教务并将结果归一化、持久化。
+     * 这里不使用 [getTermStartDate] 做缓存判断，因为它还包含内置 [termMap] 兜底值，
+     * 兜底命中不能代表教务数据已经缓存。
+     *
+     * 首次请求通过互斥锁串行化，并在获得锁后再次检查缓存，避免总览页与课表页、
+     * 或课表页内部多个协程同时发起重复请求。
      *
      * 在 IO 上执行；失败返回 null，不抛异常。
      *
@@ -176,22 +185,28 @@ object CommonInfo {
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun fetchTermStartDate(term: String): String? {
         if (term.isBlank()) return null
-        return withContext(Dispatchers.IO) {
-            runCatching {
-                val dateStr = EducationHelper.getSemesterStartDate(term) ?: return@withContext null
+        SemesterCalendarRepository.getTermStartDate(term)?.let { return it }
 
-                // 1. 将 "yyyy-MM-dd" 格式的字符串解析为 LocalDate
-                val localDate = LocalDate.parse(dateStr)
+        return termStartDateFetchMutex.withLock {
+            SemesterCalendarRepository.getTermStartDate(term)?.let { return@withLock it }
 
-                // 2. 往后加一天
-                val nextDay = localDate.plusDays(1)
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    val dateStr = EducationHelper.getSemesterStartDate(term) ?: return@withContext null
 
-                // 3. 拼接时间（LocalDate 默认的 toString() 格式就是 yyyy-MM-dd）
-                val formatted = "$nextDay 00:00:00"
+                    // 1. 将 "yyyy-MM-dd" 格式的字符串解析为 LocalDate
+                    val localDate = LocalDate.parse(dateStr)
 
-                SemesterCalendarCache.saveTermStartDate(term, formatted)
-                formatted
-            }.getOrNull()
+                    // 2. 往后加一天
+                    val nextDay = localDate.plusDays(1)
+
+                    // 3. 拼接时间（LocalDate 默认的 toString() 格式就是 yyyy-MM-dd）
+                    val formatted = "$nextDay 00:00:00"
+
+                    SemesterCalendarCache.saveTermStartDate(term, formatted)
+                    formatted
+                }.getOrNull()
+            }
         }
     }
 

@@ -3,6 +3,7 @@ package com.creamaker.changli_planet_app.overview.data
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import com.creamaker.changli_planet_app.R
+import com.creamaker.changli_planet_app.common.cache.CommonInfo
 import com.creamaker.changli_planet_app.common.data.local.mmkv.StudentInfoManager
 import com.creamaker.changli_planet_app.common.data.local.mmkv.UserInfoManager
 import com.creamaker.changli_planet_app.common.data.local.room.database.UserDataBase
@@ -13,7 +14,6 @@ import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ExamArran
 import com.creamaker.changli_planet_app.feature.common.data.local.mmkv.ScoreCache
 import com.creamaker.changli_planet_app.feature.common.data.local.room.database.CoursesDataBase
 import com.creamaker.changli_planet_app.feature.common.data.repository.ElectricityRepository
-import com.creamaker.changli_planet_app.feature.calendar.data.repository.SemesterCalendarRepository
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache.ElectricityHistoryEntry
 import com.creamaker.changli_planet_app.overview.data.local.OverviewLocalCache.ElectricitySnapshot
@@ -59,8 +59,6 @@ class OverviewRepository(
     suspend fun refreshState(): OverviewUiState = withContext(Dispatchers.IO) {
         coroutineScope {
             val currentTerm = getCurrentTerm()
-            // 刷新前触发一次校历预取（非阻塞 fire-and-forget，失败静默）
-            SemesterCalendarRepository.prefetchDetailIfMissing(currentTerm)
             val courseDeferred = async(Dispatchers.IO) { fetchCourses(currentTerm) }
             val gradesDeferred = async(Dispatchers.IO) { fetchGrades() }
             val examsDeferred = async(Dispatchers.IO) { fetchExams(currentTerm) }
@@ -195,6 +193,8 @@ class OverviewRepository(
     }
 
     private suspend fun fetchCourses(term: String): List<TimeTableMySubject>? {
+        // 与课表页保持一致：先确保开学日期已缓存（缺失时请求教务），再请求课程数据。
+        CommonInfo.fetchTermStartDate(term)
         return when (val result = runCatching { EducationHelper.getCourseScheduleByTerm("", term) }.getOrNull()) {
             is Resource.Success -> {
                 val subjects = result.data.courses.map {

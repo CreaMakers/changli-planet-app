@@ -121,7 +121,7 @@ class TimeTableViewModel : ViewModel() {
 
     private suspend fun fetchCoursesFromNetwork(term: String) {
         withContext(Dispatchers.IO) {
-            // 拉课表前先触发一次开学日预取（走网络库 EducationHelper），保证日期表头按校历锚定
+            // 确保开学日期可用：已有真实缓存时直接复用，缺失时才请求教务。
             CommonInfo.fetchTermStartDate(term)
             try {
                 when (val coursesResource = EducationHelper.getCourseScheduleByTerm("", term)) {
@@ -275,8 +275,9 @@ class TimeTableViewModel : ViewModel() {
      *
      * 流程：
      *  1. 同步先填入缓存命中值（命中即按校历渲染，未命中暂时为 null）；
-     *  2. 调用 [CommonInfo.fetchTermStartDate]（内部走网络库 [EducationHelper.getSemesterStartDate]）
-     *     拉取开学日并落盘，到账后更新 [_termStartDate]，触发日期表头按校历重新渲染；
+     *  2. 调用 [CommonInfo.fetchTermStartDate]，优先复用真实缓存，缺失时再通过
+     *     [EducationHelper.getSemesterStartDate] 拉取开学日并落盘；到账后更新 [_termStartDate]，
+     *     触发日期表头按校历重新渲染；
      *     失败时保留既有值（不把 null 覆盖回已命中的缓存值）。
      */
     fun ensureTermStartDate(term: String) {
