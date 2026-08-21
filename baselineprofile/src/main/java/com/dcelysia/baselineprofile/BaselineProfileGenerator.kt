@@ -13,7 +13,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private const val TARGET_PACKAGE = "com.example.changli_planet_app"
+private const val TARGET_PACKAGE = "com.zhelearn.CSUSTPlanet"
 private const val SHORT_TIMEOUT_MS = 1_500L
 private const val OVERVIEW_TIMEOUT_MS = 8_000L
 private const val BINDING_TIMEOUT_MS = 25_000L

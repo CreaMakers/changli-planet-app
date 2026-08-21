@@ -97,7 +97,7 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <com.creamaker.changli_planet_app.widget.view.ScrollTimeTableView
+        <com.zhelearn.CSUSTPlanet.widget.view.ScrollTimeTableView
             android:id="@+id/timetableView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -1,0 +1,49 @@
+package com.zhelearn.CSUSTPlanet.feature.common.data.local.room.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.zhelearn.CSUSTPlanet.feature.common.data.local.entity.TimeTableMySubject
+import io.reactivex.rxjava3.core.Single
+
+@Dao
+interface CourseDao {
+    @Query("SELECT * FROM courses")
+    fun getAllCourses(): Single<MutableList<TimeTableMySubject>>
+
+    @Query("SELECT * FROM courses WHERE isCustom = 1")
+    fun getAllCustomCourses(): List<TimeTableMySubject>
+
+    @Query("SELECT * FROM courses WHERE term = :term AND studentId = :studentId AND (isCustom = 1 OR studentPassword = :studentPassword)")
+    suspend fun getCoursesByTerm(
+        term: String,
+        studentId: String,
+        studentPassword: String
+    ): MutableList<TimeTableMySubject>
+
+    @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)
+    fun insertCourse(subject: TimeTableMySubject): Long
+
+    @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)
+    fun insertCourses(subjects: MutableList<TimeTableMySubject>): List<Long>
+
+    @Query("DELETE FROM courses")
+    fun clearAllCourses()
+
+    @Query("DELETE FROM courses WHERE id = :courseId AND isCustom = 1")
+    fun deleteCustomCourseById(courseId: Int): Int
+
+    @Query("DELETE FROM courses WHERE term = :term AND studentId = :studentId AND studentPassword = :studentPassword AND isCustom = 0")
+    fun deleteNetworkCoursesByTerm(
+        term: String,
+        studentId: String,
+        studentPassword: String,
+    ): Int
+
+    @Query("SELECT COUNT(*) FROM courses")
+    fun getAllCourseCount(): Int
+
+    @Query("SELECT COUNT(*) FROM courses WHERE term = :term")
+    fun getCoursesCountByTerm(term: String): Int
+}

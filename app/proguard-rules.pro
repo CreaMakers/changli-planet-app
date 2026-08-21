@@ -31,10 +31,10 @@
 -keepclassmembers,allowobfuscation class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
--keep class com.creamaker.changli_planet_app.**.bean.** { *; }
--keep class com.creamaker.changli_planet_app.**.model.** { *; }
--keep class com.creamaker.changli_planet_app.**.dto.** { *; }
--keepclassmembers class com.creamaker.changli_planet_app.feature.common.data.local.entity.** {
+-keep class com.zhelearn.CSUSTPlanet.**.bean.** { *; }
+-keep class com.zhelearn.CSUSTPlanet.**.model.** { *; }
+-keep class com.zhelearn.CSUSTPlanet.**.dto.** { *; }
+-keepclassmembers class com.zhelearn.CSUSTPlanet.feature.common.data.local.entity.** {
     <fields>;
 }
 

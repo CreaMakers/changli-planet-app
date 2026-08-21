@@ -28,7 +28,7 @@ val planetApiBaseUrlRelease: String = localProperties.getProperty("planet.apiBas
     ?: System.getenv("PLANET_API_BASE_URL_RELEASE")
     ?: "https://api.planet.zhelearn.com/v1/"
 val planetApplicationId = providers.gradleProperty("planetApplicationId")
-    .orElse("com.example.changli_planet_app")
+    .orElse("com.zhelearn.CSUSTPlanet")
     .get()
 val legacyMigrationProviderEnabled = planetApplicationId == "com.example.changli_planet_app"
 val legacyMigrationProviderAuthority = if (legacyMigrationProviderEnabled) {
@@ -38,7 +38,7 @@ val legacyMigrationProviderAuthority = if (legacyMigrationProviderEnabled) {
 }
 
 android {
-    namespace = "com.creamaker.changli_planet_app"
+    namespace = "com.zhelearn.CSUSTPlanet"
     compileSdk = 36
     compileSdkMinor = 1
     buildFeatures {
