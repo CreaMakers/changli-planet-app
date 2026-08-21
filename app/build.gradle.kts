@@ -27,6 +27,15 @@ val planetApiBaseUrlDebug: String = localProperties.getProperty("planet.apiBaseU
 val planetApiBaseUrlRelease: String = localProperties.getProperty("planet.apiBaseUrl.release")
     ?: System.getenv("PLANET_API_BASE_URL_RELEASE")
     ?: "https://api.planet.zhelearn.com/v1/"
+val planetApplicationId = providers.gradleProperty("planetApplicationId")
+    .orElse("com.example.changli_planet_app")
+    .get()
+val legacyMigrationProviderEnabled = planetApplicationId == "com.example.changli_planet_app"
+val legacyMigrationProviderAuthority = if (legacyMigrationProviderEnabled) {
+    "com.example.changli_planet_app.migration"
+} else {
+    "$planetApplicationId.inactive-migration"
+}
 
 android {
     namespace = "com.creamaker.changli_planet_app"
@@ -57,15 +66,17 @@ android {
     }
     
     defaultConfig {
-        applicationId = "com.example.changli_planet_app"
+        applicationId = planetApplicationId
         minSdk = 24
         targetSdk = 36
-        versionCode = 32
-        versionName = "2.10.0"
+        versionCode = 33
+        versionName = "2.10.1"
         val amapKeyFromLocal: String = localProperties.getProperty("amap.apiKey")
             ?: System.getenv("AMAP_API_KEY")
             ?: ""
         manifestPlaceholders["amapApiKey"] = amapKeyFromLocal
+        manifestPlaceholders["legacyMigrationProviderEnabled"] = legacyMigrationProviderEnabled.toString()
+        manifestPlaceholders["legacyMigrationProviderAuthority"] = legacyMigrationProviderAuthority
 
         ndk {
             // 设置支持的SO库架构
@@ -234,6 +245,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    testImplementation("junit:junit:4.13.2")
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 

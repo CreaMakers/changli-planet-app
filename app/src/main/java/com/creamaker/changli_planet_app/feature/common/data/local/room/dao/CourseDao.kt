@@ -12,7 +12,10 @@ interface CourseDao {
     @Query("SELECT * FROM courses")
     fun getAllCourses(): Single<MutableList<TimeTableMySubject>>
 
-    @Query("SELECT * FROM courses WHERE term = :term AND studentId = :studentId AND studentPassword = :studentPassword")
+    @Query("SELECT * FROM courses WHERE isCustom = 1")
+    fun getAllCustomCourses(): List<TimeTableMySubject>
+
+    @Query("SELECT * FROM courses WHERE term = :term AND studentId = :studentId AND (isCustom = 1 OR studentPassword = :studentPassword)")
     suspend fun getCoursesByTerm(
         term: String,
         studentId: String,

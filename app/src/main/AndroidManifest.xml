@@ -19,6 +19,16 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <permission
+        android:name="com.zhelearn.CSUSTPlanet.permission.MIGRATE_DATA"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.zhelearn.CSUSTPlanet.permission.MIGRATE_DATA" />
+
+    <queries>
+        <package android:name="com.example.changli_planet_app" />
+        <package android:name="com.zhelearn.CSUSTPlanet" />
+        <provider android:authorities="com.example.changli_planet_app.migration" />
+    </queries>
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -45,6 +55,26 @@
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="${amapApiKey}" />
+
+        <provider
+            android:name=".migration.LegacyMigrationProvider"
+            android:authorities="${legacyMigrationProviderAuthority}"
+            android:enabled="${legacyMigrationProviderEnabled}"
+            android:exported="true"
+            android:grantUriPermissions="false"
+            android:permission="com.zhelearn.CSUSTPlanet.permission.MIGRATE_DATA" />
+
+        <activity
+            android:name=".migration.DataMigrationActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:permission="com.zhelearn.CSUSTPlanet.permission.MIGRATE_DATA"
+            android:theme="@style/Theme.Changliplanetapp">
+            <intent-filter>
+                <action android:name="com.zhelearn.CSUSTPlanet.action.DATA_MIGRATION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".feature.common.ui.CalendarActivity"

@@ -330,6 +330,7 @@ private fun handleSettingItemClick(
         "6" -> Route.goSkinSecletion(context)
         "9" -> Route.goWebView(context, CREAMAKER_URL)
         "10" -> Route.goWebView(context, FEI_SHU_URL)
+        "11" -> Route.goDataMigration(context)
     }
 }
 
@@ -338,6 +339,7 @@ private fun createSettingItems(): List<SettingItemUiModel> = listOf(
     SettingItemUiModel.Option("4", "清除缓存", R.drawable.qingchu),
     SettingItemUiModel.Option("5", "绑定学号", R.drawable.ic_bianji),
     SettingItemUiModel.Option("6", "主题设置", R.drawable.zhuti_tiaosepan),
+    SettingItemUiModel.Option("11", "数据迁移", R.drawable.ic_document),
     SettingItemUiModel.Option("9", "软件官网", R.drawable.ic_guanyuwomen),
     SettingItemUiModel.Option("10", "意见反馈", R.drawable.yijianfankui)
 )

@@ -35,6 +35,9 @@ interface AccountBookDao {
     @Query("SELECT * FROM something_items")
     fun getAllSomethingItems(): List<LedgerItemEntity>
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertSomethingItemIfAbsent(item: LedgerItemEntity): Long
+
     @Query("DELETE FROM something_items WHERE id = :itemId")
     fun deleteSomethingItem(itemId: Int)
 }

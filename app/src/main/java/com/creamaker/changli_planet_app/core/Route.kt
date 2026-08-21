@@ -20,6 +20,7 @@ import com.creamaker.changli_planet_app.feature.mooc.ui.MoocCoursePageActivity
 import com.creamaker.changli_planet_app.feature.timetable.ui.TimeTableActivity
 import com.creamaker.changli_planet_app.freshNews.ui.PublishFreshNewsActivity
 import com.creamaker.changli_planet_app.freshNews.ui.UserHomeActivity
+import com.creamaker.changli_planet_app.migration.DataMigrationActivity
 import com.creamaker.changli_planet_app.profileSettings.ui.AboutActivity
 import com.creamaker.changli_planet_app.settings.ui.BindingUserActivity
 import com.creamaker.changli_planet_app.skin.ui.SkinSelectionActivity
@@ -31,6 +32,10 @@ import com.creamaker.changli_planet_app.skin.ui.SkinSelectionActivity
  * 目前应用唯一的登录入口为 BindingUserActivity（绑定学号）。
  */
 object Route {
+
+    fun goDataMigration(context: Context) {
+        context.startActivity(Intent(context, DataMigrationActivity::class.java))
+    }
 
     fun goCampusMap(context: Context) {
         val intent = Intent(context, CampusMapActivity::class.java)
