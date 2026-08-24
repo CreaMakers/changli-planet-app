@@ -36,7 +36,7 @@ data class MigrationLedgerItem(
     val totalMoney: Double,
     val dailyAverage: Double,
     val startTime: String,
-    val picture: Int,
+    val category: String,
     val username: String
 )
 

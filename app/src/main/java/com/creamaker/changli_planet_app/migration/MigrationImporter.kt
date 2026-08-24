@@ -57,20 +57,23 @@ class MigrationImporter(context: Context) {
             val dao = ledgerDatabase.accountBookDao()
             payload.ledgerItems.forEach { item ->
                 val existingItem = dao.findItemById(item.sourceId)
+                val importedItem = LedgerItemEntity(
+                    id = item.sourceId,
+                    name = item.name,
+                    totalMoney = item.totalMoney,
+                    dailyAverage = item.dailyAverage,
+                    startTime = item.startTime,
+                    picture = LedgerMigrationCategory.toDrawable(item.category),
+                    username = item.username
+                )
                 if (existingItem == null) {
-                    dao.insertSomethingItemIfAbsent(
-                        LedgerItemEntity(
-                            id = item.sourceId,
-                            name = item.name,
-                            totalMoney = item.totalMoney,
-                            dailyAverage = item.dailyAverage,
-                            startTime = item.startTime,
-                            picture = item.picture,
-                            username = item.username
-                        )
-                    )
+                    dao.insertSomethingItemIfAbsent(importedItem)
+                } else if (ledgerKey(existingItem) == ledgerKey(importedItem)) {
+                    Unit
+                } else if (ledgerIdentityKey(existingItem) == ledgerIdentityKey(importedItem)) {
+                    dao.insertOrUpdateSomethingItems(importedItem)
                 } else {
-                    require(ledgerKey(existingItem) == ledgerKey(item)) { "LEDGER_ID_CONFLICT" }
+                    throw IllegalArgumentException("LEDGER_ID_CONFLICT")
                 }
             }
             payload.ledgerItems.map { it.username }.distinct().forEach { username ->
@@ -118,12 +121,17 @@ class MigrationImporter(context: Context) {
 
     private fun ledgerKey(item: MigrationLedgerItem): String = listOf(
         item.sourceId, item.username, item.name, item.totalMoney.toBits(), item.dailyAverage.toBits(),
-        item.startTime, item.picture
+        item.startTime, LedgerMigrationCategory.toDrawable(item.category)
     ).joinToString("\u0000")
 
     private fun ledgerKey(item: LedgerItemEntity): String = listOf(
         item.id, item.username, item.name, item.totalMoney.toBits(), item.dailyAverage.toBits(),
         item.startTime, item.picture
+    ).joinToString("\u0000")
+
+    private fun ledgerIdentityKey(item: LedgerItemEntity): String = listOf(
+        item.id, item.username, item.name, item.totalMoney.toBits(), item.dailyAverage.toBits(),
+        item.startTime
     ).joinToString("\u0000")
 
     /**

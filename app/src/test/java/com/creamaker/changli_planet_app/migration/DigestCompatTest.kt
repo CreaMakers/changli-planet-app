@@ -19,7 +19,15 @@ class DigestCompatTest {
                 MigrationCourse("课程$it", "教室$it", "老师$it", listOf(1, 2, 3), 1, 2, 1, "2026-2027-1", "2026000$it")
             },
             ledgerItems = (1..300).map {
-                MigrationLedgerItem(it, "条目$it", 12.5 * it, 1.5, "2026-8-21", 1, "user$it")
+                MigrationLedgerItem(
+                    it,
+                    "条目$it",
+                    12.5 * it,
+                    1.5,
+                    "2026-8-21",
+                    LedgerMigrationCategory.OTHER,
+                    "user$it"
+                )
             },
             preferences = MigrationPreferences("skin_default", "skin_default")
         )

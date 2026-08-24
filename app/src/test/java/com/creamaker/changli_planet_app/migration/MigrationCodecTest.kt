@@ -2,6 +2,7 @@ package com.creamaker.changli_planet_app.migration
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class MigrationCodecTest {
@@ -24,6 +25,8 @@ class MigrationCodecTest {
         assertFalse(json.contains("password"))
         assertFalse(json.contains("token"))
         assertFalse(json.contains("cookie"))
+        assertFalse(json.contains("picture"))
+        assertEquals(LedgerMigrationCategory.BICYCLE, decoded.payload.ledgerItems.single().category)
     }
 
     @Test
@@ -38,6 +41,26 @@ class MigrationCodecTest {
         )
 
         MigrationArchiveValidator.validate(archive, archive.migrationId)
+    }
+
+    @Test
+    fun validatorRejectsUnknownLedgerCategory() {
+        val payload = samplePayload().copy(
+            ledgerItems = samplePayload().ledgerItems.map { it.copy(category = "UNKNOWN") }
+        )
+        val archive = MigrationArchive(
+            migrationId = "123e4567-e89b-12d3-a456-426614174000",
+            sourceVersionCode = 33,
+            createdAt = System.currentTimeMillis(),
+            payloadDigest = MigrationCodec.payloadDigest(payload),
+            payload = payload
+        )
+
+        val error = assertThrows(IllegalArgumentException::class.java) {
+            MigrationArchiveValidator.validate(archive, archive.migrationId)
+        }
+
+        assertEquals("LEDGER_CATEGORY_INVALID", error.message)
     }
 
     private fun samplePayload() = MigrationPayload(
@@ -61,7 +84,7 @@ class MigrationCodecTest {
                 totalMoney = 500.0,
                 dailyAverage = 1.0,
                 startTime = "2026-8-21",
-                picture = 1,
+                category = LedgerMigrationCategory.BICYCLE,
                 username = "20260001"
             )
         ),
