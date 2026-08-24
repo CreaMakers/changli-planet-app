@@ -31,6 +31,7 @@ object MigrationArchiveValidator {
         require(item.username.length <= 200 && item.startTime.length <= 100) { "LEDGER_INVALID" }
         require(item.totalMoney.isFinite() && item.dailyAverage.isFinite()) { "LEDGER_INVALID" }
         require(item.totalMoney >= 0.0 && item.dailyAverage >= 0.0) { "LEDGER_INVALID" }
+        require(item.category in LedgerMigrationCategory.values) { "LEDGER_CATEGORY_INVALID" }
     }
 
     private fun validatePreferences(preferences: MigrationPreferences) {

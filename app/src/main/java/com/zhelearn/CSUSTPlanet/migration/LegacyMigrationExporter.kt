@@ -33,7 +33,7 @@ class LegacyMigrationExporter(context: Context) {
                     totalMoney = item.totalMoney,
                     dailyAverage = item.dailyAverage,
                     startTime = item.startTime,
-                    picture = item.picture,
+                    category = LedgerMigrationCategory.fromDrawable(item.picture),
                     username = item.username
                 )
             }

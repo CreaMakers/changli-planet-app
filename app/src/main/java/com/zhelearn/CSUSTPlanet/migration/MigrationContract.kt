@@ -8,7 +8,7 @@ object MigrationContract {
     const val AUTHORITY = "com.example.changli_planet_app.migration"
     const val PERMISSION = "com.zhelearn.CSUSTPlanet.permission.MIGRATE_DATA"
     const val ACTION_DATA_MIGRATION = "com.zhelearn.CSUSTPlanet.action.DATA_MIGRATION"
-    const val PROTOCOL_VERSION = 1
+    const val PROTOCOL_VERSION = 2
     const val MAX_ARCHIVE_BYTES = 8 * 1024 * 1024
     const val SESSION_TTL_MILLIS = 10 * 60 * 1000L
 
