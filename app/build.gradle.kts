@@ -69,8 +69,8 @@ android {
         applicationId = planetApplicationId
         minSdk = 24
         targetSdk = 36
-        versionCode = 33
-        versionName = "2.10.1"
+        versionCode = 34
+        versionName = "2.10.2"
         val amapKeyFromLocal: String = localProperties.getProperty("amap.apiKey")
             ?: System.getenv("AMAP_API_KEY")
             ?: ""
