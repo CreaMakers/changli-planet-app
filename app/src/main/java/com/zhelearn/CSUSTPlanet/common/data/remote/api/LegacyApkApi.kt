@@ -8,7 +8,7 @@ import retrofit2.http.Query
  * 旧版应用更新接口（自研 user 服务）。
  *
  * `https://user.csust.creamaker.cn/`。
- * 仅在新版 Go 服务端 `/v1/config/app-versions/check` 接口失败时作为兜底调用，
+ * 仅在新版 Go 服务端 `/v2/config/app-versions/check` 接口失败时作为兜底调用，
  * 覆盖灰度 / 后端发布窗口期。新接口稳定后可整体删除。
  */
 interface LegacyApkApi {
