@@ -71,8 +71,8 @@ android {
         applicationId = planetApplicationId
         minSdk = 24
         targetSdk = 36
-        versionCode = 34
-        versionName = "2.10.2"
+        versionCode = 35
+        versionName = "2.11.0"
         val amapApiKey: String = privateProperties.getProperty("amap.apiKey")?.trim().orEmpty()
         manifestPlaceholders["amapApiKey"] = amapApiKey
         manifestPlaceholders["legacyMigrationProviderEnabled"] = legacyMigrationProviderEnabled.toString()
