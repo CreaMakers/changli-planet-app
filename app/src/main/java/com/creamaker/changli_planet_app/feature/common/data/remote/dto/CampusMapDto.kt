@@ -4,7 +4,7 @@ import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
 /**
- * 校园地图 GeoJSON 响应体，对应 `GET {PlanetIp}/config/campus-map`。
+ * 校园地图 GeoJSON 响应体，对应 `GET {PlanetIp}v1/config/campus-map`。
  *
  * 后端直接返回标准 GeoJSON `FeatureCollection`：
  * ```json

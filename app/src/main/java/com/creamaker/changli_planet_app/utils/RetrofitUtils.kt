@@ -29,7 +29,7 @@ object RetrofitUtils {
     private const val TOOLS_IP = "https://csust.creamaker.cn/app/tools/"
 
     /**
-     * 长理星球 Go 服务端（v1）BaseUrl。
+     * 长理星球 Go 服务端 BaseUrl。
      *
      * 真实值由 Gradle 通过 `BuildConfig.PLANET_API_BASE_URL` 注入，来源优先级：
      *   1. `local.properties` 的 `planet.apiBaseUrl.debug` / `planet.apiBaseUrl.release`
@@ -161,7 +161,7 @@ object RetrofitUtils {
     }
 
     /**
-     * 长理星球 Go 服务端（v1），用于校历、应用版本检查等 config 接口。
+     * 长理星球 Go 服务端，用于校历、校园地图、应用版本检查等 config 接口。
      */
     val instancePlanet: Retrofit by lazy {
         Retrofit.Builder()

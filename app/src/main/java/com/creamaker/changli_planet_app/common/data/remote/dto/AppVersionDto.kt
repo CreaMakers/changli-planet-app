@@ -3,7 +3,7 @@ package com.creamaker.changli_planet_app.common.data.remote.dto
 /**
  * 长理星球 Go 服务端应用版本信息。
  *
- * 对应接口：`GET {PlanetIp}/config/app-versions/check?platform=android&currentVersionCode=...`
+ * 对应接口：`GET {PlanetIp}v2/config/app-versions/check?platform=android&currentVersionCode=...`
  *
  * 返回示例：
  * ```json

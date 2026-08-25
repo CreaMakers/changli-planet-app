@@ -23,10 +23,10 @@ val localProperties = Properties().apply {
 // 值需以 "/" 结尾（Retrofit BaseUrl 要求）。
 val planetApiBaseUrlDebug: String = localProperties.getProperty("planet.apiBaseUrl.debug")
     ?: System.getenv("PLANET_API_BASE_URL_DEBUG")
-    ?: "https://api-dev.planet.zhelearn.com/v2/"
+    ?: "https://api-dev.planet.zhelearn.com/"
 val planetApiBaseUrlRelease: String = localProperties.getProperty("planet.apiBaseUrl.release")
     ?: System.getenv("PLANET_API_BASE_URL_RELEASE")
-    ?: "https://api.planet.zhelearn.com/v2/"
+    ?: "https://api.planet.zhelearn.com/"
 val planetApplicationId = providers.gradleProperty("planetApplicationId")
     .orElse("com.example.changli_planet_app")
     .get()
