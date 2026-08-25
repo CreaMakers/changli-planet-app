@@ -3,7 +3,7 @@ package com.zhelearn.CSUSTPlanet.common.data.remote.dto
 /**
  * 长理星球 Go 服务端应用版本信息。
  *
- * 对应接口：`GET {PlanetIp}/config/app-versions/check?platform=android&currentVersionCode=...`
+ * 对应接口：`GET {PlanetIp}/v1/config/app-versions/check?platform=android&currentVersionCode=...`
  *
  * 返回示例：
  * ```json

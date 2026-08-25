@@ -15,6 +15,6 @@ interface CampusMapApi {
      *
      * 线上约 124 个 Feature（~55 KB），可整包请求；App 侧做本地 JSON 缓存。
      */
-    @GET("config/campus-map")
+    @GET("v1/config/campus-map")
     suspend fun getCampusMap(): CampusMapGeoJson
 }

@@ -7,10 +7,10 @@ import retrofit2.http.Path
 
 interface SemesterCalendarApi {
 
-    @GET("config/semester-calendars")
+    @GET("v1/config/semester-calendars")
     suspend fun getSemesterCalendars(): List<SemesterCalendarListItem>
 
-    @GET("config/semester-calendars/{semester_code}")
+    @GET("v1/config/semester-calendars/{semester_code}")
     suspend fun getSemesterCalendarDetail(
         @Path("semester_code") semesterCode: String
     ): SemesterCalendarDetail

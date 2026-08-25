@@ -16,9 +16,9 @@ interface AppVersionApi {
      * 检查当前版本是否需要更新。
      *
      * 示例：
-     *  - `GET /config/app-versions/check?platform=android&currentVersionCode=26`
+     *  - `GET /v1/config/app-versions/check?platform=android&currentVersionCode=26`
      */
-    @GET("config/app-versions/check")
+    @GET("v1/config/app-versions/check")
     suspend fun checkUpdate(
         @Query("platform") platform: String = "android",
         @Query("currentVersionCode") currentVersionCode: Long
