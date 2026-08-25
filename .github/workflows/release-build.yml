@@ -35,9 +35,13 @@ jobs:
         run: |
           echo ${{ secrets.RELEASE_KEYSTORE }} | base64 --decode > app/release-key.jks
 
-      - name: Write local.properties
+      - name: Restore private.properties
+        env:
+          PRIVATE_PROPERTIES: ${{ secrets.PRIVATE_PROPERTIES }}
         run: |
-          echo "amap.apiKey=${{ secrets.AMAP_API_KEY }}" >> local.properties
+          test -n "$PRIVATE_PROPERTIES"
+          printf '%s\n' "$PRIVATE_PROPERTIES" > app/private.properties
+          chmod 600 app/private.properties
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
