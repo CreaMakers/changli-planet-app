@@ -73,10 +73,8 @@ android {
         targetSdk = 36
         versionCode = 34
         versionName = "2.10.2"
-        val amapKeyFromLocal: String = localProperties.getProperty("amap.apiKey")
-            ?: System.getenv("AMAP_API_KEY")
-            ?: ""
-        manifestPlaceholders["amapApiKey"] = amapKeyFromLocal
+        val amapApiKey: String = privateProperties.getProperty("amap.apiKey")?.trim().orEmpty()
+        manifestPlaceholders["amapApiKey"] = amapApiKey
         manifestPlaceholders["legacyMigrationProviderEnabled"] = legacyMigrationProviderEnabled.toString()
         manifestPlaceholders["legacyMigrationProviderAuthority"] = legacyMigrationProviderAuthority
 

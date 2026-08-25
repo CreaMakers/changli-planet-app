@@ -4,3 +4,6 @@ planet.apiBaseUrl.release = https://api.example.com/v1/
 
 # 你的腾讯 Bugly AppID
 bugly.appId = your_bugly_app_id
+
+# 你的高德地图 API Key
+amap.apiKey = your_amap_api_key
