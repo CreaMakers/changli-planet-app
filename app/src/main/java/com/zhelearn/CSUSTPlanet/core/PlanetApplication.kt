@@ -129,7 +129,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         initMMKV()
         migrateLegacyCacheIfNeeded()
         if (!BuildConfig.DEBUG) {
-            CrashReport.initCrashReport(applicationContext, "1c79201ce5", true)
+            CrashReport.initCrashReport(applicationContext, BuildConfig.BUGLY_APP_ID, true)
         }
         if (BuildConfig.DEBUG) {
             StartupTimeTracker.initialize(applicationContext as Application)

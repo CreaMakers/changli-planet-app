@@ -1,0 +1,6 @@
+# 你的 API 主机地址
+planet.apiBaseUrl.debug = https://api-dev.example.com/v1/
+planet.apiBaseUrl.release = https://api.example.com/v1/
+
+# 你的腾讯 Bugly AppID
+bugly.appId = your_bugly_app_id

@@ -19,14 +19,16 @@ val localProperties = Properties().apply {
     }
 }
 
-// 长理星球 Go 服务端 BaseUrl：优先 local.properties，其次环境变量，最后兜底默认值。
-// 值需以 "/" 结尾（Retrofit BaseUrl 要求）。
-val planetApiBaseUrlDebug: String = localProperties.getProperty("planet.apiBaseUrl.debug")
-    ?: System.getenv("PLANET_API_BASE_URL_DEBUG")
-    ?: "https://api-dev.planet.zhelearn.com/v1/"
-val planetApiBaseUrlRelease: String = localProperties.getProperty("planet.apiBaseUrl.release")
-    ?: System.getenv("PLANET_API_BASE_URL_RELEASE")
-    ?: "https://api.planet.zhelearn.com/v1/"
+val privateProperties = Properties().apply {
+    val file = project.file("private.properties")
+    if (file.exists()) {
+        file.reader(Charsets.UTF_8).use { load(it) }
+    }
+}
+
+val planetApiBaseUrlDebug: String = privateProperties.getProperty("planet.apiBaseUrl.debug")?.trim().orEmpty()
+val planetApiBaseUrlRelease: String = privateProperties.getProperty("planet.apiBaseUrl.release")?.trim().orEmpty()
+val buglyAppId: String = privateProperties.getProperty("bugly.appId")?.trim().orEmpty()
 val planetApplicationId = providers.gradleProperty("planetApplicationId")
     .orElse("com.zhelearn.CSUSTPlanet")
     .get()
@@ -89,6 +91,11 @@ android {
             "String",
             "PLANET_API_BASE_URL",
             "\"$planetApiBaseUrlRelease\""
+        )
+        buildConfigField(
+            "String",
+            "BUGLY_APP_ID",
+            "\"$buglyAppId\""
         )
     }
 

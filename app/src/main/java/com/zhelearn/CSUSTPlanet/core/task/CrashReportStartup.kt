@@ -11,7 +11,7 @@ class CrashReportStartup : AndroidStartup<Unit>() {
 
     override fun create(context: Context): Unit {
         if (!BuildConfig.DEBUG) {
-            CrashReport.initCrashReport(context, "1c79201ce5", true)
+            CrashReport.initCrashReport(context, BuildConfig.BUGLY_APP_ID, true)
         }
     }
 
