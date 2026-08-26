@@ -7,6 +7,7 @@ import com.zhelearn.CSUSTPlanet.BuildConfig
 import com.zhelearn.CSUSTPlanet.core.PlanetApplication
 import com.zhelearn.CSUSTPlanet.core.network.DnsSafety
 import com.zhelearn.CSUSTPlanet.core.network.OkHttpHelper.AuthInterceptor
+import com.zhelearn.CSUSTPlanet.core.network.PlanetUserAgent
 import com.zhelearn.CSUSTPlanet.core.network.interceptor.NetworkLogger
 import com.zhelearn.CSUSTPlanet.feature.mooc.cookie.PersistentCookieJar
 import com.tencent.msdk.dns.MSDKDnsResolver
@@ -86,6 +87,15 @@ object RetrofitUtils {
             .build()
     }
 
+    /**
+     * Planet Go 服务端专用客户端，在共享客户端的基础上只增加 Planet User-Agent。
+     */
+    private val planetClient: OkHttpClient by lazy {
+        client.newBuilder()
+            .addInterceptor(PlanetUserAgent.interceptor)
+            .build()
+    }
+
     // MOOC 和 SSO 专用客户端 - 不包含 AuthInterceptor，添加 Cookie 支持
     private val moocClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
@@ -160,7 +170,7 @@ object RetrofitUtils {
     val instancePlanet: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(PlanetIp)
-            .client(client)
+            .client(planetClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
