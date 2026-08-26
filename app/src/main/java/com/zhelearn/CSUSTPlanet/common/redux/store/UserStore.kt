@@ -3,6 +3,7 @@ package com.zhelearn.CSUSTPlanet.common.redux.store
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.zhelearn.CSUSTPlanet.analytics.MatomoTrackerManager
 import com.zhelearn.CSUSTPlanet.common.data.local.mmkv.StudentInfoManager
 import com.zhelearn.CSUSTPlanet.common.data.local.mmkv.UserInfoManager
 import com.zhelearn.CSUSTPlanet.common.data.remote.api.AppVersionApi
@@ -149,6 +150,7 @@ class UserStore : Store<UserState, UserAction>() {
                                     Log.d(TAG, "教务登录成功")
                                     StudentInfoManager.studentId = action.studentNumber
                                     StudentInfoManager.studentPassword = action.studentPassword
+                                    MatomoTrackerManager.updateUserId(StudentInfoManager.studentId)
                                     handler.post { AppEventBus.finishEvent.tryEmit(FinishEvent("bindingUser")) }
                                     PlanetApplication.clearSchoolDataCacheAll()
                                     _state.onNext(currentState)

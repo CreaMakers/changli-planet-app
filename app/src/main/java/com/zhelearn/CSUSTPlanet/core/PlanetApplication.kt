@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import com.zhelearn.CSUSTPlanet.BuildConfig
+import com.zhelearn.CSUSTPlanet.analytics.MatomoTrackerManager
 import com.zhelearn.CSUSTPlanet.core.network.OkHttpHelper
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.room.database.CoursesDataBase
 import com.zhelearn.CSUSTPlanet.feature.mooc.viewmodel.MoocViewModel
@@ -128,6 +129,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
 
         initMMKV()
         migrateLegacyCacheIfNeeded()
+        MatomoTrackerManager.initialize(this)
         if (!BuildConfig.DEBUG) {
             CrashReport.initCrashReport(applicationContext, BuildConfig.BUGLY_APP_ID, true)
         }
