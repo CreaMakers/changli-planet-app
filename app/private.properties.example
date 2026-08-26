@@ -7,3 +7,9 @@ bugly.appId = your_bugly_app_id
 
 # 你的高德地图 API Key
 amap.apiKey = your_amap_api_key
+
+# 你的 Matomo 信息
+matomo.url = https://matomo.example.com/matomo.php
+matomo.siteId = 1
+matomo.dimensionId.appVersion = 1
+matomo.dimensionId.appEnvironment = 2

@@ -29,6 +29,17 @@ val privateProperties = Properties().apply {
 val planetApiBaseUrlDebug: String = privateProperties.getProperty("planet.apiBaseUrl.debug")?.trim().orEmpty()
 val planetApiBaseUrlRelease: String = privateProperties.getProperty("planet.apiBaseUrl.release")?.trim().orEmpty()
 val buglyAppId: String = privateProperties.getProperty("bugly.appId")?.trim().orEmpty()
+val matomoUrl: String = privateProperties.getProperty("matomo.url")?.trim().orEmpty()
+val matomoSiteId: Int = privateProperties.getProperty("matomo.siteId")?.trim()?.toIntOrNull() ?: 0
+val matomoDimensionIdAppVersion: Int = privateProperties
+    .getProperty("matomo.dimensionId.appVersion")
+    ?.trim()
+    ?.toIntOrNull() ?: 0
+val matomoDimensionIdAppEnvironment: Int = privateProperties
+    .getProperty("matomo.dimensionId.appEnvironment")
+    ?.trim()
+    ?.toIntOrNull() ?: 0
+
 val planetApplicationId = providers.gradleProperty("planetApplicationId")
     .orElse("com.zhelearn.CSUSTPlanet")
     .get()
@@ -94,6 +105,26 @@ android {
             "String",
             "BUGLY_APP_ID",
             "\"$buglyAppId\""
+        )
+        buildConfigField(
+            "String",
+            "MATOMO_URL",
+            "\"$matomoUrl\""
+        )
+        buildConfigField(
+            "int",
+            "MATOMO_SITE_ID",
+            matomoSiteId.toString()
+        )
+        buildConfigField(
+            "int",
+            "MATOMO_DIMENSION_ID_APP_VERSION",
+            matomoDimensionIdAppVersion.toString()
+        )
+        buildConfigField(
+            "int",
+            "MATOMO_DIMENSION_ID_APP_ENVIRONMENT",
+            matomoDimensionIdAppEnvironment.toString()
         )
     }
 
