@@ -233,6 +233,8 @@ dependencies {
     implementation(libs.statelayout)
     // jsoup
     implementation(libs.jsoup)
+    // Matomo SDK
+    implementation(libs.matomo.sdk.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
