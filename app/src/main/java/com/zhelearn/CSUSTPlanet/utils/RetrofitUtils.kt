@@ -165,7 +165,7 @@ object RetrofitUtils {
     }
 
     /**
-     * 长理星球 Go 服务端（v1），用于校历、应用版本检查等 config 接口。
+     * 长理星球 Go 服务端，用于校历、校园地图、应用版本检查等 config 接口。
      */
     val instancePlanet: Retrofit by lazy {
         Retrofit.Builder()
