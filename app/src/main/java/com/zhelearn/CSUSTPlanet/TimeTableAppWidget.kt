@@ -13,6 +13,8 @@ import com.zhelearn.CSUSTPlanet.common.data.local.mmkv.StudentInfoManager
 import com.zhelearn.CSUSTPlanet.core.PlanetApplication
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.entity.TimeTableMySubject
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.room.database.CoursesDataBase
+import com.zhelearn.CSUSTPlanet.feature.timetable.data.local.TimeTableCourseWeekMigration
+import com.zhelearn.CSUSTPlanet.feature.timetable.data.local.TimeTableSettingsStore
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.TimeTableActivity
 import com.zhelearn.CSUSTPlanet.utils.ResourceUtil
 import kotlinx.coroutines.CoroutineScope
@@ -76,7 +78,13 @@ internal fun updateAppWidget(
     Log.d("TimeTableAppWidget", "updateAppWidget")
     val curTerm = getCurrentTerm()
     val curWeekDay = getCurrentWeek()
-    val curSchoolWeek = getCurrentSchoolWeek(curTerm)
+    val sundayFirst = TimeTableSettingsStore.load().sundayFirst
+    val curSchoolWeek = getCurrentSchoolWeek(curTerm, sundayFirst)
+    val courseWeekForToday = if (!sundayFirst && curWeekDay == 7) {
+        curSchoolWeek + 1
+    } else {
+        curSchoolWeek
+    }
     // 创建点击意图，拉起主Activity
     val intent = Intent(context, TimeTableActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -96,7 +104,11 @@ internal fun updateAppWidget(
     // 为整个小组件设置点击事件
     views.setOnClickPendingIntent(R.id.widget_root_layout, pendingIntent)
     val currentMonthAndDay = getCurrentMonthAndDay()
-    val weekTextAuto = CommonInfo.getCurrentWeekAuto()
+    val weekTextAuto = when {
+        sundayFirst && curSchoolWeek <= 0 -> "未开学"
+        sundayFirst -> "第 $curSchoolWeek 周"
+        else -> CommonInfo.getCurrentWeekAuto()
+    }
     views.setTextViewText(R.id.term_tv, weekTextAuto)
     views.setTextViewText(R.id.date_tv, currentMonthAndDay)
     views.setTextViewText(
@@ -117,7 +129,7 @@ internal fun updateAppWidget(
         return
     }
     views.setViewVisibility(R.id.student_error_tv, View.GONE)
-    if (isHolidayOrError(curTerm)) {
+    if (isHolidayOrError(curTerm, sundayFirst)) {
         views.setViewVisibility(R.id.end_tv, View.VISIBLE)
         views.setTextViewText(R.id.end_tv, "还没有开学哦٩(◦`꒳´◦)۶")
         appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -133,7 +145,7 @@ internal fun updateAppWidget(
             } else {
                 views.setViewVisibility(R.id.student_error_tv, View.GONE)
                 val result = courses.asSequence().filter { it.weekday == curWeekDay }
-                    .filter { !it.weeks.isNullOrEmpty() and it.weeks!!.contains(curSchoolWeek) }
+                    .filter { !it.weeks.isNullOrEmpty() and it.weeks!!.contains(courseWeekForToday) }
                     .sortedBy { it.start }
                     .filter { course ->
                         val now = Calendar.getInstance()
@@ -210,19 +222,17 @@ private fun getCourseInfo(callback: (List<TimeTableMySubject>?) -> Unit) {
     val curTerm = getCurrentTerm()
     CoroutineScope(Dispatchers.IO).launch {
         try {
-            val courses = CoursesDataBase.getDatabase(PlanetApplication.appContext)
-                .courseDao()
+            val courseDao = CoursesDataBase.getDatabase(PlanetApplication.appContext).courseDao()
+            TimeTableCourseWeekMigration.migrateIfNeeded(
+                courseDao = courseDao,
+                term = curTerm,
+                studentId = studentId,
+                studentPassword = studentPassword,
+            )
+            val courses = courseDao
                 .getCoursesByTerm(curTerm, studentId, studentPassword)
                 .distinctBy {
                     "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
-                }
-                .map { course ->
-                    if (course.weekday == 7) {
-                        val adjustedWeeks = course.weeks?.map { week -> week - 1 }
-                        course.copy(weeks = adjustedWeeks)
-                    } else {
-                        course
-                    }
                 }
             withContext(Dispatchers.Main) {
                 callback(courses)
@@ -239,21 +249,28 @@ private fun getCourseInfo(callback: (List<TimeTableMySubject>?) -> Unit) {
 private fun getCurrentTerm(): String =
     com.zhelearn.CSUSTPlanet.common.cache.CommonInfo.getCurrentTerm()
 
-private fun getCurrentSchoolWeek(curTerm: String): Int {
+private fun getCurrentSchoolWeek(curTerm: String, sundayFirst: Boolean): Int {
     val startTime = CommonInfo.getTermStartDate(curTerm) ?: return 1
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     val startDate = formatter.parse(startTime) ?: return 1
+    val displayWeekStart = Calendar.getInstance().apply {
+        time = startDate
+        if (sundayFirst) {
+            add(Calendar.DAY_OF_MONTH, -(get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY))
+        }
+    }.time
     val currentDate = Date()
-    val diffTime = currentDate.time - startDate.time
+    val diffTime = currentDate.time - displayWeekStart.time
+    if (diffTime < 0) return 0
     return ((diffTime / 1000 / 3600 / 24) / 7 + 1).toInt()
 }
 
-private fun isHolidayOrError(curTerm: String): Boolean {
-    val startTime = CommonInfo.getTermStartDate(curTerm) ?: return true
-    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    val startDate = formatter.parse(startTime)
-    val currentDate = Date()
-    return !(startDate != null && currentDate >= startDate)
+private fun isHolidayOrError(curTerm: String, sundayFirst: Boolean): Boolean {
+    return if (sundayFirst) {
+        getCurrentSchoolWeek(curTerm, true) <= 0
+    } else {
+        !CommonInfo.hasTermStarted(curTerm)
+    }
 }
 
 private fun getCurrentMonthAndDay(): String {

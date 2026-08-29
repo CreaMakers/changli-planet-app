@@ -12,6 +12,7 @@ import com.zhelearn.CSUSTPlanet.core.network.ApiResponse
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.entity.TimeTableMySubject
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.room.database.CoursesDataBase
 import com.zhelearn.CSUSTPlanet.feature.common.data.remote.dto.Course
+import com.zhelearn.CSUSTPlanet.feature.timetable.data.local.TimeTableCourseWeekMigration
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.entity.TimeTableUiState
 import com.dcelysia.csust_spider.core.Resource
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
@@ -93,6 +94,12 @@ class TimeTableViewModel : ViewModel() {
             _coursesResponse.tryEmit(ApiResponse.Loading())
 
             try {
+                TimeTableCourseWeekMigration.migrateIfNeeded(
+                    courseDao = courseDao,
+                    term = term,
+                    studentId = studentId,
+                    studentPassword = studentPassword,
+                )
                 val cur = System.currentTimeMillis()
                 val count = courseDao.getCoursesCountByTerm(term)
                 val lastUpdate = mmkv.decodeLong("lastUpdate_$term", 0L)
@@ -175,26 +182,12 @@ class TimeTableViewModel : ViewModel() {
     private fun distinctSubjects(subjects: MutableList<TimeTableMySubject>): MutableList<TimeTableMySubject> {
         return subjects.distinctBy {
             "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
-        }.map { course ->
-            if (course.weekday == 7) {
-                val adjustedWeeks = course.weeks?.map { week -> week - 1 }
-                course.copy(weeks = adjustedWeeks)
-            } else {
-                course
-            }
         }.toMutableList()
     }
 
     private fun normalizeCourses(courses: List<TimeTableMySubject>): List<TimeTableMySubject> {
         return courses.distinctBy {
             "${it.courseName}${it.teacher}${it.weeks}${it.classroom}${it.start}${it.step}${it.term}${it.weekday}"
-        }.map { course ->
-            if (course.weekday == 7) {
-                val adjustedWeeks = course.weeks?.map { week -> week - 1 }
-                course.copy(weeks = adjustedWeeks)
-            } else {
-                course
-            }
         }
     }
 
@@ -203,8 +196,45 @@ class TimeTableViewModel : ViewModel() {
             _addCourseResponse.value = ApiResponse.Loading()
 
             try {
+                val selectedWeeks = buildSet {
+                    for (week in course.weeks.orEmpty()) {
+                        if (week in 1..20) add(week)
+                    }
+                }.sorted()
+                if (selectedWeeks.isEmpty()) {
+                    _addCourseResponse.value = ApiResponse.Error("请选择有效的上课周次")
+                    return@launch
+                }
+
+                val normalizedCourse = course.copy(weeks = selectedWeeks)
+                val currentState = _uiState.value ?: TimeTableUiState()
+                val existingCustomCourse = currentState.subjects.firstOrNull { existingCourse ->
+                    existingCourse.isCustom && existingCourse.matchesSchedule(normalizedCourse)
+                }
+                if (existingCustomCourse != null) {
+                    val mergedWeeks = buildSet {
+                        addAll(existingCustomCourse.weeks.orEmpty())
+                        addAll(selectedWeeks)
+                    }.sorted()
+                    val mergedCourse = existingCustomCourse.copy(weeks = mergedWeeks)
+                    val updatedRows = withContext(Dispatchers.IO) {
+                        courseDao.updateCourses(listOf(mergedCourse))
+                    }
+                    if (updatedRows <= 0) {
+                        _addCourseResponse.value = ApiResponse.Error("课程周次更新失败")
+                        return@launch
+                    }
+
+                    val updatedSubjects = currentState.subjects.map { existingCourse ->
+                        if (existingCourse.id == mergedCourse.id) mergedCourse else existingCourse
+                    }.toMutableList()
+                    updateUiState(updatedSubjects, currentState.term, currentState.remark)
+                    _addCourseResponse.value = ApiResponse.Success(Unit)
+                    return@launch
+                }
+
                 val insertedId = withContext(Dispatchers.IO) {
-                    courseDao.insertCourse(course)
+                    courseDao.insertCourse(normalizedCourse)
                 }
 
                 if (insertedId == -1L) {
@@ -212,14 +242,12 @@ class TimeTableViewModel : ViewModel() {
                     return@launch
                 }
 
-                val insertedCourse = course.copy(id = insertedId.toInt())
-
-                val currentState = _uiState.value ?: TimeTableUiState()
+                val insertedCourse = normalizedCourse.copy(id = insertedId.toInt())
                 val updatedSubjects = currentState.subjects.toMutableList().apply {
                     add(insertedCourse)
                 }
 
-                updateUiState(updatedSubjects, currentState.term)
+                updateUiState(updatedSubjects, currentState.term, currentState.remark)
                 _addCourseResponse.value = ApiResponse.Success(Unit)
 
             } catch (e: Exception) {
@@ -227,6 +255,16 @@ class TimeTableViewModel : ViewModel() {
                 _addCourseResponse.value = ApiResponse.Error("添加课程失败: ${e.message}")
             }
         }
+    }
+
+    private fun TimeTableMySubject.matchesSchedule(other: TimeTableMySubject): Boolean {
+        return courseName == other.courseName &&
+            teacher == other.teacher &&
+            classroom == other.classroom &&
+            start == other.start &&
+            step == other.step &&
+            weekday == other.weekday &&
+            term == other.term
     }
 
     fun deleteCourse(courseId: Int, term: String) {

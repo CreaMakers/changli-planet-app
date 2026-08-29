@@ -29,11 +29,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,7 +57,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -63,10 +72,12 @@ import androidx.compose.ui.unit.sp
 import com.zhelearn.CSUSTPlanet.R
 import com.zhelearn.CSUSTPlanet.core.theme.AppSkinTheme
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
+import com.zhelearn.CSUSTPlanet.feature.timetable.data.local.TimeTableDisplaySettings
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlin.math.abs
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 internal val kCourseCardColors = listOf(
     Pair(Color(0xFFCDE8FF), Color(0xFF8EC9F5)),
@@ -91,25 +102,44 @@ private fun generatedCourseColorPair(index: Int): Pair<Color, Color> {
 }
 
 private fun buildUniqueCourseColorMap(courses: List<TimeTableCourseUi>): Map<String, Pair<Color, Color>> {
-    val titles = courses
-        .map { it.title.trim() }
-        .filter { it.isNotBlank() }
-        .distinct()
-        .sorted()
-
-    return titles.mapIndexed { index, title ->
-        val colors = if (index < kCourseCardColors.size) {
-            kCourseCardColors[index]
-        } else {
-            generatedCourseColorPair(index)
+    val titles = buildSet {
+        for (course in courses) {
+            val title = course.title.trim()
+            if (title.isNotBlank()) add(title)
         }
-        title to colors
-    }.toMap()
+    }.sorted()
+
+    return buildMap(titles.size) {
+        titles.forEachIndexed { index, title ->
+            val colors = if (index < kCourseCardColors.size) {
+                kCourseCardColors[index]
+            } else {
+                generatedCourseColorPair(index)
+            }
+            put(title, colors)
+        }
+    }
 }
 
 private const val TotalSections = 10
 private const val TotalColumns = 7
 private const val TotalWeeks = 20
+
+private fun courseWeekForDisplaySlot(
+    displayPageWeek: Int,
+    dayOfWeek: Int,
+    sundayFirst: Boolean,
+): Int {
+    return if (!sundayFirst && dayOfWeek == 7) displayPageWeek + 1 else displayPageWeek
+}
+
+private fun displayPageWeekForCourse(
+    courseWeek: Int,
+    dayOfWeek: Int,
+    sundayFirst: Boolean,
+): Int {
+    return if (!sundayFirst && dayOfWeek == 7) courseWeek - 1 else courseWeek
+}
 
 enum class WeekBadgeState {
     NotStarted,
@@ -137,19 +167,25 @@ fun TimeTableComposeScreen(
     termStarted: Boolean,
     courses: List<TimeTableCourseUi>,
     remark: List<String> = emptyList(),
+    displaySettings: TimeTableDisplaySettings,
     dateHeaderProvider: (Int) -> Pair<String, List<TimeTableDayHeaderUi>>,
     isRefreshing: Boolean,
     onRefreshClick: () -> Unit,
     onTermClick: () -> Unit,
     onWeekClick: () -> Unit,
     onWeekChange: (Int) -> Unit,
-    onEmptySlotClick: (dayOfWeek: Int, startSection: Int) -> Unit,
+    onDisplaySettingsChange: (TimeTableDisplaySettings) -> Unit,
+    onEmptySlotClick: (dayOfWeek: Int, startSection: Int, courseWeek: Int) -> Unit,
     onCourseClick: (TimeTableCourseUi) -> Unit,
     onOverlapCoursesClick: (List<TimeTableCourseUi>) -> Unit,
     onCourseLongClick: (TimeTableCourseUi) -> Unit,
 ) {
     val colors = AppTheme.colors
     val sizeSpec = remember { TimetableSizeSpec() }
+    val dayOrder = remember(displaySettings.sundayFirst) {
+        if (displaySettings.sundayFirst) listOf(7, 1, 2, 3, 4, 5, 6) else (1..7).toList()
+    }
+    val showSettingsDialog = remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(
         initialPage = (displayWeek - 1).coerceIn(0, TotalWeeks - 1),
         pageCount = { TotalWeeks },
@@ -166,9 +202,21 @@ fun TimeTableComposeScreen(
         }
     }
 
-    val coursesByWeek = remember(courses) {
-        (1..TotalWeeks).associateWith { week ->
-            courses.filter { week in it.weeks && it.sectionSpan > 0 && it.startSection > 0 }
+    val coursesByWeek = remember(courses, displaySettings.sundayFirst) {
+        List(TotalWeeks) { mutableListOf<TimeTableCourseUi>() }.also { weekBuckets ->
+            for (course in courses) {
+                if (course.sectionSpan <= 0 || course.startSection <= 0) continue
+                for (courseWeek in course.weeks) {
+                    val displayPageWeek = displayPageWeekForCourse(
+                        courseWeek = courseWeek,
+                        dayOfWeek = course.dayOfWeek,
+                        sundayFirst = displaySettings.sundayFirst,
+                    )
+                    if (displayPageWeek in 1..TotalWeeks) {
+                        weekBuckets[displayPageWeek - 1].add(course)
+                    }
+                }
+            }
         }
     }
 
@@ -210,6 +258,7 @@ fun TimeTableComposeScreen(
         TimeTableTopBar(
             isRefreshing = isRefreshing,
             onRefreshClick = onRefreshClick,
+            onSettingsClick = { showSettingsDialog.value = true },
         )
         TermWeekBar(
             remark = remark,
@@ -234,7 +283,7 @@ fun TimeTableComposeScreen(
             pageSpacing = 12.dp,
         ) { pageIndex ->
             val week = pageIndex + 1
-            val pageCourses = coursesByWeek[week].orEmpty()
+            val pageCourses = coursesByWeek[pageIndex]
             val pageOffset = ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
             val motion = (1f - pageOffset.coerceIn(0f, 1f))
             val cardScale = lerpFloat(0.93f, 1f, motion)
@@ -265,7 +314,18 @@ fun TimeTableComposeScreen(
                     cellHeight = sizeSpec.cellHeight,
                     scrollState = scrollState,
                     visibleCourses = pageCourses,
-                    onEmptySlotClick = onEmptySlotClick,
+                    dayOrder = dayOrder,
+                    courseFontScale = displaySettings.courseFontScale,
+                    onEmptySlotClick = { dayOfWeek, startSection ->
+                        val courseWeek = courseWeekForDisplaySlot(
+                            displayPageWeek = week,
+                            dayOfWeek = dayOfWeek,
+                            sundayFirst = displaySettings.sundayFirst,
+                        )
+                        if (courseWeek in 1..TotalWeeks) {
+                            onEmptySlotClick(dayOfWeek, startSection, courseWeek)
+                        }
+                    },
                     onCourseClick = onCourseClick,
                     onOverlapCoursesClick = onOverlapCoursesClick,
                     onCourseLongClick = onCourseLongClick,
@@ -273,12 +333,21 @@ fun TimeTableComposeScreen(
             }
         }
     }
+
+    if (showSettingsDialog.value) {
+        TimeTableSettingsDialog(
+            currentSettings = displaySettings,
+            onSave = onDisplaySettingsChange,
+            onDismiss = { showSettingsDialog.value = false },
+        )
+    }
 }
 
 @Composable
 private fun TimeTableTopBar(
     isRefreshing: Boolean,
     onRefreshClick: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     val colors = AppTheme.colors
     Row(
@@ -287,7 +356,7 @@ private fun TimeTableTopBar(
             .padding(top = 0.dp, start = 14.dp, end = 10.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Spacer(modifier = Modifier.width(40.dp))
+        Spacer(modifier = Modifier.width(96.dp))
         Text(
             text = "课程表",
             modifier = Modifier.weight(1f),
@@ -296,24 +365,259 @@ private fun TimeTableTopBar(
             fontSize = 23.sp,
             color = colors.titleTopColor,
         )
-        if (isRefreshing) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .width(24.dp)
-                    .height(24.dp),
-                strokeWidth = 2.dp,
-                color = colors.titleTopColor,
+        IconButton(onClick = onSettingsClick) {
+            Icon(
+                imageVector = Icons.Filled.Settings,
+                contentDescription = "课表设置",
+                tint = colors.titleTopColor,
             )
-        } else {
-            IconButton(onClick = onRefreshClick) {
-                Icon(
-                    painter = painterResource(id = R.drawable.coursetable_ic_refresh),
-                    contentDescription = "刷新",
-                    tint = colors.titleTopColor,
+        }
+        Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+            if (isRefreshing) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp,
+                    color = colors.titleTopColor,
                 )
+            } else {
+                IconButton(onClick = onRefreshClick) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.coursetable_ic_refresh),
+                        contentDescription = "刷新",
+                        tint = colors.titleTopColor,
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+private fun TimeTableSettingsDialog(
+    currentSettings: TimeTableDisplaySettings,
+    onSave: (TimeTableDisplaySettings) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val colors = AppTheme.colors
+    val hapticFeedback = LocalHapticFeedback.current
+    val pendingSettings = remember(currentSettings) { mutableStateOf(currentSettings) }
+    val fontScalePercent = (pendingSettings.value.courseFontScale * 100).roundToInt()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = {
+                    onSave(pendingSettings.value)
+                    onDismiss()
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colors.commonColor,
+                    contentColor = Color.White,
+                ),
+            ) {
+                Text(text = "保存", fontWeight = FontWeight.SemiBold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = "取消", color = colors.secondaryTextColor)
+            }
+        },
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Surface(
+                    modifier = Modifier.size(38.dp),
+                    shape = CircleShape,
+                    color = colors.commonColor.copy(alpha = 0.12f),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = null,
+                            tint = colors.commonColor,
+                            modifier = Modifier.size(21.dp),
+                        )
+                    }
+                }
+                Column {
+                    Text(
+                        text = "课表设置",
+                        color = colors.primaryTextColor,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "按照你的习惯调整显示",
+                        color = colors.secondaryTextColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Normal,
+                    )
+                }
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = colors.outlineLowContrastColor.copy(alpha = 0.7f),
+                            shape = RoundedCornerShape(16.dp),
+                        ),
+                    shape = RoundedCornerShape(16.dp),
+                    color = colors.commonColor.copy(alpha = 0.06f),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "周日显示在第一列",
+                                color = colors.primaryTextColor,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = "开启后按周日、周一…周六排列",
+                                color = colors.secondaryTextColor,
+                                fontSize = 12.sp,
+                            )
+                        }
+                        Switch(
+                            checked = pendingSettings.value.sundayFirst,
+                            onCheckedChange = { sundayFirst ->
+                                pendingSettings.value = pendingSettings.value.copy(sundayFirst = sundayFirst)
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                checkedTrackColor = colors.commonColor,
+                                checkedBorderColor = colors.commonColor,
+                                uncheckedThumbColor = colors.secondaryTextColor,
+                                uncheckedTrackColor = colors.bgCardColor,
+                                uncheckedBorderColor = colors.outlineLowContrastColor,
+                            ),
+                        )
+                    }
+                }
+
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = colors.outlineLowContrastColor.copy(alpha = 0.7f),
+                            shape = RoundedCornerShape(16.dp),
+                        ),
+                    shape = RoundedCornerShape(16.dp),
+                    color = colors.commonColor.copy(alpha = 0.06f),
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = "课程字体大小",
+                                color = colors.primaryTextColor,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Surface(
+                                shape = CircleShape,
+                                color = colors.commonColor.copy(alpha = 0.13f),
+                            ) {
+                                Text(
+                                    text = "$fontScalePercent%",
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    color = colors.commonColor,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                        }
+                        Slider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(28.dp),
+                            value = pendingSettings.value.courseFontScale,
+                            onValueChange = { fontScale ->
+                                val snappedFontScale = TimeTableDisplaySettings.snapCourseFontScale(fontScale)
+                                if (snappedFontScale != pendingSettings.value.courseFontScale) {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    pendingSettings.value = pendingSettings.value.copy(
+                                        courseFontScale = snappedFontScale,
+                                    )
+                                }
+                            },
+                            valueRange = TimeTableDisplaySettings.MIN_COURSE_FONT_SCALE..
+                                TimeTableDisplaySettings.MAX_COURSE_FONT_SCALE,
+                            steps = 3,
+                            colors = SliderDefaults.colors(
+                                thumbColor = colors.commonColor,
+                                activeTrackColor = colors.commonColor,
+                                activeTickColor = Color.White,
+                                inactiveTrackColor = colors.outlineLowContrastColor.copy(alpha = 0.65f),
+                                inactiveTickColor = colors.commonColor.copy(alpha = 0.5f),
+                            ),
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(text = "小", color = colors.secondaryTextColor, fontSize = 11.sp)
+                            Text(text = "标准", color = colors.secondaryTextColor, fontSize = 11.sp)
+                            Text(text = "大", color = colors.secondaryTextColor, fontSize = 11.sp)
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(64.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(
+                                    Brush.horizontalGradient(
+                                        listOf(
+                                            colors.commonColor.copy(alpha = 0.13f),
+                                            colors.outlineLowContrastColor.copy(alpha = 0.42f),
+                                        )
+                                    )
+                                )
+                                .padding(horizontal = 12.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "高等数学",
+                                    color = colors.primaryTextColor,
+                                    fontSize = (11f * pendingSettings.value.courseFontScale).sp,
+                                    lineHeight = (13f * pendingSettings.value.courseFontScale).sp,
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                Text(
+                                    text = "明理楼 A201",
+                                    color = colors.secondaryTextColor,
+                                    fontSize = (9f * pendingSettings.value.courseFontScale).sp,
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        shape = RoundedCornerShape(24.dp),
+        containerColor = colors.bgCardColor,
+        titleContentColor = colors.primaryTextColor,
+        textContentColor = colors.secondaryTextColor,
+    )
 }
 
 @Composable
@@ -550,6 +854,8 @@ private fun TimeTableGrid(
     cellHeight: Dp,
     scrollState: androidx.compose.foundation.ScrollState,
     visibleCourses: List<TimeTableCourseUi>,
+    dayOrder: List<Int>,
+    courseFontScale: Float,
     onEmptySlotClick: (dayOfWeek: Int, startSection: Int) -> Unit,
     onCourseClick: (TimeTableCourseUi) -> Unit,
     onOverlapCoursesClick: (List<TimeTableCourseUi>) -> Unit,
@@ -559,6 +865,13 @@ private fun TimeTableGrid(
     val totalHeight = cellHeight * TotalSections
     val courseColorMap = remember(visibleCourses) {
         buildUniqueCourseColorMap(visibleCourses)
+    }
+    val displayColumnByDay = remember(dayOrder) {
+        IntArray(TotalColumns + 1).apply {
+            dayOrder.forEachIndexed { columnIndex, dayOfWeek ->
+                this[dayOfWeek] = columnIndex
+            }
+        }
     }
     val cellCoursesMap = remember(visibleCourses) {
         val result = mutableMapOf<Pair<Int, Int>, MutableList<TimeTableCourseUi>>()
@@ -630,6 +943,7 @@ private fun TimeTableGrid(
                 repeat(TotalSections) { section ->
                     Row(modifier = Modifier.fillMaxWidth()) {
                         repeat(TotalColumns) { day ->
+                            val dayOfWeek = dayOrder[day]
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
@@ -637,16 +951,16 @@ private fun TimeTableGrid(
                                     .combinedClickable(
                                         onClick = {
                                             val hitCourses =
-                                                cellCoursesMap[day + 1 to section + 1].orEmpty()
+                                                cellCoursesMap[dayOfWeek to section + 1].orEmpty()
                                             when (hitCourses.size) {
-                                                0 -> onEmptySlotClick(day + 1, section + 1)
+                                                0 -> onEmptySlotClick(dayOfWeek, section + 1)
                                                 1 -> onCourseClick(hitCourses.first())
                                                 else -> onOverlapCoursesClick(hitCourses)
                                             }
                                         },
                                         onLongClick = {
                                             val hitCourses =
-                                                cellCoursesMap[day + 1 to section + 1].orEmpty()
+                                                cellCoursesMap[dayOfWeek to section + 1].orEmpty()
                                             if (hitCourses.isNotEmpty()) {
                                                 onCourseLongClick(hitCourses.first())
                                             }
@@ -659,13 +973,14 @@ private fun TimeTableGrid(
             }
 
             visibleCourses.forEach { course ->
-                val x = columnWidth * (course.dayOfWeek - 1)
+                val x = columnWidth * displayColumnByDay[course.dayOfWeek]
                 val y = cellHeight * (course.startSection - 1)
                 val cardHeight = cellHeight * course.sectionSpan
 
                 TimeTableCourseCard(
                     course = course,
                     courseColors = courseColorMap[course.title] ?: courseCardColorPair(course.title),
+                    fontScale = courseFontScale,
                     modifier = Modifier
                         .offset { IntOffset(x.roundToPx(), y.roundToPx()) }
                         .width(columnWidth)
@@ -692,6 +1007,7 @@ private fun TimeTableGrid(
 private fun TimeTableCourseCard(
     course: TimeTableCourseUi,
     courseColors: Pair<Color, Color>,
+    fontScale: Float,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
@@ -718,9 +1034,9 @@ private fun TimeTableCourseCard(
                 text = course.title,
                 color = kCourseCardTextColor,
                 fontWeight = FontWeight.Bold,
-                fontSize = 11.sp,
+                fontSize = (11f * fontScale).sp,
                 maxLines = 3,
-                lineHeight = 12.sp,
+                lineHeight = (12f * fontScale).sp,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -731,8 +1047,8 @@ private fun TimeTableCourseCard(
                 Text(
                     text = course.room,
                     color = kCourseCardTextColor.copy(alpha = 0.9f),
-                    fontSize = 10.sp,
-                    lineHeight = 11.sp,
+                    fontSize = (10f * fontScale).sp,
+                    lineHeight = (11f * fontScale).sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -743,7 +1059,7 @@ private fun TimeTableCourseCard(
                 Text(
                     text = course.teacher,
                     color = kCourseCardTextColor.copy(alpha = 0.72f),
-                    fontSize = 9.sp,
+                    fontSize = (9f * fontScale).sp,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
@@ -799,6 +1115,7 @@ private fun TimeTableScreenPreview() {
             currentWeek = 5,
             termStarted = true,
             isRefreshing = false,
+            displaySettings = TimeTableDisplaySettings(),
             courses = listOf(
                 TimeTableCourseUi(1, "高等数学", "张老师", "明理楼A201", 1, 1, 2, setOf(1, 2, 3, 4, 5), false),
                 TimeTableCourseUi(2, "数据结构", "李老师", "综合楼C305", 3, 5, 2, setOf(5, 6, 7), true),
@@ -819,7 +1136,8 @@ private fun TimeTableScreenPreview() {
             onTermClick = {},
             onWeekClick = {},
             onWeekChange = {},
-            onEmptySlotClick = { _, _ -> },
+            onDisplaySettingsChange = {},
+            onEmptySlotClick = { _, _, _ -> },
             onCourseClick = {},
             onOverlapCoursesClick = {},
             onCourseLongClick = {},

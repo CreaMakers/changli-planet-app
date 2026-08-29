@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.entity.TimeTableMySubject
 import io.reactivex.rxjava3.core.Single
 
@@ -27,6 +28,9 @@ interface CourseDao {
 
     @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)
     fun insertCourses(subjects: MutableList<TimeTableMySubject>): List<Long>
+
+    @Update
+    fun updateCourses(subjects: List<TimeTableMySubject>): Int
 
     @Query("DELETE FROM courses")
     fun clearAllCourses()

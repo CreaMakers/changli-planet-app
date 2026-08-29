@@ -25,6 +25,11 @@ import kotlinx.coroutines.launch
  * 在课表中添加自定义课程类
  */
 class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding>() {
+    companion object {
+        const val EXTRA_NEW_COURSE = "newCourse"
+        const val EXTRA_SELECTED_WEEKS = "selectedWeeks"
+    }
+
     lateinit var coursesDataBase: CoursesDataBase
     private val gson by lazy { Gson() }
     private val courseName by lazy { binding.customCourseName }
@@ -153,7 +158,8 @@ class AddCourseActivity : FullScreenActivity<ActivityAddCourseInTimetableBinding
 
             mySubject.weeks = selectedWeeks.toList().sorted()
             val intent = Intent().apply {
-                putExtra("newCourse", gson.toJson(mySubject))
+                putExtra(EXTRA_NEW_COURSE, gson.toJson(mySubject))
+                putExtra(EXTRA_SELECTED_WEEKS, selectedWeeks.toIntArray())
             }
             setResult(RESULT_OK, intent)
             finish()

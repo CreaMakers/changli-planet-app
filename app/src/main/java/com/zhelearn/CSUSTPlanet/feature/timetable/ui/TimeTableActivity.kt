@@ -65,6 +65,7 @@ import com.zhelearn.CSUSTPlanet.core.theme.AppSkinTheme
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.entity.TimeTableMySubject
 import com.zhelearn.CSUSTPlanet.feature.ledger.ui.AddCourseActivity
+import com.zhelearn.CSUSTPlanet.feature.timetable.data.local.TimeTableSettingsStore
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.compose.TimeTableComposeScreen
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.compose.TimeTableCourseUi
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.compose.TimeTableDayHeaderUi
@@ -76,6 +77,7 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 
 class TimeTableActivity : AppCompatActivity() {
@@ -93,15 +95,29 @@ class TimeTableActivity : AppCompatActivity() {
     private var detailCourse by mutableStateOf<TimeTableCourseUi?>(null)
     private var overlapCourses by mutableStateOf<List<TimeTableCourseUi>>(emptyList())
     private var pendingDeleteCourse by mutableStateOf<TimeTableCourseUi?>(null)
+    private var displaySettings by mutableStateOf(TimeTableSettingsStore.load())
 
     private val addCourseLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            val courseJson = result.data?.getStringExtra("newCourse")
+            val courseJson = result.data?.getStringExtra(AddCourseActivity.EXTRA_NEW_COURSE)
             courseJson?.let {
-                val course = runCatching {
+                val parsedCourse = runCatching {
                     Gson().fromJson(it, TimeTableMySubject::class.java)
                 }.getOrNull()
-                if (course != null) {
+                if (parsedCourse != null) {
+                    val selectedWeekArray: IntArray = result.data
+                        ?.getIntArrayExtra(AddCourseActivity.EXTRA_SELECTED_WEEKS)
+                        ?: intArrayOf()
+                    val selectedWeeks = buildSet<Int> {
+                        for (week in selectedWeekArray) {
+                            if (week in 1..20) add(week)
+                        }
+                    }.sorted()
+                    val course = if (selectedWeeks.isNotEmpty()) {
+                        parsedCourse.copy(weeks = selectedWeeks)
+                    } else {
+                        parsedCourse
+                    }
                     viewModel.addCourse(course)
                 }
             }
@@ -134,7 +150,14 @@ class TimeTableActivity : AppCompatActivity() {
         }
 
         val currentTerm = viewModel.getCurrentTerm()
-        val currentWeek = viewModel.getCurWeek(currentTerm)
+        val initialAnchorStartDate = CommonInfo.getTermStartDate(currentTerm)?.let {
+            runCatching { LocalDate.parse(it.substring(0, 10)) }.getOrNull()
+        }
+        val currentWeek = getCurrentDisplayWeek(
+            term = currentTerm,
+            anchorStartDate = initialAnchorStartDate,
+            sundayFirst = displaySettings.sundayFirst,
+        )
         viewModel.selectWeek("第${currentWeek}周")
         viewModel.selectTerm(currentTerm)
 
@@ -154,8 +177,17 @@ class TimeTableActivity : AppCompatActivity() {
         val displayWeek = extractWeekNumber(state.weekInfo)
         val term = state.term.ifBlank { viewModel.getCurrentTerm() }
         val termStartDate by viewModel.termStartDate.collectAsState()
-        val currentWeek = remember(term, termStartDate) { viewModel.getCurWeek(term) }
-        val termStarted = remember(term, termStartDate) { viewModel.hasTermStarted(term) }
+        val anchorStartDate = remember(termStartDate) {
+            termStartDate?.let {
+                runCatching { LocalDate.parse(it.substring(0, 10)) }.getOrNull()
+            }
+        }
+        val currentWeek = remember(term, anchorStartDate, displaySettings.sundayFirst) {
+            getCurrentDisplayWeek(term, anchorStartDate, displaySettings.sundayFirst)
+        }
+        val termStarted = remember(term, anchorStartDate, displaySettings.sundayFirst) {
+            hasDisplayTermStarted(term, anchorStartDate, displaySettings.sundayFirst)
+        }
         val courses = remember(state.subjects) {
             state.subjects.map { it.toComposeUi() }
         }
@@ -178,12 +210,12 @@ class TimeTableActivity : AppCompatActivity() {
             termStarted = termStarted,
             courses = courses,
             remark = state.remark,
-            dateHeaderProvider = remember(term, termStartDate) {
-    { week ->
-        val anchor = termStartDate?.let { runCatching { LocalDate.parse(it.substring(0, 10)) }.getOrNull() }
-        buildDayHeaders(term, week, anchor)
-    }
-},
+            displaySettings = displaySettings,
+            dateHeaderProvider = remember(term, anchorStartDate, displaySettings.sundayFirst) {
+                { week ->
+                    buildDayHeaders(term, week, anchorStartDate, displaySettings.sundayFirst)
+                }
+            },
             isRefreshing = isRefreshing,
             onRefreshClick = {
                 viewModel.loadCourses(term, forceRefresh = true)
@@ -193,8 +225,11 @@ class TimeTableActivity : AppCompatActivity() {
             onWeekChange = { week ->
                 viewModel.selectWeek("第${week.coerceIn(1, 20)}周")
             },
-            onEmptySlotClick = { day, startSection ->
-                launchAddCourse(day, startSection, displayWeek, term)
+            onDisplaySettingsChange = { settings ->
+                displaySettings = TimeTableSettingsStore.save(settings)
+            },
+            onEmptySlotClick = { day, startSection, courseWeek ->
+                launchAddCourse(day, startSection, courseWeek, term)
             },
             onCourseClick = {
                 overlapCourses = emptyList()
@@ -468,40 +503,83 @@ class TimeTableActivity : AppCompatActivity() {
     private fun buildDayHeaders(
         term: String,
         targetWeek: Int,
-        anchorStartDate: LocalDate?
+        anchorStartDate: LocalDate?,
+        sundayFirst: Boolean,
     ): Pair<String, List<TimeTableDayHeaderUi>> {
         val zoneId = ZoneId.of("Asia/Shanghai")
         val today = LocalDate.now(zoneId)
-        val startOfCurrentWeek = today.minusDays((today.dayOfWeek.value - 1).toLong())
-
-        val weekStartDate = if (anchorStartDate != null) {
-            anchorStartDate.plusWeeks((targetWeek - 1).toLong())
+        val daysFromWeekStart = if (sundayFirst) {
+            today.dayOfWeek.value % 7
         } else {
-            val currentWeek = viewModel.getCurWeek(term)
-            startOfCurrentWeek.plusWeeks((targetWeek - currentWeek).toLong())
+            today.dayOfWeek.value - 1
+        }
+        val currentDisplayWeekStart = today.minusDays(daysFromWeekStart.toLong())
+
+        val displayWeekStart = if (anchorStartDate != null) {
+            val firstDisplayWeekStart = if (sundayFirst) {
+                anchorStartDate.minusDays((anchorStartDate.dayOfWeek.value % 7).toLong())
+            } else {
+                anchorStartDate
+            }
+            firstDisplayWeekStart.plusWeeks((targetWeek - 1).toLong())
+        } else {
+            val currentWeek = getCurrentDisplayWeek(term, null, sundayFirst)
+            currentDisplayWeekStart.plusWeeks((targetWeek - currentWeek).toLong())
         }
 
-        val weekEndDate = weekStartDate.plusDays(6)
-        val monthText = if (weekStartDate.monthValue != weekEndDate.monthValue) {
-            "${weekStartDate.monthValue}月/${weekEndDate.monthValue}月"
+        val displayWeekEnd = displayWeekStart.plusDays(6)
+        val monthText = if (displayWeekStart.monthValue != displayWeekEnd.monthValue) {
+            "${displayWeekStart.monthValue}月/${displayWeekEnd.monthValue}月"
         } else {
-            "${weekStartDate.monthValue}月"
+            "${displayWeekStart.monthValue}月"
         }
-        val labels = listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
-        val headers = mutableListOf<TimeTableDayHeaderUi>()
-
-        repeat(7) { index ->
-            val currentDate = weekStartDate.plusDays(index.toLong())
-            val isToday = currentDate == today
-
-            headers += TimeTableDayHeaderUi(
+        val labels = if (sundayFirst) {
+            listOf("周日", "周一", "周二", "周三", "周四", "周五", "周六")
+        } else {
+            listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
+        }
+        val headers = List(7) { index ->
+            val currentDate = displayWeekStart.plusDays(index.toLong())
+            TimeTableDayHeaderUi(
                 weekdayLabel = labels[index],
                 dayOfMonthLabel = "${currentDate.dayOfMonth}日",
-                isToday = isToday,
+                isToday = currentDate == today,
             )
         }
 
         return monthText to headers
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getCurrentDisplayWeek(
+        term: String,
+        anchorStartDate: LocalDate?,
+        sundayFirst: Boolean,
+    ): Int {
+        if (!sundayFirst) return viewModel.getCurWeek(term)
+
+        val today = LocalDate.now(ZoneId.of("Asia/Shanghai"))
+        if (anchorStartDate == null) {
+            val weekOffset = if (today.dayOfWeek.value == 7 && viewModel.hasTermStarted(term)) 1 else 0
+            return (viewModel.getCurWeek(term) + weekOffset).coerceIn(1, 20)
+        }
+
+        val firstWeekSunday = anchorStartDate.minusDays((anchorStartDate.dayOfWeek.value % 7).toLong())
+        val elapsedDays = ChronoUnit.DAYS.between(firstWeekSunday, today)
+        if (elapsedDays < 0) return 1
+        return (elapsedDays / 7 + 1).toInt().coerceIn(1, 20)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun hasDisplayTermStarted(
+        term: String,
+        anchorStartDate: LocalDate?,
+        sundayFirst: Boolean,
+    ): Boolean {
+        if (!sundayFirst || anchorStartDate == null) return viewModel.hasTermStarted(term)
+
+        val firstWeekSunday = anchorStartDate.minusDays((anchorStartDate.dayOfWeek.value % 7).toLong())
+        return !LocalDate.now(ZoneId.of("Asia/Shanghai")).isBefore(firstWeekSunday)
     }
 
     private fun TimeTableMySubject.toComposeUi(): TimeTableCourseUi {
