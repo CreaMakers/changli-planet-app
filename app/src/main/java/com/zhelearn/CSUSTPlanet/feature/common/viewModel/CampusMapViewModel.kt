@@ -31,7 +31,7 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
      * UI 单一数据源。
      *
      * @param allBuildings 两校全量建筑
-     * @param selectedCampus 当前校区筛选：null 表示两校都显示
+     * @param selectedCampus 当前校区，只允许金盆岭或云塘
      * @param selectedCategory 当前分类筛选：null 表示全部
      * @param searchText 搜索关键字
      * @param selectedBuildingId 当前选中的建筑 [CampusMapFeature.stableId]
@@ -42,7 +42,7 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
     data class UiState(
         val allBuildings: List<CampusMapFeature> = emptyList(),
         val allRoads: List<CampusMapRoad> = emptyList(),
-        val selectedCampus: Campus? = null,
+        val selectedCampus: Campus = Campus.JINPENLING,
         val selectedCategory: String? = null,
         val searchText: String = "",
         val selectedBuildingId: String? = null,
@@ -59,9 +59,7 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
         val token: Long = System.nanoTime()
     )
 
-    private val _uiState = MutableStateFlow(
-        UiState(selectedCampus = Campus.JINPENLING)
-    )
+    private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     /** 过滤后的建筑列表：基于 uiState 派生，避免每次 recomposition 重算 124 条数据。 */
@@ -72,9 +70,7 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
                 for (building in s.allBuildings) {
                     // 未命名 OSM 要素只补足地图轮廓，不进入搜索、列表和点击选择。
                     if (building.properties.name.isBlank()) continue
-                    if (s.selectedCampus != null &&
-                        building.properties.campus != s.selectedCampus.rawName
-                    ) {
+                    if (building.properties.campus != s.selectedCampus.rawName) {
                         continue
                     }
                     if (s.selectedCategory != null &&
@@ -94,9 +90,7 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
         .map { s ->
             val uniq = linkedSetOf<String>()
             for (building in s.allBuildings) {
-                if (s.selectedCampus != null &&
-                    building.properties.campus != s.selectedCampus.rawName
-                ) {
+                if (building.properties.campus != s.selectedCampus.rawName) {
                     continue
                 }
                 if (building.properties.name.isNotBlank()) uniq += building.properties.category
@@ -160,7 +154,7 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
 
     // ------- 用户操作 -------
 
-    fun onCampusSelected(campus: Campus?) {
+    fun onCampusSelected(campus: Campus) {
         if (_uiState.value.selectedCampus == campus) return
         _uiState.update {
             it.copy(
@@ -211,11 +205,11 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun centerOnCurrentCampus() {
         val cur = _uiState.value
-        val target = if (cur.selectedCampus != null) {
-            CameraTarget(cur.selectedCampus.centerLat, cur.selectedCampus.centerLon, 0.009)
-        } else {
-            CameraTarget(Campus.JINPENLING.centerLat, Campus.JINPENLING.centerLon, 0.02)
-        }
+        val target = CameraTarget(
+            cur.selectedCampus.centerLat,
+            cur.selectedCampus.centerLon,
+            0.009,
+        )
         _uiState.update { it.copy(cameraTarget = target) }
     }
 

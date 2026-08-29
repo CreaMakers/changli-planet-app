@@ -223,9 +223,9 @@ private const val DEBUG_MAP_ZOOM_EXTRA = "debug_map_zoom"
 
 @Composable
 private fun TopBar(
-    selectedCampus: Campus?,
+    selectedCampus: Campus,
     onBack: () -> Unit,
-    onCampusSelected: (Campus?) -> Unit,
+    onCampusSelected: (Campus) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = AppTheme.colors
@@ -257,7 +257,6 @@ private fun TopBar(
                 .padding(horizontal = 4.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            CampusChip(label = "全部", selected = selectedCampus == null) { onCampusSelected(null) }
             CampusChip(label = "金盆岭", selected = selectedCampus == Campus.JINPENLING) {
                 onCampusSelected(Campus.JINPENLING)
             }

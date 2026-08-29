@@ -6,16 +6,20 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +39,7 @@ import androidx.compose.ui.graphics.MeshGradientPainter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
@@ -43,15 +48,19 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.withTransform
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.zhelearn.CSUSTPlanet.feature.common.data.remote.dto.CampusMapFeature
 import com.zhelearn.CSUSTPlanet.feature.common.data.remote.dto.CampusMapRoad
 import com.zhelearn.CSUSTPlanet.feature.common.viewModel.CampusMapViewModel
@@ -59,6 +68,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -74,7 +84,7 @@ fun IllustratedCampusMap(
     allBuildings: List<CampusMapFeature>,
     allRoads: List<CampusMapRoad>,
     interactiveBuildingIds: Set<String>,
-    selectedCampus: Campus?,
+    selectedCampus: Campus,
     selectedCategory: String?,
     searchText: String,
     selectedBuildingId: String?,
@@ -85,16 +95,12 @@ fun IllustratedCampusMap(
     modifier: Modifier = Modifier,
 ) {
     val campusBuildings = remember(allBuildings, selectedCampus) {
-        selectedCampus?.let { campus ->
-            allBuildings.filter { it.properties.campus == campus.rawName }
-        } ?: allBuildings
+        allBuildings.filter { it.properties.campus == selectedCampus.rawName }
     }
     val isDarkTheme = isSystemInDarkTheme()
     val palette = remember(isDarkTheme) { CampusMapPalette(isDarkTheme) }
     val campusRoads = remember(allRoads, selectedCampus) {
-        selectedCampus?.let { campus ->
-            allRoads.filter { it.properties.campus == campus.rawName }
-        } ?: allRoads
+        allRoads.filter { it.properties.campus == selectedCampus.rawName }
     }
     val scene = remember(campusBuildings, campusRoads, palette) {
         buildCampusCanvasScene(campusBuildings, campusRoads, palette)
@@ -107,22 +113,15 @@ fun IllustratedCampusMap(
             setVertex(1, 1, Offset(1f, 1f), palette.backgroundBottomRight)
         }
     }
-    val density = LocalDensity.current
-    val labelPaint = remember(density) {
-        AndroidPaint(AndroidPaint.ANTI_ALIAS_FLAG).apply {
-            textAlign = AndroidPaint.Align.CENTER
-            typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-            textSize = with(density) { 11.sp.toPx() }
-        }
-    }
-
     var viewportSize by remember { mutableStateOf(IntSize.Zero) }
-    val zoomState = remember { mutableFloatStateOf(initialZoom.coerceIn(MIN_ZOOM, MAX_ZOOM)) }
+    val startingZoom = initialZoom.coerceIn(MIN_ZOOM, MAX_ZOOM)
+    val zoomState = remember { mutableFloatStateOf(startingZoom) }
     val panState = remember { mutableStateOf(Offset.Zero) }
     val currentOnBuildingSelected by rememberUpdatedState(onBuildingSelected)
 
     LaunchedEffect(selectedCampus, initialZoom) {
-        zoomState.floatValue = initialZoom.coerceIn(MIN_ZOOM, MAX_ZOOM)
+        val resetZoom = initialZoom.coerceIn(MIN_ZOOM, MAX_ZOOM)
+        zoomState.floatValue = resetZoom
         panState.value = Offset.Zero
     }
 
@@ -137,13 +136,14 @@ fun IllustratedCampusMap(
         val desiredScale = min(viewport.width, viewport.height) / (targetSpanMeters * 1.12f)
         val targetZoom = (desiredScale / baseScale).coerceIn(MIN_ZOOM, MAX_ZOOM)
 
-        zoomState.floatValue = targetZoom
-        panState.value = clampCampusPan(
+        val targetPan = clampCampusPan(
             proposedPan = (scene.cameraBounds.center - targetWorld) * (baseScale * targetZoom),
             zoom = targetZoom,
             viewport = viewport,
             worldBounds = scene.cameraBounds,
         )
+        zoomState.floatValue = targetZoom
+        panState.value = targetPan
         onCameraTargetConsumed()
     }
 
@@ -204,12 +204,13 @@ fun IllustratedCampusMap(
                     val proposedPan = centroidFromCenter -
                         (centroidFromCenter - previousPan) * zoomRatio +
                         panChange
-                    panState.value = clampCampusPan(
+                    val nextPan = clampCampusPan(
                         proposedPan = proposedPan,
                         zoom = nextZoom,
                         viewport = viewport,
                         worldBounds = scene.cameraBounds,
                     )
+                    panState.value = nextPan
                     zoomState.floatValue = nextZoom
                 }
             },
@@ -272,23 +273,14 @@ fun IllustratedCampusMap(
                     )
                 }
             }
-        }
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            if (scene.features.isEmpty()) return@Canvas
-            val camera = CampusCanvasCamera(
-                viewport = size,
-                worldBounds = scene.cameraBounds,
-                zoom = zoomState.floatValue,
-                pan = panState.value,
-            )
-            drawCampusLabels(
+            CampusMapLabelLayer(
                 scene = scene,
-                camera = camera,
+                viewportSize = viewportSize,
                 interactiveBuildingIds = interactiveBuildingIds,
                 selectedBuildingId = selectedBuildingId,
                 filterActive = filterActive,
                 searchActive = searchActive,
-                labelPaint = labelPaint,
+                currentZoom = { zoomState.floatValue },
                 palette = palette,
             )
         }
@@ -688,157 +680,238 @@ private fun DrawScope.drawCampusFeatureOutline(
     )
 }
 
-private fun DrawScope.drawCampusLabels(
+@Composable
+private fun CampusMapLabelLayer(
     scene: CampusCanvasScene,
-    camera: CampusCanvasCamera,
+    viewportSize: IntSize,
     interactiveBuildingIds: Set<String>,
     selectedBuildingId: String?,
     filterActive: Boolean,
     searchActive: Boolean,
-    labelPaint: AndroidPaint,
+    currentZoom: () -> Float,
     palette: CampusMapPalette,
 ) {
-    val occupiedLabels = mutableListOf<Rect>()
-    scene.features.firstOrNull { feature ->
-        feature.id == selectedBuildingId && feature.id in interactiveBuildingIds
-    }?.let { selected ->
-        drawCampusFeatureLabel(
-            feature = selected,
-            camera = camera,
-            selected = true,
-            searchMatch = false,
-            occupiedLabels = occupiedLabels,
-            labelPaint = labelPaint,
-            palette = palette,
+    if (viewportSize == IntSize.Zero || scene.labelFeatures.isEmpty()) return
+    val density = LocalDensity.current
+    val placements = remember(
+        scene.key,
+        viewportSize,
+        interactiveBuildingIds,
+        selectedBuildingId,
+        filterActive,
+        searchActive,
+        density.density,
+        density.fontScale,
+    ) {
+        buildCampusLabelPlacements(
+            scene = scene,
+            viewportSize = viewportSize,
+            interactiveBuildingIds = interactiveBuildingIds,
+            selectedBuildingId = selectedBuildingId,
+            filterActive = filterActive,
+            searchActive = searchActive,
+            density = density,
+        )
+    }
+    val emphasizedShape = RoundedCornerShape(5.dp)
+
+    Layout(
+        modifier = Modifier.fillMaxSize(),
+        content = {
+            for (placement in placements) {
+                key(placement.feature.id) {
+                    val emphasized = placement.selected || placement.searchMatch
+                    val emphasisColor = if (placement.selected) {
+                        palette.selection.copy(alpha = 0.64f)
+                    } else {
+                        palette.search.copy(alpha = 0.58f)
+                    }
+                    Text(
+                        text = placement.feature.name,
+                        color = palette.labelInk,
+                        fontSize = placement.fontSizeSp.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Visible,
+                        style = TextStyle(
+                            shadow = if (emphasized) null else Shadow(
+                                color = palette.labelHalo,
+                                offset = Offset.Zero,
+                                blurRadius = 3f,
+                            ),
+                        ),
+                        modifier = Modifier
+                            .zIndex(
+                                when {
+                                    placement.selected -> 2f
+                                    placement.searchMatch -> 1f
+                                    else -> 0f
+                                },
+                            )
+                            .graphicsLayer {
+                                val zoom = currentZoom().coerceIn(MIN_ZOOM, MAX_ZOOM)
+                                val compensatedZoom = 1f +
+                                    (zoom - 1f) * LABEL_SCALE_COMPENSATION_STRENGTH
+                                val labelScale = 1f / compensatedZoom
+                                scaleX = labelScale
+                                scaleY = labelScale
+                                alpha = if (zoom >= placement.minimumZoom) 1f else 0f
+                                transformOrigin = TransformOrigin.Center
+                            }
+                            .then(
+                                if (emphasized) {
+                                    Modifier
+                                        .background(
+                                            color = if (placement.selected) {
+                                                palette.selectedLabel
+                                            } else {
+                                                palette.searchLabel
+                                            },
+                                            shape = emphasizedShape,
+                                        )
+                                        .border(
+                                            width = 0.7.dp,
+                                            color = emphasisColor,
+                                            shape = emphasizedShape,
+                                        )
+                                        .padding(horizontal = 4.dp, vertical = 1.5.dp)
+                                } else {
+                                    Modifier.padding(horizontal = 1.dp, vertical = 0.5.dp)
+                                },
+                            ),
+                    )
+                }
+            }
+        },
+    ) { measurables, constraints ->
+        val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val placeables = measurables.map { it.measure(childConstraints) }
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeables.forEachIndexed { index, placeable ->
+                val anchor = placements[index].anchor
+                placeable.placeRelative(
+                    x = (anchor.x - placeable.width / 2f).roundToInt(),
+                    y = (anchor.y - placeable.height / 2f).roundToInt(),
+                )
+            }
+        }
+    }
+}
+
+private fun buildCampusLabelPlacements(
+    scene: CampusCanvasScene,
+    viewportSize: IntSize,
+    interactiveBuildingIds: Set<String>,
+    selectedBuildingId: String?,
+    filterActive: Boolean,
+    searchActive: Boolean,
+    density: Density,
+): List<CampusLabelPlacement> {
+    val viewport = Size(viewportSize.width.toFloat(), viewportSize.height.toFloat())
+    val camera = CampusCanvasCamera(
+        viewport = viewport,
+        worldBounds = scene.cameraBounds,
+        zoom = 1f,
+        pan = Offset.Zero,
+    )
+    val labelPaint = AndroidPaint(AndroidPaint.ANTI_ALIAS_FLAG).apply {
+        typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+    }
+    val occupiedBoundsByZoom = LABEL_ZOOM_LEVELS.map { mutableListOf<Rect>() }
+    val placements = ArrayList<CampusLabelPlacement>(scene.labelFeatures.size)
+    val viewportCenter = Offset(viewport.width / 2f, viewport.height / 2f)
+
+    fun addPlacement(
+        feature: ProjectedCampusFeature,
+        selected: Boolean,
+        searchMatch: Boolean,
+    ) {
+        val fontSizeSp = labelFontSizeSp(feature, selected, searchMatch)
+        labelPaint.textSize = with(density) { fontSizeSp.sp.toPx() }
+        val horizontalPadding = with(density) {
+            (if (selected || searchMatch) 5.dp else 2.dp).toPx()
+        }
+        val verticalPadding = with(density) {
+            (if (selected || searchMatch) 2.dp else 1.dp).toPx()
+        }
+        val labelWidth = labelPaint.measureText(feature.name) + horizontalPadding * 2f
+        val metrics = labelPaint.fontMetrics
+        val labelHeight = metrics.descent - metrics.ascent + verticalPadding * 2f
+        val baseAnchor = camera.worldToScreen(feature.center)
+
+        fun boundsAtZoom(zoom: Float): Rect {
+            val anchor = viewportCenter + (baseAnchor - viewportCenter) * zoom
+            return Rect(
+                left = anchor.x - labelWidth / 2f,
+                top = anchor.y - labelHeight / 2f,
+                right = anchor.x + labelWidth / 2f,
+                bottom = anchor.y + labelHeight / 2f,
+            )
+        }
+
+        val emphasized = selected || searchMatch
+        val firstVisibleZoomIndex = if (emphasized) {
+            0
+        } else {
+            LABEL_ZOOM_LEVELS.indices.firstOrNull { zoomIndex ->
+                val candidateBounds = boundsAtZoom(LABEL_ZOOM_LEVELS[zoomIndex])
+                occupiedBoundsByZoom[zoomIndex].none { it.overlaps(candidateBounds) }
+            } ?: LABEL_ZOOM_LEVELS.lastIndex
+        }
+        for (zoomIndex in firstVisibleZoomIndex..LABEL_ZOOM_LEVELS.lastIndex) {
+            occupiedBoundsByZoom[zoomIndex] += boundsAtZoom(LABEL_ZOOM_LEVELS[zoomIndex])
+        }
+        placements += CampusLabelPlacement(
+            feature = feature,
+            anchor = baseAnchor,
+            minimumZoom = LABEL_ZOOM_LEVELS[firstVisibleZoomIndex],
+            fontSizeSp = fontSizeSp,
+            selected = selected,
+            searchMatch = searchMatch,
         )
     }
 
+    scene.labelFeatures.firstOrNull { feature ->
+        feature.id == selectedBuildingId && feature.id in interactiveBuildingIds
+    }?.let { selected ->
+        addPlacement(selected, selected = true, searchMatch = false)
+    }
     if (searchActive) {
         for (feature in scene.labelFeatures) {
             if (feature.id == selectedBuildingId || feature.id !in interactiveBuildingIds) continue
-            drawCampusFeatureLabel(
-                feature = feature,
-                camera = camera,
-                selected = false,
-                searchMatch = true,
-                occupiedLabels = occupiedLabels,
-                labelPaint = labelPaint,
-                palette = palette,
-            )
+            addPlacement(feature, selected = false, searchMatch = true)
         }
     }
-
-    val maximumNormalLabels = when {
-        camera.zoom < 1.3f -> 14
-        camera.zoom < 1.9f -> 22
-        camera.zoom < 2.8f -> 32
-        else -> 56
-    }
-    var normalLabelCount = 0
     for (feature in scene.labelFeatures) {
-        if (normalLabelCount >= maximumNormalLabels) break
         val interactive = feature.id in interactiveBuildingIds
         if (feature.id == selectedBuildingId || searchActive && interactive) continue
         if (filterActive && !interactive) continue
-        val labelDrawn = drawCampusFeatureLabel(
-            feature = feature,
-            camera = camera,
-            selected = false,
-            searchMatch = false,
-            occupiedLabels = occupiedLabels,
-            labelPaint = labelPaint,
-            palette = palette,
-        )
-        if (labelDrawn) normalLabelCount++
+        addPlacement(feature, selected = false, searchMatch = false)
     }
+    return placements
 }
 
-private fun DrawScope.drawCampusFeatureLabel(
+private fun labelFontSizeSp(
     feature: ProjectedCampusFeature,
-    camera: CampusCanvasCamera,
     selected: Boolean,
     searchMatch: Boolean,
-    occupiedLabels: MutableList<Rect>,
-    labelPaint: AndroidPaint,
-    palette: CampusMapPalette,
-): Boolean {
-    val center = camera.worldToScreen(feature.center)
-    if (center.x !in -80f..(size.width + 80f) || center.y !in -40f..(size.height + 40f)) {
-        return false
-    }
-    if (center.y < size.height * LABEL_TOP_EXCLUSION_RATIO) return false
-
-    labelPaint.textSize = when {
-        selected -> 12.sp.toPx()
-        searchMatch -> 11.sp.toPx()
-        camera.zoom < 0.95f && labelPriority(feature) >= 2 -> 9.sp.toPx()
-        camera.zoom < 0.95f -> 8.sp.toPx()
-        camera.zoom < 1.55f -> 8.5.sp.toPx()
-        else -> 9.5.sp.toPx()
-    }
-    labelPaint.color = palette.labelInk.toArgb()
-    val textWidth = labelPaint.measureText(feature.name)
-    val metrics = labelPaint.fontMetrics
-    val textHeight = metrics.descent - metrics.ascent
-    val horizontalPadding = if (selected || searchMatch) 7f else 4f
-    val verticalPadding = if (selected || searchMatch) 4f else 2f
-    val labelBounds = Rect(
-        left = center.x - textWidth / 2f - horizontalPadding,
-        top = center.y - textHeight / 2f - verticalPadding,
-        right = center.x + textWidth / 2f + horizontalPadding,
-        bottom = center.y + textHeight / 2f + verticalPadding,
-    )
-    if (!selected && occupiedLabels.any { it.overlaps(labelBounds) }) return false
-    occupiedLabels += labelBounds
-
-    if (selected || searchMatch) {
-        drawRoundRect(
-            color = palette.labelShadow,
-            topLeft = labelBounds.topLeft + Offset(0f, 1.5f),
-            size = labelBounds.size,
-            cornerRadius = CornerRadius(6f),
-        )
-        drawRoundRect(
-            color = if (selected) palette.selectedLabel else palette.searchLabel,
-            topLeft = labelBounds.topLeft,
-            size = labelBounds.size,
-            cornerRadius = CornerRadius(6f),
-        )
-        drawRoundRect(
-            color = if (selected) {
-                palette.selection.copy(alpha = 0.64f)
-            } else {
-                palette.search.copy(alpha = 0.58f)
-            },
-            topLeft = labelBounds.topLeft,
-            size = labelBounds.size,
-            cornerRadius = CornerRadius(6f),
-            style = Stroke(width = 1f),
-        )
-    }
-    val textBaseline = center.y - (metrics.ascent + metrics.descent) / 2f
-    if (!selected && !searchMatch) {
-        labelPaint.style = AndroidPaint.Style.STROKE
-        labelPaint.strokeWidth = 3.5f
-        labelPaint.color = palette.labelHalo.toArgb()
-        drawContext.canvas.nativeCanvas.drawText(
-            feature.name,
-            center.x,
-            textBaseline,
-            labelPaint,
-        )
-    }
-    labelPaint.style = AndroidPaint.Style.FILL
-    labelPaint.strokeWidth = 0f
-    labelPaint.color = palette.labelInk.toArgb()
-    drawContext.canvas.nativeCanvas.drawText(
-        feature.name,
-        center.x,
-        textBaseline,
-        labelPaint,
-    )
-    return true
+): Float = when {
+    selected -> 10.5f
+    searchMatch -> 9.5f
+    labelPriority(feature) >= 3 -> 8.5f
+    labelPriority(feature) >= 2 -> 8f
+    else -> 7.5f
 }
+
+private data class CampusLabelPlacement(
+    val feature: ProjectedCampusFeature,
+    val anchor: Offset,
+    val minimumZoom: Float,
+    val fontSizeSp: Float,
+    val selected: Boolean,
+    val searchMatch: Boolean,
+)
 
 private fun labelPriority(feature: ProjectedCampusFeature): Int = when {
     feature.category == "图书馆" -> 3
@@ -1669,7 +1742,17 @@ private class CampusMapPalette(private val isDarkTheme: Boolean) {
 
 private const val METERS_PER_LATITUDE_DEGREE = 111_320.0
 private const val BUILDING_CORNER_RADIUS_METERS = 1.6f
-private const val LABEL_TOP_EXCLUSION_RATIO = 0.1f
 internal const val CAMPUS_MAP_DEFAULT_ZOOM = 1.18f
 private const val MIN_ZOOM = 0.72f
 private const val MAX_ZOOM = 7f
+private const val LABEL_SCALE_COMPENSATION_STRENGTH = 0.82f
+private val LABEL_ZOOM_LEVELS = floatArrayOf(
+    MIN_ZOOM,
+    1f,
+    1.4f,
+    1.9f,
+    2.7f,
+    3.8f,
+    5.2f,
+    MAX_ZOOM,
+)
