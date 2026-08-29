@@ -114,9 +114,14 @@ class MoocViewModel(application: Application) : AndroidViewModel(application) {
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "Fetch mooc courses failed", e)
-                val message = e.message ?: ResourceUtil.getStringRes(R.string.error_unknown)
+                val causeMessage = e.message ?: ResourceUtil.getStringRes(R.string.error_unknown)
+                val message = if (causeMessage.contains("网络错误")) {
+                    "网络教学平台查询失败，请稍后重试"
+                } else {
+                    "网络教学平台查询失败：$causeMessage"
+                }
                 _uiState.value = _uiState.value.copy(loginState = ApiResponse.Error(message))
-                showDialog("慕课数据刷新失败：$message")
+                showDialog(message)
                 if (!hasCachedCourses()) {
                     _uiState.value = _uiState.value.copy(courses = ApiResponse.Error(message))
                 }

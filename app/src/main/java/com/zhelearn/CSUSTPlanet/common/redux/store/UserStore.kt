@@ -111,67 +111,68 @@ class UserStore : Store<UserState, UserAction>() {
                     CsustRetrofitUtils.ClearClient("moocClient")
                     CsustRetrofitUtils.ClearClient("EducationClient")
                     try {
+                        val educationLoginSucceeded = AuthService.login(
+                            action.studentNumber,
+                            action.studentPassword
+                        )
+                        if (educationLoginSucceeded) {
+                            currentState.uiForLoading = false
+                            EducationData.studentId = action.studentNumber
+                            EducationData.studentPassword = action.studentPassword
+                            Log.d(TAG, "教务登录成功")
+                            StudentInfoManager.studentId = action.studentNumber
+                            StudentInfoManager.studentPassword = action.studentPassword
+                            MatomoTrackerManager.updateUserId(StudentInfoManager.studentId)
+                            handler.post { AppEventBus.finishEvent.tryEmit(FinishEvent("bindingUser")) }
+                            PlanetApplication.clearSchoolDataCacheAll()
+                            _state.onNext(currentState)
+
+                            // 网络教学平台只用于作业、测试和用户资料，失败不影响教务绑定。
+                            runCatching {
+                                val moocLoginResult = MoocRepository.instance
+                                    .login(action.studentNumber, action.studentPassword)
+                                    .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
+                                    .first()
+                                if (moocLoginResult !is com.dcelysia.csust_spider.core.Resource.Success) {
+                                    Log.w(TAG, "网络教学平台登录失败，不影响教务绑定: $moocLoginResult")
+                                    return@runCatching
+                                }
+
+                                val userResource = MoocRepository.instance
+                                    .getLoginUser()
+                                    .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
+                                    .first()
+                                if (userResource is com.dcelysia.csust_spider.core.Resource.Success) {
+                                    userResource.data?.let { sso ->
+                                        val avatarUrl = sso.avatar
+                                        if (avatarUrl.isNotBlank()) {
+                                            UserInfoManager.userAvatar = avatarUrl
+                                            currentState.avatarUri = avatarUrl
+                                            currentState.userProfile.avatarUrl = avatarUrl
+                                        }
+                                        if (sso.userName.isNotBlank()) {
+                                            UserInfoManager.account = sso.userName
+                                        }
+                                    }
+                                    _state.onNext(currentState)
+                                }
+                            }.onFailure {
+                                Log.w(TAG, "网络教学平台用户资料同步失败，不影响教务绑定", it)
+                            }
+                            return@launch
+                        }
+
+                        // 教务登录失败时仍复用原 SSO 结果，保留网页登录引导和原有错误提示。
                         val ssoResult = MoocRepository.instance
                             .login(action.studentNumber, action.studentPassword)
                             .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
                             .first()
+                        currentState.userStats.studentNumber = action.studentNumber
+                        currentState.uiForLoading = false
                         when (ssoResult) {
-                            is com.dcelysia.csust_spider.core.Resource.Success -> {
-                                Log.d(TAG, "sso登陆成功")
-                                // SSO 登录成功后抓取 MOOC 用户信息并更新头像 / 用户名，失败不影响主流程
-                                runCatching {
-                                    val userResource = MoocRepository.instance
-                                        .getLoginUser()
-                                        .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
-                                        .first()
-                                    if (userResource is com.dcelysia.csust_spider.core.Resource.Success) {
-                                        userResource.data?.let { sso ->
-                                            val avatarUrl = sso.avatar
-                                            if (avatarUrl.isNotBlank()) {
-                                                UserInfoManager.userAvatar = avatarUrl
-                                                currentState.avatarUri = avatarUrl
-                                                currentState.userProfile.avatarUrl = avatarUrl
-                                            }
-                                            if (sso.userName.isNotBlank()) {
-                                                UserInfoManager.account = sso.userName
-                                            }
-                                        }
-                                    }
-                                }.onFailure { Log.w(TAG, "获取 SSO 用户信息失败", it) }
-
-                                val eduSuccess = AuthService.login(
-                                    action.studentNumber,
-                                    action.studentPassword
-                                )
-                                if (eduSuccess) {
-                                    currentState.uiForLoading = false
-                                    EducationData.studentId = action.studentNumber
-                                    EducationData.studentPassword = action.studentPassword
-                                    Log.d(TAG, "教务登录成功")
-                                    StudentInfoManager.studentId = action.studentNumber
-                                    StudentInfoManager.studentPassword = action.studentPassword
-                                    MatomoTrackerManager.updateUserId(StudentInfoManager.studentId)
-                                    handler.post { AppEventBus.finishEvent.tryEmit(FinishEvent("bindingUser")) }
-                                    PlanetApplication.clearSchoolDataCacheAll()
-                                    _state.onNext(currentState)
-                                } else {
-                                    currentState.userStats.studentNumber = action.studentNumber
-                                    currentState.uiForLoading = false
-                                    handler.post {
-                                        NormalResponseDialog(
-                                            action.context,
-                                            "学号或密码错误，请重试",
-                                            "绑定失败"
-                                        ).show()
-                                    }
-                                }
-                            }
-
                             is com.dcelysia.csust_spider.core.Resource.Error -> {
-                                currentState.userStats.studentNumber = action.studentNumber
-                                currentState.uiForLoading = false
-                                Log.d(TAG, "ssoResult:${ssoResult}")
-                                if (!(ssoResult.msg.contains("请在手机网页登录一次"))) {
+                                Log.d(TAG, "ssoResult:$ssoResult")
+                                if (!ssoResult.msg.contains("请在手机网页登录一次")) {
                                     handler.post {
                                         NormalResponseDialog(
                                             action.context,
@@ -189,22 +190,19 @@ class UserStore : Store<UserState, UserAction>() {
                                         ).show()
                                     }
                                 }
-                                _state.onNext(currentState)
                             }
 
                             else -> {
-                                currentState.userStats.studentNumber = action.studentNumber
-                                currentState.uiForLoading = false
                                 handler.post {
                                     NormalResponseDialog(
                                         action.context,
-                                        "网络或未知错误，请重试",
+                                        "学号或密码错误，请重试",
                                         "绑定失败"
                                     ).show()
                                 }
-                                _state.onNext(currentState)
                             }
                         }
+                        _state.onNext(currentState)
                     } catch (e: Exception) {
                         currentState.userStats.studentNumber = action.studentNumber
                         currentState.uiForLoading = false
