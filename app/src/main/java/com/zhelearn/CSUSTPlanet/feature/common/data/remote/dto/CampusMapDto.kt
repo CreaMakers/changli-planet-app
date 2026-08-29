@@ -18,7 +18,9 @@ import com.google.gson.annotations.SerializedName
 @Keep
 data class CampusMapGeoJson(
     @SerializedName("type") val type: String,
-    @SerializedName("features") val features: List<CampusMapFeature> = emptyList()
+    @SerializedName("features") val features: List<CampusMapFeature> = emptyList(),
+    /** 离线校园底图扩展字段；旧服务端没有该字段时按空列表处理。 */
+    @SerializedName("roads") val roads: List<CampusMapRoad>? = null,
 )
 
 /**
@@ -33,14 +35,20 @@ data class CampusMapFeature(
     @SerializedName("properties") val properties: CampusMapFeatureProperties,
     @SerializedName("geometry") val geometry: CampusMapFeatureGeometry
 ) {
-    val stableId: String get() = properties.name + "|" + properties.campus
+    val stableId: String
+        get() = properties.sourceId?.takeIf { it.isNotBlank() }
+            ?: properties.name + "|" + properties.campus
 }
 
 @Keep
 data class CampusMapFeatureProperties(
     @SerializedName("name") val name: String,
     @SerializedName("campus") val campus: String,
-    @SerializedName("category") val category: String
+    @SerializedName("category") val category: String,
+    /** 离线 OSM 要素使用 sourceId 区分多个未命名轮廓；服务端旧数据可以不下发。 */
+    @SerializedName("id") val sourceId: String? = null,
+    /** building / sport / water / green；服务端旧数据缺省时按 building 渲染。 */
+    @SerializedName("kind") val kind: String? = null,
 )
 
 /**
@@ -51,4 +59,25 @@ data class CampusMapFeatureProperties(
 data class CampusMapFeatureGeometry(
     @SerializedName("type") val type: String,
     @SerializedName("coordinates") val coordinates: List<List<List<Double>>> = emptyList()
+)
+
+@Keep
+data class CampusMapRoad(
+    @SerializedName("properties") val properties: CampusMapRoadProperties,
+    @SerializedName("geometry") val geometry: CampusMapRoadGeometry,
+)
+
+@Keep
+data class CampusMapRoadProperties(
+    @SerializedName("id") val id: String,
+    @SerializedName("campus") val campus: String,
+    @SerializedName("name") val name: String = "",
+    @SerializedName("kind") val kind: String = "footway",
+    @SerializedName("width") val width: Float = 2.4f,
+)
+
+@Keep
+data class CampusMapRoadGeometry(
+    @SerializedName("type") val type: String,
+    @SerializedName("coordinates") val coordinates: List<List<Double>> = emptyList(),
 )

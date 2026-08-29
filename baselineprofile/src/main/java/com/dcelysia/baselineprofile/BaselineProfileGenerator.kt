@@ -20,6 +20,8 @@ private const val BINDING_TIMEOUT_MS = 25_000L
 private const val HOMEWORK_TIMEOUT_MS = 12_000L
 private const val HOMEWORK_DWELL_MS = 8_000L
 private const val FAST_EXIT_DWELL_MS = 5_000L
+private const val CAMPUS_MAP_TIMEOUT_MS = 10_000L
+private const val CAMPUS_MAP_DWELL_MS = 2_000L
 private const val STUDENT_ID = "===="
 private const val STUDENT_PASSWORD = "===="
 private const val PERMISSION_CONTROLLER_PACKAGE = "com.android.permissioncontroller"
@@ -93,10 +95,13 @@ class BaselineProfileGenerator {
                 openOverviewViewAllButton(index = 1)
                 waitForHomeworkScreen()
                 SystemClock.sleep(HOMEWORK_DWELL_MS)
+                pressBack()
+                waitForOverview()
             } else {
                 SystemClock.sleep(FAST_EXIT_DWELL_MS)
             }
 
+            openCampusMap()
             isFirstCollectionRun = false
             pressHome()
         }
@@ -172,6 +177,38 @@ private fun MacrobenchmarkScope.waitForHomeworkScreen() {
     check(loaded) {
         "Homework screen did not load."
     }
+}
+
+private fun MacrobenchmarkScope.openCampusMap() {
+    requireObject(By.text("校园地图"), CAMPUS_MAP_TIMEOUT_MS).click()
+    device.waitForIdle()
+    waitUntil(CAMPUS_MAP_TIMEOUT_MS) {
+        device.hasObject(By.text("金盆岭")) && device.hasObject(By.text("云塘"))
+    }
+    check(device.hasObject(By.text("金盆岭"))) {
+        "Campus map did not load."
+    }
+
+    SystemClock.sleep(CAMPUS_MAP_DWELL_MS)
+    requireObject(By.text("云塘"), SHORT_TIMEOUT_MS).click()
+    device.waitForIdle()
+    SystemClock.sleep(CAMPUS_MAP_DWELL_MS)
+
+    val gestureY = device.displayHeight / 3
+    device.swipe(
+        device.displayWidth * 3 / 4,
+        gestureY,
+        device.displayWidth / 4,
+        gestureY,
+        24
+    )
+    device.waitForIdle()
+
+    requireObject(By.text("金盆岭"), SHORT_TIMEOUT_MS).click()
+    device.waitForIdle()
+    SystemClock.sleep(CAMPUS_MAP_DWELL_MS)
+    pressBack()
+    waitForOverview()
 }
 
 private fun MacrobenchmarkScope.requireObject(selector: BySelector, timeoutMs: Long): UiObject2 {

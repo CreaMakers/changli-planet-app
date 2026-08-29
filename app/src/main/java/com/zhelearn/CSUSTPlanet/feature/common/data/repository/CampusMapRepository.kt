@@ -22,9 +22,10 @@ object CampusMapRepository {
 
     private const val CACHE_DIR = "campus_map"
     private const val CACHE_FILE = "map.json"
+    private const val BUNDLED_MAP_ASSET = "campus_map/osm_campus_map.json"
 
     /** 本地缓存 schema 版本号。**改动 CampusMapDto 字段时必须同步 +1**。 */
-    private const val CACHE_SCHEMA_VERSION = 1
+    private const val CACHE_SCHEMA_VERSION = 3
 
     private const val TAG = "CampusMapRepo"
 
@@ -39,6 +40,55 @@ object CampusMapRepository {
         @SerializedName("version") val version: Int,
         @SerializedName("data") val data: CampusMapGeoJson?,
     )
+
+    /** 读取随 APK 发布的 OSM 校园轮廓，首装、离线和接口失败时都能立即显示地图。 */
+    suspend fun loadBundledMap(): CampusMapGeoJson? = withContext(Dispatchers.IO) {
+        runCatching {
+            PlanetApplication.appContext.assets.open(BUNDLED_MAP_ASSET).bufferedReader().use { reader ->
+                gson.fromJson(reader, CampusMapGeoJson::class.java)
+            }
+        }.getOrNull()?.takeIf { it.isValidForRender() }
+    }
+
+    /**
+     * 服务端数据优先覆盖同校区同名要素；OSM 的未命名轮廓和服务端没有的场地继续保留。
+     * 这样旧接口无需立即扩 schema，也能逐步补上操场、水域和绿地。
+     */
+    fun mergeWithBundledMap(
+        remote: CampusMapGeoJson,
+        bundled: CampusMapGeoJson?,
+    ): CampusMapGeoJson {
+        if (bundled == null) return remote
+        val remoteNamedKeys = buildSet {
+            for (feature in remote.features) {
+                val name = feature.properties.name.trim()
+                if (name.isNotEmpty()) add(feature.properties.campus + "|" + name)
+            }
+        }
+        val mergedFeatures = buildList {
+            addAll(remote.features)
+            for (feature in bundled.features) {
+                val name = feature.properties.name.trim()
+                val semanticKey = feature.properties.campus + "|" + name
+                if (name.isEmpty() || semanticKey !in remoteNamedKeys) add(feature)
+            }
+        }
+        val remoteRoads = remote.roads.orEmpty()
+        val remoteRoadIds = buildSet {
+            for (road in remoteRoads) add(road.properties.id)
+        }
+        val mergedRoads = buildList {
+            addAll(remoteRoads)
+            for (road in bundled.roads.orEmpty()) {
+                if (road.properties.id !in remoteRoadIds) add(road)
+            }
+        }
+        return CampusMapGeoJson(
+            type = "FeatureCollection",
+            features = mergedFeatures,
+            roads = mergedRoads,
+        )
+    }
 
     /** 读本地缓存；读失败/不存在/版本不匹配/数据不合法时返回 null。 */
     suspend fun loadCache(): CampusMapGeoJson? = withContext(Dispatchers.IO) {
@@ -74,7 +124,7 @@ object CampusMapRepository {
 
     /**
      * 数据合法性校验：即便 schema 版本对上，也防御 Gson 把非空 String 塞 null 的极端场景。
-     * 至少得有一个 feature，且 campus/name 非空。
+     * 至少得有一个带校区和有效 Polygon 的 feature；未命名 OSM 轮廓允许存在。
      */
     private fun CampusMapGeoJson?.isValidForRender(): Boolean {
         if (this == null) return false
@@ -83,9 +133,7 @@ object CampusMapRepository {
             // Kotlin 类型上非空，但 Gson 反射可能绕过；用 @Suppress 明确说明
             @Suppress("SENSELESS_COMPARISON", "USELESS_ELVIS")
             val campus: String? = feat.properties.campus
-            @Suppress("SENSELESS_COMPARISON", "USELESS_ELVIS")
-            val name: String? = feat.properties.name
-            !campus.isNullOrBlank() && !name.isNullOrBlank()
+            !campus.isNullOrBlank() && feat.geometry.coordinates.firstOrNull().orEmpty().size >= 3
         }
     }
 

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.zhelearn.CSUSTPlanet.BuildConfig
 import com.zhelearn.CSUSTPlanet.feature.common.data.remote.dto.CampusMapFeature
 import com.zhelearn.CSUSTPlanet.feature.common.data.remote.dto.CampusMapGeoJson
+import com.zhelearn.CSUSTPlanet.feature.common.data.remote.dto.CampusMapRoad
 import com.zhelearn.CSUSTPlanet.feature.common.data.repository.CampusMapRepository
 import com.zhelearn.CSUSTPlanet.feature.common.map.Campus
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +41,7 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
      */
     data class UiState(
         val allBuildings: List<CampusMapFeature> = emptyList(),
+        val allRoads: List<CampusMapRoad> = emptyList(),
         val selectedCampus: Campus? = null,
         val selectedCategory: String? = null,
         val searchText: String = "",
@@ -65,26 +67,40 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
     /** 过滤后的建筑列表：基于 uiState 派生，避免每次 recomposition 重算 124 条数据。 */
     val filteredBuildings: StateFlow<List<CampusMapFeature>> = _uiState
         .map { s ->
-            val afterCampus = s.selectedCampus?.let { c ->
-                s.allBuildings.filter { it.properties.campus == c.rawName }
-            } ?: s.allBuildings
-            val afterCategory = s.selectedCategory?.let { cat ->
-                afterCampus.filter { it.properties.category == cat }
-            } ?: afterCampus
-            val q = s.searchText.trim()
-            if (q.isEmpty()) afterCategory
-            else afterCategory.filter { fuzzyMatches(it.properties.name, q) }
+            val query = s.searchText.trim()
+            buildList {
+                for (building in s.allBuildings) {
+                    // 未命名 OSM 要素只补足地图轮廓，不进入搜索、列表和点击选择。
+                    if (building.properties.name.isBlank()) continue
+                    if (s.selectedCampus != null &&
+                        building.properties.campus != s.selectedCampus.rawName
+                    ) {
+                        continue
+                    }
+                    if (s.selectedCategory != null &&
+                        building.properties.category != s.selectedCategory
+                    ) {
+                        continue
+                    }
+                    if (query.isNotEmpty() && !matchesSearch(building, query)) continue
+                    add(building)
+                }
+            }
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     /** 分类候选：null（=全部）永远在首位。 */
     val availableCategories: StateFlow<List<String?>> = _uiState
         .map { s ->
-            val src = s.selectedCampus?.let { c ->
-                s.allBuildings.filter { it.properties.campus == c.rawName }
-            } ?: s.allBuildings
             val uniq = linkedSetOf<String>()
-            src.forEach { uniq += it.properties.category }
+            for (building in s.allBuildings) {
+                if (s.selectedCampus != null &&
+                    building.properties.campus != s.selectedCampus.rawName
+                ) {
+                    continue
+                }
+                if (building.properties.name.isNotBlank()) uniq += building.properties.category
+            }
             listOf<String?>(null) + uniq.toList()
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, listOf(null))
@@ -98,13 +114,26 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
         hasInitialLoaded = true
 
         viewModelScope.launch {
+            val bundledMap = CampusMapRepository.loadBundledMap()
+            bundledMap?.let { applyData(it, fromCache = true) }
+
             // 先显示本地缓存，避免白屏
-            CampusMapRepository.loadCache()?.let { applyData(it, fromCache = true) }
+            CampusMapRepository.loadCache()?.let { cachedMap ->
+                applyData(
+                    CampusMapRepository.mergeWithBundledMap(cachedMap, bundledMap),
+                    fromCache = true,
+                )
+            }
 
             // 再拉取最新
             _uiState.update { it.copy(isLoading = true) }
             runCatching { CampusMapRepository.fetchRemoteAndCache() }
-                .onSuccess { applyData(it, fromCache = false) }
+                .onSuccess { remoteMap ->
+                    applyData(
+                        CampusMapRepository.mergeWithBundledMap(remoteMap, bundledMap),
+                        fromCache = false,
+                    )
+                }
                 .onFailure { e ->
                     Log.w(TAG, "fetch campus map failed", e)
                     _uiState.update { cur ->
@@ -120,8 +149,9 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun applyData(geoJson: CampusMapGeoJson, fromCache: Boolean) {
         _uiState.update { cur ->
-            if (geoJson.features == cur.allBuildings) cur
-            else cur.copy(allBuildings = geoJson.features)
+            val roads = geoJson.roads.orEmpty()
+            if (geoJson.features == cur.allBuildings && roads == cur.allRoads) cur
+            else cur.copy(allBuildings = geoJson.features, allRoads = roads)
         }
         // 如首屏没 cameraTarget，则按当前 campus 居中
         if (_uiState.value.cameraTarget == null) centerOnCurrentCampus()
@@ -156,6 +186,7 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun onBuildingSelected(featureId: String) {
         val feat = _uiState.value.allBuildings.firstOrNull { it.stableId == featureId } ?: return
+        if (feat.properties.name.isBlank()) return
         val center = centerOf(feat)
         _uiState.update {
             it.copy(
@@ -210,11 +241,31 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
     companion object {
         private const val TAG = "CampusMapVM"
 
+        private val searchAliases = listOf(
+            "田径场" to "操场 体育场 运动场",
+            "体育场" to "操场 田径场 运动场",
+            "宿舍" to "寝室 公寓",
+            "食堂" to "餐厅 饭堂",
+            "图书馆" to "图书室 自习",
+            "教学楼" to "教室 上课",
+        )
+
+        private fun matchesSearch(feature: CampusMapFeature, query: String): Boolean {
+            val name = feature.properties.name
+            if (fuzzyMatches(name, query) || fuzzyMatches(feature.properties.category, query)) {
+                return true
+            }
+            for ((nameFragment, aliases) in searchAliases) {
+                if (nameFragment in name && fuzzyMatches(aliases, query)) return true
+            }
+            return false
+        }
+
         /** 与 iOS 保持一致的模糊匹配：忽略大小写，按字符顺序逐一匹配。 */
         fun fuzzyMatches(source: String, pattern: String): Boolean {
-            if (pattern.isEmpty()) return true
-            val target = normalizeNumbers(source.lowercase())
-            val query = normalizeNumbers(pattern.lowercase())
+            val target = normalizeSearchText(source)
+            val query = normalizeSearchText(pattern)
+            if (query.isEmpty()) return true
             var ti = 0; var qi = 0
             while (qi < query.length && ti < target.length) {
                 if (query[qi] == target[ti]) qi++
@@ -222,6 +273,9 @@ class CampusMapViewModel(application: Application) : AndroidViewModel(applicatio
             }
             return qi == query.length
         }
+
+        private fun normalizeSearchText(input: String): String =
+            normalizeNumbers(input.lowercase()).filter { it.isLetterOrDigit() }
 
         /** 把中文数字（一~十六）替换成阿拉伯数字，方便"5号"搜 "五号"。 */
         private fun normalizeNumbers(input: String): String {

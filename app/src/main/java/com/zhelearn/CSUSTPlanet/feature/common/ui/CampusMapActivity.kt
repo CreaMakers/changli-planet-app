@@ -1,20 +1,14 @@
 package com.zhelearn.CSUSTPlanet.feature.common.ui
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -32,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -62,14 +57,10 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -78,47 +69,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.amap.api.location.AMapLocation
-import com.amap.api.location.AMapLocationClient
-import com.amap.api.location.AMapLocationClientOption
-import com.amap.api.location.AMapLocationListener
-import com.amap.api.maps.AMap
-import com.amap.api.maps.CameraUpdateFactory
-import com.amap.api.maps.LocationSource
-import com.amap.api.maps.MapView
-import com.amap.api.maps.model.CameraPosition
-import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.MyLocationStyle
-import com.amap.api.maps.model.Polygon
-import com.amap.api.maps.model.PolygonOptions
 import com.zhelearn.CSUSTPlanet.R
+import com.zhelearn.CSUSTPlanet.BuildConfig
 import com.zhelearn.CSUSTPlanet.base.ComposeActivity
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
 import com.zhelearn.CSUSTPlanet.feature.common.data.remote.dto.CampusMapFeature
 import com.zhelearn.CSUSTPlanet.feature.common.map.Campus
-import com.zhelearn.CSUSTPlanet.feature.common.map.CampusCoordinateConverter
+import com.zhelearn.CSUSTPlanet.feature.common.map.CAMPUS_MAP_DEFAULT_ZOOM
+import com.zhelearn.CSUSTPlanet.feature.common.map.IllustratedCampusMap
 import com.zhelearn.CSUSTPlanet.feature.common.viewModel.CampusMapViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 
-/** 校园地图页面（高德轻量版 SDK，基于 WebView+WebGL 渲染）。 */
+/** 校园地图页面（本地 GeoJSON + Compose Canvas 渲染）。 */
 class CampusMapActivity : ComposeActivity() {
 
     private val viewModel: CampusMapViewModel by viewModels()
@@ -126,10 +94,16 @@ class CampusMapActivity : ComposeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.loadInitialIfNeeded()
+        val debugInitialZoom = if (BuildConfig.DEBUG) {
+            intent.getFloatExtra(DEBUG_MAP_ZOOM_EXTRA, Float.NaN).takeIf(Float::isFinite)
+        } else {
+            null
+        }
         setComposeContent {
             CampusMapScreen(
                 viewModel = viewModel,
-                onBack = ::finish
+                onBack = ::finish,
+                debugInitialZoom = debugInitialZoom,
             )
         }
     }
@@ -142,31 +116,19 @@ class CampusMapActivity : ComposeActivity() {
 @Composable
 private fun CampusMapScreen(
     viewModel: CampusMapViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    debugInitialZoom: Float?,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val filteredBuildings by viewModel.filteredBuildings.collectAsStateWithLifecycle()
     val availableCategories by viewModel.availableCategories.collectAsStateWithLifecycle()
     val colors = AppTheme.colors
     val context = LocalContext.current
-    val isDark = isSystemInDarkTheme()
-
     val configuration = LocalConfiguration.current
     val sheetMaxHeight = configuration.screenHeightDp.dp * 0.55f
-
-    var mapRef by remember { mutableStateOf<AMap?>(null) }
-    val polygonMap = remember { mutableMapOf<String, Polygon>() }
-    val polygonStyles = remember { mutableMapOf<String, PolygonStyle>() }
-    val rebuildMutex = remember { Mutex() }
-
-    // polygonMap 非 SnapshotState，用版本号驱动下游 LaunchedEffect 重跑
-    var polygonVersion by remember { mutableIntStateOf(0) }
-
-    // MapView 被销毁后 polygon 引用失效；mapRef 置 null 时一并清空本地缓存
-    LaunchedEffect(mapRef) {
-        if (mapRef == null) {
-            polygonMap.clear()
-            polygonStyles.clear()
+    val interactiveBuildingIds = remember(filteredBuildings) {
+        buildSet {
+            for (building in filteredBuildings) add(building.stableId)
         }
     }
 
@@ -174,61 +136,6 @@ private fun CampusMapScreen(
         bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
     )
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(mapRef, isDark) {
-        mapRef?.mapType = if (isDark) AMap.MAP_TYPE_NIGHT else AMap.MAP_TYPE_NORMAL
-    }
-
-    // 一次性事件：消费后清空
-    LaunchedEffect(uiState.cameraTarget, mapRef) {
-        val map = mapRef ?: return@LaunchedEffect
-        val target = uiState.cameraTarget ?: return@LaunchedEffect
-        val gcj = CampusCoordinateConverter.wgs84ToGcj02(target.lat, target.lon)
-        map.animateCamera(
-            CameraUpdateFactory.newCameraPosition(
-                CameraPosition.fromLatLngZoom(LatLng(gcj[0], gcj[1]), spanToZoom(target.span))
-            )
-        )
-        viewModel.consumeCameraTarget()
-    }
-
-    LaunchedEffect(uiState.allBuildings, mapRef) {
-        val map = mapRef ?: return@LaunchedEffect
-        rebuildMutex.withLock {
-            if (rebuildPolygonsIfNeeded(map, polygonMap, uiState.allBuildings)) polygonVersion++
-        }
-    }
-
-    LaunchedEffect(filteredBuildings, uiState.selectedBuildingId, polygonVersion) {
-        if (polygonMap.isEmpty()) return@LaunchedEffect
-        val visibleIds = filteredBuildings.mapTo(HashSet()) { it.stableId }
-        val featureById = uiState.allBuildings.associateBy { it.stableId }
-        rebuildMutex.withLock {
-            polygonMap.forEach { (id, polygon) ->
-                val feat = featureById[id] ?: return@forEach
-                val visible = id in visibleIds
-                val selected = visible && id == uiState.selectedBuildingId
-                val baseColor = colorForCategory(feat.properties.category)
-                val next = PolygonStyle(
-                    visible = visible,
-                    fillColor = withAlpha(baseColor, if (selected) 0xCC else 0x80),
-                    strokeColor = if (selected) 0xFF222222.toInt() else baseColor,
-                    strokeWidth = if (selected) 6f else 3f,
-                    zIndex = if (selected) 2f else 1f,
-                )
-                val prev = polygonStyles[id]
-                if (prev == next) return@forEach
-                if (prev?.visible != next.visible) polygon.isVisible = next.visible
-                if (next.visible) {
-                    if (prev?.fillColor != next.fillColor) polygon.fillColor = next.fillColor
-                    if (prev?.strokeColor != next.strokeColor) polygon.strokeColor = next.strokeColor
-                    if (prev?.strokeWidth != next.strokeWidth) polygon.strokeWidth = next.strokeWidth
-                    if (prev?.zIndex != next.zIndex) polygon.zIndex = next.zIndex
-                }
-                polygonStyles[id] = next
-            }
-        }
-    }
 
     LaunchedEffect(uiState.errorMessage) {
         val msg = uiState.errorMessage ?: return@LaunchedEffect
@@ -266,13 +173,20 @@ private fun CampusMapScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            AMapContent(
-                isDark = isDark,
-                onMapReady = { mapRef = it }
+            IllustratedCampusMap(
+                allBuildings = uiState.allBuildings,
+                allRoads = uiState.allRoads,
+                interactiveBuildingIds = interactiveBuildingIds,
+                selectedCampus = uiState.selectedCampus,
+                selectedCategory = uiState.selectedCategory,
+                searchText = uiState.searchText,
+                selectedBuildingId = uiState.selectedBuildingId,
+                cameraTarget = if (debugInitialZoom == null) uiState.cameraTarget else null,
+                initialZoom = debugInitialZoom ?: CAMPUS_MAP_DEFAULT_ZOOM,
+                onCameraTargetConsumed = viewModel::consumeCameraTarget,
+                onBuildingSelected = viewModel::onBuildingSelected,
+                modifier = Modifier.fillMaxSize(),
             )
-
-            // 5s 内底图仍未出现（WebView 可能被 Key/网络/NSC 拦）给出可感知提示
-            MapLoadingHint(mapReady = mapRef != null)
 
             TopBar(
                 selectedCampus = uiState.selectedCampus,
@@ -303,263 +217,9 @@ private fun CampusMapScreen(
     }
 }
 
-/** 高德 zoom 级别 ≈ log2(360/span)，有效范围 3–19。 */
-private fun spanToZoom(span: Double): Float =
-    (kotlin.math.log2(360.0 / span)).toFloat().coerceIn(3f, 19f)
-
-// ============================== 地图容器 ==============================
-
-@Composable
-private fun AMapContent(
-    isDark: Boolean,
-    onMapReady: (AMap?) -> Unit
-) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    var locationGranted by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(
-                        context, Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
-        )
-    }
-    val permLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { result ->
-        locationGranted = result[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-                result[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-    }
-    LaunchedEffect(Unit) {
-        if (!locationGranted) {
-            permLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
-        }
-    }
-
-    val locationSource = remember { CampusLocationSource(context.applicationContext) }
-    val mapView = remember { MapView(context) }
-
-    // getMapAsyn 异步回调，用 state 承接，避免 factory 里反复调用
-    var amapReady by remember { mutableStateOf<AMap?>(null) }
-
-    DisposableEffect(lifecycleOwner, mapView) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_CREATE -> {
-                    mapView.onCreate(null)
-                    mapView.getMapAsyn { aMap ->
-                        configureMap(aMap, isDark)
-                        applyMyLocation(aMap, locationSource, locationGranted)
-                        amapReady = aMap
-                    }
-                }
-                Lifecycle.Event.ON_RESUME -> mapView.onResume()
-                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
-                else -> Unit
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-            locationSource.shutdown()
-            // MapView 生命周期必须在此处终结：否则 Compose 被移除但 Activity 还活时会泄漏
-            amapReady = null
-            runCatching { mapView.onDestroy() }
-        }
-    }
-
-    LaunchedEffect(amapReady) {
-        onMapReady(amapReady)
-    }
-
-    LaunchedEffect(locationGranted, amapReady) {
-        val amap = amapReady ?: return@LaunchedEffect
-        applyMyLocation(amap, locationSource, locationGranted)
-    }
-
-    AndroidView(
-        factory = { mapView },
-        modifier = Modifier.fillMaxSize()
-    )
-}
-
-private fun configureMap(aMap: AMap, isDark: Boolean) {
-    aMap.mapType = if (isDark) AMap.MAP_TYPE_NIGHT else AMap.MAP_TYPE_NORMAL
-    aMap.uiSettings.apply {
-        isScrollGesturesEnabled = true
-        isZoomGesturesEnabled = true
-        isTiltGesturesEnabled = false
-        isRotateGesturesEnabled = false
-    }
-}
-
-private fun applyMyLocation(aMap: AMap, source: CampusLocationSource, granted: Boolean) {
-    aMap.setLocationSource(source)
-    aMap.setMyLocationEnabled(granted)
-    if (granted) {
-        aMap.myLocationStyle = MyLocationStyle().apply {
-            myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATE)
-            showMyLocation(true)
-        }
-    }
-}
-
-/**
- * 按 id 增量同步 Polygon：新增 feature 创建 polygon，已消失的 feature 移除。
- * - 坐标转换在 Default 线程批量完成；
- * - `addPolygon` 必须主线程，每 [POLYGON_BATCH_SIZE] 个 `yield()` 让 WebView 消化 JSBridge，避免卡顿；
- * - 全程维护 polygonMap 的幂等性：即便协程被取消，下一次重启也能从残留状态继续补齐。
- */
-private suspend fun rebuildPolygonsIfNeeded(
-    aMap: AMap,
-    polygonMap: MutableMap<String, Polygon>,
-    features: List<CampusMapFeature>
-): Boolean {
-    var changed = false
-    val currentIds = features.mapTo(HashSet()) { it.stableId }
-    val iter = polygonMap.entries.iterator()
-    while (iter.hasNext()) {
-        val (id, polygon) = iter.next()
-        if (id !in currentIds) {
-            polygon.remove()
-            iter.remove()
-            changed = true
-        }
-    }
-
-    val toAdd = features.filter { it.stableId !in polygonMap.keys }
-    if (toAdd.isEmpty()) return changed
-
-    data class Prepared(val id: String, val latLngs: List<LatLng>, val color: Int)
-    val prepared = withContext(Dispatchers.Default) {
-        toAdd.mapNotNull { feat ->
-            val ring = feat.geometry.coordinates.firstOrNull().orEmpty()
-            if (ring.isEmpty()) return@mapNotNull null
-            val latLngs = ring.map { pt ->
-                val gcj = CampusCoordinateConverter.wgs84ToGcj02(
-                    lat = pt.getOrNull(1) ?: 0.0,
-                    lon = pt.getOrNull(0) ?: 0.0
-                )
-                LatLng(gcj[0], gcj[1])
-            }
-            Prepared(feat.stableId, latLngs, colorForCategory(feat.properties.category))
-        }
-    }
-
-    // 主线程 addPolygon 包 NonCancellable，协程取消时保证 polygonMap 写入幂等完整
-    withContext(NonCancellable) {
-        prepared.forEachIndexed { index, p ->
-            val polygon = aMap.addPolygon(
-                PolygonOptions()
-                    .addAll(p.latLngs)
-                    .fillColor(withAlpha(p.color, 0x80))
-                    .strokeColor(p.color)
-                    .strokeWidth(3f)
-                    .zIndex(1f)
-            )
-            polygonMap[p.id] = polygon
-            changed = true
-            if ((index + 1) % POLYGON_BATCH_SIZE == 0) yield()
-        }
-    }
-    return changed
-}
-
-private const val POLYGON_BATCH_SIZE = 8
-
-/** Polygon 样式缓存；用于 diff 避免重复 setter 的 JSBridge 调用。 */
-private data class PolygonStyle(
-    val visible: Boolean,
-    val fillColor: Int,
-    val strokeColor: Int,
-    val strokeWidth: Float,
-    val zIndex: Float,
-)
-
-// ============================== 定位源 ==============================
-
-/** 轻量版 SDK 地图不内置定位，需自建 [LocationSource] + [AMapLocationClient]。 */
-private class CampusLocationSource(private val appContext: android.content.Context) : LocationSource,
-    AMapLocationListener {
-
-    private var listener: LocationSource.OnLocationChangedListener? = null
-    private var client: AMapLocationClient? = null
-
-    override fun activate(listener: LocationSource.OnLocationChangedListener?) {
-        this.listener = listener
-        if (client == null) {
-            runCatching {
-                client = AMapLocationClient(appContext).apply {
-                    setLocationListener(this@CampusLocationSource)
-                    setLocationOption(
-                        AMapLocationClientOption().apply {
-                            locationMode = AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
-                            isOnceLocation = false
-                            interval = 5000
-                        }
-                    )
-                    startLocation()
-                }
-            }
-        }
-    }
-
-    override fun deactivate() {
-        listener = null
-        client?.stopLocation()
-        client?.onDestroy()
-        client = null
-    }
-
-    override fun onLocationChanged(loc: AMapLocation?) {
-        if (loc == null || loc.errorCode != 0) return
-        listener?.onLocationChanged(loc)
-    }
-
-    fun shutdown() {
-        runCatching { deactivate() }
-    }
-}
+private const val DEBUG_MAP_ZOOM_EXTRA = "debug_map_zoom"
 
 // ============================== 顶栏 / Sheet ==============================
-
-/**
- * 地图首屏降级提示：超过 5s 底图仍未出现时显示，提示用户可能是 Key/NSC/网络问题。
- */
-@Composable
-private fun BoxScope.MapLoadingHint(mapReady: Boolean) {
-    var showHint by remember { mutableStateOf(false) }
-    LaunchedEffect(mapReady) {
-        showHint = false
-        if (!mapReady) {
-            delay(5000)
-            showHint = !mapReady
-        }
-    }
-    if (showHint) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .clip(RoundedCornerShape(12.dp))
-                .background(AppTheme.colors.bgCardColor.copy(alpha = 0.92f))
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            Text(
-                text = "地图加载较慢，请检查网络或稍后重试",
-                color = AppTheme.colors.primaryTextColor,
-                fontSize = 13.sp
-            )
-        }
-    }
-}
 
 @Composable
 private fun TopBar(
@@ -637,6 +297,11 @@ private fun BuildingsListSheet(
     modifier: Modifier = Modifier
 ) {
     val colors = AppTheme.colors
+    val searchSecondaryColor = if (isSystemInDarkTheme()) {
+        Color(0xFFABB5BE)
+    } else {
+        colors.secondaryTextColor
+    }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -652,7 +317,7 @@ private fun BuildingsListSheet(
             trailingIcon = {
                 if (uiState.searchText.isNotEmpty()) {
                     IconButton(onClick = onClearSearch) {
-                        Icon(Icons.Filled.Cancel, contentDescription = null, tint = colors.secondaryTextColor)
+                        Icon(Icons.Filled.Cancel, contentDescription = null, tint = searchSecondaryColor)
                     }
                 }
             },
@@ -660,6 +325,13 @@ private fun BuildingsListSheet(
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = colors.primaryTextColor,
+                unfocusedTextColor = colors.primaryTextColor,
+                cursorColor = colors.primaryTextColor,
+                focusedLeadingIconColor = searchSecondaryColor,
+                unfocusedLeadingIconColor = searchSecondaryColor,
+                focusedPlaceholderColor = searchSecondaryColor,
+                unfocusedPlaceholderColor = searchSecondaryColor,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedContainerColor = colors.bgSecondaryColor,
@@ -798,19 +470,20 @@ private fun BuildingRow(
 
 /** 与 iOS 配色对齐，返回 ARGB int（含完整 alpha=FF）。 */
 private fun colorForCategory(category: String): Int = when (category) {
-    "教学楼" -> 0xFFF39C12.toInt()
-    "图书馆" -> 0xFF3498DB.toInt()
-    "体育" -> 0xFF1ABCAE.toInt()
-    "食堂" -> 0xFFE74C3C.toInt()
-    "宿舍", "东苑宿舍", "南苑宿舍", "西苑宿舍" -> 0xFF27AE60.toInt()
-    "行政办公" -> 0xFF8E44AD.toInt()
-    "生活休闲" -> 0xFFE91E63.toInt()
+    "教学楼" -> 0xFFAF7E58.toInt()
+    "图书馆" -> 0xFF5F86A8.toInt()
+    "体育" -> 0xFF56889A.toInt()
+    "食堂" -> 0xFFA7804D.toInt()
+    "东苑宿舍" -> 0xFF719872.toInt()
+    "西苑宿舍" -> 0xFFAB625E.toInt()
+    "南苑宿舍" -> 0xFF876F94.toInt()
+    "宿舍" -> 0xFF996F7E.toInt()
+    "行政办公" -> 0xFF6D7F95.toInt()
+    "生活休闲" -> 0xFF668E86.toInt()
+    "水域" -> 0xFF4A9FA1.toInt()
+    "绿地" -> 0xFF78A45E.toInt()
     else -> 0xFF7F8C8D.toInt()
 }
-
-/** 替换 color 的 alpha 通道。`alpha` 为 0..255。 */
-private fun withAlpha(color: Int, alpha: Int): Int =
-    (color and 0x00FFFFFF) or ((alpha and 0xFF) shl 24)
 
 private fun iconForCategory(category: String): ImageVector = when (category) {
     "教学楼" -> Icons.Filled.Business

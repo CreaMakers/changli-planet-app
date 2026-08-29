@@ -6,8 +6,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 下载管理器权限 -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
@@ -50,11 +48,6 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:networkSecurityConfig"
         tools:targetApi="31">
-
-        <!-- 高德地图 Android 轻量版 SDK Key（通过 manifestPlaceholders 从 local.properties 注入） -->
-        <meta-data
-            android:name="com.amap.api.v2.apikey"
-            android:value="${amapApiKey}" />
 
         <provider
             android:name=".migration.LegacyMigrationProvider"

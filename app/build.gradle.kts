@@ -83,8 +83,6 @@ android {
         targetSdk = 37
         versionCode = 35
         versionName = "2.11.0"
-        val amapApiKey: String = privateProperties.getProperty("amap.apiKey")?.trim().orEmpty()
-        manifestPlaceholders["amapApiKey"] = amapApiKey
         manifestPlaceholders["legacyMigrationProviderEnabled"] = legacyMigrationProviderEnabled.toString()
         manifestPlaceholders["legacyMigrationProviderAuthority"] = legacyMigrationProviderAuthority
 
@@ -304,9 +302,6 @@ dependencies {
     implementation(libs.haze)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
-
-    // 高德地图 Android 轻量版 SDK（本地 jar，含地图 + 定位）
-    implementation(files("libs/Lite3DMap.jar"))
 }
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
