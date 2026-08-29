@@ -3,6 +3,7 @@ package com.zhelearn.CSUSTPlanet.feature.common.ui
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,14 +17,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -32,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -51,11 +53,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,8 +69,10 @@ import com.zhelearn.CSUSTPlanet.R
 import com.zhelearn.CSUSTPlanet.base.ComposeActivity
 import com.zhelearn.CSUSTPlanet.core.theme.AppSkinTheme
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
+import com.zhelearn.CSUSTPlanet.feature.common.viewModel.AvailableClassroomQueryMode
 import com.zhelearn.CSUSTPlanet.feature.common.viewModel.AvailableClassroomUiState
 import com.zhelearn.CSUSTPlanet.feature.common.viewModel.AvailableClassroomViewModel
+import com.zhelearn.CSUSTPlanet.feature.common.viewModel.ClassroomAvailabilityItem
 import com.dcelysia.csust_spider.education.data.remote.model.Campus
 import com.dcelysia.csust_spider.education.data.remote.model.DayOfWeek
 
@@ -101,8 +107,9 @@ private fun ClassInfoRoute(
         onDaySelected = viewModel::updateDayOfWeek,
         onSectionSelected = viewModel::updateSection,
         onSearchTextChange = viewModel::updateSearchText,
-        onQueryClick = viewModel::queryAvailableClassrooms,
-        onDismissWarning = viewModel::dismissWarning,
+        onQueryModeSelected = viewModel::updateQueryMode,
+        onCurrentQueryClick = viewModel::queryCurrentAvailableClassrooms,
+        onCustomQueryClick = viewModel::queryAvailableClassrooms,
         onDismissError = viewModel::dismissError
     )
 }
@@ -117,12 +124,17 @@ fun ClassInfoScreen(
     onDaySelected: (DayOfWeek) -> Unit,
     onSectionSelected: (Int) -> Unit,
     onSearchTextChange: (String) -> Unit,
-    onQueryClick: () -> Unit,
-    onDismissWarning: () -> Unit,
+    onQueryModeSelected: (AvailableClassroomQueryMode) -> Unit,
+    onCurrentQueryClick: () -> Unit,
+    onCustomQueryClick: () -> Unit,
     onDismissError: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val colors = AppTheme.colors
+    val displayedClassrooms = state.displayedClassrooms
+    val filteredClassrooms = remember(displayedClassrooms, state.searchText) {
+        state.filteredClassrooms.orEmpty()
+    }
     val pageBackground =
         if (colors.bgPrimaryColor == Color(0xFF000000)) colors.bgPrimaryColor else colors.overviewPageBackgroundColor
 
@@ -154,56 +166,160 @@ fun ClassInfoScreen(
         },
         containerColor = pageBackground
     ) { paddingValues ->
-        Column(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(pageBackground)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            colors.bgTopBarColor.copy(alpha = 0.38f),
+                            pageBackground,
+                            pageBackground
+                        )
+                    )
+                ),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (state.showWarning) {
-                FeedbackBanner(
-                    title = "警告",
-                    message = state.warningMessage,
-                    backgroundColor = Color(0xFFFFF3CD),
-                    contentColor = Color(0xFF8A6200),
-                    actionLabel = "知道了",
-                    onDismiss = onDismissWarning
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                AvailableClassroomQueryModePicker(
+                    selectedMode = state.queryMode,
+                    enabled = true,
+                    onModeSelected = onQueryModeSelected
                 )
             }
 
-            if (state.showError && state.errorMessage.isNotBlank()) {
-                ErrorDialog(
-                    message = state.errorMessage,
-                    onDismiss = onDismissError
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                AvailableClassroomFilterCard(
+                    state = state,
+                    onCampusSelected = onCampusSelected,
+                    onWeekSelected = onWeekSelected,
+                    onDaySelected = onDaySelected,
+                    onSectionSelected = onSectionSelected,
+                    onQueryClick = {
+                        focusManager.clearFocus(force = true)
+                        when (state.queryMode) {
+                            AvailableClassroomQueryMode.CURRENT -> onCurrentQueryClick()
+                            AvailableClassroomQueryMode.CUSTOM -> onCustomQueryClick()
+                        }
+                    }
                 )
             }
 
-            AvailableClassroomFilterCard(
-                state = state,
-                onCampusSelected = onCampusSelected,
-                onWeekSelected = onWeekSelected,
-                onDaySelected = onDaySelected,
-                onSectionSelected = onSectionSelected,
-                onQueryClick = {
-                    focusManager.clearFocus(force = true)
-                    onQueryClick()
+            if (state.isLoading) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = colors.commonColor,
+                        trackColor = colors.commonColor.copy(alpha = 0.12f)
+                    )
                 }
-            )
+            }
 
-            when (state.availableClassrooms) {
-                null -> AvailableClassroomInitialState()
+            when (displayedClassrooms) {
+                null -> {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        AvailableClassroomInitialState(queryMode = state.queryMode)
+                    }
+                }
+
                 else -> {
-                    if (state.availableClassrooms.isNotEmpty()) {
-                        SearchInput(
-                            value = state.searchText,
-                            onValueChange = onSearchTextChange
+                    if (displayedClassrooms.isNotEmpty()) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            SearchInput(
+                                value = state.searchText,
+                                onValueChange = onSearchTextChange
+                            )
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        AvailableClassroomResultHeader(
+                            queryMode = state.queryMode,
+                            classroomCount = filteredClassrooms.size,
+                            updatedAtLabel = state.currentUpdatedAtLabel
                         )
                     }
-                    AvailableClassroomResultSection(state = state)
+
+                    if (filteredClassrooms.isEmpty()) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            AvailableClassroomEmptyState(
+                                title = availableClassroomEmptyTitle(state),
+                                subtitle = availableClassroomEmptySubtitle(state)
+                            )
+                        }
+                    } else if (state.queryMode == AvailableClassroomQueryMode.CURRENT) {
+                        items(
+                            items = filteredClassrooms,
+                            key = { it.rawName },
+                            span = { GridItemSpan(maxLineSpan) }
+                        ) { classroom ->
+                            CurrentClassroomCard(classroom = classroom)
+                        }
+                    } else {
+                        items(
+                            items = filteredClassrooms,
+                            key = { it.rawName }
+                        ) { classroom ->
+                            ClassroomChip(classroom = classroom)
+                        }
+                    }
                 }
+            }
+        }
+    }
+
+    if (state.showError && state.errorMessage.isNotBlank()) {
+        ErrorDialog(
+            message = state.errorMessage,
+            onDismiss = onDismissError
+        )
+    }
+}
+
+@Composable
+private fun AvailableClassroomQueryModePicker(
+    selectedMode: AvailableClassroomQueryMode,
+    enabled: Boolean,
+    onModeSelected: (AvailableClassroomQueryMode) -> Unit
+) {
+    val colors = AppTheme.colors
+    val queryModes = listOf(
+        AvailableClassroomQueryMode.CURRENT to "现在可用",
+        AvailableClassroomQueryMode.CUSTOM to "按节次查询"
+    )
+
+    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        queryModes.forEachIndexed { index, (queryMode, label) ->
+            SegmentedButton(
+                selected = selectedMode == queryMode,
+                onClick = { onModeSelected(queryMode) },
+                enabled = enabled,
+                shape = androidx.compose.material3.SegmentedButtonDefaults.itemShape(
+                    index = index,
+                    count = queryModes.size
+                ),
+                colors = androidx.compose.material3.SegmentedButtonDefaults.colors(
+                    activeContainerColor = colors.commonColor,
+                    activeContentColor = Color.White,
+                    inactiveContainerColor = colors.bgSecondaryColor,
+                    inactiveContentColor = colors.primaryTextColor,
+                    activeBorderColor = colors.commonColor,
+                    inactiveBorderColor = colors.outlineColor,
+                    disabledActiveContainerColor = colors.commonColor.copy(alpha = 0.5f),
+                    disabledInactiveContainerColor = colors.bgSecondaryColor,
+                    disabledActiveContentColor = Color.White.copy(alpha = 0.8f),
+                    disabledInactiveContentColor = colors.greyTextColor
+                ),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = label,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }
@@ -219,14 +335,16 @@ fun AvailableClassroomFilterCard(
     onQueryClick: () -> Unit
 ) {
     val colors = AppTheme.colors
-    val filterCardColor =
-        if (colors.bgPrimaryColor == Color(0xFF000000)) colors.bgSecondaryColor else Color.White
+    val filterCardColor = colors.commonColor.copy(
+        alpha = if (colors.bgPrimaryColor == Color(0xFF000000)) 0.09f else 0.055f
+    )
 
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = filterCardColor,
+        border = BorderStroke(1.dp, colors.outlineLowContrastColor.copy(alpha = 0.65f)),
         tonalElevation = 0.dp,
-        shadowElevation = 2.dp,
+        shadowElevation = 0.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -252,17 +370,40 @@ fun AvailableClassroomFilterCard(
 
                 Column {
                     Text(
-                        text = "查询条件",
+                        text = if (state.queryMode == AvailableClassroomQueryMode.CURRENT) {
+                            "现在可用"
+                        } else {
+                            "查询条件"
+                        },
                         color = colors.primaryTextColor,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
                     Text(
-                        text = "按校区、周数、星期和节次筛选空闲教室",
+                        text = if (state.queryMode == AvailableClassroomQueryMode.CURRENT) {
+                            state.currentContextLabel
+                        } else {
+                            "按校区、周数、星期和节次筛选空闲教室"
+                        },
                         color = colors.greyTextColor,
                         fontSize = 13.sp
                     )
                 }
+            }
+
+            if (state.queryMode == AvailableClassroomQueryMode.CURRENT) {
+                Text(
+                    text = state.currentTimeLabel,
+                    color = colors.primaryTextColor,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 15.sp
+                )
+                Text(
+                    text = "自动匹配当前教学时段，结果按连续空闲时长排序",
+                    color = colors.greyTextColor,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
             }
 
             SelectionLabel("校区")
@@ -272,32 +413,34 @@ fun AvailableClassroomFilterCard(
                 onCampusSelected = onCampusSelected
             )
 
-            SelectionDropdownField(
-                label = "周数",
-                selectedText = "第 ${state.selectedWeek} 周",
-                options = (1..20).toList(),
-                optionLabel = { "第 $it 周" },
-                enabled = !state.isLoading,
-                onSelected = onWeekSelected
-            )
+            if (state.queryMode == AvailableClassroomQueryMode.CUSTOM) {
+                SelectionDropdownField(
+                    label = "周数",
+                    selectedText = "第 ${state.selectedWeek} 周",
+                    options = (1..20).toList(),
+                    optionLabel = { "第 $it 周" },
+                    enabled = !state.isLoading,
+                    onSelected = onWeekSelected
+                )
 
-            SelectionDropdownField(
-                label = "星期",
-                selectedText = state.selectedDayOfWeek.toDisplayName(),
-                options = DayOfWeek.entries.toList(),
-                optionLabel = { it.toDisplayName() },
-                enabled = !state.isLoading,
-                onSelected = onDaySelected
-            )
+                SelectionDropdownField(
+                    label = "星期",
+                    selectedText = state.selectedDayOfWeek.toDisplayName(),
+                    options = DayOfWeek.entries.toList(),
+                    optionLabel = { it.toDisplayName() },
+                    enabled = !state.isLoading,
+                    onSelected = onDaySelected
+                )
 
-            SelectionDropdownField(
-                label = "节次",
-                selectedText = state.selectedSection.toSectionLabel(),
-                options = (1..5).toList(),
-                optionLabel = { it.toSectionLabel() },
-                enabled = !state.isLoading,
-                onSelected = onSectionSelected
-            )
+                SelectionDropdownField(
+                    label = "节次",
+                    selectedText = state.selectedSection.toSectionLabel(),
+                    options = (1..5).toList(),
+                    optionLabel = { it.toSectionLabel() },
+                    enabled = !state.isLoading,
+                    onSelected = onSectionSelected
+                )
+            }
 
             Button(
                 onClick = onQueryClick,
@@ -321,7 +464,13 @@ fun AvailableClassroomFilterCard(
                     Spacer(modifier = Modifier.size(8.dp))
                 }
                 Text(
-                    text = if (state.isLoading) "查询中..." else "查询空教室",
+                    text = when {
+                        state.isLoading -> "查询中..."
+                        state.queryMode == AvailableClassroomQueryMode.CURRENT &&
+                            state.currentClassrooms != null -> "刷新现在可用教室"
+                        state.queryMode == AvailableClassroomQueryMode.CURRENT -> "查看现在可用教室"
+                        else -> "查询空教室"
+                    },
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
@@ -352,6 +501,9 @@ private fun <T> SelectionDropdownField(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val colors = AppTheme.colors
+    val fieldContainerColor = colors.commonColor.copy(
+        alpha = if (colors.bgPrimaryColor == Color(0xFF000000)) 0.08f else 0.045f
+    )
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SelectionLabel(label)
@@ -374,9 +526,9 @@ private fun <T> SelectionDropdownField(
                     unfocusedTextColor = colors.primaryTextColor,
                     disabledTextColor = colors.greyTextColor,
                     cursorColor = colors.commonColor,
-                    focusedContainerColor = colors.bgPrimaryColor,
-                    unfocusedContainerColor = colors.bgPrimaryColor,
-                    disabledContainerColor = colors.bgPrimaryColor,
+                    focusedContainerColor = fieldContainerColor,
+                    unfocusedContainerColor = fieldContainerColor,
+                    disabledContainerColor = fieldContainerColor,
                     disabledBorderColor = colors.outlineColor.copy(alpha = 0.6f)
                 ),
                 trailingIcon = {
@@ -422,6 +574,9 @@ private fun CampusSegmentedPicker(
 ) {
     val colors = AppTheme.colors
     val campuses = listOf(Campus.JINPENLING, Campus.YUNTANG)
+    val inactiveCampusColor = colors.commonColor.copy(
+        alpha = if (colors.bgPrimaryColor == Color(0xFF000000)) 0.08f else 0.045f
+    )
 
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
         campuses.forEachIndexed { index, campus ->
@@ -436,12 +591,12 @@ private fun CampusSegmentedPicker(
                 colors = androidx.compose.material3.SegmentedButtonDefaults.colors(
                     activeContainerColor = colors.commonColor,
                     activeContentColor = Color.White,
-                    inactiveContainerColor = colors.bgPrimaryColor,
+                    inactiveContainerColor = inactiveCampusColor,
                     inactiveContentColor = colors.primaryTextColor,
                     activeBorderColor = colors.commonColor,
                     inactiveBorderColor = colors.outlineColor,
                     disabledActiveContainerColor = colors.commonColor.copy(alpha = 0.5f),
-                    disabledInactiveContainerColor = colors.bgPrimaryColor,
+                    disabledInactiveContainerColor = inactiveCampusColor,
                     disabledActiveContentColor = Color.White.copy(alpha = 0.8f),
                     disabledInactiveContentColor = colors.greyTextColor
                 ),
@@ -464,9 +619,13 @@ private fun SearchInput(
 ) {
     val colors = AppTheme.colors
     val isDark = colors.bgPrimaryColor == Color(0xFF000000)
-    val searchBorderColor = if (isDark) colors.outlineColor else colors.commonColor.copy(alpha = 0.7f)
+    val searchBorderColor = if (isDark) {
+        colors.outlineLowContrastColor.copy(alpha = 0.55f)
+    } else {
+        colors.outlineLowContrastColor.copy(alpha = 0.85f)
+    }
     val searchHintColor = if (isDark) colors.searchHintColor else colors.greyTextColor.copy(alpha = 0.82f)
-    val searchContainerColor = if (isDark) colors.bgSecondaryColor else Color.White
+    val searchContainerColor = colors.commonColor.copy(alpha = if (isDark) 0.08f else 0.045f)
 
     OutlinedTextField(
         value = value,
@@ -495,64 +654,120 @@ private fun SearchInput(
 }
 
 @Composable
-fun AvailableClassroomResultSection(
-    state: AvailableClassroomUiState
+private fun AvailableClassroomResultHeader(
+    queryMode: AvailableClassroomQueryMode,
+    classroomCount: Int,
+    updatedAtLabel: String
 ) {
     val colors = AppTheme.colors
-    val classrooms = state.filteredAvailableClassrooms.orEmpty()
 
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "查询结果",
+                text = if (queryMode == AvailableClassroomQueryMode.CURRENT) {
+                    "现在可用"
+                } else {
+                    "查询结果"
+                },
                 color = colors.primaryTextColor,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "共 ${classrooms.count()} 间",
+                text = "共 $classroomCount 间",
                 color = colors.greyTextColor,
                 fontSize = 14.sp
             )
         }
 
-        when {
-            classrooms.isEmpty() && state.searchText.isNotBlank() -> {
-                AvailableClassroomEmptyState(
-                    title = "没有找到匹配的教室",
-                    subtitle = "试试其他关键词或清空搜索"
+        if (
+            queryMode == AvailableClassroomQueryMode.CURRENT &&
+            updatedAtLabel.isNotBlank()
+        ) {
+            Text(
+                text = updatedAtLabel,
+                color = colors.greyTextColor,
+                fontSize = 12.sp
+            )
+        }
+    }
+}
+
+private fun availableClassroomEmptyTitle(state: AvailableClassroomUiState): String {
+    if (state.searchText.isNotBlank()) return "没有找到匹配的教室"
+    return if (state.queryMode == AvailableClassroomQueryMode.CURRENT) {
+        state.currentEmptyMessage.ifBlank { "现在没有找到空闲教室" }
+    } else {
+        "该时间段无空闲教室"
+    }
+}
+
+private fun availableClassroomEmptySubtitle(state: AvailableClassroomUiState): String {
+    if (state.searchText.isNotBlank()) return "试试其他关键词或清空搜索"
+    return if (state.queryMode == AvailableClassroomQueryMode.CURRENT) {
+        "可以刷新或切换到按节次查询"
+    } else {
+        "可以换个校区、周数或节次再试试"
+    }
+}
+
+@Composable
+private fun CurrentClassroomCard(classroom: ClassroomAvailabilityItem) {
+    val colors = AppTheme.colors
+
+    Surface(
+        shape = RoundedCornerShape(18.dp),
+        color = colors.commonColor.copy(alpha = 0.055f),
+        border = BorderStroke(1.dp, colors.outlineLowContrastColor.copy(alpha = 0.58f)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .height(40.dp)
+                    .background(colors.commonColor, RoundedCornerShape(999.dp))
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = classroom.rawName,
+                    color = colors.primaryTextColor,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
+                val availableUntilLabel = classroom.availableUntilLabel
+                if (availableUntilLabel != null) {
+                    Text(
+                        text = "空到 $availableUntilLabel",
+                        color = colors.secondaryTextColor,
+                        fontSize = 13.sp
+                    )
+                }
             }
 
-            classrooms.isEmpty() -> {
-                AvailableClassroomEmptyState(
-                    title = "该时间段无空闲教室",
-                    subtitle = "可以换个校区、周数或节次再试试"
-                )
-            }
-
-            else -> {
+            val remainingDurationLabel = classroom.remainingDurationLabel
+            if (remainingDurationLabel != null) {
                 Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = colors.bgSecondaryColor,
-                    modifier = Modifier.fillMaxWidth()
+                    shape = RoundedCornerShape(12.dp),
+                    color = colors.commonColor.copy(alpha = 0.13f)
                 ) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        userScrollEnabled = false,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(14.dp),
-                        modifier = Modifier.height((((classrooms.size + 1) / 2) * 68).dp)
-                    ) {
-                        items(classrooms) { classroom ->
-                            ClassroomChip(classroom = classroom)
-                        }
-                    }
+                    Text(
+                        text = remainingDurationLabel,
+                        color = colors.commonColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp)
+                    )
                 }
             }
         }
@@ -560,12 +775,13 @@ fun AvailableClassroomResultSection(
 }
 
 @Composable
-private fun ClassroomChip(classroom: String) {
+private fun ClassroomChip(classroom: ClassroomAvailabilityItem) {
     val colors = AppTheme.colors
 
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = colors.bgPrimaryColor,
+        color = colors.commonColor.copy(alpha = 0.07f),
+        border = BorderStroke(1.dp, colors.outlineLowContrastColor.copy(alpha = 0.45f)),
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
         modifier = Modifier.fillMaxWidth()
@@ -573,23 +789,26 @@ private fun ClassroomChip(classroom: String) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(colors.bgPrimaryColor)
-                .padding(horizontal = 12.dp, vertical = 16.dp),
+                .padding(horizontal = 12.dp, vertical = 15.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = classroom,
+                text = classroom.rawName,
                 color = colors.primaryTextColor,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
 }
 
 @Composable
-fun AvailableClassroomInitialState() {
+fun AvailableClassroomInitialState(
+    queryMode: AvailableClassroomQueryMode = AvailableClassroomQueryMode.CURRENT
+) {
     val colors = AppTheme.colors
 
     Surface(
@@ -623,7 +842,11 @@ fun AvailableClassroomInitialState() {
                 fontSize = 16.sp
             )
             Text(
-                text = "支持按校区、周数、星期和节次查询空闲教室",
+                text = if (queryMode == AvailableClassroomQueryMode.CURRENT) {
+                    "自动匹配当前教学时段，查看教室可用时长"
+                } else {
+                    "支持按校区、周数、星期和节次查询空闲教室"
+                },
                 color = colors.greyTextColor,
                 fontSize = 13.sp,
                 textAlign = TextAlign.Center
@@ -668,49 +891,6 @@ fun AvailableClassroomEmptyState(
                 color = colors.greyTextColor,
                 fontSize = 13.sp,
                 textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-@Composable
-fun FeedbackBanner(
-    title: String,
-    message: String,
-    backgroundColor: Color,
-    contentColor: Color,
-    actionLabel: String,
-    onDismiss: () -> Unit
-) {
-    Surface(
-        shape = RoundedCornerShape(18.dp),
-        color = backgroundColor,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = title,
-                    color = contentColor,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = onDismiss, contentPadding = PaddingValues(0.dp)) {
-                    Text(text = actionLabel, color = contentColor, fontWeight = FontWeight.SemiBold)
-                }
-            }
-            Text(
-                text = message,
-                color = contentColor,
-                fontSize = 13.sp,
-                lineHeight = 18.sp
             )
         }
     }
@@ -776,7 +956,14 @@ fun ClassInfoScreenPreview() {
     AppSkinTheme {
         ClassInfoScreen(
             state = AvailableClassroomUiState(
-                availableClassrooms = listOf("云综教A101", "云综教A102", "云综教B201", "理科楼203")
+                currentContextLabel = "第 3 周 · 星期二",
+                currentTimeLabel = "现在 10:30，查看能用多久",
+                currentUpdatedAtLabel = "更新于 10:30",
+                currentClassrooms = listOf(
+                    previewClassroom("云综教A101", "11:50", "约 1小时20分", 80),
+                    previewClassroom("云综教A102", "11:50", "约 1小时20分", 80),
+                    previewClassroom("金12", "11:50", "约 1小时20分", 80)
+                )
             ),
             onBackClick = {},
             onCampusSelected = {},
@@ -784,8 +971,9 @@ fun ClassInfoScreenPreview() {
             onDaySelected = {},
             onSectionSelected = {},
             onSearchTextChange = {},
-            onQueryClick = {},
-            onDismissWarning = {},
+            onQueryModeSelected = {},
+            onCurrentQueryClick = {},
+            onCustomQueryClick = {},
             onDismissError = {}
         )
     }
@@ -797,9 +985,9 @@ fun ClassInfoScreenDarkPreview() {
     AppSkinTheme {
         ClassInfoScreen(
             state = AvailableClassroomUiState(
-                availableClassrooms = emptyList(),
-                showWarning = true,
-                warningMessage = "请先登录教务系统后再查询数据"
+                currentContextLabel = "第 3 周 · 星期二",
+                currentTimeLabel = "现在 10:30，查看能用多久",
+                currentClassrooms = emptyList()
             ),
             onBackClick = {},
             onCampusSelected = {},
@@ -807,8 +995,9 @@ fun ClassInfoScreenDarkPreview() {
             onDaySelected = {},
             onSectionSelected = {},
             onSearchTextChange = {},
-            onQueryClick = {},
-            onDismissWarning = {},
+            onQueryModeSelected = {},
+            onCurrentQueryClick = {},
+            onCustomQueryClick = {},
             onDismissError = {}
         )
     }
@@ -825,18 +1014,6 @@ fun AvailableClassroomFilterCardPreview() {
             onDaySelected = {},
             onSectionSelected = {},
             onQueryClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AvailableClassroomResultSectionPreview() {
-    AppSkinTheme {
-        AvailableClassroomResultSection(
-            state = AvailableClassroomUiState(
-                availableClassrooms = listOf("金综教101", "金综教102", "金综教201", "金综教202")
-            )
         )
     }
 }
@@ -860,30 +1037,16 @@ fun AvailableClassroomEmptyStatePreview() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun FeedbackBannerPreview() {
-    AppSkinTheme {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            FeedbackBanner(
-                title = "警告",
-                message = "请先登录教务系统后再查询数据",
-                backgroundColor = Color(0xFFFFF3CD),
-                contentColor = Color(0xFF8A6200),
-                actionLabel = "知道了",
-                onDismiss = {}
-            )
-            FeedbackBanner(
-                title = "错误",
-                message = "网络出现波动，请稍后重试",
-                backgroundColor = Color(0xFFFFE3E3),
-                contentColor = Color(0xFFB3261E),
-                actionLabel = "关闭",
-                onDismiss = {}
-            )
-        }
-    }
+private fun previewClassroom(
+    rawName: String,
+    availableUntilLabel: String? = null,
+    remainingDurationLabel: String? = null,
+    remainingMinutes: Int = 0
+): ClassroomAvailabilityItem {
+    return ClassroomAvailabilityItem(
+        rawName = rawName,
+        availableUntilLabel = availableUntilLabel,
+        remainingDurationLabel = remainingDurationLabel,
+        remainingMinutes = remainingMinutes
+    )
 }
