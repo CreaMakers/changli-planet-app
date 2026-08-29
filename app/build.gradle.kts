@@ -52,8 +52,7 @@ val legacyMigrationProviderAuthority = if (legacyMigrationProviderEnabled) {
 
 android {
     namespace = "com.zhelearn.CSUSTPlanet"
-    compileSdk = 36
-    compileSdkMinor = 1
+    compileSdk = 37
     buildFeatures {
         buildConfig = true
         compose = true
@@ -81,7 +80,7 @@ android {
     defaultConfig {
         applicationId = planetApplicationId
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 35
         versionName = "2.11.0"
         val amapApiKey: String = privateProperties.getProperty("amap.apiKey")?.trim().orEmpty()
@@ -205,7 +204,8 @@ androidComponents {
 }
 dependencies {
     implementation(libs.androidx.profileinstaller)
-    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
     "baselineProfile"(project(":baselineprofile"))
     // leakcanary
     debugImplementation(libs.leakcanary.android)
@@ -296,6 +296,7 @@ dependencies {
     debugImplementation(libs.codelocator.lancet.all)
     // Coil for image loading
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     //csustDataGet
     implementation(libs.csustdataget)
 //    implementation(files("libs/csust_spider-release.aar"))

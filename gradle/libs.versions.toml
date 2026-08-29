@@ -1,36 +1,36 @@
 [versions]
 activityKtx = "1.13.0"
-agp = "9.2.0"
+agp = "9.3.2"
 codelocatorCore = "2.0.4"
-coilCompose = "2.7.0"
-common = "4.0.1"
+coilCompose = "3.6.0"
+common = "4.1.15"
 converterGson = "3.0.0"
 crashreport = "4.1.9.3"
 csustdataget = "1.1.4"
 flexbox = "3.0.0"
-fragmentKtx = "1.8.9"
+fragmentKtx = "1.9.0"
 glide = "5.0.7"
 gson = "2.14.0"
 httpdnsSdk = "4.11.0"
-jsoup = "1.22.2"
-kotlin = "2.3.21"
-coreKtx = "1.18.0"
+jsoup = "1.23.2"
+kotlin = "2.4.10"
+coreKtx = "1.19.0"
 appcompat = "1.7.1"
 leakcanaryAndroid = "2.14"
-loggingInterceptor = "5.3.2"
+loggingInterceptor = "5.5.0"
 lottie = "6.7.1"
-material = "1.13.0"
+material = "1.14.0"
 activity = "1.13.0"
-constraintlayout = "2.2.1"
-lifecycleRuntimeKtx = "2.10.0"
+constraintlayout = "2.2.2"
+lifecycleRuntimeKtx = "2.11.0"
 matomoSdk = "4.4"
 activityCompose = "1.13.0"
-composeBom = "2026.04.01"
+composeBom = "2026.08.00"
 espressoCore = "3.7.0"
-constraintlayoutCompose = "1.1.1"
-mmkv = "2.4.0"
-okhttp = "5.3.2"
-okhttpUrlconnection = "5.3.2"
+constraintlayoutCompose = "1.1.2"
+mmkv = "2.4.2"
+okhttp = "5.5.0"
+okhttpUrlconnection = "5.5.0"
 photoview = "2.3.0"
 retrofit = "3.0.0"
 roomRxjava3 = "2.8.4"
@@ -39,23 +39,25 @@ rxjava = "3.1.12"
 statelayout = "1.4.2"
 subsamplingScaleImageView = "3.10.0"
 timetableview = "2.0.7"
-ucrop = "2.2.9"
+ucrop = "2.2.10"
 workRuntimeKtx = "2.11.2"
 workRxjava2 = "2.11.2"
 junit = "1.3.0"
-uiautomator = "2.3.0"
+uiautomator = "2.4.0"
 benchmarkMacroJunit4 = "1.4.1"
-baselineprofile = "1.5.0-alpha05"
+baselineprofile = "1.5.0-rc02"
 profileinstaller = "1.4.1"
-ksp = "2.3.7"
+ksp = "2.3.11"
 haze = "1.7.2"
-nav3Core = "1.1.1"
-navigationRuntimeKtx = "2.9.8"
-navigationCompose = "2.9.8"
-uiGraphics = "1.11.0"
+nav3Core = "1.1.7"
+navigationRuntimeKtx = "2.10.0"
+navigationCompose = "2.10.0"
+coroutines = "1.11.0"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
@@ -68,7 +70,8 @@ androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version
 androidx-work-rxjava2 = { module = "androidx.work:work-rxjava2", version.ref = "workRxjava2" }
 codelocator-core = { module = "com.bytedance.tools.codelocator:codelocator-core", version.ref = "codelocatorCore" }
 codelocator-lancet-all = { module = "com.bytedance.tools.codelocator:codelocator-lancet-all", version.ref = "codelocatorCore" }
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 common = { module = "com.github.gzu-liyujiang.AndroidPicker:Common", version.ref = "common" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterGson" }
@@ -123,7 +126,6 @@ androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runt
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
-androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

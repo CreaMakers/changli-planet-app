@@ -42,8 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.zhelearn.CSUSTPlanet.R
 import com.zhelearn.CSUSTPlanet.common.data.local.mmkv.StudentInfoManager
 import com.zhelearn.CSUSTPlanet.common.data.local.mmkv.UserInfoManager
@@ -148,10 +149,10 @@ private fun ProfileSettingsScreen(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(avatarData)
                 .crossfade(true)
-                .placeholder(R.drawable.ic_fulilian)
-                .error(R.drawable.ic_error_vector)
                 .build(),
             contentDescription = "Avatar",
+            placeholder = painterResource(R.drawable.ic_fulilian),
+            error = painterResource(R.drawable.ic_error_vector),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(100.dp)

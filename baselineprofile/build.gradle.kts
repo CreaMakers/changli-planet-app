@@ -5,8 +5,7 @@ plugins {
 
 android {
     namespace = "com.dcelysia.baselineprofile"
-    compileSdk = 36
-    compileSdkMinor = 1
+    compileSdk = 37
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -21,7 +20,7 @@ android {
 
     defaultConfig {
         minSdk = 28
-        targetSdk = 36
+        targetSdk = 37
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

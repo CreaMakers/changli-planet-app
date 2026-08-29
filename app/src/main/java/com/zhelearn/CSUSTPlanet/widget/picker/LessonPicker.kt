@@ -72,14 +72,14 @@ class LessonPicker(activity: Activity,start: Int,end: Int) {
             thirdLabelView.visibility = View.GONE
 
             firstWheelView.apply {
-                textSize = 55
+                textSize = 55f
                 textColor = Color.BLACK
                 selectedTextColor = Color.BLUE
                 isIndicatorEnabled = true
             }
 
             secondWheelView.apply {
-                textSize = 55
+                textSize = 55f
                 textColor = Color.BLACK
                 selectedTextColor = Color.BLUE
                 isIndicatorEnabled = true

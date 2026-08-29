@@ -4,8 +4,7 @@ plugins {
 
 android {
     namespace = "com.dcelysia.cp_common"
-    compileSdk = 36
-    compileSdkMinor = 1
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24

@@ -96,14 +96,14 @@ class ProductCategoryPicker(
             thirdLabelView.visibility = View.GONE
 
             firstWheelView.apply {
-                textSize = 55
+                textSize = 55f
                 textColor = wheelNormalColor
                 selectedTextColor = wheelSelectedColor
                 isIndicatorEnabled = true
             }
 
             secondWheelView.apply {
-                textSize = 55
+                textSize = 55f
                 textColor = wheelNormalColor
                 selectedTextColor = wheelSelectedColor
                 isIndicatorEnabled = true

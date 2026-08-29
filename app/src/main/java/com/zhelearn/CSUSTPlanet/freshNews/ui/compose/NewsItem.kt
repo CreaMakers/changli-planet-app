@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.zhelearn.CSUSTPlanet.R
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
 import com.zhelearn.CSUSTPlanet.freshNews.data.local.mmkv.model.FreshNewsItem
@@ -311,4 +311,3 @@ fun NewsItemPreview() {
         }
     }
 }
-
