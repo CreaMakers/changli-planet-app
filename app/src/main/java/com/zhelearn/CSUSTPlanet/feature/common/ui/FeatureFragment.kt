@@ -109,7 +109,7 @@ private fun FeatureHeaderSection(avatarUrl: String) {
             .statusBarsPadding()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.planet_logo),
+            painter = painterResource(id = R.drawable.yunling_planet_logo),
             contentDescription = "背景图片",
             modifier = Modifier.fillMaxSize(),
         )
