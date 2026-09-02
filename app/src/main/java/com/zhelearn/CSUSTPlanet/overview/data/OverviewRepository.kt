@@ -17,11 +17,15 @@ import com.zhelearn.CSUSTPlanet.feature.common.data.repository.ElectricityReposi
 import com.zhelearn.CSUSTPlanet.overview.data.local.OverviewLocalCache
 import com.zhelearn.CSUSTPlanet.overview.data.local.OverviewLocalCache.ElectricityHistoryEntry
 import com.zhelearn.CSUSTPlanet.overview.data.local.OverviewLocalCache.ElectricitySnapshot
+import com.zhelearn.CSUSTPlanet.overview.data.remote.api.AnnouncementApi
+import com.zhelearn.CSUSTPlanet.overview.data.remote.dto.AnnouncementDto
+import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewAnnouncementUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewCourseUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewExamUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewMetricUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewUiState
 import com.zhelearn.CSUSTPlanet.utils.NetworkUtil
+import com.zhelearn.CSUSTPlanet.utils.RetrofitUtils
 import com.dcelysia.csust_spider.core.Resource
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
@@ -47,6 +51,7 @@ class OverviewRepository(
     private val userDao by lazy { UserDataBase.getInstance(appContext).itemDao() }
     private val examCache by lazy { ExamArrangementCache() }
     private val electricityRepository by lazy { ElectricityRepository() }
+    private val announcementApi by lazy { RetrofitUtils.instancePlanet.create(AnnouncementApi::class.java) }
 
     suspend fun loadLocalState(): OverviewUiState = withContext(Dispatchers.IO) {
         buildState(
@@ -153,7 +158,8 @@ class OverviewRepository(
                 studentId.isBlank() || studentPassword.isBlank() -> "先绑定学号"
                 exams.isNotEmpty() -> ""
                 else -> "没有数据"
-            }
+            },
+            announcements = OverviewLocalCache.getAnnouncements().toUiAnnouncements()
         )
     }
 
@@ -241,6 +247,17 @@ class OverviewRepository(
             examCache.saveExamArrangement(exams)
         }
         return exams.toUiExams()
+    }
+
+    /**
+     * 拉取平台公告并更新本地缓存；网络失败时回退缓存，保证离线也能展示上次内容。
+     */
+    suspend fun refreshAnnouncements(): List<OverviewAnnouncementUiModel> = withContext(Dispatchers.IO) {
+        val remote = runCatching { announcementApi.getAnnouncements() }.getOrNull()
+        if (remote != null) {
+            OverviewLocalCache.saveAnnouncements(remote)
+        }
+        (remote ?: OverviewLocalCache.getAnnouncements()).toUiAnnouncements()
     }
 
     private fun buildMetrics(
@@ -441,6 +458,11 @@ class OverviewRepository(
                 )
             }
         }
+
+    /** 过滤空标题公告并映射为 UI 模型，保持服务端返回顺序（创建时间倒序）。 */
+    private fun List<AnnouncementDto>.toUiAnnouncements(): List<OverviewAnnouncementUiModel> =
+        filter { it.id.isNotBlank() && it.title.isNotBlank() }
+            .map { OverviewAnnouncementUiModel(id = it.id, title = it.title, content = it.content) }
 
     private fun List<TimeTableMySubject>.toDayCourses(targetWeekday: Int, currentWeek: Int): List<OverviewCourseUiModel> {
         val colors = listOf(Color(0xFF5E87F6), Color(0xFF45B979), Color(0xFFF08D3C), Color(0xFFB974F0))

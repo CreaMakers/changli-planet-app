@@ -3,9 +3,11 @@ package com.zhelearn.CSUSTPlanet.overview.data.local
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
+import com.zhelearn.CSUSTPlanet.overview.data.remote.dto.AnnouncementDto
 
 object OverviewLocalCache {
     private const val CACHE_ID = "overview_local_cache"
+    private const val KEY_ANNOUNCEMENTS = "announcements"
     private const val KEY_ELECTRICITY_HISTORY = "electricity_history"
     private const val KEY_LAST_ELECTRICITY = "last_electricity"
     private const val KEY_PREV_ELECTRICITY = "prev_electricity"
@@ -49,6 +51,22 @@ object OverviewLocalCache {
             gson.fromJson<List<ElectricityHistoryEntry>>(
                 json,
                 object : TypeToken<List<ElectricityHistoryEntry>>() {}.type
+            ).orEmpty()
+        }.getOrDefault(emptyList())
+    }
+
+    /** 保存公告列表（整表覆盖，服务端下线的公告随之移除）。 */
+    fun saveAnnouncements(list: List<AnnouncementDto>) {
+        mmkv.encode(KEY_ANNOUNCEMENTS, gson.toJson(list))
+    }
+
+    /** 读取公告缓存，读失败或无缓存时返回空列表。 */
+    fun getAnnouncements(): List<AnnouncementDto> {
+        val json = mmkv.decodeString(KEY_ANNOUNCEMENTS) ?: return emptyList()
+        return runCatching {
+            gson.fromJson<List<AnnouncementDto>>(
+                json,
+                object : TypeToken<List<AnnouncementDto>>() {}.type
             ).orEmpty()
         }.getOrDefault(emptyList())
     }

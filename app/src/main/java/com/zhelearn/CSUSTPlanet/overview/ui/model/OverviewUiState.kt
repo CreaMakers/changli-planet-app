@@ -27,7 +27,8 @@ data class OverviewUiState(
     val pendingTests: List<OverviewTestUiModel> = emptyList(),
     val pendingTestMessage: String = "",
     val upcomingExams: List<OverviewExamUiModel> = emptyList(),
-    val examMessage: String = ""
+    val examMessage: String = "",
+    val announcements: List<OverviewAnnouncementUiModel> = emptyList()
 )
 
 @Immutable
@@ -60,6 +61,13 @@ data class OverviewExamUiModel(
     val examTime: String,
     val location: String,
     val badge: String = "待安排"
+)
+
+@Immutable
+data class OverviewAnnouncementUiModel(
+    val id: String,
+    val title: String,
+    val content: String = ""
 )
 
 @Immutable

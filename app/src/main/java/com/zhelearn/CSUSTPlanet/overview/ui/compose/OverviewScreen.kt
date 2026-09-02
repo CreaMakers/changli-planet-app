@@ -40,7 +40,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +59,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.zhelearn.CSUSTPlanet.R
 import com.zhelearn.CSUSTPlanet.core.theme.AppSkinTheme
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
+import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewAnnouncementUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewCourseUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewExamUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewHomeworkUiModel
@@ -115,6 +118,10 @@ private fun OverviewScreen(
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
+        item {
+            AnnouncementBar(announcements = state.announcements)
+        }
+
         item {
             HeaderBlock(state = state, onBindClick = onBindClick)
         }
@@ -175,6 +182,94 @@ private fun OverviewScreen(
             }
         }
 
+    }
+}
+
+@Composable
+private fun AnnouncementBar(announcements: List<OverviewAnnouncementUiModel>) {
+    val colors = AppTheme.colors
+    if (announcements.isEmpty()) return
+
+    // 当前轮播到的公告下标；列表刷新变短时用取模兜底
+    var currentIndex by remember { mutableIntStateOf(0) }
+    var expanded by remember { mutableStateOf(false) }
+    val current = announcements[currentIndex % announcements.size]
+    val canExpand = current.content.isNotBlank()
+
+    // 单协程常驻循环驱动轮播：折叠态才推进下标（expanded 由委托实时读取），
+    // 展开/收起不打断循环，避免协程反复取消重启导致的轮播中断
+    LaunchedEffect(announcements.size) {
+        if (announcements.size <= 1) return@LaunchedEffect
+        while (true) {
+            delay(4000)
+            if (!expanded) {
+                currentIndex = (currentIndex + 1) % announcements.size
+            }
+        }
+    }
+
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        color = colors.bgCardColor,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = canExpand || announcements.size > 1) {
+                if (canExpand) {
+                    expanded = !expanded
+                } else {
+                    currentIndex = (currentIndex + 1) % announcements.size
+                }
+            }
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(999.dp))
+                        .background(colors.overviewPromptBackgroundColor)
+                        .padding(horizontal = 12.dp, vertical = 5.dp)
+                ) {
+                    Text(
+                        text = "公告",
+                        color = colors.overviewPromptTextColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                AnimatedContent(
+                    targetState = current,
+                    transitionSpec = {
+                        (slideInVertically { it / 2 } + fadeIn()).togetherWith(
+                            slideOutVertically { -it / 2 } + fadeOut()
+                        )
+                    },
+                    label = "overview_announcement_title",
+                    modifier = Modifier.weight(1f)
+                ) { announcement ->
+                    Text(
+                        text = announcement.title,
+                        color = colors.primaryTextColor,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            if (expanded && canExpand) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = current.content,
+                    color = colors.secondaryTextColor,
+                    fontSize = 13.sp,
+                    lineHeight = 19.sp
+                )
+            }
+        }
     }
 }
 
@@ -743,6 +838,14 @@ private fun OverviewScreenPreview() {
                 ),
                 upcomingExams = listOf(
                     OverviewExamUiModel("1", "大学物理实验", "2026-03-14 09:00", "云塘校区 · 综合楼", "明天")
+                ),
+                announcements = listOf(
+                    OverviewAnnouncementUiModel(
+                        id = "1",
+                        title = "关于“宿舍电量定时查询通知”功能即将下线的公告",
+                        content = "由于学校更新了校园卡系统，定时查询电量的通知将会在一周内下线，请转为使用宿舍电量小组件。"
+                    ),
+                    OverviewAnnouncementUiModel(id = "2", title = "长理星球公告系统上线了")
                 )
             ),
             onBindClick = {},
