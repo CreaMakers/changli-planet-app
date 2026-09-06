@@ -26,13 +26,9 @@ class OverviewViewModel : ViewModel() {
 
     private val repository by lazy { OverviewRepository(PlanetApplication.appContext) }
     private var loadJob: Job? = null
-    private var announcementJob: Job? = null
 
     // 上次网络刷新成功的时间戳
     private var lastRefreshTimeMs: Long = 0L
-
-    // 上次公告网络刷新的时间戳，与教务数据共用刷新间隔
-    private var lastAnnouncementRefreshMs: Long = 0L
 
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
@@ -60,9 +56,6 @@ class OverviewViewModel : ViewModel() {
             _uiState.value = displayState
 
             loadMoocFromCache()
-
-            // 公告不依赖学号绑定，本地缓存已随 loadLocalState 上屏，这里只负责节流刷新
-            refreshAnnouncementsIfNeeded(localState.isOnline)
 
             val shouldRefresh = localState.isBoundStudent && localState.isOnline &&
                 (lastRefreshTimeMs == 0L || System.currentTimeMillis() - lastRefreshTimeMs >= REFRESH_INTERVAL_MS)
@@ -109,24 +102,6 @@ class OverviewViewModel : ViewModel() {
     }
 
     /**
-     * 节流刷新公告：同一刷新间隔内跳过；网络失败时 Repository 会回退本地缓存
-     */
-    private fun refreshAnnouncementsIfNeeded(isOnline: Boolean) {
-        if (!isOnline) return
-        if (lastAnnouncementRefreshMs != 0L &&
-            System.currentTimeMillis() - lastAnnouncementRefreshMs < REFRESH_INTERVAL_MS
-        ) {
-            return
-        }
-        announcementJob?.cancel()
-        announcementJob = viewModelScope.launch {
-            val latest = repository.refreshAnnouncements()
-            lastAnnouncementRefreshMs = System.currentTimeMillis()
-            _uiState.value = _uiState.value.copy(announcements = latest)
-        }
-    }
-
-    /**
      * 绑定学号后，用 MoocDataHelper 刷新慕课网络数据
      */
     private fun refreshMoocData() {
@@ -167,9 +142,7 @@ class OverviewViewModel : ViewModel() {
             pendingHomeworks = if (current.pendingHomeworks.isNotEmpty() && incoming.pendingHomeworks.isEmpty()) current.pendingHomeworks else incoming.pendingHomeworks,
             pendingHomeworkMessage = if (current.pendingHomeworks.isNotEmpty() && incoming.pendingHomeworks.isEmpty()) current.pendingHomeworkMessage else incoming.pendingHomeworkMessage,
             pendingTests = if (current.pendingTests.isNotEmpty() && incoming.pendingTests.isEmpty()) current.pendingTests else incoming.pendingTests,
-            pendingTestMessage = if (current.pendingTests.isNotEmpty() && incoming.pendingTests.isEmpty()) current.pendingTestMessage else incoming.pendingTestMessage,
-            // 保留公告不被 incoming 的空列表覆盖（公告由独立的刷新协程更新）
-            announcements = if (current.announcements.isNotEmpty() && incoming.announcements.isEmpty()) current.announcements else incoming.announcements
+            pendingTestMessage = if (current.pendingTests.isNotEmpty() && incoming.pendingTests.isEmpty()) current.pendingTestMessage else incoming.pendingTestMessage
         )
     }
 

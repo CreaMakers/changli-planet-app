@@ -26,7 +26,7 @@ import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.FunctionDestination
 import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.openFunctionShortcut
 import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.primaryFunctionShortcuts
 import com.zhelearn.CSUSTPlanet.feature.common.ui.FeatureScreen
-import com.zhelearn.CSUSTPlanet.im.ui.UnderConstructionScreen
+import com.zhelearn.CSUSTPlanet.overview.ui.compose.AnnouncementScreen
 import com.zhelearn.CSUSTPlanet.overview.ui.compose.OverviewScreen
 import com.zhelearn.CSUSTPlanet.overview.viewmodel.OverviewViewModel
 import com.zhelearn.CSUSTPlanet.profileSettings.ui.compose.ProfileSettingsRoute
@@ -72,7 +72,7 @@ fun MainScreen(
                         FeatureScreen()
                     }
                     entry<MainTabDestination.News> {
-                        UnderConstructionScreen()
+                        AnnouncementScreen()
                     }
                     entry<MainTabDestination.Profile> {
                         ProfileSettingsRoute()

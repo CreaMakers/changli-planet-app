@@ -158,8 +158,7 @@ class OverviewRepository(
                 studentId.isBlank() || studentPassword.isBlank() -> "先绑定学号"
                 exams.isNotEmpty() -> ""
                 else -> "没有数据"
-            },
-            announcements = OverviewLocalCache.getAnnouncements().toUiAnnouncements()
+            }
         )
     }
 
@@ -247,6 +246,10 @@ class OverviewRepository(
             examCache.saveExamArrangement(exams)
         }
         return exams.toUiExams()
+    }
+
+    suspend fun loadCachedAnnouncements(): List<OverviewAnnouncementUiModel> = withContext(Dispatchers.IO) {
+        OverviewLocalCache.getAnnouncements().toUiAnnouncements()
     }
 
     /**
@@ -459,10 +462,35 @@ class OverviewRepository(
             }
         }
 
-    /** 过滤空标题公告并映射为 UI 模型，保持服务端返回顺序（创建时间倒序）。 */
-    private fun List<AnnouncementDto>.toUiAnnouncements(): List<OverviewAnnouncementUiModel> =
-        filter { it.id.isNotBlank() && it.title.isNotBlank() }
-            .map { OverviewAnnouncementUiModel(id = it.id, title = it.title, content = it.content) }
+    /** 网络和缓存统一按创建时间倒序展示，缺失时间的公告放在末尾。 */
+    private fun List<AnnouncementDto>.toUiAnnouncements(): List<OverviewAnnouncementUiModel> {
+        val timestampFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US)
+        val fractionalSeconds = Regex("\\.(\\d+)")
+        val announcements = ArrayList<OverviewAnnouncementUiModel>(size)
+        for (announcement in this) {
+            if (announcement.id.isBlank() || announcement.title.isBlank()) continue
+            // ISO 时间可能包含微秒；Date 只保留毫秒，无小数部分时补齐。
+            val timestamp = if (fractionalSeconds.containsMatchIn(announcement.createdAt)) {
+                fractionalSeconds.replace(announcement.createdAt) {
+                    "." + it.groupValues[1].padEnd(3, '0').take(3)
+                }
+            } else if (announcement.createdAt.length >= 19) {
+                announcement.createdAt.substring(0, 19) + ".000" + announcement.createdAt.substring(19)
+            } else {
+                announcement.createdAt
+            }
+            announcements.add(
+                OverviewAnnouncementUiModel(
+                    id = announcement.id,
+                    title = announcement.title,
+                    content = announcement.content,
+                    createdAtMillis = runCatching { timestampFormat.parse(timestamp)?.time }.getOrNull()
+                )
+            )
+        }
+        announcements.sortByDescending { it.createdAtMillis }
+        return announcements
+    }
 
     private fun List<TimeTableMySubject>.toDayCourses(targetWeekday: Int, currentWeek: Int): List<OverviewCourseUiModel> {
         val colors = listOf(Color(0xFF5E87F6), Color(0xFF45B979), Color(0xFFF08D3C), Color(0xFFB974F0))
