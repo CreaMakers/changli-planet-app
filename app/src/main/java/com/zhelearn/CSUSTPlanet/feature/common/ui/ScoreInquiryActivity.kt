@@ -220,7 +220,13 @@ class ScoreInquiryActivity : FullScreenActivity<ActivityScoreInquiryBinding>() {
         }
 
         val allCourses = processedGrades.size // 课程总数
-        val totalCredits = processedGrades.sumOf { it.score.toDoubleOrNull() ?: 0.0 } // 已修总学分
+        val totalCredits = processedGrades.sumOf {
+            if ((it.grade.toDoubleOrNull() ?: 0.0) >= 60.0) {
+                it.score.toDoubleOrNull() ?: 0.0
+            } else {
+                0.0
+            }
+        } // 已修总学分，仅统计通过的课程
         val totalGPA = calculateOverallGPA(processedGrades) // 总体 GPA
         val averageScore = calculateAverageScore(processedGrades) // 平均学分绩点
 
