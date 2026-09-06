@@ -83,6 +83,16 @@ object SemesterCalendarCache {
         mmkv.encode(KEY_TERM_START_PREFIX + semesterCode, startDate)
     }
 
+    /** 读取已保存的学期日期，包括尚未出现在校历列表中的教务学期。 */
+    fun getCachedTermStartDates(): Map<String, String> = buildMap {
+        for (key in mmkv.allKeys().orEmpty()) {
+            if (!key.startsWith(KEY_TERM_START_PREFIX)) continue
+            val term = key.removePrefix(KEY_TERM_START_PREFIX)
+            if (term.isBlank()) continue
+            getTermStartDate(term)?.let { put(term, it) }
+        }
+    }
+
     fun getTermStartDate(semesterCode: String): String? {
         return mmkv.decodeString(KEY_TERM_START_PREFIX + semesterCode, null)
             ?.takeIf { it.isNotBlank() }

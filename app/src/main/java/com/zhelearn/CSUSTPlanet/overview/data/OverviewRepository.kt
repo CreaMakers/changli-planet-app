@@ -38,6 +38,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import kotlin.math.abs
@@ -54,8 +55,12 @@ class OverviewRepository(
     private val announcementApi by lazy { RetrofitUtils.instancePlanet.create(AnnouncementApi::class.java) }
 
     suspend fun loadLocalState(): OverviewUiState = withContext(Dispatchers.IO) {
+        val targetCalendar = createOverviewDisplayCalendar()
+        val term = CommonInfo.getCurrentTerm(targetCalendar.time)
         buildState(
-            courses = readLocalCourses(),
+            targetCalendar = targetCalendar,
+            currentTerm = term,
+            courses = readLocalCourses(term),
             grades = ScoreCache.getGrades().orEmpty(),
             exams = examCache.getExamArrangement().orEmpty().toUiExams()
         )
@@ -63,18 +68,21 @@ class OverviewRepository(
 
     suspend fun refreshState(): OverviewUiState = withContext(Dispatchers.IO) {
         coroutineScope {
-            val currentTerm = getCurrentTerm()
+            val targetCalendar = createOverviewDisplayCalendar()
+            val currentTerm = CommonInfo.getCurrentTerm(targetCalendar.time)
             val courseDeferred = async(Dispatchers.IO) { fetchCourses(currentTerm) }
             val gradesDeferred = async(Dispatchers.IO) { fetchGrades() }
             val examsDeferred = async(Dispatchers.IO) { fetchExams(currentTerm) }
             val electricityDeferred = async(Dispatchers.IO) { refreshElectricityIfNeeded() }
 
-            val courses = courseDeferred.await() ?: readLocalCourses()
+            val courses = courseDeferred.await() ?: readLocalCourses(currentTerm)
             val grades = gradesDeferred.await() ?: ScoreCache.getGrades().orEmpty()
             val exams = examsDeferred.await() ?: examCache.getExamArrangement().orEmpty().toUiExams()
             electricityDeferred.await()
 
             buildState(
+                targetCalendar = targetCalendar,
+                currentTerm = currentTerm,
                 courses = courses,
                 grades = grades,
                 exams = exams
@@ -83,39 +91,20 @@ class OverviewRepository(
     }
 
     private suspend fun buildState(
+        targetCalendar: Calendar,
+        currentTerm: String,
         courses: List<TimeTableMySubject>,
         grades: List<Grade>,
         exams: List<OverviewExamUiModel>
     ): OverviewUiState = withContext(Dispatchers.IO) {
         val studentId = StudentInfoManager.studentId
         val studentPassword = StudentInfoManager.studentPassword
-        val currentTerm = getCurrentTerm()
-        val currentWeek = getCurrentWeek(currentTerm)
+        val targetWeek = CommonInfo.getCurrentWeekInt(currentTerm, targetDate = targetCalendar.time)
         val currentUser = UserInfoManager.userId.takeIf { it > 0 }?.let { userDao.getUserById(it) }
-
-        val isShowingTomorrow = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) >= 21
-        val targetWeekday: Int
-        val targetWeek: Int
-        val targetCalendar: Calendar
-
-        if (isShowingTomorrow) {
-            targetCalendar = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, 1) }
-            targetWeekday = targetCalendar.let {
-                when (it.get(Calendar.DAY_OF_WEEK)) {
-                    Calendar.SUNDAY -> 7
-                    else -> it.get(Calendar.DAY_OF_WEEK) - 1
-                }
-            }
-            targetWeek = if (targetWeekday == 1) currentWeek + 1 else currentWeek
-        } else {
-            targetCalendar = Calendar.getInstance()
-            targetWeekday = Calendar.getInstance().let {
-                when (it.get(Calendar.DAY_OF_WEEK)) {
-                    Calendar.SUNDAY -> 7
-                    else -> it.get(Calendar.DAY_OF_WEEK) - 1
-                }
-            }
-            targetWeek = currentWeek
+        val isShowingTomorrow = targetCalendar.get(Calendar.HOUR_OF_DAY) >= 21
+        val targetWeekday = when (targetCalendar.get(Calendar.DAY_OF_WEEK)) {
+            Calendar.SUNDAY -> 7
+            else -> targetCalendar.get(Calendar.DAY_OF_WEEK) - 1
         }
 
         val displayCourses = courses.toDayCourses(targetWeekday, targetWeek)
@@ -133,7 +122,7 @@ class OverviewRepository(
             studentId = studentId,
             dateText = buildDateText(currentTerm, targetWeek, targetCalendar, isShowingTomorrow),
             currentTerm = currentTerm,
-            currentWeek = currentWeek,
+            currentWeek = targetWeek,
             dataSourceLabel = if (courses.isEmpty() && grades.isEmpty()) "本地数据已上屏" else "已完成静默刷新",
             metrics = buildMetrics(grades, electricitySnapshot, isElectricityBound),
             todayCourses = displayCourses,
@@ -162,12 +151,12 @@ class OverviewRepository(
         )
     }
 
-    private suspend fun readLocalCourses(): List<TimeTableMySubject> {
+    private suspend fun readLocalCourses(term: String): List<TimeTableMySubject> {
         val studentId = StudentInfoManager.studentId
         val studentPassword = StudentInfoManager.studentPassword
         if (studentId.isBlank() || studentPassword.isBlank()) return emptyList()
         return withContext(Dispatchers.IO) {
-            courseDao.getCoursesByTerm(getCurrentTerm(), studentId, studentPassword)
+            courseDao.getCoursesByTerm(term, studentId, studentPassword)
         }
     }
 
@@ -402,11 +391,11 @@ class OverviewRepository(
         return "${prefix}${targetCalendar.get(Calendar.MONTH) + 1}月${targetCalendar.get(Calendar.DAY_OF_MONTH)}日 $weekday  ·  $term 第${week}周"
     }
 
-    private fun getCurrentTerm(): String =
-        com.zhelearn.CSUSTPlanet.common.cache.CommonInfo.getCurrentTerm()
-
-    private fun getCurrentWeek(term: String): Int =
-        com.zhelearn.CSUSTPlanet.common.cache.CommonInfo.getCurrentWeekInt(term)
+    /** 每次加载固定同一个展示日期，跨夜请求也不会混用两个学期的数据。 */
+    private fun createOverviewDisplayCalendar(): Calendar =
+        Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai")).apply {
+            if (get(Calendar.HOUR_OF_DAY) >= 21) add(Calendar.DAY_OF_MONTH, 1)
+        }
 
     private fun getCurrentWeekForDate(term: String, calendar: Calendar): Int {
         val startTime = com.zhelearn.CSUSTPlanet.common.cache.CommonInfo.getTermStartDate(term) ?: return 1

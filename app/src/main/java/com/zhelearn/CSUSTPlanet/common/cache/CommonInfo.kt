@@ -96,11 +96,12 @@ object CommonInfo {
      *  - 2-6 月 → `上一年-当年-2`（春季）
      *  - 1 月   → `上一年-当年-1`（上学年延续）
      *
+     * @param targetDate 需要查询的日期，默认今天；首页预览可传明天。
      * @return 形如 `"2025-2026-1"` 的学期代码
      */
-    fun getCurrentTerm(): String {
-        resolveCurrentTermByDate()?.let { return it }
-        val calendar = Calendar.getInstance(shanghaiTz)
+    fun getCurrentTerm(targetDate: Date = Date()): String {
+        findTeachingTermForDate(targetDate)?.let { return it }
+        val calendar = Calendar.getInstance(shanghaiTz).apply { time = targetDate }
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH) + 1
         return when {
@@ -110,42 +111,23 @@ object CommonInfo {
         }
     }
 
-    /**
-     * 基于已知开学日期推断"当前正在进行的学期"。
-     *
-     * 选取规则：
-     *  1. 合并内置 [termMap] 与已缓存学期列表（缓存优先覆盖）；
-     *  2. 过滤出"开学日不晚于现在"的候选；
-     *  3. 在候选中再取"教学周仍在 [1, [MAX_TEACHING_WEEK]] 区间内"者，
-     *     没有任何学期仍处于教学周时，退而求其次保留最近一个已开学学期，
-     *     以便用户仍能看到上一学期的课表，而不是直接跳到下一学期；
-     *  4. 取开学日最近的一个返回。
-     *
-     * @return 学期代码，或 null（无任何已知学期已开学，由调用方回退到月份规则）
-     */
-    private fun resolveCurrentTermByDate(): String? {
-        val nowStr = formatNowForTermComparison()
-
-        val merged = HashMap<String, String>(termMap.size + 4).apply {
-            putAll(termMap)
-            SemesterCalendarRepository.getListSync()?.forEach { item ->
+    /** 按目标日期选择仍在教学周内的学期；全部过期时由调用方按月份兜底。 */
+    private fun findTeachingTermForDate(targetDate: Date): String? {
+        val cachedTerms = SemesterCalendarRepository.getListSync()
+        val merged = HashMap<String, String>(termMap).apply {
+            // 教务单独保存的日期也参与选择，不依赖服务端校历列表是否已加载。
+            putAll(SemesterCalendarCache.getCachedTermStartDates())
+            cachedTerms?.forEach { item ->
                 val start = SemesterCalendarRepository.getTermStartDate(item.semesterCode)
                 if (!start.isNullOrBlank()) put(item.semesterCode, start)
             }
         }
-
-        val started = merged.entries
-            .asSequence()
-            .filter { it.value <= nowStr }
-            .sortedByDescending { it.value }
-            .toList()
-        if (started.isEmpty()) return null
-
-        // 优先返回仍处于教学周内的学期；若全部已超过教学周上限，
-        // 则保留最近一个已开学学期，避免提前跳到下一学期。
-        return started.firstOrNull { (_, startDateStr) ->
-            computeWeekNumber(startDateStr)?.let { it in 1..MAX_TEACHING_WEEK } ?: false
-        }?.key ?: started.first().key
+        val selectedTerm = merged.entries.asSequence()
+            .filter { (_, start) ->
+                computeWeekNumber(start, targetDate)?.let { it in 1..MAX_TEACHING_WEEK } == true
+            }
+            .maxByOrNull { it.value }?.key
+        return selectedTerm
     }
 
     // ---------------- 开学日期（统一入口） ----------------
@@ -233,10 +215,11 @@ object CommonInfo {
      *
      * @param term 学期代码
      * @param maxWeek 上限，默认 [MAX_TEACHING_WEEK]
+     * @param targetDate 需要计算周数的日期，默认今天。
      */
-    fun getCurrentWeekInt(term: String, maxWeek: Int = MAX_TEACHING_WEEK): Int {
+    fun getCurrentWeekInt(term: String, maxWeek: Int = MAX_TEACHING_WEEK, targetDate: Date = Date()): Int {
         val startTimeStr = getTermStartDate(term) ?: return 1
-        val week = computeWeekNumber(startTimeStr) ?: return 1
+        val week = computeWeekNumber(startTimeStr, targetDate) ?: return 1
         return week.coerceIn(1, maxWeek)
     }
 
@@ -254,45 +237,26 @@ object CommonInfo {
     /**
      * 自动获取当前学期的周数（给 Widget / 启动路径快速调用）。
      *
-     * 性能说明：[TERM_DATE_TIME_FORMAT] 格式可直接按字典序比较，
-     * 无需 SimpleDateFormat.parse，避免 Widget 主线程频繁解析。
+     * 与当前学期选择使用同一入口，避免继续显示已结束学期的周数。
      */
-    fun getCurrentWeekAuto(): String {
-        val nowStr = formatNowForTermComparison()
-
-        // 合并内置 termMap 与已缓存的学期列表（缓存优先覆盖）
-        val merged = HashMap<String, String>(termMap.size + 4).apply {
-            putAll(termMap)
-            SemesterCalendarRepository.getListSync()?.forEach { item ->
-                val start = SemesterCalendarRepository.getTermStartDate(item.semesterCode)
-                if (!start.isNullOrBlank()) put(item.semesterCode, start)
-            }
-        }
-
-        val best = merged.entries
-            .asSequence()
-            .sortedByDescending { it.value }
-            .firstOrNull { it.value <= nowStr }
-            ?: return "未开学"
-
-        return getCurrentWeek(best.key)
-    }
+    fun getCurrentWeekAuto(): String = getCurrentWeek(getCurrentTerm())
 
     // ---------------- 内部工具 ----------------
 
     /**
-     * 根据开学日期字符串计算"今天是第几周（1-based）"。
+     * 根据开学日期字符串计算目标日期是第几周（1-based）。
      * 开学日之前返回 0；解析失败返回 null。
      */
-    private fun computeWeekNumber(startTimeStr: String): Int? {
+    private fun computeWeekNumber(startTimeStr: String, targetDate: Date = Date()): Int? {
         val startDate = parseTermDate(startTimeStr) ?: return null
-        val today = Calendar.getInstance().apply {
+        val targetDay = Calendar.getInstance(shanghaiTz).apply {
+            time = targetDate
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }.time
-        val diffMs = today.time - startDate.time
+        val diffMs = targetDay.time - startDate.time
         if (diffMs < 0) return 0
         val days = diffMs / (1000L * 60 * 60 * 24)
         return (days / 7 + 1).toInt()
@@ -302,10 +266,8 @@ object CommonInfo {
      * 解析 [TERM_DATE_TIME_FORMAT] 或仅日期部分（前 10 字符）为 [Date]。
      */
     private fun parseTermDate(raw: String): Date? = runCatching {
-        val sdf = SimpleDateFormat(TERM_DATE_FORMAT, Locale.CHINA)
+        val sdf = SimpleDateFormat(TERM_DATE_FORMAT, Locale.CHINA).apply { timeZone = shanghaiTz }
         sdf.parse(raw.take(10))
     }.getOrNull()
 
-    private fun formatNowForTermComparison(): String =
-        SimpleDateFormat(TERM_DATE_TIME_FORMAT, Locale.getDefault()).format(Date())
 }
