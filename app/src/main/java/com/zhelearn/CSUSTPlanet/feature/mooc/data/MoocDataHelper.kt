@@ -1,6 +1,7 @@
 package com.zhelearn.CSUSTPlanet.feature.mooc.data
 
 import android.util.Log
+import com.zhelearn.CSUSTPlanet.common.data.local.mmkv.StudentInfoManager
 import com.zhelearn.CSUSTPlanet.feature.mooc.data.local.MoocLocalCache
 import com.zhelearn.CSUSTPlanet.feature.mooc.data.model.CourseItem
 import com.zhelearn.CSUSTPlanet.feature.mooc.data.model.HomeworkItem
@@ -168,7 +169,7 @@ object MoocDataHelper {
                 val courseItems = buildCourseItems(homeworkCourseData + testOnlyData)
 
                 MoocLocalCache.saveCourseItems(courseItems)
-                MoocLocalCache.markSuccessfulRefresh()
+                MoocLocalCache.markSuccessfulRefresh(username)
 
                 courseItems
             }
@@ -249,10 +250,10 @@ object MoocDataHelper {
         }
     }
 
-    fun shouldAutoRefresh(): Boolean {
+    fun shouldAutoRefresh(studentId: String = StudentInfoManager.studentId): Boolean {
         val cachedItems = MoocLocalCache.getCourseItems()
         if (cachedItems.isEmpty()) return true
-        val lastRefreshTime = MoocLocalCache.getLastSuccessfulRefreshTime()
+        val lastRefreshTime = MoocLocalCache.getLastSuccessfulRefreshTime(studentId)
         if (lastRefreshTime <= 0L) return true
         return System.currentTimeMillis() - lastRefreshTime >= AUTO_REFRESH_INTERVAL_MS
     }

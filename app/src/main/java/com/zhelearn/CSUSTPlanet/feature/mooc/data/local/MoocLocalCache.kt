@@ -9,6 +9,7 @@ object MoocLocalCache {
     private const val CACHE_ID = "mooc_local_cache"
     private const val KEY_COURSE_ITEMS = "course_items"
     private const val KEY_LAST_SUCCESSFUL_REFRESH_TIME = "last_successful_refresh_time"
+    private const val KEY_LAST_SUCCESSFUL_REFRESH_STUDENT_ID = "last_successful_refresh_student_id"
 
     private val mmkv by lazy { MMKV.mmkvWithID(CACHE_ID) }
     private val gson by lazy { Gson() }
@@ -27,11 +28,14 @@ object MoocLocalCache {
         }.getOrDefault(emptyList())
     }
 
-    fun markSuccessfulRefresh() {
+    fun markSuccessfulRefresh(studentId: String) {
+        mmkv.encode(KEY_LAST_SUCCESSFUL_REFRESH_STUDENT_ID, studentId)
         mmkv.encode(KEY_LAST_SUCCESSFUL_REFRESH_TIME, System.currentTimeMillis())
     }
 
-    fun getLastSuccessfulRefreshTime(): Long {
+    fun getLastSuccessfulRefreshTime(studentId: String): Long {
+        // 旧缓存或其他学号的缓存不能用于跳过当前账号的网络刷新。
+        if (mmkv.decodeString(KEY_LAST_SUCCESSFUL_REFRESH_STUDENT_ID) != studentId) return 0L
         return mmkv.decodeLong(KEY_LAST_SUCCESSFUL_REFRESH_TIME, 0L)
     }
 

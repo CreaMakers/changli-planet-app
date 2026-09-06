@@ -16,6 +16,7 @@ import com.zhelearn.CSUSTPlanet.BuildConfig
 import com.zhelearn.CSUSTPlanet.analytics.MatomoTrackerManager
 import com.zhelearn.CSUSTPlanet.core.network.OkHttpHelper
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.room.database.CoursesDataBase
+import com.zhelearn.CSUSTPlanet.feature.mooc.data.local.MoocLocalCache
 import com.zhelearn.CSUSTPlanet.feature.mooc.viewmodel.MoocViewModel
 import com.zhelearn.CSUSTPlanet.skin.SkinManager
 import com.zhelearn.CSUSTPlanet.skin.data.cache.SkinCache
@@ -82,6 +83,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         fun clearContentCache() {
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
+                MoocLocalCache.clear()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
                 MoocRepository.instance.clearMoocLocalSession()
             }
@@ -119,7 +121,9 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         ViewModelProvider(this, moocViewModelFactory)[MoocViewModel::class.java]
     }
 
-    private val fpsHandlerThread = HandlerThread("fpsHandlerThread").apply { start() }
+    private val fpsHandlerThread by lazy(LazyThreadSafetyMode.NONE) {
+        HandlerThread("fpsHandlerThread").apply { start() }
+    }
     private val fpsHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(fpsHandlerThread.looper) }
 
     override fun onCreate() {

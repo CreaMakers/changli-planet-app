@@ -10,6 +10,7 @@ import com.zhelearn.CSUSTPlanet.feature.mooc.data.local.MoocLocalCache
 import com.zhelearn.CSUSTPlanet.overview.data.OverviewRepository
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewMetricUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewUiState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,10 +34,7 @@ class OverviewViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
 
-    init {
-        load(preserveVisibleContent = false)
-    }
-
+    // 首次加载也由页面 ON_RESUME 触发，避免创建时加载后立即被取消重启。
     fun onResume() {
         load(preserveVisibleContent = true)
     }
@@ -68,10 +66,12 @@ class OverviewViewModel : ViewModel() {
                     incoming = refreshedState,
                     preserveVisibleContent = true
                 )
-                // 异步刷新慕课网络数据
-                refreshMoocData()
             } else if (localState.isBoundStudent && localState.isOnline) {
                 Log.d(TAG, "Skip refresh, cache valid (lastRefresh=${lastRefreshTimeMs})")
+            }
+            if (localState.isBoundStudent && localState.isOnline) {
+                // 教务和慕课共享登录会话，保持顺序；慕课按自己的缓存有效期刷新。
+                refreshMoocData()
             }
         }
     }
@@ -79,10 +79,12 @@ class OverviewViewModel : ViewModel() {
     /**
      * 直接从 MMKV 缓存读取慕课数据并更新 UI
      */
-    private fun loadMoocFromCache() {
-        val courseItems = MoocLocalCache.getCourseItems()
-        val homeworks = MoocDataHelper.extractPendingHomeworks(courseItems)
-        val tests = MoocDataHelper.extractPendingTests(courseItems)
+    private suspend fun loadMoocFromCache() {
+        val (homeworks, tests) = withContext(Dispatchers.IO) {
+            val courseItems = MoocLocalCache.getCourseItems()
+            MoocDataHelper.extractPendingHomeworks(courseItems) to
+                MoocDataHelper.extractPendingTests(courseItems)
+        }
         val isBound = StudentInfoManager.studentId.isNotBlank() && StudentInfoManager.studentPassword.isNotBlank()
         val current = _uiState.value
         _uiState.value = current.copy(
@@ -104,21 +106,23 @@ class OverviewViewModel : ViewModel() {
     /**
      * 绑定学号后，用 MoocDataHelper 刷新慕课网络数据
      */
-    private fun refreshMoocData() {
+    private suspend fun refreshMoocData() {
         val studentId = StudentInfoManager.studentId
         val studentPassword = StudentInfoManager.studentPassword
         if (studentId.isBlank() || studentPassword.isBlank()) return
 
-        viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    MoocDataHelper.fetchMoocCourses(studentId, studentPassword, forceRefresh = false)
-                }
-                // 网络刷新成功后重新从缓存读取
-                loadMoocFromCache()
-            } catch (e: Exception) {
-                Log.w(TAG, "慕课数据刷新失败，使用缓存数据", e)
+        try {
+            val refreshed = withContext(Dispatchers.IO) {
+                if (!MoocDataHelper.shouldAutoRefresh(studentId)) return@withContext false
+                MoocDataHelper.fetchMoocCourses(studentId, studentPassword, forceRefresh = false)
+                true
             }
+            // 未过期时首页已有缓存内容，无需再读取、解析一遍。
+            if (refreshed) loadMoocFromCache()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "慕课数据刷新失败，使用缓存数据", e)
         }
     }
 
