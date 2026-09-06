@@ -20,7 +20,11 @@ import com.zhelearn.CSUSTPlanet.widget.dialog.NormalResponseDialog
 import com.zhelearn.CSUSTPlanet.widget.dialog.UpdateDialog
 import com.dcelysia.csust_spider.core.RetrofitUtils as CsustRetrofitUtils
 import com.dcelysia.csust_spider.education.data.remote.EducationData
-import com.dcelysia.csust_spider.education.data.remote.services.AuthService
+import com.dcelysia.csust_spider.core.AESUtils
+import com.dcelysia.csust_spider.core.Resource
+import com.dcelysia.csust_spider.education.data.remote.api.EduLoginApi
+import com.dcelysia.csust_spider.mooc.data.remote.api.SSOAuthApi
+import org.jsoup.Jsoup
 import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -108,14 +112,14 @@ class UserStore : Store<UserState, UserAction>() {
             is UserAction.BindingStudentNumber -> {
                 currentState.uiForLoading = true
                 CoroutineScope(Dispatchers.IO).launch {
-                    CsustRetrofitUtils.ClearClient("moocClient")
-                    CsustRetrofitUtils.ClearClient("EducationClient")
                     try {
-                        val educationLoginSucceeded = AuthService.login(
+                        // 同时清除共享 SSO Cookie，必须验证本次输入，不能借用旧账号会话。
+                        CsustRetrofitUtils.ClearClient("EducationClient")
+                        val educationLoginResult = authenticateEducationAccount(
                             action.studentNumber,
                             action.studentPassword
                         )
-                        if (educationLoginSucceeded) {
+                        if (educationLoginResult is Resource.Success) {
                             currentState.uiForLoading = false
                             EducationData.studentId = action.studentNumber
                             EducationData.studentPassword = action.studentPassword
@@ -142,6 +146,10 @@ class UserStore : Store<UserState, UserAction>() {
                                     .getLoginUser()
                                     .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
                                     .first()
+                                // 请求期间可能切换学号，旧请求不能覆盖当前账号资料。
+                                if (StudentInfoManager.studentId != action.studentNumber) {
+                                    return@runCatching
+                                }
                                 if (userResource is com.dcelysia.csust_spider.core.Resource.Success) {
                                     userResource.data?.let { sso ->
                                         val avatarUrl = sso.avatar
@@ -162,21 +170,16 @@ class UserStore : Store<UserState, UserAction>() {
                             return@launch
                         }
 
-                        // 教务登录失败时仍复用原 SSO 结果，保留网页登录引导和原有错误提示。
-                        val ssoResult = MoocRepository.instance
-                            .login(action.studentNumber, action.studentPassword)
-                            .filter { it !is com.dcelysia.csust_spider.core.Resource.Loading }
-                            .first()
                         currentState.userStats.studentNumber = action.studentNumber
                         currentState.uiForLoading = false
-                        when (ssoResult) {
-                            is com.dcelysia.csust_spider.core.Resource.Error -> {
-                                Log.d(TAG, "ssoResult:$ssoResult")
-                                if (!ssoResult.msg.contains("请在手机网页登录一次")) {
+                        when (educationLoginResult) {
+                            is Resource.Error -> {
+                                Log.d(TAG, "教务认证失败: ${educationLoginResult.msg}")
+                                if (!educationLoginResult.msg.contains("请在手机网页登录一次")) {
                                     handler.post {
                                         NormalResponseDialog(
                                             action.context,
-                                            ssoResult.msg,
+                                            educationLoginResult.msg,
                                             "绑定失败"
                                         ).show()
                                     }
@@ -184,7 +187,7 @@ class UserStore : Store<UserState, UserAction>() {
                                     handler.post {
                                         BindingFromWebDialog(
                                             action.context,
-                                            ssoResult.msg ?: "SSO 登录失败",
+                                            educationLoginResult.msg,
                                             "绑定失败",
                                             action.webLogin
                                         ).show()
@@ -222,11 +225,6 @@ class UserStore : Store<UserState, UserAction>() {
             }
 
             is UserAction.WebLoginSuccess -> {
-                StudentInfoManager.studentId = action.account
-                StudentInfoManager.studentPassword = action.password
-                currentState.userStats =
-                    currentState.userStats.copy(studentNumber = action.account)
-                _state.onNext(currentState)
                 handleEvent(
                     UserAction.BindingStudentNumber(
                         action.context,
@@ -277,6 +275,82 @@ class UserStore : Store<UserState, UserAction>() {
                 currentState
             }
         }
+    }
+
+    /** 绑定时使用教务的 SSO service 提交本次凭据，不经过网络教学平台。 */
+    private suspend fun authenticateEducationAccount(
+        studentNumber: String,
+        studentPassword: String
+    ): Resource<Boolean> {
+        val educationService = "http://xk.csust.edu.cn/sso.jsp"
+        val educationApi = CsustRetrofitUtils.instanceEduLogin.create(EduLoginApi::class.java)
+        // 教务必须先建立本地会话，再接收 SSO 票据；直接提交认证会落到“用户没有登录”。
+        val entryResponse = educationApi.login()
+        if (!entryResponse.isSuccessful) {
+            return Resource.Error("教务入口暂时不可用，请稍后重试")
+        }
+        val authApi = CsustRetrofitUtils.instanceSSOAuth.create(SSOAuthApi::class.java)
+        val formResponse = authApi.getLoginForm(service = educationService)
+        val formHtml = formResponse.body()
+        if (!formResponse.isSuccessful || formHtml.isNullOrBlank()) {
+            return Resource.Error("教务认证页面加载失败，请稍后重试")
+        }
+        val form = Jsoup.parse(formHtml)
+        val passwordSalt = form.selectFirst("input#pwdEncryptSalt")?.attr("value")
+        val execution = form.selectFirst("input[name=execution]")?.attr("value")
+        // 没有登录表单不能视为本次凭据已验证，避免沿用旧会话误绑。
+        if (passwordSalt.isNullOrBlank() || execution.isNullOrBlank()) {
+            return Resource.Error("教务认证页面异常，请稍后重试")
+        }
+        val captchaResponse = authApi.checkNeedCaptcha(studentNumber, System.currentTimeMillis())
+        val captchaStatus = captchaResponse.body()
+        if (!captchaResponse.isSuccessful || captchaStatus == null) {
+            return Resource.Error("教务认证状态检查失败，请稍后重试")
+        }
+        if (captchaStatus.isNeed) {
+            return Resource.Error("账号需要验证码，请在手机网页登录一次")
+        }
+        val loginResponse = authApi.login(
+            service = educationService,
+            username = studentNumber,
+            password = AESUtils.encryptPassword(studentPassword, passwordSalt),
+            execution = execution
+        )
+        // 统一认证会用 HTTP 401 返回错误凭据，不能归为网络请求失败。
+        if (loginResponse.code() == 401) {
+            return Resource.Error("学号或密码错误，请重试")
+        }
+        val loginHtml = loginResponse.body()
+        if (!loginResponse.isSuccessful || loginHtml.isNullOrBlank()) {
+            return Resource.Error("教务登录请求失败，请稍后重试")
+        }
+        val loginUrl = loginResponse.raw().request.url
+        if (loginUrl.host == "authserver.csust.edu.cn" &&
+            loginUrl.encodedPath == "/authserver/login"
+        ) {
+            val loginDocument = Jsoup.parse(loginHtml)
+            if (loginDocument.selectFirst("input[name=username]") != null) {
+                return Resource.Error("学号或密码错误，请重试")
+            }
+            return Resource.Error("教务认证未完成，请在手机网页登录一次")
+        }
+        if (loginUrl.host != "xk.csust.edu.cn") {
+            return Resource.Error("教务登录跳转异常，请稍后重试")
+        }
+        // 再访问受保护的学生主页，不能仅凭页面缺少某段提示文字判断成功。
+        val homeResponse = educationApi.checkLoginStates()
+        val homeHtml = homeResponse.body()
+        val homeUrl = homeResponse.raw().request.url
+        if (!homeResponse.isSuccessful || homeHtml.isNullOrBlank() ||
+            homeUrl.host != "xk.csust.edu.cn" ||
+            homeUrl.encodedPath != "/jsxsd/framework/xsMain.jsp" ||
+            Jsoup.parse(homeHtml).selectFirst("input[name=username], input[type=password]") != null
+        ) {
+            Log.w(TAG, "教务会话建立失败: HTTP ${homeResponse.code()}, " +
+                "path=${homeUrl.encodedPath.substringBefore(';')}")
+            return Resource.Error("统一认证已通过，但教务会话建立失败，请重新登录")
+        }
+        return Resource.Success(true)
     }
 
     fun getUserState(): UserState = currentState
