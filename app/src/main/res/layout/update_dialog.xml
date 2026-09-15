@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="发现新版本"
+        android:text="@string/update_dialog_title"
         android:textColor="@color/color_text_primary"
         android:textSize="19sp"
         android:textStyle="bold" />
@@ -29,7 +29,7 @@
         android:layout_marginBottom="24dp"
         android:maxHeight="400dp"
         android:scrollbars="vertical"
-        android:text="更新内容..."
+        android:text="@string/update_content_placeholder"
         android:textColor="@color/color_text_grey"
         android:textSize="15sp"
         android:fadeScrollbars="false"
@@ -61,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            tools:text="下载进度：0%"
+            tools:text="@string/update_download_progress_preview"
             android:textColor="@color/color_text_grey"
             android:textSize="13sp" />
     </LinearLayout>
@@ -84,7 +84,7 @@
             android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:gravity="center"
-            android:text="取消"
+            android:text="@string/update_action_cancel"
             android:textColor="@color/color_text_grey"
             android:textSize="16sp"/>
 
@@ -100,7 +100,7 @@
             android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:gravity="center"
-            android:text="立即更新"
+            android:text="@string/update_action_now"
             android:textColor="@color/color_text_functional"
             android:textSize="16sp"
             android:textStyle="bold"/>

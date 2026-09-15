@@ -65,7 +65,8 @@ class UserStore : Store<UserState, UserAction>() {
                                 UpdateDialog(
                                     action.context,
                                     latest.releaseNotes,
-                                    latest.downloadUrl
+                                    latest.downloadUrl,
+                                    resp.isForceUpdate || latest.isForceUpdate
                                 ).show()
                             }
                         }

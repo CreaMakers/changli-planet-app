@@ -44,6 +44,28 @@ class DownloadService : Service() {
                 context.startService(intent)
             }
         }
+
+        fun installDownloadedApk(context: Context): Boolean {
+            val apkFile = File(context.externalCacheDir, APK_FILE_NAME)
+            if (!apkFile.exists()) return false
+
+            return runCatching {
+                context.startActivity(createInstallIntent(context, apkFile))
+            }.isSuccess
+        }
+
+        private fun createInstallIntent(context: Context, file: File): Intent {
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                file
+            )
+            return Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+        }
     }
 
     private lateinit var notificationManager: NotificationManager
@@ -65,7 +87,12 @@ class DownloadService : Service() {
                 val apkUrl = intent.getStringExtra(EXTRA_APK_URL)
                 deleteLocalApkIfExists()
                 DownloadProgressStore.markStarted()
-                showNotification(0, "开始更新", true)
+                showNotification(
+                    progress = 0,
+                    content = getString(R.string.update_notification_starting),
+                    isIndeterminate = true,
+                    isForeground = true
+                )
                 startDownload(apkUrl.toString())
 
             }
@@ -82,7 +109,7 @@ class DownloadService : Service() {
                 }
                 val intent = installApk(file)
                 DownloadProgressStore.markSuccess()
-                showInstallNotification(intent, "下载完成点击安装")
+                showInstallNotification(intent)
                 kotlin.runCatching {
                     startActivity(intent)
                 }
@@ -90,7 +117,12 @@ class DownloadService : Service() {
                 e.printStackTrace()
                 deleteLocalApkIfExists()
                 DownloadProgressStore.markFailed(DownloadProgressStore.state.value.progress)
-                showNotification(0, "下载失败，请重试", false)
+                showNotification(
+                    progress = 0,
+                    content = getString(R.string.update_download_failed),
+                    isIndeterminate = false,
+                    isForeground = false
+                )
             } finally {
                 coroutineScope.launch {
                     delay(1)
@@ -101,16 +133,21 @@ class DownloadService : Service() {
         }
     }
 
-    private fun showNotification(progress: Int, content: String, isIndetermiante: Boolean) {
+    private fun showNotification(
+        progress: Int,
+        content: String,
+        isIndeterminate: Boolean,
+        isForeground: Boolean
+    ) {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("应用更新")
+            .setContentTitle(getString(R.string.update_notification_channel))
             .setContentText(content)
             .setSmallIcon(R.drawable.notification2)
-            .setProgress(100, progress, isIndetermiante)
+            .setProgress(100, progress, isIndeterminate)
             .setOnlyAlertOnce(true)
             .setOngoing(true)
             .build()
-        if (content == "开始更新") {
+        if (isForeground) {
             startForeground(NOTIFICATION_ID, notification)
         } else {
             notificationManager.notify(NOTIFICATION_ID, notification)
@@ -146,7 +183,12 @@ class DownloadService : Service() {
                     val progress = ((byteCopied * 100) / length).toInt()
                     withContext(Dispatchers.Main) {
                         DownloadProgressStore.markProgress(progress)
-                        showNotification(progress, "进度为：${progress}%", false)
+                        showNotification(
+                            progress = progress,
+                            content = getString(R.string.update_notification_progress, progress),
+                            isIndeterminate = false,
+                            isForeground = false
+                        )
                     }
 
                 }
@@ -173,23 +215,17 @@ class DownloadService : Service() {
 
 
     private fun installApk(file: File): Intent {
-        val intent = Intent(Intent.ACTION_VIEW)
-        val uri =
-            FileProvider.getUriForFile(
-                this,
-                "${this.packageName}.fileprovider",
-                file
-            )
-        intent.setDataAndType(uri, "application/vnd.android.package-archive")
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        return intent
+        return createInstallIntent(this, file)
     }
 
     private fun createNotificationChannel() {
 
         val channel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel(CHANNEL_ID, "应用更新", NotificationManager.IMPORTANCE_HIGH)
+            NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.update_notification_channel),
+                NotificationManager.IMPORTANCE_HIGH
+            )
         } else {
             TODO("VERSION.SDK_INT < O")
         }
@@ -197,15 +233,15 @@ class DownloadService : Service() {
 
     }
 
-    private fun showInstallNotification(intent: Intent, msg: String) {
+    private fun showInstallNotification(intent: Intent) {
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("应用更新")
-            .setContentText(msg)
+            .setContentTitle(getString(R.string.update_notification_channel))
+            .setContentText(getString(R.string.update_notification_install))
             .setSmallIcon(R.drawable.notification2)
             .setContentIntent(pendingIntent)
             .build()

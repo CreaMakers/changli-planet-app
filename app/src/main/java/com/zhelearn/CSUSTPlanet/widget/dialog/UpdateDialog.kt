@@ -1,6 +1,8 @@
 package com.zhelearn.CSUSTPlanet.widget.dialog
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.text.method.ScrollingMovementMethod
 import android.view.View
@@ -23,7 +25,8 @@ import kotlinx.coroutines.launch
 class UpdateDialog(
     context: Context,
     private val updateContent: String,
-    private val apkUrl: String
+    private val apkUrl: String,
+    private val isForceUpdate: Boolean = false
 ) : BaseDialog(context) {
 
     private lateinit var btnUpdate: TextView
@@ -50,16 +53,26 @@ class UpdateDialog(
         btnCancel = findViewById(R.id.btn_cancel)
 
         syncUiByCurrentDownloadState()
-    observeDownloadProgress()
+        observeDownloadProgress()
 
         btnUpdate.setOnClickListener {
             if (isDownloading) return@setOnClickListener
+            if (isForceUpdate && DownloadProgressStore.state.value.status == DownloadStatus.SUCCESS) {
+                if (!DownloadService.installDownloadedApk(context)) {
+                    DownloadProgressStore.markFailed(0)
+                }
+                return@setOnClickListener
+            }
             isDownloading = true
             updateDownloadingUi(0)
             DownloadService.startDownload(context, apkUrl)
         }
         btnCancel.setOnClickListener {
-            dismiss()
+            if (isForceUpdate) {
+                exitApplication()
+            } else {
+                dismiss()
+            }
         }
     }
 
@@ -73,22 +86,21 @@ class UpdateDialog(
             }
 
             DownloadStatus.SUCCESS -> {
-                if (isShowing) {
+                if (isForceUpdate) {
+                    showInstallReadyUi()
+                } else if (isShowing) {
                     dismiss()
                 }
             }
 
             DownloadStatus.FAILED -> {
-                progressLayout.visibility = View.VISIBLE
-                progressText.text = "下载失败，请重试"
-                btnUpdate.text = "重试下载"
-                btnCancel.text = "关闭"
+                showDownloadFailedUi()
             }
 
             else -> {
                 progressLayout.visibility = View.GONE
-                btnCancel.text = "取消"
-                btnUpdate.text = "立即更新"
+                btnCancel.text = cancelButtonText(R.string.update_action_cancel)
+                btnUpdate.setText(R.string.update_action_now)
             }
         }
     }
@@ -96,11 +108,44 @@ class UpdateDialog(
     private fun updateDownloadingUi(progress: Int) {
         progressLayout.visibility = View.VISIBLE
         progressBar.progress = progress
-        progressText.text = "下载进度：${progress}%"
+        progressText.text = context.getString(R.string.update_download_progress, progress)
         btnUpdate.isEnabled = false
         btnUpdate.alpha = 0.5f
-        btnUpdate.text = "下载中"
-        btnCancel.text = "后台下载"
+        btnUpdate.setText(R.string.update_status_downloading)
+        btnCancel.text = cancelButtonText(R.string.update_action_background_download)
+    }
+
+    private fun showDownloadFailedUi() {
+        isDownloading = false
+        progressLayout.visibility = View.VISIBLE
+        progressText.setText(R.string.update_download_failed)
+        btnUpdate.isEnabled = true
+        btnUpdate.alpha = 1f
+        btnUpdate.setText(R.string.update_action_retry_download)
+        btnCancel.text = cancelButtonText(R.string.update_action_close)
+    }
+
+    private fun showInstallReadyUi() {
+        isDownloading = false
+        progressLayout.visibility = View.VISIBLE
+        progressBar.progress = 100
+        progressText.setText(R.string.update_download_complete)
+        btnUpdate.isEnabled = true
+        btnUpdate.alpha = 1f
+        btnUpdate.setText(R.string.update_action_continue_install)
+        btnCancel.setText(R.string.update_action_exit_app)
+    }
+
+    private fun cancelButtonText(defaultTextRes: Int): String {
+        val textRes = if (isForceUpdate) R.string.update_action_exit_app else defaultTextRes
+        return context.getString(textRes)
+    }
+
+    private fun exitApplication() {
+        context.stopService(Intent(context, DownloadService::class.java))
+        DownloadProgressStore.reset()
+        dismiss()
+        (context as? Activity)?.finishAffinity()
     }
 
     private fun observeDownloadProgress() {
@@ -115,21 +160,15 @@ class UpdateDialog(
                     }
 
                     DownloadStatus.SUCCESS -> {
-                        isDownloading = false
-                        updateDownloadingUi(100)
-                        if (isShowing) {
+                        if (isForceUpdate) {
+                            showInstallReadyUi()
+                        } else if (isShowing) {
                             dismiss()
                         }
                     }
 
                     DownloadStatus.FAILED -> {
-                        isDownloading = false
-                        progressLayout.visibility = View.VISIBLE
-                        progressText.text = "下载失败，请重试"
-                        btnUpdate.isEnabled = true
-                        btnUpdate.alpha = 1f
-                        btnUpdate.text = "重试下载"
-                        btnCancel.text = "关闭"
+                        showDownloadFailedUi()
                     }
 
                     DownloadStatus.IDLE -> {

@@ -215,4 +215,22 @@
     <string name="time_table_loading">加载中</string>
     <string name="loading_success">加载成功</string>
     <string name="tv_top_bar_time_table">课程表</string>
+    <string name="update_dialog_title">发现新版本</string>
+    <string name="update_content_placeholder">更新内容…</string>
+    <string name="update_action_cancel">取消</string>
+    <string name="update_action_now">立即更新</string>
+    <string name="update_action_background_download">后台下载</string>
+    <string name="update_action_close">关闭</string>
+    <string name="update_action_retry_download">重试下载</string>
+    <string name="update_action_continue_install">继续安装</string>
+    <string name="update_action_exit_app">退出应用</string>
+    <string name="update_status_downloading">下载中</string>
+    <string name="update_download_progress">下载进度：%1$d%%</string>
+    <string name="update_download_progress_preview">下载进度：0%</string>
+    <string name="update_download_failed">下载失败，请重试</string>
+    <string name="update_download_complete">下载完成，请完成安装</string>
+    <string name="update_notification_channel">应用更新</string>
+    <string name="update_notification_starting">开始更新</string>
+    <string name="update_notification_progress">进度为：%1$d%%</string>
+    <string name="update_notification_install">下载完成，点击安装</string>
 </resources>
