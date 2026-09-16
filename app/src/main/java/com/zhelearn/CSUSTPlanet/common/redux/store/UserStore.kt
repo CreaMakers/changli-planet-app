@@ -28,9 +28,11 @@ import org.jsoup.Jsoup
 import com.dcelysia.csust_spider.mooc.data.remote.repository.MoocRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 class UserStore : Store<UserState, UserAction>() {
     companion object {
@@ -278,6 +280,35 @@ class UserStore : Store<UserState, UserAction>() {
         }
     }
 
+    /**
+     * 统一认证/教务服务端偶发 404、5xx 或空响应（负载均衡切换后端、会话刚落），
+     * 立刻报错会让用户看到"教务登录确认失败"并被迫手动重试。
+     * 这里对这些可重试的失败做短延迟重试，凭据本身错误（401/登录表单回显）不重试。
+     */
+    private suspend fun <T> retryTransientAuth(
+        attempts: Int = 3,
+        delayMillis: Long = 400L,
+        block: suspend () -> Response<T>
+    ): Response<T> {
+        var response = block()
+        var attempt = 0
+        while (attempt < attempts - 1 && isTransientAuthFailure(response)) {
+            attempt++
+            Log.w(TAG, "统一认证瞬时失败 code=${response.code()}，第 $attempt 次重试")
+            delay(delayMillis)
+            response = block()
+        }
+        return response
+    }
+
+    private fun <T> isTransientAuthFailure(response: Response<T>): Boolean {
+        if (response.code() == 401) return false
+        if (response.code() == 404 || response.code() >= 500) return true
+        // 服务端偶发返回 200 但正文为空
+        val body = response.body()
+        return !response.isSuccessful || (body is String && body.isBlank())
+    }
+
     /** 绑定时使用教务的 SSO service 提交本次凭据，不经过网络教学平台。 */
     private suspend fun authenticateEducationAccount(
         studentNumber: String,
@@ -311,21 +342,23 @@ class UserStore : Store<UserState, UserAction>() {
         if (captchaStatus.isNeed) {
             return Resource.Error("账号需要验证码，请在手机网页登录一次")
         }
-        val loginResponse = authApi.login(
-            service = educationService,
-            username = studentNumber,
-            password = AESUtils.encryptPassword(studentPassword, passwordSalt),
-            execution = execution
-        )
+        var loginResponse = retryTransientAuth {
+            authApi.login(
+                service = educationService,
+                username = studentNumber,
+                password = AESUtils.encryptPassword(studentPassword, passwordSalt),
+                execution = execution
+            )
+        }
         // 统一认证会用 HTTP 401 返回错误凭据，不能归为网络请求失败。
         if (loginResponse.code() == 401) {
             return Resource.Error("学号或密码错误，请重试")
         }
-        val loginHtml = loginResponse.body()
+        var loginHtml: String? = loginResponse.body()
         if (!loginResponse.isSuccessful || loginHtml.isNullOrBlank()) {
             return Resource.Error("教务登录请求失败，请稍后重试")
         }
-        val loginUrl = loginResponse.raw().request.url
+        var loginUrl = loginResponse.raw().request.url
         if (loginUrl.host == "authserver.csust.edu.cn" &&
             loginUrl.encodedPath == "/authserver/login"
         ) {
@@ -333,18 +366,37 @@ class UserStore : Store<UserState, UserAction>() {
             if (loginDocument.selectFirst("input[name=username]") != null) {
                 return Resource.Error("学号或密码错误，请重试")
             }
-            return Resource.Error("教务认证未完成，请在手机网页登录一次")
+            val continueForm = loginDocument.selectFirst("form#continue")
+            if (continueForm == null) {
+                return Resource.Error("教务认证未完成，请在手机网页登录一次")
+            }
+            val continueExecution = continueForm
+                .selectFirst("input[name=execution]")
+                ?.attr("value")
+                ?.takeIf(String::isNotBlank)
+                ?: return Resource.Error("教务认证确认页面异常，请稍后重试")
+            loginResponse = retryTransientAuth {
+                authApi.continueLogin(
+                    service = educationService,
+                    execution = continueExecution
+                )
+            }
+            loginHtml = loginResponse.body()
+            loginUrl = loginResponse.raw().request.url
+            if (!loginResponse.isSuccessful || loginHtml.isNullOrBlank()) {
+                return Resource.Error("教务登录确认失败，请稍后重试")
+            }
         }
         if (loginUrl.host != "xk.csust.edu.cn") {
             return Resource.Error("教务登录跳转异常，请稍后重试")
         }
         // 再访问受保护的学生主页，不能仅凭页面缺少某段提示文字判断成功。
-        val homeResponse = educationApi.checkLoginStates()
+        val homeResponse = retryTransientAuth { educationApi.checkLoginStates() }
         val homeHtml = homeResponse.body()
         val homeUrl = homeResponse.raw().request.url
         if (!homeResponse.isSuccessful || homeHtml.isNullOrBlank() ||
             homeUrl.host != "xk.csust.edu.cn" ||
-            homeUrl.encodedPath != "/jsxsd/framework/xsMain.jsp" ||
+            homeUrl.encodedPath.substringBefore(';') != "/jsxsd/framework/xsMain.jsp" ||
             Jsoup.parse(homeHtml).selectFirst("input[name=username], input[type=password]") != null
         ) {
             Log.w(TAG, "教务会话建立失败: HTTP ${homeResponse.code()}, " +

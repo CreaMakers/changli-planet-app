@@ -6,7 +6,9 @@ coilCompose = "3.6.0"
 common = "4.1.15"
 converterGson = "3.0.0"
 crashreport = "4.1.9.3"
-csustdataget = "1.1.4"
+# 本地验证期间 app 实际使用 app/libs/csust_spider-release.aar，
+# 待 CSUSTDataGet 发布包含修复的新版本后再升级此版本号并切回 Maven 依赖。
+csustdataget = "1.1.7"
 flexbox = "3.0.0"
 fragmentKtx = "1.9.0"
 glide = "5.0.9"

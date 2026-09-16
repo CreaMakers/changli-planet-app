@@ -299,8 +299,10 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     //csustDataGet
-    implementation(libs.csustdataget)
+    // 本地集成：使用本机 CSUSTDataGet 重新构建的 AAR（含统一认证"单处登录"与自动重登录修复）。
+    // 正式发版时改回 implementation(libs.csustdataget) 并升级版本号。
 //    implementation(files("libs/csust_spider-release.aar"))
+    implementation(libs.csustdataget)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.haze)
     implementation(libs.androidx.navigation3.runtime)
