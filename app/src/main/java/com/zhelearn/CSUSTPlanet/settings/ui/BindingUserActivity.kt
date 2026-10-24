@@ -23,6 +23,7 @@ import com.zhelearn.CSUSTPlanet.utils.event.AppEventBus
 import com.zhelearn.CSUSTPlanet.utils.event.FinishEvent
 import com.zhelearn.CSUSTPlanet.widget.view.CustomToast
 import com.dcelysia.csust_spider.core.RetrofitUtils
+import com.dcelysia.csust_spider.physicsexperiment.PhysicsLabHelper
 import com.zhelearn.CSUSTPlanet.widget.dialog.SSOWebviewDialog
 import com.google.android.material.button.MaterialButton
 import androidx.lifecycle.Lifecycle
@@ -100,6 +101,8 @@ class BindingUserActivity : FullScreenActivity<ActivityBindingUserBinding>() {
                         if (isSwitchAccount) {
                             PlanetApplication.clearContentCache()
                             UserInfoManager.clearStaleProfile()
+                            // 平台密码不跟学号走，切号后旧密码必然失效，清掉让用户重新输入
+                            PhysicsLabHelper.clearPlatformPassword()
                         }
                         showMessage("学号和密码保存成功！")
                         Route.goHomeForcibly(this@BindingUserActivity)

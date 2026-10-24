@@ -30,7 +30,8 @@ enum class FunctionDestination {
     LostFound,
     AccountBook,
     Contract,
-    Mandarin
+    Mandarin,
+    PhysicsLab
 }
 
 fun primaryFunctionShortcuts(): List<FunctionShortcut> =
@@ -43,6 +44,7 @@ fun primaryFunctionShortcuts(): List<FunctionShortcut> =
         FunctionShortcut("electric", "电费查询", R.drawable.ic_bill, FunctionColors.Electric, FunctionDestination.Electronic),
         FunctionShortcut("exam", "考试安排", R.drawable.ic_schedule, FunctionColors.Exam, FunctionDestination.ExamArrangement),
         FunctionShortcut("calendar", "校历", R.drawable.ic_calendar, FunctionColors.Calendar, FunctionDestination.Calendar),
+        FunctionShortcut("physics_lab", "物理实验", R.drawable.ic_physics_lab, FunctionColors.PhysicsLab, FunctionDestination.PhysicsLab),
     )
 
 fun secondaryFunctionShortcuts(): List<FunctionShortcut> =
@@ -78,5 +80,6 @@ fun openFunctionShortcut(context: Context, destination: FunctionDestination) {
         FunctionDestination.AccountBook -> Route.goAccountBook(context)
         FunctionDestination.Contract -> CustomToast.showMessage(context, "正在全力开发中")
         FunctionDestination.Mandarin -> Route.goMande(context)
+        FunctionDestination.PhysicsLab -> Route.goPhysicsLab(context)
     }
 }

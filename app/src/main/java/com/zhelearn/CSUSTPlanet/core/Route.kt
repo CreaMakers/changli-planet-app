@@ -17,6 +17,7 @@ import com.zhelearn.CSUSTPlanet.feature.ledger.ui.AddSomethingAccountActivity
 import com.zhelearn.CSUSTPlanet.feature.ledger.ui.FixSomethingAccountActivity
 import com.zhelearn.CSUSTPlanet.feature.mooc.ui.MoocActivity
 import com.zhelearn.CSUSTPlanet.feature.mooc.ui.MoocCoursePageActivity
+import com.zhelearn.CSUSTPlanet.feature.physicslab.ui.PhysicsLabActivity
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.TimeTableActivity
 import com.zhelearn.CSUSTPlanet.freshNews.ui.PublishFreshNewsActivity
 import com.zhelearn.CSUSTPlanet.freshNews.ui.UserHomeActivity
@@ -185,6 +186,11 @@ object Route {
 
     fun goCalendar(context: Context) {
         val intent = Intent(context, CalendarActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goPhysicsLab(context: Context) {
+        val intent = Intent(context, PhysicsLabActivity::class.java)
         context.startActivity(intent)
     }
 

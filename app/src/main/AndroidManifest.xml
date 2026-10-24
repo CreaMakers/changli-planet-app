@@ -76,6 +76,10 @@
             android:name=".feature.calendar.ui.compose.SemesterCalendarDetailActivity"
             android:exported="false" />
         <activity
+            android:name=".feature.physicslab.ui.PhysicsLabActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".feature.mooc.ui.MoocActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

@@ -18,6 +18,7 @@ import com.zhelearn.CSUSTPlanet.core.network.OkHttpHelper
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.room.database.CoursesDataBase
 import com.zhelearn.CSUSTPlanet.feature.mooc.data.local.MoocLocalCache
 import com.zhelearn.CSUSTPlanet.feature.mooc.viewmodel.MoocViewModel
+import com.zhelearn.CSUSTPlanet.feature.physicslab.data.local.PhysicsLabContentCache
 import com.zhelearn.CSUSTPlanet.skin.SkinManager
 import com.zhelearn.CSUSTPlanet.skin.data.cache.SkinCache
 import com.zhelearn.CSUSTPlanet.utils.StartupTimeTracker
@@ -68,6 +69,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
                 accessToken = ""
                 MMKV.mmkvWithID("education_cache").clearAll()
                 MMKV.mmkvWithID("content_cache").clearAll()
+                PhysicsLabContentCache.clear()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
             }
@@ -75,6 +77,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         fun clearSchoolDataCacheAll(){
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
+                PhysicsLabContentCache.clear()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
             }
@@ -83,6 +86,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         fun clearContentCache() {
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
+                PhysicsLabContentCache.clear()
                 MoocLocalCache.clear()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
                 MoocRepository.instance.clearMoocLocalSession()

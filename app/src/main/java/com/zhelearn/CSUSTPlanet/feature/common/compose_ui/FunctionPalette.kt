@@ -16,4 +16,5 @@ object FunctionColors {
     val Account = Color(0xFF26C6DA)
     val Document = Color(0xFF9CCC65)
     val Mandarin = Color(0xFFEC407A)
+    val PhysicsLab = Color(0xFF7E57C2)
 }
