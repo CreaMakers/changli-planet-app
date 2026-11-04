@@ -5,6 +5,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -54,10 +58,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -69,10 +83,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.zhelearn.CSUSTPlanet.R
 import com.zhelearn.CSUSTPlanet.core.theme.AppSkinTheme
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
 import com.zhelearn.CSUSTPlanet.feature.timetable.data.local.TimeTableDisplaySettings
+import com.zhelearn.CSUSTPlanet.feature.timetable.ui.CourseDetailCard
+import com.zhelearn.CSUSTPlanet.feature.timetable.ui.formatWeeks
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlin.math.abs
@@ -90,6 +107,8 @@ internal val kCourseCardColors = listOf(
     Pair(Color(0xFFCEF0A8), Color(0xFF8ED460)),
 )
 internal val kCourseCardTextColor = Color(0xFF1C2B3A)
+
+private val kOverlapBadgeColor = Color(0xFFFA5151)
 
 internal fun courseCardColorPair(courseTitle: String): Pair<Color, Color> =
     kCourseCardColors[courseTitle.hashCode().absoluteValue % kCourseCardColors.size]
@@ -167,6 +186,8 @@ fun TimeTableComposeScreen(
     termStarted: Boolean,
     courses: List<TimeTableCourseUi>,
     remark: List<String> = emptyList(),
+    /** 同格重叠课程的绘制层级：数值越大越靠上，值来自用户拖出来的展示顺序。 */
+    overlapDisplayRank: Map<Int, Int> = emptyMap(),
     displaySettings: TimeTableDisplaySettings,
     dateHeaderProvider: (Int) -> Pair<String, List<TimeTableDayHeaderUi>>,
     isRefreshing: Boolean,
@@ -316,6 +337,7 @@ fun TimeTableComposeScreen(
                     visibleCourses = pageCourses,
                     dayOrder = dayOrder,
                     courseFontScale = displaySettings.courseFontScale,
+                    overlapDisplayRank = overlapDisplayRank,
                     onEmptySlotClick = { dayOfWeek, startSection ->
                         val courseWeek = courseWeekForDisplaySlot(
                             displayPageWeek = week,
@@ -856,6 +878,7 @@ private fun TimeTableGrid(
     visibleCourses: List<TimeTableCourseUi>,
     dayOrder: List<Int>,
     courseFontScale: Float,
+    overlapDisplayRank: Map<Int, Int>,
     onEmptySlotClick: (dayOfWeek: Int, startSection: Int) -> Unit,
     onCourseClick: (TimeTableCourseUi) -> Unit,
     onOverlapCoursesClick: (List<TimeTableCourseUi>) -> Unit,
@@ -977,29 +1000,68 @@ private fun TimeTableGrid(
                 val y = cellHeight * (course.startSection - 1)
                 val cardHeight = cellHeight * course.sectionSpan
 
-                TimeTableCourseCard(
-                    course = course,
-                    courseColors = courseColorMap[course.title] ?: courseCardColorPair(course.title),
-                    fontScale = courseFontScale,
-                    modifier = Modifier
-                        .offset { IntOffset(x.roundToPx(), y.roundToPx()) }
-                        .width(columnWidth)
-                        .height(cardHeight)
-                        .padding(horizontal = 1.5.dp, vertical = 1.5.dp),
-                    onClick = {
-                        val overlaps = courseOverlapMap[course.id].orEmpty()
-                        when (overlaps.size) {
-                            0, 1 -> onCourseClick(course)
-                            else -> onOverlapCoursesClick(overlaps)
-                        }
-                    },
-                    onLongClick = {
-                        val overlaps = courseOverlapMap[course.id].orEmpty()
-                        onCourseLongClick(overlaps.firstOrNull() ?: course)
-                    },
-                )
+                val cardModifier = Modifier
+                    .offset { IntOffset(x.roundToPx(), y.roundToPx()) }
+                    .width(columnWidth)
+                    .height(cardHeight)
+                    .padding(horizontal = 1.5.dp, vertical = 1.5.dp)
+                    .zIndex(overlapDisplayRank[course.id]?.toFloat() ?: 0f)
+                val handleClick = {
+                    val overlaps = courseOverlapMap[course.id].orEmpty()
+                    when (overlaps.size) {
+                        0, 1 -> onCourseClick(course)
+                        else -> onOverlapCoursesClick(overlaps)
+                    }
+                }
+                val handleLongClick = {
+                    val overlaps = courseOverlapMap[course.id].orEmpty()
+                    val topCourse = overlaps.maxByOrNull { overlapDisplayRank[it.id] ?: 0 }
+                    onCourseLongClick(topCourse ?: course)
+                }
+
+                val overlapCount = courseOverlapMap[course.id].orEmpty().size
+                Box(modifier = cardModifier) {
+                    TimeTableCourseCard(
+                        course = course,
+                        courseColors = courseColorMap[course.title] ?: courseCardColorPair(course.title),
+                        fontScale = courseFontScale,
+                        modifier = Modifier.fillMaxSize(),
+                        onClick = handleClick,
+                        onLongClick = handleLongClick,
+                    )
+                    if (overlapCount > 1) {
+                        OverlapCountBadge(
+                            count = overlapCount,
+                            fontScale = courseFontScale,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .offset(x = 6.dp, y = (-4).dp),
+                        )
+                    }
+                }
             }
         }
+    }
+}
+
+/** 同格多门课时的数量角标：这些卡片是完全叠放的，不标注容易被当成"课表丢课"。 */
+@Composable
+private fun OverlapCountBadge(count: Int, fontScale: Float, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .defaultMinSize(minWidth = 15.dp, minHeight = 15.dp)
+            .background(kOverlapBadgeColor, CircleShape)
+            .padding(horizontal = 3.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "$count",
+            color = Color.White,
+            fontSize = (9 * fontScale).sp,
+            lineHeight = (9 * fontScale).sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -1104,43 +1166,166 @@ private fun RemarkDialog(
     )
 }
 
+private val kPreviewNormalCourses = listOf(
+    TimeTableCourseUi(1, "高等数学", "张老师", "明理楼A201", 1, 1, 2, setOf(1, 2, 3, 4, 5), false),
+    TimeTableCourseUi(2, "数据结构", "李老师", "综合楼C305", 3, 5, 2, setOf(5, 6, 7), true),
+    TimeTableCourseUi(3, "英语", "王老师", "外语楼202", 5, 9, 2, setOf(5), false),
+)
+
+private val kPreviewOverlapCourses = listOf(
+    TimeTableCourseUi(6, "D声速的测量(金盆岭校区）", "窦柳明", "金盆岭校区三号教学楼304", 6, 9, 2, setOf(5), false),
+    TimeTableCourseUi(5, "概率论", "陈老师", "理科楼B102", 6, 9, 2, setOf(5), false),
+)
+
 @Preview(showBackground = true)
 @Composable
 private fun TimeTableScreenPreview() {
+    val overlapOrder = remember { mutableStateOf(kPreviewOverlapCourses) }
+    val showOverlapPanel = remember { mutableStateOf(false) }
+    val overlapDisplayRank = remember(overlapOrder.value) {
+        overlapOrder.value.mapIndexed { index, course ->
+            course.id to overlapOrder.value.size - index
+        }.toMap()
+    }
     AppSkinTheme {
-        TimeTableComposeScreen(
-            termText = "2025-2026-2",
-            weekText = "第5周",
-            displayWeek = 5,
-            currentWeek = 5,
-            termStarted = true,
-            isRefreshing = false,
-            displaySettings = TimeTableDisplaySettings(),
-            courses = listOf(
-                TimeTableCourseUi(1, "高等数学", "张老师", "明理楼A201", 1, 1, 2, setOf(1, 2, 3, 4, 5), false),
-                TimeTableCourseUi(2, "数据结构", "李老师", "综合楼C305", 3, 5, 2, setOf(5, 6, 7), true),
-                TimeTableCourseUi(3, "英语", "王老师", "外语楼202", 5, 9, 2, setOf(5), false),
-            ),
-            dateHeaderProvider = {
-                "3月" to listOf(
-                    TimeTableDayHeaderUi("周一", "03日", false),
-                    TimeTableDayHeaderUi("周二", "04日", false),
-                    TimeTableDayHeaderUi("周三", "05日", true),
-                    TimeTableDayHeaderUi("周四", "06日", false),
-                    TimeTableDayHeaderUi("周五", "07日", false),
-                    TimeTableDayHeaderUi("周六", "08日", false),
-                    TimeTableDayHeaderUi("周日", "09日", false),
+        Box(modifier = Modifier.fillMaxSize()) {
+            TimeTableComposeScreen(
+                termText = "2025-2026-2",
+                weekText = "第5周",
+                displayWeek = 5,
+                currentWeek = 5,
+                termStarted = true,
+                isRefreshing = false,
+                displaySettings = TimeTableDisplaySettings(),
+                courses = kPreviewNormalCourses + kPreviewOverlapCourses,
+                overlapDisplayRank = overlapDisplayRank,
+                dateHeaderProvider = {
+                    "3月" to listOf(
+                        TimeTableDayHeaderUi("周一", "03日", false),
+                        TimeTableDayHeaderUi("周二", "04日", false),
+                        TimeTableDayHeaderUi("周三", "05日", true),
+                        TimeTableDayHeaderUi("周四", "06日", false),
+                        TimeTableDayHeaderUi("周五", "07日", false),
+                        TimeTableDayHeaderUi("周六", "08日", false),
+                        TimeTableDayHeaderUi("周日", "09日", false),
+                    )
+                },
+                onRefreshClick = {},
+                onTermClick = {},
+                onWeekClick = {},
+                onWeekChange = {},
+                onDisplaySettingsChange = {},
+                onEmptySlotClick = { _, _, _ -> },
+                onCourseClick = {},
+                onOverlapCoursesClick = { showOverlapPanel.value = true },
+                onCourseLongClick = {},
+            )
+            if (showOverlapPanel.value) {
+                OverlapCoursesPanel(
+                    courses = overlapOrder.value,
+                    onOrderChange = { overlapOrder.value = it },
+                    onDismiss = { showOverlapPanel.value = false },
                 )
-            },
-            onRefreshClick = {},
-            onTermClick = {},
-            onWeekClick = {},
-            onWeekChange = {},
-            onDisplaySettingsChange = {},
-            onEmptySlotClick = { _, _, _ -> },
-            onCourseClick = {},
-            onOverlapCoursesClick = {},
-            onCourseLongClick = {},
+            }
+        }
+    }
+}
+
+@Preview(name = "重叠课程详情", showBackground = true)
+@Composable
+private fun OverlapCoursesPreview() {
+    AppSkinTheme {
+        OverlapCoursesPanel(courses = kPreviewOverlapCourses, onOrderChange = {}, onDismiss = {})
+    }
+}
+
+/** 同格重叠面板：详情卡上下排列、拖动换位，点空白关闭；最上面那门就是课表里露出来的。 */
+@Composable
+internal fun OverlapCoursesPanel(
+    courses: List<TimeTableCourseUi>,
+    onOrderChange: (List<TimeTableCourseUi>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val orderedCourses = remember(courses) { mutableStateOf(courses) }
+    val draggingId = remember { mutableStateOf<Int?>(null) }
+    val dragOffset = remember { mutableStateOf(0f) }
+    val cardHeights = remember { mutableMapOf<Int, Int>() }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(Color.Black.copy(alpha = 0.45f))
+                .pointerInput(Unit) { detectTapGestures { onDismiss() } },
         )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(horizontal = 20.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            orderedCourses.value.forEach { course ->
+                key(course.id) {
+                    val isDragging = draggingId.value == course.id
+                    Box(
+                        modifier = Modifier
+                            .zIndex(if (isDragging) 1f else 0f)
+                            .offset {
+                                IntOffset(
+                                    x = 0,
+                                    y = if (isDragging) dragOffset.value.roundToInt() else 0,
+                                )
+                            }
+                            .onGloballyPositioned { cardHeights[course.id] = it.size.height }
+                            .pointerInput(course.id) {
+                                detectDragGestures(
+                                    onDragStart = {
+                                        draggingId.value = course.id
+                                        dragOffset.value = 0f
+                                    },
+                                    onDrag = { change, dragAmount ->
+                                        change.consume()
+                                        dragOffset.value += dragAmount.y
+                                        val items = orderedCourses.value
+                                        val from = items.indexOfFirst { it.id == course.id }
+                                        val swapDistance = (cardHeights[course.id] ?: 0) / 2f
+                                        if (from >= 0 && swapDistance > 0f) {
+                                            when {
+                                                dragOffset.value > swapDistance && from < items.lastIndex -> {
+                                                    orderedCourses.value = items.toMutableList().apply {
+                                                        add(from + 1, removeAt(from))
+                                                    }
+                                                    dragOffset.value -= swapDistance * 2
+                                                }
+                                                dragOffset.value < -swapDistance && from > 0 -> {
+                                                    orderedCourses.value = items.toMutableList().apply {
+                                                        add(from - 1, removeAt(from))
+                                                    }
+                                                    dragOffset.value += swapDistance * 2
+                                                }
+                                            }
+                                        }
+                                    },
+                                    onDragEnd = {
+                                        draggingId.value = null
+                                        dragOffset.value = 0f
+                                        onOrderChange(orderedCourses.value)
+                                    },
+                                    onDragCancel = {
+                                        draggingId.value = null
+                                        dragOffset.value = 0f
+                                    },
+                                )
+                            },
+                    ) {
+                        CourseDetailCard(
+                            course = course,
+                            weeksText = formatWeeks(course.weeks),
+                        )
+                    }
+                }
+            }
+        }
     }
 }
