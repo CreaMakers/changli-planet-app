@@ -32,4 +32,14 @@
         <domain includeSubdomains="true">alicdn.com</domain>
         <domain includeSubdomains="true">aliyuncs.com</domain>
     </domain-config>
+
+    <!-- WebVPN 网关只下发叶子证书、缺中间证书，Android 不会像浏览器那样自动补全；
+         这里把缺的那张中间证书补成信任锚。仅作用于该域名，叶子证书仍要经完整链校验。 -->
+    <domain-config>
+        <domain includeSubdomains="true">vpn.csust.edu.cn</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/xcc_trust_ov_tls_g3_r31_ca" />
+        </trust-anchors>
+    </domain-config>
 </network-security-config>

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dcelysia.csust_spider.physicsexperiment.PhysicsLabHelper
 import com.dcelysia.csust_spider.physicsexperiment.data.remote.dto.PhysicsLabIndex
+import com.dcelysia.csust_spider.physicsexperiment.data.remote.error.PhysicsLabError
 import com.dcelysia.csust_spider.physicsexperiment.data.remote.dto.PhysicsLabScore
 import com.dcelysia.csust_spider.physicsexperiment.data.remote.dto.PhysicsLabSelectableItem
 import com.dcelysia.csust_spider.physicsexperiment.data.remote.dto.PhysicsLabTask
@@ -38,8 +39,8 @@ data class PhysicsLabUiState(
     val selectableLoading: Boolean = false,
     /** 正在请求：首次加载由各标签页自己的 Loading 承担，这里只管"已有内容时的刷新" */
     val refreshing: Boolean = false,
-    /** 展示的数据来自本地缓存（网络没通），UI 给一条提示 */
-    val cacheTabs: Set<PhysicsLabTab> = emptySet(),
+    /** 展示的数据来自本地缓存时，按标签页记一条原因文案（网络不通 / 会话失效 / 缺密码） */
+    val cacheHints: Map<PhysicsLabTab, String> = emptyMap(),
     /** 会话层状态，与具体标签页无关，由最近一次请求的结果决定 */
     val needsPlatformPassword: Boolean = false,
     val needsRebind: Boolean = false,
@@ -167,12 +168,24 @@ class PhysicsLabViewModel : ViewModel() {
     /** 每次请求结束都刷新会话层状态与刷新标记；这些与标签页无关，所以三个分支共用。 */
     private fun PhysicsLabUiState.sessionFlags(result: PhysicsLabQueryResult<*>): PhysicsLabUiState = copy(
         refreshing = false,
-        cacheTabs = if (result.fromCache) cacheTabs + selectedTab else cacheTabs - selectedTab,
+        cacheHints = if (result.fromCache) {
+            cacheHintFor(result.error)?.let { cacheHints + (selectedTab to it) } ?: (cacheHints - selectedTab)
+        } else {
+            cacheHints - selectedTab
+        },
         needsPlatformPassword = result.needsPlatformPassword,
         needsRebind = result.needsRebind,
         showPlatformPasswordDialog = result.needsPlatformPassword,
         platformPasswordError = if (result.needsPlatformPassword) result.error?.message.orEmpty() else ""
     )
+
+    /** 只有网络问题才说"网络不可用"，会话失效/缺密码要说清楚。 */
+    private fun cacheHintFor(error: PhysicsLabError?): String? = when (error) {
+        null -> null
+        is PhysicsLabError.NeedManualLogin -> "需要输入平台密码，当前展示本地缓存"
+        is PhysicsLabError.VpnLoginFailed -> "统一认证登录失败，当前展示本地缓存"
+        is PhysicsLabError.NetworkError -> "网络不可用，当前展示本地缓存"
+    }
 
     private fun responseOf(
         tab: PhysicsLabTab,

@@ -55,9 +55,7 @@ object MoocDataHelper {
         if (first !is Resource.Error || !shouldRetryNetworkError(first.msg)) {
             return first
         }
-        withContext(Dispatchers.IO) {
-            clearMoocSession()
-        }
+        // 不清会话：ClearClient 清的是全站 cookie，会把物理实验的网关会话一起清掉
         val relogin = awaitLoginResult(username, password)
         if (relogin is Resource.Success && relogin.data) {
             return block()

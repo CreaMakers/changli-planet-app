@@ -10,6 +10,7 @@ import com.zhelearn.CSUSTPlanet.common.data.local.mmkv.StudentInfoManager
 import com.zhelearn.CSUSTPlanet.core.Route
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
 import com.zhelearn.CSUSTPlanet.feature.physicslab.ui.compose.PhysicsLabScreen
+import com.zhelearn.CSUSTPlanet.feature.physicslab.viewmodel.PhysicsLabTab
 import com.zhelearn.CSUSTPlanet.widget.view.CustomToast
 
 /** 大学物理实验（物理实验教学管理系统）。只读：实验项目、我的实验课表、我的成绩。 */
@@ -25,6 +26,9 @@ class PhysicsLabActivity : ComposeActivity() {
             return
         }
 
+        val initialTab = intent.getIntExtra(Route.EXTRA_PHYSICS_LAB_TAB, -1)
+            .let { ordinal -> PhysicsLabTab.entries.firstOrNull { it.ordinal == ordinal } }
+
         setComposeContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -32,7 +36,8 @@ class PhysicsLabActivity : ComposeActivity() {
             ) {
                 PhysicsLabScreen(
                     onBack = { finish() },
-                    onGoBinding = { Route.goBindingUser(this, isSwitchAccount = true) }
+                    onGoBinding = { Route.goBindingUser(this, isSwitchAccount = true) },
+                    initialTab = initialTab
                 )
             }
         }

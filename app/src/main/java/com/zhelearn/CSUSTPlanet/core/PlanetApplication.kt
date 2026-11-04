@@ -14,7 +14,9 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import com.zhelearn.CSUSTPlanet.BuildConfig
 import com.zhelearn.CSUSTPlanet.analytics.MatomoTrackerManager
+import com.zhelearn.CSUSTPlanet.core.network.DnsSafety
 import com.zhelearn.CSUSTPlanet.core.network.OkHttpHelper
+import com.dcelysia.csust_spider.core.RetrofitUtils as SpiderRetrofitUtils
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.room.database.CoursesDataBase
 import com.zhelearn.CSUSTPlanet.feature.mooc.data.local.MoocLocalCache
 import com.zhelearn.CSUSTPlanet.feature.mooc.viewmodel.MoocViewModel
@@ -136,6 +138,8 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
 
 
         initMMKV()
+        // 物理实验的两个 client 是 by lazy，DNS 必须赶在首次访问前注入
+        initPhysicsLabDns()
         migrateLegacyCacheIfNeeded()
         MatomoTrackerManager.initialize(this)
         if (!BuildConfig.DEBUG) {
@@ -187,6 +191,10 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
             }
         })
     }
+    private fun initPhysicsLabDns() {
+        SpiderRetrofitUtils.setPhysicsLabDns(DnsSafety.httpDnsResolver())
+    }
+
     private fun initDNS() {
         val dnsConfigBuilder = DnsConfig.Builder()
             .dnsId("98468")

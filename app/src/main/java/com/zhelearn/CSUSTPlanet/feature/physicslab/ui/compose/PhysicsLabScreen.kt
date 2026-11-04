@@ -40,6 +40,7 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -84,9 +85,15 @@ import com.zhelearn.CSUSTPlanet.feature.physicslab.viewmodel.PhysicsLabViewModel
 fun PhysicsLabScreen(
     onBack: () -> Unit,
     onGoBinding: () -> Unit,
+    initialTab: PhysicsLabTab? = null,
     viewModel: PhysicsLabViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // 从概览摘要条进来时直接落到"我的课表"
+    LaunchedEffect(initialTab) {
+        initialTab?.let(viewModel::selectTab)
+    }
 
     if (state.showPlatformPasswordDialog) {
         PlatformPasswordDialog(
@@ -141,8 +148,8 @@ fun PhysicsLabScreen(
             }
         }
 
-        if (state.selectedTab in state.cacheTabs) {
-            CacheHint()
+        state.cacheHints[state.selectedTab]?.let { hint ->
+            CacheHint(text = hint)
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -237,9 +244,9 @@ private fun PhysicsLabTopBar(
 }
 
 @Composable
-private fun CacheHint() {
+private fun CacheHint(text: String) {
     Text(
-        text = "网络不可用，当前展示本地缓存",
+        text = text,
         color = AppTheme.colors.commonColor,
         fontSize = 12.sp,
         modifier = Modifier

@@ -34,6 +34,8 @@ import com.zhelearn.CSUSTPlanet.skin.ui.SkinSelectionActivity
  */
 object Route {
 
+    const val EXTRA_PHYSICS_LAB_TAB = "physics_lab_tab"
+
     fun goDataMigration(context: Context) {
         context.startActivity(Intent(context, DataMigrationActivity::class.java))
     }
@@ -189,8 +191,11 @@ object Route {
         context.startActivity(intent)
     }
 
-    fun goPhysicsLab(context: Context) {
+    fun goPhysicsLab(context: Context, initialTabOrdinal: Int = -1) {
         val intent = Intent(context, PhysicsLabActivity::class.java)
+        if (initialTabOrdinal >= 0) {
+            intent.putExtra(EXTRA_PHYSICS_LAB_TAB, initialTabOrdinal)
+        }
         context.startActivity(intent)
     }
 
