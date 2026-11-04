@@ -7,6 +7,8 @@ import com.zhelearn.CSUSTPlanet.common.cache.CommonInfo
 import com.zhelearn.CSUSTPlanet.common.data.local.mmkv.StudentInfoManager
 import com.zhelearn.CSUSTPlanet.common.data.local.mmkv.UserInfoManager
 import com.zhelearn.CSUSTPlanet.common.data.local.room.database.UserDataBase
+import com.zhelearn.CSUSTPlanet.core.network.ApiResponse
+import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.FunctionColors
 import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.FunctionDestination
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.entity.Grade
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.entity.TimeTableMySubject
@@ -14,6 +16,8 @@ import com.zhelearn.CSUSTPlanet.feature.common.data.local.mmkv.ExamArrangementCa
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.mmkv.ScoreCache
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.room.database.CoursesDataBase
 import com.zhelearn.CSUSTPlanet.feature.common.data.repository.ElectricityRepository
+import com.zhelearn.CSUSTPlanet.feature.physicslab.data.local.PhysicsLabContentCache
+import com.zhelearn.CSUSTPlanet.feature.physicslab.data.remote.PhysicsLabRemoteDataSource
 import com.zhelearn.CSUSTPlanet.overview.data.local.OverviewLocalCache
 import com.zhelearn.CSUSTPlanet.overview.data.local.OverviewLocalCache.ElectricityHistoryEntry
 import com.zhelearn.CSUSTPlanet.overview.data.local.OverviewLocalCache.ElectricitySnapshot
@@ -22,6 +26,7 @@ import com.zhelearn.CSUSTPlanet.overview.data.remote.dto.AnnouncementDto
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewAnnouncementUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewCourseUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewExamUiModel
+import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewLabSummaryUi
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewMetricUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewUiState
 import com.zhelearn.CSUSTPlanet.utils.NetworkUtil
@@ -30,6 +35,7 @@ import com.dcelysia.csust_spider.core.Resource
 import com.dcelysia.csust_spider.education.data.remote.EducationHelper
 import com.dcelysia.csust_spider.education.data.remote.model.ExamArrange
 import com.dcelysia.csust_spider.education.data.remote.services.ExamArrangeService
+import com.dcelysia.csust_spider.physicsexperiment.data.remote.dto.PhysicsLabTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -42,6 +48,8 @@ import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import kotlin.math.abs
+
+private val LAB_TIME_RANGE_REGEX = Regex("(\\d{1,2}):(\\d{2})\\s*[-~～—]\\s*(\\d{1,2}):(\\d{2})")
 
 class OverviewRepository(
     context: Context
@@ -62,7 +70,8 @@ class OverviewRepository(
             currentTerm = term,
             courses = readLocalCourses(term),
             grades = ScoreCache.getGrades().orEmpty(),
-            exams = examCache.getExamArrangement().orEmpty().toUiExams()
+            exams = examCache.getExamArrangement().orEmpty().toUiExams(),
+            labTasks = readCachedLabTasks()
         )
     }
 
@@ -74,6 +83,7 @@ class OverviewRepository(
             val gradesDeferred = async(Dispatchers.IO) { fetchGrades() }
             val examsDeferred = async(Dispatchers.IO) { fetchExams(currentTerm) }
             val electricityDeferred = async(Dispatchers.IO) { refreshElectricityIfNeeded() }
+            val labTasksDeferred = async(Dispatchers.IO) { fetchLabTasks() }
 
             val courses = courseDeferred.await() ?: readLocalCourses(currentTerm)
             val grades = gradesDeferred.await() ?: ScoreCache.getGrades().orEmpty()
@@ -85,7 +95,8 @@ class OverviewRepository(
                 currentTerm = currentTerm,
                 courses = courses,
                 grades = grades,
-                exams = exams
+                exams = exams,
+                labTasks = labTasksDeferred.await()
             ).copy(isSilentSyncing = false)
         }
     }
@@ -95,7 +106,8 @@ class OverviewRepository(
         currentTerm: String,
         courses: List<TimeTableMySubject>,
         grades: List<Grade>,
-        exams: List<OverviewExamUiModel>
+        exams: List<OverviewExamUiModel>,
+        labTasks: List<PhysicsLabTask>
     ): OverviewUiState = withContext(Dispatchers.IO) {
         val studentId = StudentInfoManager.studentId
         val studentPassword = StudentInfoManager.studentPassword
@@ -107,7 +119,20 @@ class OverviewRepository(
             else -> targetCalendar.get(Calendar.DAY_OF_WEEK) - 1
         }
 
-        val displayCourses = courses.toDayCourses(targetWeekday, targetWeek)
+        // 与展示日期同用东八区，避免设备时区不同导致日期错开一天
+        val targetDate = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            .apply { timeZone = TimeZone.getTimeZone("Asia/Shanghai") }
+            .format(targetCalendar.time)
+        val displayCourses = mergeDayCourses(
+            courses.toDayCourses(targetWeekday, targetWeek),
+            labTasks.toDayLabCourses(targetDate)
+        )
+        // 摘要条：点过一次就按当天隐藏，第二天换了日期会重新出现
+        val labSummary = if (OverviewLocalCache.isLabBarDismissed(targetDate)) {
+            null
+        } else {
+            labTasks.toDayLabSummary(targetDate)
+        }
         val electricitySnapshot = OverviewLocalCache.getElectricitySnapshot()
         val isElectricityBound = hasElectricityBinding() || electricitySnapshot != null
 
@@ -126,6 +151,8 @@ class OverviewRepository(
             dataSourceLabel = if (courses.isEmpty() && grades.isEmpty()) "本地数据已上屏" else "已完成静默刷新",
             metrics = buildMetrics(grades, electricitySnapshot, isElectricityBound),
             todayCourses = displayCourses,
+            labSummary = labSummary,
+            labSummaryDate = targetDate,
             todayCourseMessage = when {
                 studentId.isBlank() || studentPassword.isBlank() -> "先绑定学号"
                 displayCourses.isNotEmpty() -> ""
@@ -497,6 +524,70 @@ class OverviewRepository(
                 )
             }
     }
+
+    /** `2026-09-25 13:30 - 15:45` → `13:30-15:45`；解析不出来原样返回。 */
+    private fun formatLabTimeRange(raw: String): String {
+        val match = LAB_TIME_RANGE_REGEX.find(raw) ?: return raw.trim()
+        val hour1 = match.groupValues[1].padStart(2, '0')
+        val hour2 = match.groupValues[3].padStart(2, '0')
+        return "$hour1:${match.groupValues[2]}-$hour2:${match.groupValues[4]}"
+    }
+
+    /** 当天实验的摘要：只取最早的一场，数量另给。没有实验返回 null。 */
+    private fun List<PhysicsLabTask>.toDayLabSummary(targetDate: String): OverviewLabSummaryUi? {
+        val todayLabs = filter { it.time.startsWith(targetDate) }.sortedBy { it.time }
+        val first = todayLabs.firstOrNull() ?: return null
+        return OverviewLabSummaryUi(
+            count = todayLabs.size,
+            title = first.courseName,
+            timeText = formatLabTimeRange(first.time),
+            location = first.location.ifBlank { "地点待定" }
+        )
+    }
+
+    /**
+     * 物理实验也进"今日课程"：平台给的是精确时间（`2026-09-25 13:30 - 15:45`），
+     * 所以按日期匹配、时间原样显示，不做节次换算。
+     */
+    private fun List<PhysicsLabTask>.toDayLabCourses(targetDate: String): List<OverviewCourseUiModel> =
+        filter { it.time.startsWith(targetDate) }
+            .sortedBy { it.time }
+            .map { task ->
+                OverviewCourseUiModel(
+                    id = "lab_${task.courseId}_${task.batch}",
+                    courseName = task.courseName,
+                    classroom = task.location.ifBlank { "地点待定" },
+                    teacher = task.teacher.ifBlank { "教师待定" },
+                    timeText = formatLabTimeRange(task.time),
+                    accentLabel = "物理实验",
+                    accentColor = FunctionColors.PhysicsLab
+                )
+            }
+
+    /** 正课按节次、实验按精确时间，合并后一起按开始时间排（两者的时间文本都以 `HH:mm` 开头）。 */
+    private fun mergeDayCourses(
+        courses: List<OverviewCourseUiModel>,
+        labs: List<OverviewCourseUiModel>
+    ): List<OverviewCourseUiModel> = (courses + labs).sortedBy { startMinutes(it.timeText) }
+
+    /** 取 `08:00-08:45 · 1-2节` 这类文本里的开始时间；解析不出来排到最后。 */
+    private fun startMinutes(timeText: String): Int {
+        val match = Regex("^(\\d{1,2}):(\\d{2})").find(timeText) ?: return Int.MAX_VALUE
+        return match.groupValues[1].toInt() * 60 + match.groupValues[2].toInt()
+    }
+
+    /** 首屏只读本地缓存，不为了实验去走统一认证。 */
+    private suspend fun readCachedLabTasks(): List<PhysicsLabTask> =
+        runCatching { PhysicsLabContentCache.getTasks(StudentInfoManager.studentId) }.getOrNull().orEmpty()
+
+    /** 刷新时并发拉取；缓存仍新鲜、没设平台密码或失败时都退回缓存。 */
+    private suspend fun fetchLabTasks(): List<PhysicsLabTask> =
+        if (!PhysicsLabContentCache.shouldRefreshTasks(StudentInfoManager.studentId)) {
+            readCachedLabTasks()
+        } else {
+            (PhysicsLabRemoteDataSource.loadTasks(StudentInfoManager.studentId).response as? ApiResponse.Success)?.data
+                ?: readCachedLabTasks()
+        }
 
     private fun buildCourseTimeText(startSection: Int, sectionSpan: Int): String {
         val sectionTimes = listOf(

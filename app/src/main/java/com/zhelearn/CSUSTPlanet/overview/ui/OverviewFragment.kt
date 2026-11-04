@@ -13,6 +13,7 @@ import com.zhelearn.CSUSTPlanet.core.theme.AppSkinTheme
 import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.FunctionDestination
 import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.openFunctionShortcut
 import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.primaryFunctionShortcuts
+import com.zhelearn.CSUSTPlanet.feature.physicslab.viewmodel.PhysicsLabTab
 import com.zhelearn.CSUSTPlanet.overview.ui.compose.OverviewScreen
 import com.zhelearn.CSUSTPlanet.overview.viewmodel.OverviewViewModel
 
@@ -36,6 +37,9 @@ class OverviewFragment : Fragment() {
                     OverviewScreen(
                         viewModel = viewModel,
                         onBindClick = { Route.goBindingUser(requireContext()) },
+                        onLabSummaryClick = {
+                            Route.goPhysicsLab(requireContext(), PhysicsLabTab.Tasks.ordinal)
+                        },
                         onQuickActionClick = { actionId ->
                             val shortcut = primaryFunctionShortcuts().firstOrNull { it.id == actionId }
                             when {

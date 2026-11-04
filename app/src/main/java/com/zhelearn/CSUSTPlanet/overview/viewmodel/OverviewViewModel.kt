@@ -8,6 +8,7 @@ import com.zhelearn.CSUSTPlanet.core.PlanetApplication
 import com.zhelearn.CSUSTPlanet.feature.mooc.data.MoocDataHelper
 import com.zhelearn.CSUSTPlanet.feature.mooc.data.local.MoocLocalCache
 import com.zhelearn.CSUSTPlanet.overview.data.OverviewRepository
+import com.zhelearn.CSUSTPlanet.overview.data.local.OverviewLocalCache
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewMetricUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewUiState
 import kotlinx.coroutines.CancellationException
@@ -33,6 +34,13 @@ class OverviewViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
+
+    /** 摘要条点开实验页后不再出现（按当天记，第二天自动恢复）。 */
+    fun dismissLabSummary() {
+        val state = _uiState.value
+        OverviewLocalCache.dismissLabBar(state.labSummaryDate)
+        _uiState.value = state.copy(labSummary = null)
+    }
 
     // 首次加载也由页面 ON_RESUME 触发，避免创建时加载后立即被取消重启。
     fun onResume() {
@@ -140,6 +148,8 @@ class OverviewViewModel : ViewModel() {
             metrics = mergeMetrics(current.metrics, incoming.metrics),
             todayCourses = if (keepCourses) current.todayCourses else incoming.todayCourses,
             todayCourseMessage = if (keepCourses) current.todayCourseMessage else incoming.todayCourseMessage,
+            // 网络刷新拿不到实验时，别把已上屏的摘要条清空
+            labSummary = incoming.labSummary ?: current.labSummary,
             upcomingExams = if (keepExams) current.upcomingExams else incoming.upcomingExams,
             examMessage = if (keepExams) current.examMessage else incoming.examMessage,
             // 保留慕课数据不被 incoming 的空值覆盖

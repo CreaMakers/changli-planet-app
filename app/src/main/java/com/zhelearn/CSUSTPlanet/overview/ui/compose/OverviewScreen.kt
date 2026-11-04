@@ -57,7 +57,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.zhelearn.CSUSTPlanet.R
 import com.zhelearn.CSUSTPlanet.core.theme.AppSkinTheme
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
+import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.FunctionColors
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewCourseUiModel
+import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewLabSummaryUi
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewExamUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewHomeworkUiModel
 import com.zhelearn.CSUSTPlanet.overview.ui.model.OverviewMetricUiModel
@@ -74,7 +76,8 @@ private val IconContainerShape = RoundedCornerShape(14.dp)
 fun OverviewScreen(
     viewModel: OverviewViewModel,
     onBindClick: () -> Unit,
-    onQuickActionClick: (String) -> Unit
+    onQuickActionClick: (String) -> Unit,
+    onLabSummaryClick: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -95,7 +98,12 @@ fun OverviewScreen(
         state = state,
         onBindClick = onBindClick,
         onMetricClick = onQuickActionClick,
-        onQuickActionClick = onQuickActionClick
+        onQuickActionClick = onQuickActionClick,
+        onLabSummaryClick = {
+            // 点开就等于看过这条提醒，当天不再出现
+            viewModel.dismissLabSummary()
+            onLabSummaryClick()
+        }
     )
 }
 
@@ -104,7 +112,8 @@ private fun OverviewScreen(
     state: OverviewUiState,
     onBindClick: () -> Unit,
     onMetricClick: (String) -> Unit,
-    onQuickActionClick: (String) -> Unit
+    onQuickActionClick: (String) -> Unit,
+    onLabSummaryClick: () -> Unit
 ) {
     val colors = AppTheme.colors
     LazyColumn(
@@ -121,6 +130,16 @@ private fun OverviewScreen(
 
         item {
             SectionTitle(if (state.isShowingTomorrow) "明日课程" else "今日课程", "查看全部") { onQuickActionClick("schedule") }
+        }
+
+        state.labSummary?.let { summary ->
+            item {
+                LabReminderBar(
+                    summary = summary,
+                    isTomorrow = state.isShowingTomorrow,
+                    onClick = onLabSummaryClick
+                )
+            }
         }
 
         item {
@@ -225,6 +244,42 @@ private fun BindPrompt(text: String, onClick: () -> Unit) {
             .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         Text(text = text, color = colors.overviewPromptTextColor, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun LabReminderBar(
+    summary: OverviewLabSummaryUi,
+    isTomorrow: Boolean,
+    onClick: () -> Unit
+) {
+    val colors = AppTheme.colors
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(colors.bgCardColor)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "${if (isTomorrow) "明天" else "今天"}有 ${summary.count} 项物理实验",
+                color = colors.primaryTextColor,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "${summary.timeText} · ${summary.location}",
+                color = colors.secondaryTextColor,
+                fontSize = 12.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
@@ -730,6 +785,12 @@ private fun OverviewScreenPreview() {
                     OverviewMetricUiModel("score", "GPA", "3.02", "", "平均分: 82.0", "", R.drawable.ic_rank, Color(0xFFE3B92C)),
                     OverviewMetricUiModel("electric", "电费", "207.61", "kWh", "预计163天后电量耗尽", "更新于 03-15 21:30", R.drawable.ic_bill, Color(0xFF62C466))
                 ),
+                labSummary = OverviewLabSummaryUi(
+                    count = 1,
+                    title = "D声速的测量",
+                    timeText = "19:30-21:10",
+                    location = "金盆岭三教304"
+                ),
                 todayCourses = listOf(
                     OverviewCourseUiModel("1", "高等数学", "云塘 A201", "陈老师", "1-2节", "校园课表", Color(0xFF5E87F6)),
                     OverviewCourseUiModel("2", "大学英语", "云塘 B305", "李老师", "3-4节", "校园课表", Color(0xFFF08D3C))
@@ -747,7 +808,8 @@ private fun OverviewScreenPreview() {
             ),
             onBindClick = {},
             onMetricClick = {},
-            onQuickActionClick = {}
+            onQuickActionClick = {},
+            onLabSummaryClick = {}
         )
     }
 }

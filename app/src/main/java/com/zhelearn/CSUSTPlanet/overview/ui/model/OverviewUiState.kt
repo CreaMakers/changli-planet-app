@@ -21,6 +21,8 @@ data class OverviewUiState(
     val metrics: List<OverviewMetricUiModel> = emptyList(),
     val todayCourses: List<OverviewCourseUiModel> = emptyList(),
     val todayCourseMessage: String = "",
+    val labSummary: OverviewLabSummaryUi? = null,
+    val labSummaryDate: String = "",
     val isShowingTomorrow: Boolean = false,
     val pendingHomeworks: List<OverviewHomeworkUiModel> = emptyList(),
     val pendingHomeworkMessage: String = "",
@@ -40,6 +42,14 @@ data class OverviewMetricUiModel(
     val secondarySubtitle: String = "",
     @DrawableRes val iconRes: Int,
     val accentColor: Color
+)
+
+@Immutable
+data class OverviewLabSummaryUi(
+    val count: Int,
+    val title: String,
+    val timeText: String,
+    val location: String
 )
 
 @Immutable
