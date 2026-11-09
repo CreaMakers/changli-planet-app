@@ -1,6 +1,8 @@
 package com.zhelearn.CSUSTPlanet.core.network
 
 import android.util.Patterns
+import com.tencent.msdk.dns.MSDKDnsResolver
+import okhttp3.Dns
 import java.net.InetAddress
 import java.net.UnknownHostException
 
@@ -34,6 +36,24 @@ internal object DnsSafety {
             .map { it.trim() }
             .filter { it.isNotBlank() && it != "0" }
             .distinct()
+    }
+
+    fun httpDnsResolver(): Dns = object : Dns {
+        override fun lookup(hostname: String): List<InetAddress> {
+            val sanitizedHost = sanitizeHostname(hostname)
+            if (sanitizedHost.isBlank()) return emptyList()
+            if (!shouldUseHttpDns(sanitizedHost)) return fallbackToLocalDns(sanitizedHost)
+            return try {
+                val ipArr = parseIpList(MSDKDnsResolver.getInstance().getAddrByName(sanitizedHost))
+                if (ipArr.isEmpty()) return fallbackToLocalDns(sanitizedHost)
+                val addresses = ipArr.mapNotNull { ip ->
+                    runCatching { InetAddress.getByName(ip) }.getOrNull()
+                }
+                addresses.ifEmpty { fallbackToLocalDns(sanitizedHost) }
+            } catch (e: Exception) {
+                fallbackToLocalDns(sanitizedHost)
+            }
+        }
     }
 
     fun fallbackToLocalDns(hostname: String): List<InetAddress> {

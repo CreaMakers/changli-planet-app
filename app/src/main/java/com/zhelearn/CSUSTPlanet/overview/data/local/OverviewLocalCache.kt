@@ -13,6 +13,7 @@ object OverviewLocalCache {
     private const val KEY_PREV_ELECTRICITY = "prev_electricity"
     private const val KEY_LAST_ELECTRICITY_TIME = "last_electricity_time"
     private const val KEY_PREV_ELECTRICITY_TIME = "prev_electricity_time"
+    private const val KEY_LAB_BAR_DISMISSED_DATE = "lab_bar_dismissed_date"
     private const val MAX_ELECTRICITY_HISTORY_SIZE = 20
     private val mmkv by lazy { MMKV.mmkvWithID(CACHE_ID) }
     private val gson by lazy { Gson() }
@@ -27,6 +28,14 @@ object OverviewLocalCache {
         }
         mmkv.encode(KEY_LAST_ELECTRICITY, value)
         mmkv.encode(KEY_LAST_ELECTRICITY_TIME, System.currentTimeMillis())
+    }
+
+    /** 实验摘要条点过一次就按日期记住，避免当天反复出现。 */
+    fun isLabBarDismissed(date: String): Boolean =
+        date.isNotBlank() && mmkv.decodeString(KEY_LAB_BAR_DISMISSED_DATE) == date
+
+    fun dismissLabBar(date: String) {
+        if (date.isNotBlank()) mmkv.encode(KEY_LAB_BAR_DISMISSED_DATE, date)
     }
 
     fun getElectricitySnapshot(): ElectricitySnapshot? {

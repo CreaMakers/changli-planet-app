@@ -25,6 +25,7 @@ import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
 import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.FunctionDestination
 import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.openFunctionShortcut
 import com.zhelearn.CSUSTPlanet.feature.common.compose_ui.primaryFunctionShortcuts
+import com.zhelearn.CSUSTPlanet.feature.physicslab.viewmodel.PhysicsLabTab
 import com.zhelearn.CSUSTPlanet.feature.common.ui.FeatureScreen
 import com.zhelearn.CSUSTPlanet.overview.ui.compose.AnnouncementScreen
 import com.zhelearn.CSUSTPlanet.overview.ui.compose.OverviewScreen
@@ -112,6 +113,9 @@ private fun OverviewTabRoute() {
                 actionId == FunctionDestination.ScoreInquiry.name -> Route.goScoreInquiry(context)
                 actionId == FunctionDestination.Electronic.name -> Route.goElectronic(context)
             }
+        },
+        onLabSummaryClick = {
+            Route.goPhysicsLab(context, PhysicsLabTab.Tasks.ordinal)
         }
     )
 }

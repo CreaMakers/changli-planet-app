@@ -14,10 +14,13 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import com.zhelearn.CSUSTPlanet.BuildConfig
 import com.zhelearn.CSUSTPlanet.analytics.MatomoTrackerManager
+import com.zhelearn.CSUSTPlanet.core.network.DnsSafety
 import com.zhelearn.CSUSTPlanet.core.network.OkHttpHelper
+import com.dcelysia.csust_spider.core.RetrofitUtils as SpiderRetrofitUtils
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.room.database.CoursesDataBase
 import com.zhelearn.CSUSTPlanet.feature.mooc.data.local.MoocLocalCache
 import com.zhelearn.CSUSTPlanet.feature.mooc.viewmodel.MoocViewModel
+import com.zhelearn.CSUSTPlanet.feature.physicslab.data.local.PhysicsLabContentCache
 import com.zhelearn.CSUSTPlanet.skin.SkinManager
 import com.zhelearn.CSUSTPlanet.skin.data.cache.SkinCache
 import com.zhelearn.CSUSTPlanet.utils.StartupTimeTracker
@@ -68,6 +71,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
                 accessToken = ""
                 MMKV.mmkvWithID("education_cache").clearAll()
                 MMKV.mmkvWithID("content_cache").clearAll()
+                PhysicsLabContentCache.clear()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
             }
@@ -75,6 +79,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         fun clearSchoolDataCacheAll(){
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
+                PhysicsLabContentCache.clear()
                 MMKV.mmkvWithID(TIME_TABLE_APP_WIDGET).clearAll()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
             }
@@ -83,6 +88,7 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
         fun clearContentCache() {
             CoroutineScope(Dispatchers.IO).launch {
                 MMKV.mmkvWithID("content_cache").clearAll()
+                PhysicsLabContentCache.clear()
                 MoocLocalCache.clear()
                 CoursesDataBase.getDatabase(appContext).courseDao().clearAllCourses()
                 MoocRepository.instance.clearMoocLocalSession()
@@ -132,6 +138,8 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
 
 
         initMMKV()
+        // 物理实验的两个 client 是 by lazy，DNS 必须赶在首次访问前注入
+        initPhysicsLabDns()
         migrateLegacyCacheIfNeeded()
         MatomoTrackerManager.initialize(this)
         if (!BuildConfig.DEBUG) {
@@ -183,6 +191,10 @@ class PlanetApplication : Application(), ViewModelStoreOwner {
             }
         })
     }
+    private fun initPhysicsLabDns() {
+        SpiderRetrofitUtils.setPhysicsLabDns(DnsSafety.httpDnsResolver())
+    }
+
     private fun initDNS() {
         val dnsConfigBuilder = DnsConfig.Builder()
             .dnsId("98468")

@@ -65,7 +65,9 @@ import com.zhelearn.CSUSTPlanet.core.theme.AppSkinTheme
 import com.zhelearn.CSUSTPlanet.core.theme.AppTheme
 import com.zhelearn.CSUSTPlanet.feature.common.data.local.entity.TimeTableMySubject
 import com.zhelearn.CSUSTPlanet.feature.ledger.ui.AddCourseActivity
+import com.zhelearn.CSUSTPlanet.feature.timetable.data.local.TimeTableOverlapOrderStore
 import com.zhelearn.CSUSTPlanet.feature.timetable.data.local.TimeTableSettingsStore
+import com.zhelearn.CSUSTPlanet.feature.timetable.ui.compose.OverlapCoursesPanel
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.compose.TimeTableComposeScreen
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.compose.TimeTableCourseUi
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.compose.TimeTableDayHeaderUi
@@ -93,7 +95,7 @@ class TimeTableActivity : AppCompatActivity() {
     private var uiState by mutableStateOf(TimeTableUiState())
     private var isRefreshing by mutableStateOf(false)
     private var detailCourse by mutableStateOf<TimeTableCourseUi?>(null)
-    private var overlapCourses by mutableStateOf<List<TimeTableCourseUi>>(emptyList())
+    private var overlapPanelCourses by mutableStateOf<List<TimeTableCourseUi>?>(null)
     private var pendingDeleteCourse by mutableStateOf<TimeTableCourseUi?>(null)
     private var displaySettings by mutableStateOf(TimeTableSettingsStore.load())
 
@@ -191,6 +193,24 @@ class TimeTableActivity : AppCompatActivity() {
         val courses = remember(state.subjects) {
             state.subjects.map { it.toComposeUi() }
         }
+        // 同格重叠：分组 → 读取用户拖出来的顺序 → 换算成绘制层级（大的画在上面）
+        val overlapGroups = remember(courses) { buildOverlapGroups(courses) }
+        var overlapOrderVersion by remember { mutableStateOf(0) }
+        val overlapOrders = remember(term, overlapGroups, overlapOrderVersion) {
+            overlapGroups.associate { group ->
+                overlapGroupKey(group) to TimeTableOverlapOrderStore.load(term, group.map { it.id })
+            }
+        }
+        val overlapDisplayRank = remember(overlapGroups, overlapOrders) {
+            buildMap {
+                overlapGroups.forEach { group ->
+                    val ordered = orderedOverlapCourses(group, overlapOrders[overlapGroupKey(group)])
+                    ordered.forEachIndexed { index, course ->
+                        put(course.id, ordered.size - index)
+                    }
+                }
+            }
+        }
         val responseState by viewModel.coursesResponse.collectAsState(initial = null)
         var showErrorDialog by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
@@ -209,6 +229,7 @@ class TimeTableActivity : AppCompatActivity() {
             currentWeek = currentWeek,
             termStarted = termStarted,
             courses = courses,
+            overlapDisplayRank = overlapDisplayRank,
             remark = state.remark,
             displaySettings = displaySettings,
             dateHeaderProvider = remember(term, anchorStartDate, displaySettings.sundayFirst) {
@@ -232,14 +253,17 @@ class TimeTableActivity : AppCompatActivity() {
                 launchAddCourse(day, startSection, courseWeek, term)
             },
             onCourseClick = {
-                overlapCourses = emptyList()
                 detailCourse = it
             },
             onOverlapCoursesClick = { coursesInSlot ->
-                if (coursesInSlot.isNotEmpty()) {
-                    detailCourse = coursesInSlot.first()
-                    overlapCourses = coursesInSlot.drop(1)
-                }
+                // 跨多个格子时回调给的是该卡片占到的邻居，取并集后的整组，面板和层级才对得上
+                val group = overlapGroups.firstOrNull { group ->
+                    group.any { member -> coursesInSlot.any { it.id == member.id } }
+                } ?: coursesInSlot
+                overlapPanelCourses = orderedOverlapCourses(
+                    courses = group,
+                    storedIds = overlapOrders[overlapGroupKey(group)],
+                )
             },
             onCourseLongClick = { course ->
                 if (course.isCustom) {
@@ -252,13 +276,20 @@ class TimeTableActivity : AppCompatActivity() {
 
         detailCourse?.let { course ->
             CourseDetailDialog(course = course) {
-                if (overlapCourses.isNotEmpty()) {
-                    detailCourse = overlapCourses.first()
-                    overlapCourses = overlapCourses.drop(1)
-                } else {
-                    detailCourse = null
-                }
+                detailCourse = null
             }
+        }
+
+        overlapPanelCourses?.let { panelCourses ->
+            OverlapCoursesPanel(
+                courses = panelCourses,
+                onOrderChange = { ordered ->
+                    TimeTableOverlapOrderStore.save(term, ordered.map { it.id })
+                    overlapPanelCourses = ordered
+                    overlapOrderVersion++
+                },
+                onDismiss = { overlapPanelCourses = null },
+            )
         }
 
         pendingDeleteCourse?.let { course ->
@@ -330,97 +361,11 @@ class TimeTableActivity : AppCompatActivity() {
         course: TimeTableCourseUi,
         onDismiss: () -> Unit,
     ) {
-        val dialogBlue = Color(0xFF7DB7E8)
         Dialog(onDismissRequest = onDismiss) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp)),
-                color = Color(0xFFF7FBFF),
-                shape = RoundedCornerShape(20.dp),
-            ) {
-                Column {
-                    // 蓝色头部
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(dialogBlue)
-                            .padding(horizontal = 20.dp, vertical = 18.dp),
-                    ) {
-                        Text(
-                            text = course.title,
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            lineHeight = 26.sp,
-                        )
-                    }
-
-                    // 详情列表
-                    Column(
-                        modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 10.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        DetailRow(label = "教师", value = course.teacher.ifBlank { "未知" })
-                        DetailRow(label = "地点", value = course.room.ifBlank { "未填写" })
-                        DetailRow(
-                            label = "节次",
-                            value = "${course.startSection}-${course.startSection + course.sectionSpan - 1}节",
-                        )
-                        DetailRow(label = "周次", value = formatWeeks(course.weeks))
-
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
-                        ) {
-                            Button(
-                                onClick = onDismiss,
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = dialogBlue,
-                                    contentColor = Color.White,
-                                ),
-                                modifier = Modifier.height(38.dp),
-                            ) {
-                                Text(
-                                    text = stringResource(id = android.R.string.ok),
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    private fun DetailRow(
-        label: String,
-        value: String,
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFEAF4FF))
-                .padding(horizontal = 14.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Text(
-                text = "$label：",
-                color = Color(0xFF6F8FAF),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
-            )
-            Text(
-                text = value,
-                color = Color(0xFF1C2B3A),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
+            CourseDetailCard(
+                course = course,
+                weeksText = formatWeeks(course.weeks),
+                onConfirm = onDismiss,
             )
         }
     }
@@ -596,21 +541,6 @@ class TimeTableActivity : AppCompatActivity() {
         )
     }
 
-    private fun formatWeeks(weeks: Set<Int>): String {
-        if (weeks.isEmpty()) return "未设置"
-        val sorted = weeks.sorted()
-        val first = sorted.first()
-        val last = sorted.last()
-        val full = (first..last).toList()
-        return when {
-            sorted.size == 1 -> "${sorted.first()}周"
-            sorted == full -> "$first-${last}周"
-            sorted == full.filter { it % 2 == 0 } -> "$first-${last}周(双周)"
-            sorted == full.filter { it % 2 != 0 } -> "$first-${last}周(单周)"
-            else -> sorted.joinToString(",") + "周"
-        }
-    }
-
     private fun setTermListById(studentId: String) {
         val startYear = studentId.take(4).toIntOrNull() ?: Calendar.getInstance().get(Calendar.YEAR)
         termList = buildList {
@@ -661,4 +591,169 @@ class TimeTableActivity : AppCompatActivity() {
             sendBroadcast(intent)
         }
     }
+}
+
+/** 课程详情卡片：详情弹窗与重叠面板共用；[onConfirm] 为 null 时不画按钮。 */
+@Composable
+internal fun CourseDetailCard(
+    course: TimeTableCourseUi,
+    weeksText: String,
+    modifier: Modifier = Modifier,
+    onConfirm: (() -> Unit)? = null,
+) {
+    val dialogBlue = Color(0xFF7DB7E8)
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp)),
+        color = Color(0xFFF7FBFF),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column {
+            // 蓝色头部
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(dialogBlue)
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
+            ) {
+                Text(
+                    text = course.title,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    lineHeight = 26.sp,
+                )
+            }
+
+            // 详情列表
+            Column(
+                modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                DetailRow(label = "教师", value = course.teacher.ifBlank { "未知" })
+                DetailRow(label = "地点", value = course.room.ifBlank { "未填写" })
+                DetailRow(
+                    label = "节次",
+                    value = "${course.startSection}-${course.startSection + course.sectionSpan - 1}节",
+                )
+                DetailRow(label = "周次", value = weeksText)
+
+                if (onConfirm != null) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        Button(
+                            onClick = onConfirm,
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = dialogBlue,
+                                contentColor = Color.White,
+                            ),
+                            modifier = Modifier.height(38.dp),
+                        ) {
+                            Text(
+                                text = stringResource(id = android.R.string.ok),
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 14.sp,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailRow(
+    label: String,
+    value: String,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFFEAF4FF))
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            text = "$label：",
+            color = Color(0xFF6F8FAF),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+        )
+        Text(
+            text = value,
+            color = Color(0xFF1C2B3A),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
+
+internal fun formatWeeks(weeks: Set<Int>): String {
+    if (weeks.isEmpty()) return "未设置"
+    val sorted = weeks.sorted()
+    val first = sorted.first()
+    val last = sorted.last()
+    val full = (first..last).toList()
+    return when {
+        sorted.size == 1 -> "${sorted.first()}周"
+        sorted == full -> "$first-${last}周"
+        sorted == full.filter { it % 2 == 0 } -> "$first-${last}周(双周)"
+        sorted == full.filter { it % 2 != 0 } -> "$first-${last}周(单周)"
+        else -> sorted.joinToString(",") + "周"
+    }
+}
+
+/** 同格重叠分组：占到同一个格子就算一组（并查集），只返回至少两门的组。 */
+internal fun buildOverlapGroups(courses: List<TimeTableCourseUi>): List<List<TimeTableCourseUi>> {
+    if (courses.size < 2) return emptyList()
+    val parent = HashMap<Int, Int>()
+    courses.forEach { parent[it.id] = it.id }
+    fun root(id: Int): Int {
+        var current = id
+        while (parent.getValue(current) != current) {
+            current = parent.getValue(current)
+        }
+        return current
+    }
+
+    val cellMembers = HashMap<Long, MutableList<Int>>()
+    courses.forEach { course ->
+        if (course.startSection <= 0 || course.sectionSpan <= 0) return@forEach
+        val endSection = course.startSection + course.sectionSpan - 1
+        for (section in course.startSection..endSection) {
+            val cellKey = course.dayOfWeek.toLong() * 100L + section
+            cellMembers.getOrPut(cellKey) { mutableListOf() }.add(course.id)
+        }
+    }
+    cellMembers.values.forEach { members ->
+        val firstRoot = root(members.first())
+        members.drop(1).forEach { parent[root(it)] = firstRoot }
+    }
+
+    return courses.groupBy { root(it.id) }.values.filter { it.size > 1 }
+}
+
+/** 重叠组的身份：组内课程 id 排序后拼起来，供持久化按组取值。 */
+internal fun overlapGroupKey(courses: List<TimeTableCourseUi>): String =
+    courses.map { it.id }.sorted().joinToString(",")
+
+/** 按存过的顺序排；没存过就沿用"后画的在上"（列表反转）。 */
+internal fun orderedOverlapCourses(
+    courses: List<TimeTableCourseUi>,
+    storedIds: List<Int>?,
+): List<TimeTableCourseUi> {
+    if (courses.size <= 1) return courses
+    if (storedIds.isNullOrEmpty()) return courses.reversed()
+    val byId = courses.associateBy { it.id }
+    val ordered = storedIds.mapNotNull { byId[it] }
+    val rest = courses.filter { it.id !in storedIds }
+    return ordered + rest
 }

@@ -17,6 +17,7 @@ import com.zhelearn.CSUSTPlanet.feature.ledger.ui.AddSomethingAccountActivity
 import com.zhelearn.CSUSTPlanet.feature.ledger.ui.FixSomethingAccountActivity
 import com.zhelearn.CSUSTPlanet.feature.mooc.ui.MoocActivity
 import com.zhelearn.CSUSTPlanet.feature.mooc.ui.MoocCoursePageActivity
+import com.zhelearn.CSUSTPlanet.feature.physicslab.ui.PhysicsLabActivity
 import com.zhelearn.CSUSTPlanet.feature.timetable.ui.TimeTableActivity
 import com.zhelearn.CSUSTPlanet.freshNews.ui.PublishFreshNewsActivity
 import com.zhelearn.CSUSTPlanet.freshNews.ui.UserHomeActivity
@@ -32,6 +33,8 @@ import com.zhelearn.CSUSTPlanet.skin.ui.SkinSelectionActivity
  * 目前应用唯一的登录入口为 BindingUserActivity（绑定学号）。
  */
 object Route {
+
+    const val EXTRA_PHYSICS_LAB_TAB = "physics_lab_tab"
 
     fun goDataMigration(context: Context) {
         context.startActivity(Intent(context, DataMigrationActivity::class.java))
@@ -185,6 +188,14 @@ object Route {
 
     fun goCalendar(context: Context) {
         val intent = Intent(context, CalendarActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun goPhysicsLab(context: Context, initialTabOrdinal: Int = -1) {
+        val intent = Intent(context, PhysicsLabActivity::class.java)
+        if (initialTabOrdinal >= 0) {
+            intent.putExtra(EXTRA_PHYSICS_LAB_TAB, initialTabOrdinal)
+        }
         context.startActivity(intent)
     }
 
