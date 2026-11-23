@@ -81,8 +81,8 @@ android {
         applicationId = planetApplicationId
         minSdk = 24
         targetSdk = 37
-        versionCode = 37
-        versionName = "2.11.2"
+        versionCode = 38
+        versionName = "2.11.3"
         manifestPlaceholders["legacyMigrationProviderEnabled"] = legacyMigrationProviderEnabled.toString()
         manifestPlaceholders["legacyMigrationProviderAuthority"] = legacyMigrationProviderAuthority
 
